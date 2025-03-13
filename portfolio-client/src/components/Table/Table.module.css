@@ -1,0 +1,30 @@
+.hoverEffect {
+  border-radius: 5px;
+  padding: 4px !important;
+}
+
+.hoverEffect:hover {
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.default {
+  cursor: auto;
+}
+
+Table td, Table th {
+  border-right: 1px solid #eee;
+}
+
+Table td, Table th {
+  border-right: 1px solid #eee;
+}
+
+Table th:first-child {
+  border-top-left-radius: 10px; 
+}
+
+/* Select the last th child in each row */
+Table th:last-child {
+  border-top-right-radius: 10px;
+}

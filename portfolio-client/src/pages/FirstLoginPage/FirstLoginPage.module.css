@@ -1,0 +1,185 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.formContainer {
+    width: 100%;
+    max-width: 700px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.formContainer h6 {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 20px;
+}
+
+.avatarContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileInputLabel {
+    width: 100px;
+    height: 100px;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+.uploadText {
+    color: #6200ea;
+    text-align: center;
+}
+
+.avatarText {
+    text-align: left;
+}
+
+.greyText {
+    color: grey;
+}
+
+.formFields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    width: 100%;
+}
+
+.textField {
+    width: calc(100% - 16px);
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+.cancelButton {
+    border-color: #9e9e9e;
+    color: #9e9e9e;
+    margin-right: 10px;
+}
+
+.saveButton {
+    background-color: #3f51b5;
+    color: white;
+}
+
+.firstDividerContainer {
+    margin: 5px;
+    margin-bottom: 40px;
+}
+
+.dividerContainer {
+    margin: 30px 0;
+    margin-top: 40px;
+}
+
+.divider {
+    margin: 0 30px;
+}
+
+@media (max-width: 768px) {
+    .formContainer {
+        padding: 10px;
+    }
+
+    .formFields {
+        grid-template-columns: 1fr;
+        grid-gap: 10px;
+    }
+
+    .textField {
+        width: 100%;
+    }
+
+    .buttonContainer {
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .fileInputLabel {
+        width: 80px;
+        height: 80px;
+        margin-right: 10px;
+    }
+
+    .avatarText {
+        font-size: 14px;
+    }
+
+    .cancelButton, .saveButton {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .firstDividerContainer, .dividerContainer {
+        margin: 20px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo {
+        position: relative;
+        top: auto;
+        left: auto;
+        margin-bottom: 20px;
+    }
+
+    .formContainer {
+        width: 90%;
+        padding: 10px;
+    }
+
+    .formFields {
+        grid-gap: 5px;
+    }
+
+    .buttonContainer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+    }
+
+    .cancelButton, .saveButton {
+        margin: 5px 0;
+    }
+}

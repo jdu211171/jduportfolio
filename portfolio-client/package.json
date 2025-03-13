@@ -1,0 +1,46 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@mui/icons-material": "^5.16.7",
+    "@mui/material": "^5.16.7",
+    "axios": "^1.7.2",
+    "cookies": "^0.9.1",
+    "dotenv": "^16.4.5",
+    "i18next": "^24.2.0",
+    "i18next-browser-languagedetector": "^8.0.2",
+    "i18next-http-backend": "^3.0.1",
+    "js-cookie": "^3.0.5",
+    "quill": "^2.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.52.0",
+    "react-i18next": "^15.2.0",
+    "react-router-dom": "^6.24.0",
+    "react-zoom-pan-pinch": "^3.6.1"
+  },
+  "devDependencies": {
+    "@svgr/rollup": "^8.1.0",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "vite": "^5.2.0"
+  }
+}

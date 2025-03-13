@@ -1,0 +1,12 @@
+.avatarContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+}
+.nameIdContainer{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+

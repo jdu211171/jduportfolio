@@ -1,0 +1,25 @@
+.graphContainer {
+  padding: 30px 40px;
+  overflow-x:visible; /* Start hidden */
+  position: relative;
+}
+
+.graphContainer.scrollable {
+  overflow-x: auto; /* Show scrollbar when content is scrollable */
+}
+
+.graphContainer::-webkit-scrollbar {
+  height: 10px; /* Adjust the height of the scrollbar */
+}
+
+.graphContainer::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+}
+
+.graphContainer::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color of the scrollbar thumb on hover */
+}
+
+.graphContainer svg {
+  min-width: 250px;
+}

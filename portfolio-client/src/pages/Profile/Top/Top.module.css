@@ -1,0 +1,70 @@
+.title {
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+.sectionContent {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0 0 4px 4px;
+  background-color: #fafafa;
+  margin-bottom: 16px;
+}
+
+.fullGalleryContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.fullGalleryImage {
+  width: 100%;
+  max-width: 300px;
+  margin: 8px;
+  cursor: pointer;
+}
+
+.TabsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+.TabsContainer button {
+  margin: auto 10px !important;
+}
+
+.Tabs button {
+  border: 1px solid #74828f !important;
+  box-shadow: 3px 3px 9px 0px #00000040 !important;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  top: -32px;
+  gap: 8px;
+}
+/* /////////////////////////// MEDIA ///////////////////////////////////// */
+@media only screen and (max-width: 941px) {
+  .TabsContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .TabsContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+@media only screen and (max-width: 440px) {
+  .buttonsContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    gap: 8px;
+  }
+}

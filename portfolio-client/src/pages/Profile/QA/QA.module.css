@@ -1,0 +1,50 @@
+.title {
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+.sectionContent {
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 0 0 4px 4px;
+  background-color: #fafafa;
+  margin-bottom: 16px;
+}
+
+.fullGalleryContainer {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.fullGalleryImage {
+  width: 100%;
+  max-width: 300px;
+  margin: 8px;
+  cursor: pointer;
+}
+
+.Tabs div {
+  display: flex;
+  flex-wrap: wrap !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.Tabs button {
+  width: 122px;
+  margin: auto 10px !important;
+  border: 1px solid #74828f !important;
+  box-shadow: 3px 3px 9px 0px #00000040 !important;
+}
+
+.Tabs svg {
+  font-size: 40px;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  top: -32px;
+  gap: 8px;
+}

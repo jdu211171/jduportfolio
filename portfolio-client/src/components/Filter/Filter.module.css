@@ -1,0 +1,67 @@
+.submitButton {
+  width: 100%;
+  min-width: 80px !important;
+}
+
+.textfield {
+  width: 100%;
+}
+
+.closed {
+  position: static;
+}
+
+.closed .filterBar {
+  border: 1px solid #a8abb3;
+  border-radius: 10px;
+  margin: 4px 0;
+  padding: auto 10px;
+  width: 100%;
+}
+
+.open {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  width: calc(100% - 80px); /* Ensure it takes the full width */
+  border-radius: 10px;
+  box-shadow: 1px 1px 10px 1px;
+  z-index: 100000;
+  background-color: white;
+  box-sizing: border-box;
+  padding: 16px 8px;
+  overflow: auto; /* Enable scrolling if the content overflows */
+  transition: width 2s ease-in-out;
+}
+
+.filterButtonContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.filterButton {
+  padding: 0 !important;
+  background-color: #eee !important;
+  border-radius: 50%;
+}
+
+.filterFields {
+  display: flex;
+  height: 50vh;
+  overflow-y: scroll;
+  transition: all 0.3s ease;
+}
+
+.invisible {
+  height: 0vh;
+  overflow: hidden;
+}
+
+.clear {
+  color: #777;
+  position: absolute;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  user-select: none;
+}

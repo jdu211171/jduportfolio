@@ -1,0 +1,61 @@
+/* src/components/TextField.module.css */
+.container {
+  margin: 30px auto;
+}
+
+.data {
+  color: #5E6871;
+  padding: 8px 24px;
+  width: 50%;
+  white-space: pre-wrap; /* Maintain whitespace and line breaks */
+  border: 1px solid #74828F;
+  box-shadow: 3px 3px 9px 0px #00000040;
+}
+
+.list {
+  padding-left: 20px;
+}
+
+.inputButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.list {
+  list-style: none; /* Remove default bullets */
+  padding: 0; /* Remove default padding */
+  margin: 0; /* Remove default margin */
+}
+
+.listItem {
+  display: flex;
+  align-items: center; /* Align items vertically center */
+  padding: 4px 0; /* Add some padding for better spacing */
+  justify-content: space-between; /* Space between the text and the icon */
+  position: relative; /* Position relative to position pseudo-element */
+  padding-left: 24px; /* Ensure space for the custom bullet */
+}
+
+.listItem::before {
+  content: '•'; /* Bullet character */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: black; /* Bullet color */
+  font-size: 16px; /* Bullet size */
+}
+
+.icon {
+  margin-left: 8px; /* Add some margin to the left of the icon */
+  cursor: pointer;
+}
+
+
+.button {
+  height: 32px !important;
+  font-size: 16px;
+  padding: 0 !important;
+}

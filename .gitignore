@@ -1,0 +1,37 @@
+# Node.js
+node_modules/
+package-lock.json
+
+# Build artifacts
+# dist/
+build/
+
+# Environment files
+.env
+.env*.local
+
+# Logs and databases
+*.log
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Binary files (like ffmpeg.exe from error)
+**/*.exe
+*.dll
+*.bin
+
+# Server-specific (portfolio-server)
+/portfolio-server/uploads/
+/portfolio-server/logs/
+
+# Client-specific (portfolio-client)
+/portfolio-client/.expo
+/portfolio-client/dist
+

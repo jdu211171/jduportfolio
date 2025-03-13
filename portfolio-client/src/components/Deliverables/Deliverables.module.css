@@ -1,0 +1,148 @@
+.container {
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate; /* Separate borders */
+  border-spacing: 0 10px; /* Spacing between rows */
+}
+
+.row {
+  background-color: #ffffff; /* Background color of rows */
+  box-shadow: 10px 10px 40px -10px #00000026;
+  border-radius: 8px; /* Rounded corners */
+  height: 48px;
+}
+
+.cellLeft {
+  padding: 8px 8px 12px 16px; /* Padding inside cells */
+  width: 160px;
+  text-align: left;
+}
+
+.cell {
+  padding: 8px 8px 8px 16px; /* Padding inside cells */
+  text-align: left;
+}
+
+.cell input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.imageBox {
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 80px;
+  background: linear-gradient(180deg, #d8faff 0%, #d6f9fe 12%, #88c6ce 100%);
+}
+
+/* Button styles */
+.zoomContainer {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+}
+
+.zoomButtonR,
+.zoomButtonL,
+.resetButton {
+  padding: 3px 8px;
+  border: none;
+  background-color: #000000aa;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: 800;
+  transition: background-color 0.3s ease;
+}
+
+.zoomButtonR {
+  border-radius: 30% 0 0 30%;
+}
+
+.zoomButtonL {
+  border-radius: 0 30% 30% 0;
+}
+
+.resetButton {
+}
+
+.zoomButtonR:hover,
+.zoomButtonL:hover,
+.resetButton:hover {
+  background-color: #45a049;
+}
+
+.zoomButtonR:active,
+.zoomButtonL:active,
+.resetButton:active {
+  background-color: #3e8e41;
+}
+
+.imageContainer {
+  display: flex;
+  justify-content: start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 32%;
+  min-width: 240px;
+  min-height: 240px;
+  padding: 30px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #d8faff 0%, #d6f9fe 12%, #88c6ce 100%);
+}
+
+.image img {
+  aspect-ratio: 1 / 1;
+  min-width: 160px;
+  min-height: 160px;
+  width: 100%;
+}
+
+.addIconButton {
+  width: 40% !important;
+  height: 40% !important;
+}
+
+.removeIconButton {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+}
+
+.addIconButton svg {
+  font-size: 80px;
+}
+
+.uploadButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 100;
+}
+
+@media (max-width: 768px) {
+  .imageBox {
+    padding: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .imageBox {
+    padding: 0;
+  }
+}
