@@ -37,10 +37,10 @@ db.Notification = require('./Notification')(sequelize, Sequelize);
 // Example:
 db.Recruiter.hasMany(db.Bookmark, { foreignKey: 'recruiterId', as: 'bookmarks' });
 db.Student.hasMany(db.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' });
-db.Student.hasMany(db.Draft, {
+db.Student.hasOne(db.Draft, {
   foreignKey: "student_id",  // Tells Sequelize Drafts should refer to Student.student_id
   sourceKey: "student_id",   // Explicitly set source key on Student table
-  as: "drafts",
+  as: "draft",
 });
 
 db.Bookmark.belongsTo(db.Recruiter, { foreignKey: 'recruiterId', as: 'recruiter' });

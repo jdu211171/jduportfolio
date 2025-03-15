@@ -5,6 +5,7 @@ const QAService = require('../services/qaService');
 
 const generatePassword = require('generate-password');
 const { EmailToStudent } = require('../utils/emailToStudent');
+const { Student } = require('../models');
 
 class StudentController {
 
@@ -148,48 +149,111 @@ class StudentController {
   }
 
   // Controller method to update a student
+  // static async updateStudent(req, res, next) {
+  //   try {
+  //     const { id } = req.params;
+  //     const studentData = req.body;
+  //     const { currentPassword, password, ...updateData } = req.body;
+
+  //     // Fetch student
+  //     const student = await StudentService.getStudentById(id);
+  //     if (!student) {
+  //       return res.status(404).json({ error: "Student not found" });
+  //     }
+  //     // true bolsa
+  //     if (studentData.visibility) {
+  //       // Fetch the latest approved draftStudentService
+  //       let latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id);
+
+  //       if (latestApprovedDraft) {
+  //         console.log("Applying latest approved draft to student profile...");
+
+  //         // Extract profile data from the draft
+  //         const profileData = latestApprovedDraft.profile_data || {};
+  //         // Update the student with the draft data
+  //         await StudentService.updateStudent(id, {
+  //           ...profileData, // Apply profile data from the draft
+  //           visibility: true, // Ensure visibility is enabled after approval
+  //         });
+
+  //         const draftQAData = latestApprovedDraft.profile_data?.qa || {};
+  //         if (draftQAData.idList) {
+  //           Object.entries(draftQAData.idList).forEach(async ([key, category]) => {
+  //             const updatedQA = await QAService.updateQA(key, draftQAData[category]);
+  //           });
+  //         }
+  //       }
+  //     }
+
+  //     if (studentData.visibility === false) {
+  //       await StudentService.updateStudent(id, {
+  //         visibility: false,
+  //       });
+  //     }
+
+  //     // Password validation
+  //     if (password) {
+  //       const studentWithPassword = await StudentService.getStudentById(req.params.id, true);
+  //       if (!studentWithPassword || !(await bcrypt.compare(currentPassword, studentWithPassword.password))) {
+  //         return res.status(400).json({ error: "現在のパスワードを入力してください" });
+  //       }
+  //     }
+
+  //     // Update student with new data
+  //     const updatedStudent = await StudentService.updateStudent(id, {
+  //       ...studentData,
+  //       password: password || undefined,
+  //     });
+
+  //     res.status(200).json(updatedStudent);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
+
+
+
+    // TODO studentni visibility = true qilib sinab korishim kerak
+  // yangi update 
   static async updateStudent(req, res, next) {
     try {
+      
       const { id } = req.params;
+      console.log("Received student ID:", id); 
       const studentData = req.body;
       const { currentPassword, password, ...updateData } = req.body;
 
-      // Fetch student
-      const student = await StudentService.getStudentById(id);
+      // Studentni olish
+      // const student = await StudentService.getStudentById(id);
+      // const student = await StudentService.getStudentByStudentId(id);
+      const student = await Student.findOne({ where: { student_id: id } });
+
       if (!student) {
         return res.status(404).json({ error: "Student not found" });
       }
+
+      // visibility true bo‘lsa, draft borligini va u 'approved' statusida ekanligini tekshirish
       if (studentData.visibility) {
-        // Fetch the latest approved draft
-        let latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id);
+        const studentDraft = await DraftService.getDraftByStudentId(student.student_id);
+        
+        if (studentDraft && studentDraft.status === "approved") {
+          console.log("Applying approved draft to student profile...");
 
-        if (latestApprovedDraft) {
-          console.log("Applying latest approved draft to student profile...");
-
-          // Extract profile data from the draft
-          const profileData = latestApprovedDraft.profile_data || {};
-          // Update the student with the draft data
+          // Draftdan profile_data ni olish va studentni yangilash
+          const profileData = studentDraft.profile_data || {};
           await StudentService.updateStudent(id, {
-            ...profileData, // Apply profile data from the draft
-            visibility: true, // Ensure visibility is enabled after approval
+            ...profileData, // Draftdan kelgan profil ma'lumotlari
+            visibility: true, // Tasdiqlanganidan keyin faollashtiramiz
           });
-
-          const draftQAData = latestApprovedDraft.profile_data?.qa || {};
-          if (draftQAData.idList) {
-            Object.entries(draftQAData.idList).forEach(async ([key, category]) => {
-              const updatedQA = await QAService.updateQA(key, draftQAData[category]);
-            });
-          }
         }
       }
 
+      // Agar visibility false bo‘lsa, uni false qilib yangilash
       if (studentData.visibility === false) {
-        await StudentService.updateStudent(id, {
-          visibility: false,
-        });
+        await StudentService.updateStudent(id, { visibility: false });
       }
 
-      // Password validation
+      // Agar parol o‘zgartirilayotgan bo‘lsa, eski parolni tekshirish
       if (password) {
         const studentWithPassword = await StudentService.getStudentById(req.params.id, true);
         if (!studentWithPassword || !(await bcrypt.compare(currentPassword, studentWithPassword.password))) {
@@ -197,10 +261,10 @@ class StudentController {
         }
       }
 
-      // Update student with new data
+      // Studentni yangilash
       const updatedStudent = await StudentService.updateStudent(id, {
         ...studentData,
-        password: password || undefined,
+        password: password || undefined, // Parol kiritilgan bo‘lsa yangilanadi, bo‘lmasa o‘zgarmaydi
       });
 
       res.status(200).json(updatedStudent);
@@ -208,6 +272,7 @@ class StudentController {
       next(error);
     }
   }
+
 
   // Controller method to delete a student
   static async deleteStudent(req, res, next) {
@@ -231,15 +296,15 @@ class StudentController {
     }
   }
 
-  // Draft controller
-  static async getStudentsWithPendingDrafts(req, res, next) {
-    try {
-      const students = await StudentService.getStudentsWithPendingDrafts();
-      return res.status(200).json(students);
-    } catch (error) {
-      next(error);
-    }
-  }
+  // // Draft controller
+  // static async getStudentsWithPendingDrafts(req, res, next) {
+  //   try {
+  //     const students = await StudentService.getStudentsWithPendingDrafts();
+  //     return res.status(200).json(students);
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // }
 
 }
 

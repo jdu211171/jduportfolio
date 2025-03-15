@@ -181,20 +181,39 @@ class StudentService {
   }
 
   // Service method to update a student
+  // static async updateStudent(studentId, studentData) {
+  //   try {
+  //     console.log("Updating student with ID:", studentId, "Type:", typeof studentId);
+  //     const student = await Student.findByPk(studentId, {
+  //       attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+  //     });
+  //     if (!student) {
+  //       throw new Error('Student not found');
+  //     }
+  //     await student.update(studentData);
+  //     return student;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
+
   static async updateStudent(studentId, studentData) {
     try {
-      const student = await Student.findByPk(studentId, {
-        attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-      });
-      if (!student) {
-        throw new Error('Student not found');
-      }
-      await student.update(studentData);
-      return student;
+        console.log("Updating student with ID:", studentId, "Type:", typeof studentId);
+
+        // `findByPk` o‘rniga `findOne()` ishlatyapmiz
+        const student = await Student.findOne({ where: { student_id: studentId } });
+
+        if (!student) {
+            throw new Error('Student not found');
+        }
+        await student.update(studentData);
+        return student;
     } catch (error) {
-      throw error;
+        throw error;
     }
-  }
+}
+
 
   // Service method to update a student by kintone_id
   static async updateStudentWithKintoneID(kintoneId, studentData) {
