@@ -28,26 +28,73 @@ class DraftController {
     }
   }
 
-  static async getDraftByStudentId(req, res) {
-    try {
+  // static async getDraftByStudentId(req, res) {
+  //   try {
+  //     const { student_id } = req.params;
+
+  //     if (!student_id) {
+  //       return res.status(400).json({ error: "student_id is required" });
+  //     }
+
+  //     const drafts = await DraftService.getByStudentId(student_id);
+
+  //     if (!drafts || drafts.length === 0) {
+  //       return res.status(404).json({ message: "No drafts found for this student" });
+  //     }
+
+  //     return res.status(200).json(drafts);
+  //   } catch (error) {
+  //     console.error("Error fetching drafts:", error);
+  //     return res.status(500).json({ error: "Internal Server Error" });
+  //   }
+  // }
+//   static async getDraftByStudentId(req, res) {
+//     try {
+//         const { student_id } = req.params;
+
+//         if (!student_id) {
+//             return res.status(400).json({ error: "student_id is required" });
+//         }
+
+//         const student = await Student.findByPk(student_id, {
+//             // include: Draft // hasOne orqali bog‘langan Draftni olish
+//             include: [{
+//               model: Draft,
+//               as: 'draft',  // 🔥 Aliasni qo'shish kerak
+//             }]
+//         });
+
+//         if (!student || !student.draft) {
+//             return res.status(404).json({ message: "No draft found for this student" });
+//         }
+
+//         return res.status(200).json(student.draft);
+//     } catch (error) {
+//         console.error("Error fetching draft:", error);
+//         return res.status(500).json({ error: "Internal Server Error" });
+//     }
+// }
+static async getDraftByStudentId(req, res) {
+  try {
       const { student_id } = req.params;
 
       if (!student_id) {
-        return res.status(400).json({ error: "student_id is required" });
+          return res.status(400).json({ error: "student_id is required" });
       }
 
-      const drafts = await DraftService.getByStudentId(student_id);
+      const draft = await Draft.findOne({ where: { student_id } });
 
-      if (!drafts || drafts.length === 0) {
-        return res.status(404).json({ message: "No drafts found for this student" });
+      if (!draft) {
+          return res.status(404).json({ message: "No draft found for this student" });
       }
 
-      return res.status(200).json(drafts);
-    } catch (error) {
-      console.error("Error fetching drafts:", error);
+      return res.status(200).json(draft);
+  } catch (error) {
+      console.error("Error fetching draft:", error);
       return res.status(500).json({ error: "Internal Server Error" });
-    }
   }
+}
+
 
   static async updateDraft(req, res) {
     try {
@@ -98,6 +145,8 @@ class DraftController {
       }
       draft.submit_count += 1;
       draft.status = 'submitted';
+      let student_id = draft.student_id;
+      await Student.update({ visibility: false }, { where: { student_id } });
       await draft.save();
       const studentID = draft.student_id || "Unknown";
       if (staff_id) {
@@ -174,6 +223,8 @@ class DraftController {
       }
       await draft.save();
       let student = await StudentService.getStudentByStudentId(draft.student_id)
+      let student_id = draft.student_id;
+      await Student.update({ visibility: false }, { where: { student_id } });
 
       await NotificationService.create({
         message: ` Sizning malumotlaringiz "${status}" holatga o'tdi.`,
@@ -212,7 +263,9 @@ class DraftController {
       }
 
       const students = await DraftService.getAll(filter);
-      res.status(200).json(students);
+      // res.status(200).json(students);
+      // const drafts = await Draft.findAll();
+      return res.status(200).json(students);
     } catch (error) {
       next(error);
     }

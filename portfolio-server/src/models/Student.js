@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Student.hasMany(models.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' });
-      Student.hasMany(models.Draft, { foreignKey: 'student_id', as: 'drafts' });
-      // Student.hasOne(models.Draft, { foreignKey: 'student_id', as: 'draft' });
+      // Student.hasMany(models.Draft, { foreignKey: 'student_id', as: 'drafts' });
+      Student.hasOne(models.Draft, { foreignKey: 'student_id', as: 'draft' });
     }
   }
 
