@@ -82,7 +82,7 @@ static async getDraftByStudentId(req, res) {
           return res.status(400).json({ error: "student_id is required" });
       }
 
-      const draft = await Draft.findOne({ where: { student_id } });
+      const draft = await DraftService.getDraftByStudentId(student_id);
 
       if (!draft) {
           return res.status(404).json({ message: "No draft found for this student" });

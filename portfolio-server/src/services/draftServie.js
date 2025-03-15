@@ -318,17 +318,26 @@ class DraftService {
     });
   }
 
-  static async getDraftByStudentId(studentId){
-    try {
-      const draft = await Draft.findOne({ where: { student_id: studentId } });
-      if (!draft) {
-        throw new Error('Draft not found');
+  static async getDraftByStudentId(studentId) {
+      try {
+          const student = await Student.findOne({
+              where: { student_id: studentId },
+              include: [{
+                  model: Draft,
+                  as: 'draft',
+                  required: false
+              }]
+          });
+
+          if (!student) {
+              throw new Error('Student not found');
+          }
+
+          return student;
+      } catch (error) {
+          console.error('Error getting student with draft:', error);
+          throw error;
       }
-      return draft;
-    } catch (error) {
-      console.error('Error getting draft:', error);
-      throw error;
-    }
   }
 }
 
