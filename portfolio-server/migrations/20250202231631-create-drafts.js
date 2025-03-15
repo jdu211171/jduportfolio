@@ -12,6 +12,7 @@ module.exports = {
       student_id: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
         references: {
           model: 'Students',
           tableName: 'Students',
