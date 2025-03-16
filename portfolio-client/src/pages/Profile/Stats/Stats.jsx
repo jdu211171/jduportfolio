@@ -194,7 +194,7 @@ const Stats = () => {
             credits={
               JSON.stringify(kintoneData) !== "{}"
                 ? Number(kintoneData.businessSkillsCredits?.value) +
-                  Number(kintoneData.japaneseEmploymentCredits?.value)
+                Number(kintoneData.japaneseEmploymentCredits?.value)
                 : 0
             }
             semester={
@@ -239,7 +239,6 @@ const Stats = () => {
           headers={{
             JLPT: "",
             JDU日本語認定試験: "",
-            IELTS: "",
           }}
           data={certificates}
           editData={editData}

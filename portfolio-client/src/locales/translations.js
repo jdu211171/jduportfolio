@@ -312,6 +312,12 @@ const translations = {
       日本語弁論大会学内: "日本語弁論大会学内",
       ITコンテスト学内: "ITコンテスト学内"
     },
+    not_approved_yet: "未承認",
+    approved: "承認済",
+    disapproved: "差し戻し",
+    approvalStatus: "承認状況",
+    visible: "公開",
+    invisible: "非公開",
   },
   uz: {
     general: "Umumiy",

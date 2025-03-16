@@ -36,8 +36,8 @@ const QA = ({
   updateQA = false,
   currentDraft = {},
   isHonban = false,
-  handleDraftUpsert = () => {},
-  setTopEditMode = () => {},
+  handleDraftUpsert = () => { },
+  setTopEditMode = () => { },
 }) => {
   const role = sessionStorage.getItem("role");
   const labels = ["学生成績", "専門知識", "個性", "実務経験", "キャリア目標"];
@@ -249,7 +249,7 @@ const QA = ({
     console.log(
       document
         .querySelectorAll('textarea[aria-invalid="false"]')
-        [nextKeyNumber - 1].focus()
+      [nextKeyNumber - 1].focus()
     );
   };
 
@@ -315,8 +315,8 @@ const QA = ({
             answer: firsttime
               ? ""
               : !answers[category][key]
-              ? ""
-              : answers[category][key].answer, // Store the answer
+                ? ""
+                : answers[category][key].answer, // Store the answer
           };
         }
       }
@@ -556,7 +556,7 @@ const QA = ({
                   color="primary"
                   size="small"
                 >
-                  承認済み
+                  承認する
                 </Button>
                 <Button
                   onClick={() => approveProfile("resubmission_required")}
@@ -564,7 +564,7 @@ const QA = ({
                   color="primary"
                   size="small"
                 >
-                  要修正
+                  承認しない
                 </Button>
               </Box>
             </>

@@ -12,6 +12,8 @@ import { useAlert } from "../../../contexts/AlertContext";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import translations from "../../../locales/translations";
 import styles from "./Top.module.css";
+import ProfileConfirmDialog from "../../../components/Dialogs/ProfileConfirmDialog";
+
 
 const Top = () => {
   let id;
@@ -48,6 +50,7 @@ const Top = () => {
   const [subTabIndex, setSubTabIndex] = useState(0);
   const [hasDraft, setHasDraft] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [confirmMode, setConfirmMode] = useState(false);
 
   // ---------------------
   // Fetch data
@@ -251,6 +254,8 @@ const Top = () => {
     } catch (error) {
       console.error("Error submitting draft:", error);
       showAlert(t("errorSubmittingDraft"), "error");
+    } finally {
+      setConfirmMode(false);
     }
   };
 
@@ -510,6 +515,24 @@ const Top = () => {
     }
   };
 
+  const toggleConfirmMode = () => {
+    setConfirmMode((prev) => !prev);
+  };
+  const handleConfirmProfile = async () => {
+    try {
+      // Example final confirmation logic:
+      const res = await axios.put(`/api/draft/${currentDraft.id}/submit`);
+      if (res.status == 200) {
+        showAlert(t["profileConfirmed"], "success");
+      }
+    } catch (error) {
+      showAlert(t["errorConfirmingProfile"], "error");
+    } finally {
+      // Always close the dialog
+      setConfirmMode(false);
+    }
+  };
+
   // Cancel editing
   const handleCancel = () => {
     setEditData(student);
@@ -571,7 +594,7 @@ const Top = () => {
               {/* Show Submit button when draft exists and status is "draft" */}
               {hasDraft && currentDraft && currentDraft.status === "draft" && (
                 <Button
-                  onClick={handleSubmitDraft}
+                  onClick={toggleConfirmMode}
                   variant="contained"
                   color="success"
                   size="small"
@@ -746,6 +769,12 @@ const Top = () => {
           />
         </Box>
       )}
+      <ProfileConfirmDialog
+        open={confirmMode}
+        onClose={toggleConfirmMode}
+        onConfirm={handleSubmitDraft}
+      />
+
     </Box>
   );
 };
