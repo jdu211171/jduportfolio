@@ -219,14 +219,11 @@ class StudentController {
     try {
       
       const { id } = req.params;
-      console.log("Received student ID:", id); 
       const studentData = req.body;
       const { currentPassword, password, ...updateData } = req.body;
 
-      // Studentni olish
-      // const student = await StudentService.getStudentById(id);
-      // const student = await StudentService.getStudentByStudentId(id);
-      const student = await Student.findOne({ where: { student_id: id } });
+      const student = await Student.findByPk(id);
+
 
       if (!student) {
         return res.status(404).json({ error: "Student not found" });

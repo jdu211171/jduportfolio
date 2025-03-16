@@ -74,26 +74,73 @@ class DraftController {
 //         return res.status(500).json({ error: "Internal Server Error" });
 //     }
 // }
-static async getDraftByStudentId(req, res) {
-  try {
-      const { student_id } = req.params;
+  // Modify getDraftByStudentId to include more student information
+  static async getDraftByStudentId(req, res) {
+    try {
+        const { student_id } = req.params;
 
-      if (!student_id) {
-          return res.status(400).json({ error: "student_id is required" });
-      }
+        if (!student_id) {
+            return res.status(400).json({ error: "student_id is required" });
+        }
 
-      const draft = await DraftService.getDraftByStudentId(student_id);
+        // Find the student with their draft
+        const student = await Student.findOne({
+            where: { student_id },
+            attributes: { 
+                exclude: ['password', 'createdAt', 'updatedAt'] 
+            },
+            include: [{
+                model: Draft,
+                as: 'draft',
+                required: false
+            }]
+        });
 
-      if (!draft) {
-          return res.status(404).json({ message: "No draft found for this student" });
-      }
+        if (!student) {
+            return res.status(404).json({ message: "Student not found" });
+        }
 
-      return res.status(200).json(draft);
-  } catch (error) {
-      console.error("Error fetching draft:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
+        // If there's no draft, create a default draft structure from the student profile
+        if (!student.draft) {
+            const draftKeys = [
+                "deliverables",
+                "gallery",
+                "self_introduction",
+                "hobbies",
+                "other_information",
+                "it_skills", 
+                "skills",
+            ];
+            
+            const defaultDraftData = draftKeys.reduce((acc, key) => {
+                acc[key] = student[key] || "";
+                return acc;
+            }, {});
+            
+            // Return the student with an empty draft profile
+            return res.status(200).json({
+                ...student.toJSON(),
+                draft: {
+                    id: null,
+                    student_id: student.student_id,
+                    profile_data: defaultDraftData,
+                    status: "draft",
+                    submit_count: 0,
+                    comments: null,
+                    reviewed_by: null,
+                    created_at: new Date(),
+                    updated_at: new Date()
+                }
+            });
+        }
+
+        // Return the student with their draft
+        return res.status(200).json(student);
+    } catch (error) {
+        console.error("Error fetching draft:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
   }
-}
 
 
   static async updateDraft(req, res) {

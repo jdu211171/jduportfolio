@@ -146,7 +146,7 @@ const Student = ({ OnlyBookmarked = false }) => {
       onClickAction: navigateToProfile,
     },
     {
-      id: "drafts",
+      id: "draft",
       subkey: "updated_at",
       numeric: true,
       type: "date",
@@ -155,7 +155,7 @@ const Student = ({ OnlyBookmarked = false }) => {
       minWidth: "110px",
     },
     {
-      id: "drafts",
+      id: "draft",
       subkey: "submit_count",
       numeric: true,
       disablePadding: false,
@@ -164,7 +164,7 @@ const Student = ({ OnlyBookmarked = false }) => {
       suffix: '回',
     },
     {
-      id: "drafts",
+      id: "draft",
       subkey: "status",
       type: "mapped",
       numeric: false,
@@ -252,7 +252,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 
   return (
     <div key={language}>
-      {" "}
       {/* Перерендеринг при смене языка */}
       <Box sx={{ width: "100%", height: "100px" }}>
         <Filter

@@ -206,12 +206,12 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
                                 header.type === "avatar" ? "4px" : undefined,
                               ...(header.type === "action"
                                 ? {
-                                    position: "sticky",
-                                    right: 0,
-                                    background: "#fff",
-                                    zIndex: 10,
-                                    width: "20px",
-                                  }
+                                  position: "sticky",
+                                  right: 0,
+                                  background: "#fff",
+                                  zIndex: 10,
+                                  width: "20px",
+                                }
                                 : {}),
                             }}
                           >
@@ -271,17 +271,17 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
                               </a>
                             ) : header.type === "date" ? (
                               header.subkey ? (
-                                row[header.id][0][header.subkey].split("T")[0]
+                                row[header.id] ? row[header.id][header.subkey].split("T")[0] : "N/A"
                               ) : (
-                                row[header.id].split("T")[0]
+                                row[header.id] ? row[header.id].split("T")[0] : "N/A"
                               )
                             ) : header.type === "mapped" ? (
                               header.subkey ? (
                                 header.map[
-                                  row[header.id][0][header.subkey].split("T")[0]
+                                row[header.id] ? row[header.id][header.subkey] : ""
                                 ]
                               ) : (
-                                header.map[row[header.id].split("T")[0]]
+                                header.map[row[header.id] ? row[header.id] : ""]
                               )
                             ) : header.type === "action" ? (
                               <div
@@ -333,7 +333,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
                                         handleClose(
                                           option.visibleTo == "Admin"
                                             ? row.id
-                                            : row.drafts[0].id,
+                                            : row.draft.id,
                                           option.action
                                         )
                                       }
@@ -356,9 +356,9 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
                               )
                             ) : row[header.id] ? (
                               <>
-                                {header.subkey ? 
-                                (row[header.id][0][header.subkey] ) : 
-                                (row[header.id] )}
+                                {header.subkey ?
+                                  (row[header.id] ? row[header.id][header.subkey] : "N/A") :
+                                  (row[header.id] ? row[header.id] : "N/A")}
                                 {header.suffix ? header.suffix : ""}
                               </>
                             ) : (
