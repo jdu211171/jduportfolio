@@ -41,7 +41,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false); // Initialize loading state
   const [refresher, setRefresher] = useState(0);
-
   const [anchorEls, setAnchorEls] = useState({});
 
   const open = Boolean(anchorEls);
@@ -61,6 +60,10 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
       ...prev,
       [id]: null, // Reset the anchor for this row
     }));
+  };
+
+  const getUniqueKey = (header) => {
+    return header.keyIdentifier || `${header.id}${header.subkey || ""}`;
   };
 
   const fetchUserData = async () => {
@@ -144,7 +147,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
                     : true) && (
                     <TableCell
                       sx={{ borderBottom: "1px solid #aaa" }}
-                      key={"header" + header.id + (header.subkey ?? "")}
+                      key={`data${getUniqueKey(header)}_${rows.id}`}
                       align={header.numeric ? "right" : "left"}
                       padding={"normal"}
                       sortDirection={orderBy === header.id ? order : false}
@@ -324,28 +327,31 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
                                     }));
                                   }} // Close only this row's menu
                                 >
-                                  {header.options.map((option, key) => (
-                                    <MenuItem
-                                      key={
-                                        option.label + "-" + row.id + "-" + key
-                                      }
-                                      onClick={() =>
-                                        handleClose(
-                                          option.visibleTo == "Admin"
-                                            ? row.id
-                                            : row.draft.id,
-                                          option.action
-                                        )
-                                      }
-                                      sx={
-                                        option.visibleTo !== role
-                                          ? { display: "none" }
-                                          : {}
-                                      }
-                                    >
-                                      {option.label}
-                                    </MenuItem>
-                                  ))}
+                                  {header.options.map((option, key) => {
+                                    // Check if the option should be shown based on its shouldShow property
+                                    const shouldBeVisible =
+                                      option.visibleTo === role &&
+                                      (!option.shouldShow || option.shouldShow(row));
+
+                                    return (
+                                      <MenuItem
+                                        key={`${option.label}-${row.id}-${key}`}
+                                        onClick={() =>
+                                          handleClose(
+                                            option.visibleTo === "Admin"
+                                              ? row.id
+                                              : row.draft.id,
+                                            option.action
+                                          )
+                                        }
+                                        sx={
+                                          shouldBeVisible ? {} : { display: "none" }
+                                        }
+                                      >
+                                        {option.label}
+                                      </MenuItem>
+                                    );
+                                  })}
                                 </Menu>
                               </div>
                             ) : header.isJSON ? (
@@ -406,6 +412,7 @@ EnhancedTable.propTypes = {
         type: PropTypes.string,
         role: PropTypes.string,
         visibleTo: PropTypes.array,
+        keyIdentifier: PropTypes.string,
       })
     ).isRequired,
     filter: PropTypes.object.isRequired, // Assuming filter is an object

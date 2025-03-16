@@ -19,13 +19,13 @@ const Student = ({ OnlyBookmarked = false }) => {
   const recruiterId = JSON.parse(sessionStorage.getItem("loginUser")).id;
 
   const filterProps = [
-    {
-      key: "semester",
-      label: t("grade"), // Переводится
-      type: "checkbox",
-      options: [t("grade1"), t("grade2"), t("grade3"), t("grade4")],
-      minWidth: "120px",
-    },
+    //{
+    //  key: "semester",
+    //  label: t("grade"), // Переводится
+    //  type: "checkbox",
+    //  options: [t("grade1"), t("grade2"), t("grade3"), t("grade4")],
+    //  minWidth: "120px",
+    //},
     {
       key: "it_skills",
       label: t("programming_languages"),
@@ -54,14 +54,14 @@ const Student = ({ OnlyBookmarked = false }) => {
       options: ["Q1", "Q2", "Q3", "Q4", "Q5"],
       minWidth: "160px",
     },
-    {
-      key: "partner_university_credits",
-      label: t("credits"),
-      type: "radio",
-      options: ["20", "40", "60", "80", "100"],
-      unit: t("credits_unit"),
-      minWidth: "160px",
-    },
+    //{
+    //  key: "partner_university_credits",
+    //  label: t("credits"),
+    //  type: "radio",
+    //  options: ["20", "40", "60", "80", "100"],
+    //  unit: t("credits_unit"),
+    //  minWidth: "160px",
+    //},
     {
       key: "partner_university",
       label: t("partner_university"),

@@ -6,9 +6,11 @@ import {
   DialogActions,
   Typography,
   Button,
+  Checkbox,
 } from "@mui/material";
 
 function ConfirmationDialog({ open, onClose, onConfirm }) {
+  const [checked, setChecked] = React.useState(false);
   return (
     <Dialog
       open={open}
@@ -18,7 +20,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
       closeAfterTransition={false}
     >
       {/* Large Title */}
-      <DialogTitle sx={{ fontWeight: "100" }}>承認依頼・同意</DialogTitle>
+      <DialogTitle sx={{ fontWeight: "100" }}>公開申請</DialogTitle>
 
       <DialogContent dividers>
         {/* Large Title */}
@@ -33,6 +35,11 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 問題がなければ承認され、あなたの入力情報や成績情報などがJDU大学のサポート企業に公開され、就職活動がよりスムーズになります。
 プロフィール公開に同意しますか？`}
         </Typography>
+        <Typography >
+          <Checkbox checked={checked} onChange={(e) => setChecked(e.target.checked)} />
+
+          同意
+        </Typography>
       </DialogContent>
 
       <DialogActions sx={{ pr: 3, pb: 2 }}>
@@ -45,8 +52,10 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
           いいえ
         </Button>
 
-        <Button variant="contained" color="primary" onClick={onConfirm}>
-          はい
+        <Button variant="contained" color="primary" onClick={onConfirm} disabled={!checked}>
+
+          申請
+
         </Button>
       </DialogActions>
     </Dialog>
