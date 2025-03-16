@@ -197,22 +197,22 @@ class StudentService {
   //   }
   // }
 
-  static async updateStudent(studentId, studentData) {
-    try {
-        console.log("Updating student with ID:", studentId, "Type:", typeof studentId);
-
-        // `findByPk` o‘rniga `findOne()` ishlatyapmiz
-        const student = await Student.findOne({ where: { student_id: studentId } });
-
-        if (!student) {
-            throw new Error('Student not found');
-        }
-        await student.update(studentData);
-        return student;
-    } catch (error) {
-        throw error;
+    static async updateStudent(studentId, studentData) {
+      let student;
+      // If it's a numeric ID, use the primary key
+      if (!isNaN(parseInt(studentId))) {
+        student = await Student.findByPk(studentId);
+      } else {
+        // Otherwise use the student_id string
+        student = await Student.findOne({ where: { student_id: studentId } });
+      }
+      
+      if (!student) {
+        throw new Error('Student not found');
+      }
+      await student.update(studentData);
+      return student;
     }
-}
 
 
   // Service method to update a student by kintone_id

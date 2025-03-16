@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import ReactDOM from "react-dom";
-
 import axios from "../../../utils/axiosUtils";
-import { Box, Tabs, Tab, Button } from "@mui/material";
+import { Box, Tabs, Tab, Button, Chip } from "@mui/material";
 import Gallery from "../../../components/Gallery";
 import TextField from "../../../components/TextField/TextField";
 import SkillSelector from "../../../components/SkillSelector/SkillSelector";
 import Deliverables from "../../../components/Deliverables/Deliverables";
-import DraftsModal from "../../../components/Modals/DraftsModal";
 import QA from "../../../pages/Profile/QA/QA";
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLanguage } from "../../../contexts/LanguageContext";
@@ -22,13 +20,13 @@ const Top = () => {
   const location = useLocation();
   const { userId } = location.state || {};
   const statedata = location.state?.student;
-
   const { language } = useLanguage();
   const showAlert = useAlert();
 
   // Translation helper
   const t = (key) => translations[language][key] || key;
 
+  // Determine which ID to use
   if (userId !== 0 && userId) {
     id = userId;
   } else {
@@ -41,51 +39,171 @@ const Top = () => {
   const [student, setStudent] = useState(null);
   const [editData, setEditData] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const [isHonban, setIsHonban] = useState(true);
   const [isChecking, setIsChecking] = useState(false);
   const [currentDraft, setCurrentDraft] = useState({});
-
-  const [currentProfileType, setCurrentProfileType] = useState(
-    "本番（承認済み）のプロフィールを閲覧中です。"
-  );
   const [updateQA, SetUpdateQA] = useState(true);
-
   const [newImages, setNewImages] = useState([]);
   const [deletedUrls, setDeletedUrls] = useState([]);
   const [deliverableImages, setDeliverableImages] = useState({});
   const [subTabIndex, setSubTabIndex] = useState(0);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // ---------------------
-  // Fetch student data
+  // Fetch data
   // ---------------------
-  const fetchStudent = async () => {
-    if (statedata) {
-      setDraft(statedata.drafts[0]);
-      if (
-        statedata.drafts[0].status == "checking" ||
-        statedata.drafts[0].status == "approved"
-      ) {
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        if (statedata) {
+          // If data was passed via navigation state
+          handleStateData();
+        } else {
+          // For Student role, always show draft data
+          if (role === "Student") {
+            await fetchDraftData();
+          } else {
+            // For other roles, show the data based on the student ID
+            await fetchStudentData();
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+        showAlert("Error loading data", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, role]);
+
+  // Handle data from navigation state
+  const handleStateData = () => {
+    if (statedata.draft) {
+      setDraft(statedata.draft);
+      if (statedata.draft.status === "checking" || statedata.draft.status === "approved") {
         setIsChecking(true);
       } else {
         setIsChecking(false);
       }
-    } else {
-      try {
-        const response = await axios.get(`/api/students/${id}`);
-        const mappedData = mapData(response.data);
-        setStudent(mappedData);
-        setEditData(mappedData);
-        SetUpdateQA(!updateQA);
-      } catch (error) {
-        showAlert("Error fetching student data", "error");
-      }
+
+      // Map student data from state
+      const mappedData = {
+        ...statedata,
+        draft: statedata.draft.profile_data || {}
+      };
+
+      setStudent(mappedData);
+      setEditData(mappedData);
+      setHasDraft(true);
+      SetUpdateQA(!updateQA);
     }
   };
 
-  useEffect(() => {
-    fetchStudent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  // Fetch draft data directly (for Student role)
+  const fetchDraftData = async () => {
+    try {
+      // Get student ID from context or navigation
+      const studentIdToUse = role === "Student" ? getStudentIdFromLoginUser() : id;
+
+      if (!studentIdToUse) {
+        showAlert("Unable to determine student ID", "error");
+        return;
+      }
+
+      // Fetch student with draft data
+      const response = await axios.get(`/api/draft/student/${studentIdToUse}`);
+
+      if (response.data) {
+        // Extract student and draft data
+        const studentData = { ...response.data };
+        const draftData = studentData.draft;
+        delete studentData.draft;
+
+        // Set current draft
+        if (draftData) {
+          setCurrentDraft(draftData);
+          setHasDraft(true);
+
+          if (draftData.status === "checking" || draftData.status === "approved") {
+            setIsChecking(true);
+          }
+        }
+
+        // Structure data for component state
+        const mappedData = {
+          ...studentData,
+          draft: draftData ? draftData.profile_data : {}
+        };
+
+        setStudent(mappedData);
+        setEditData(mappedData);
+        SetUpdateQA(!updateQA);
+      } else {
+        showAlert("No data found", "error");
+      }
+    } catch (error) {
+      console.error("Error fetching draft data:", error);
+      showAlert("Error fetching draft data", "error");
+    }
+  };
+
+  // Get student ID from login user data
+  const getStudentIdFromLoginUser = () => {
+    try {
+      const loginUserData = JSON.parse(sessionStorage.getItem("loginUser"));
+      return loginUserData?.studentId;
+    } catch (e) {
+      console.error("Error parsing login user data:", e);
+      return null;
+    }
+  };
+
+  // Fetch student data (for non-Student roles)
+  const fetchStudentData = async () => {
+    try {
+      const response = await axios.get(`/api/students/${id}`);
+      const mappedData = mapData(response.data);
+      setStudent(mappedData);
+      setEditData(mappedData);
+      SetUpdateQA(!updateQA);
+
+      // Also fetch draft data
+      await fetchDraft();
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+      showAlert("Error fetching student data", "error");
+    }
+  };
+
+  // Fetch draft separately (for non-Student roles)
+  const fetchDraft = async () => {
+    try {
+      const studentIdToUse = id;
+      const response = await axios.get(`/api/draft/student/${studentIdToUse}`);
+
+      if (response.data && response.data.draft) {
+        setHasDraft(true);
+        const draft = response.data.draft;
+
+        if (draft.status === "checking" || draft.status === "approved") {
+          setIsChecking(true);
+        } else {
+          setIsChecking(false);
+        }
+
+        setCurrentDraft(draft);
+      } else {
+        setHasDraft(false);
+      }
+    } catch (error) {
+      console.error("Error fetching draft:", error);
+      setHasDraft(false);
+    }
+  };
 
   // Function to structure incoming data into "draft"
   const mapData = (data) => {
@@ -98,7 +216,6 @@ const Top = () => {
       "it_skills",
       "skills",
     ];
-
     return {
       ...data,
       draft: draftKeys.reduce((acc, key) => {
@@ -108,12 +225,33 @@ const Top = () => {
     };
   };
 
-  // Handlers for applying a previously saved draft / honban
-  const setHonban = () => {
-    setCurrentProfileType("本番（承認済み）のプロフィールを閲覧中です。");
-    setIsHonban(true);
-    setCurrentDraft({});
-    fetchStudent();
+  // Submit draft
+  const handleSubmitDraft = async () => {
+    try {
+      if (currentDraft && currentDraft.id) {
+        const response = await axios.put(`/api/draft/${currentDraft.id}/submit`, {});
+        if (response.status === 200) {
+          showAlert(t("draftSubmittedSuccessfully"), "success");
+          // Update current draft with new status
+          setCurrentDraft({
+            ...currentDraft,
+            status: "submitted",
+            submit_count: (currentDraft.submit_count || 0) + 1
+          });
+          // Refresh data
+          if (role === "Student") {
+            fetchDraftData();
+          } else {
+            fetchDraft();
+          }
+        }
+      } else {
+        showAlert(t("noDraftToSubmit"), "error");
+      }
+    } catch (error) {
+      console.error("Error submitting draft:", error);
+      showAlert(t("errorSubmittingDraft"), "error");
+    }
   };
 
   const setTopEditMode = (val) => {
@@ -121,13 +259,6 @@ const Top = () => {
   };
 
   const setDraft = (draft) => {
-    if (draft.status != "approved") {
-      setCurrentProfileType("下書きのプロフィールを閲覧中です。");
-      setIsHonban(false);
-    } else {
-      setIsHonban(true);
-      setCurrentProfileType("本番（承認済み）のプロフィールを閲覧中です。");
-    }
     setCurrentDraft(draft);
     setEditData((prevEditData) => {
       const updatedEditData = {
@@ -145,7 +276,7 @@ const Top = () => {
       status: "checking",
       reviewed_by: userId,
     });
-    if (res.status == 200) {
+    if (res.status === 200) {
       showAlert(t("setToChecking"), "success");
       setIsChecking(true);
     }
@@ -204,10 +335,8 @@ const Top = () => {
         const oldFiles = parentKey
           ? [...editData[parentKey].gallery]
           : [...editData.draft.gallery];
-
         deletedUrls.push(oldFiles[files]);
         oldFiles.splice(files, 1);
-
         if (parentKey) {
           handleUpdateEditData("gallery", oldFiles);
         } else {
@@ -242,7 +371,6 @@ const Top = () => {
       formData.append("role", role);
       formData.append("imageType", "Gallery");
       formData.append("id", id);
-
       deletedUrls.forEach((url, index) => {
         formData.append(`oldFilePath[${index}]`, url);
       });
@@ -279,7 +407,6 @@ const Top = () => {
             "oldFilePath",
             editData.draft.deliverables[index]?.imageLink || ""
           );
-
           const deliverableFileResponse = await axios.post(
             "/api/files/upload",
             deliverableFormData,
@@ -299,7 +426,6 @@ const Top = () => {
       setNewImages([]);
       setDeletedUrls([]);
       setEditMode(false);
-
       showAlert(t("changesSavedSuccessfully"), "success");
     } catch (error) {
       console.error("Error saving student data:", error);
@@ -307,7 +433,7 @@ const Top = () => {
     }
   };
 
-  const handleDraftUpsert = async (update = false) => {
+  const handleDraftUpsert = async () => {
     try {
       const formData = new FormData();
       newImages.forEach((file, index) => {
@@ -316,7 +442,6 @@ const Top = () => {
       formData.append("role", role);
       formData.append("imageType", "Gallery");
       formData.append("id", id);
-
       deletedUrls.forEach((url, index) => {
         formData.append(`oldFilePath[${index}]`, url);
       });
@@ -326,8 +451,7 @@ const Top = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      let oldFiles = editData.draft.gallery;
-
+      let oldFiles = editData.draft.gallery || [];
       if (Array.isArray(fileResponse.data)) {
         fileResponse.data.forEach((file) => {
           oldFiles.push(file.Location);
@@ -335,7 +459,6 @@ const Top = () => {
       } else if (fileResponse.data.Location) {
         oldFiles.push(fileResponse.data.Location);
       }
-
       await handleUpdateEditData("gallery", oldFiles);
 
       // Handle deliverable images
@@ -350,7 +473,6 @@ const Top = () => {
             "oldFilePath",
             editData.draft.deliverables[index]?.imageLink || ""
           );
-
           const deliverableFileResponse = await axios.post(
             "/api/files/upload",
             deliverableFormData,
@@ -361,20 +483,20 @@ const Top = () => {
         }
       }
 
+      // Determine correct student_id to use
+      const studentIdToUse = student.student_id || id;
+
       const draftData = {
-        student_id: editData.student_id,
+        student_id: studentIdToUse,
         profile_data: editData.draft,
         status: "draft",
-        submit_count: 0,
+        submit_count: currentDraft.submit_count || 0,
       };
-      if (!update) {
-        // Save draft
-        const res = await axios.post(`/api/draft`, draftData);
-        setCurrentDraft(res.data);
-      } else {
-        // Update draft
-        const res = await axios.put(`/api/draft/${currentDraft.id}`, draftData);
-      }
+
+      // Create or update draft - the backend will handle whether to create new or update existing
+      const res = await axios.post(`/api/draft`, draftData);
+      setCurrentDraft(res.data.draft);
+      setHasDraft(true);
 
       // Reset
       setStudent(editData);
@@ -383,7 +505,7 @@ const Top = () => {
       setEditMode(false);
       showAlert(t("changesSavedSuccessfully"), "success");
     } catch (error) {
-      console.error("Error saving student data:", error);
+      console.error("Error saving draft:", error);
       showAlert(t("errorSavingChanges"), "error");
     }
   };
@@ -401,8 +523,12 @@ const Top = () => {
     setSubTabIndex(newIndex);
   };
 
-  if (!student) {
+  if (isLoading) {
     return <div>{t("loading")}</div>;
+  }
+
+  if (!student) {
+    return <div>{t("noDataFound")}</div>;
   }
 
   // ---------------------
@@ -414,34 +540,14 @@ const Top = () => {
         <>
           {editMode ? (
             <>
-              {!isHonban && (
-                <Button
-                  onClick={() => handleDraftUpsert(true)}
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                >
-                  {t("updateDraft")}
-                </Button>
-              )}
               <Button
-                onClick={() => handleDraftUpsert(false)}
+                onClick={handleDraftUpsert}
                 variant="contained"
                 color="primary"
                 size="small"
               >
-                {t("saveDraft")}
+                {t("updateDraft")}
               </Button>
-
-              {/* <Button
-                onClick={handleSave}
-                variant="contained"
-                color="primary"
-                size="small"
-              >
-                {t("save")}
-              </Button> */}
-
               <Button
                 onClick={handleCancel}
                 variant="outlined"
@@ -452,14 +558,29 @@ const Top = () => {
               </Button>
             </>
           ) : (
-            <Button
-              onClick={toggleEditMode}
-              variant="contained"
-              color="primary"
-              size="small"
-            >
-              {t("editProfile")}
-            </Button>
+            <>
+              <Button
+                onClick={toggleEditMode}
+                variant="contained"
+                color="primary"
+                size="small"
+              >
+                {t("editProfile")}
+              </Button>
+
+              {/* Show Submit button when draft exists and status is "draft" */}
+              {hasDraft && currentDraft && currentDraft.status === "draft" && (
+                <Button
+                  onClick={handleSubmitDraft}
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  sx={{ ml: 1 }}
+                >
+                  {t("submitAgree")}
+                </Button>
+              )}
+            </>
           )}
         </>
       )}
@@ -475,7 +596,6 @@ const Top = () => {
             document.getElementById("saveButton")
           )}
       </>
-
       <Box className={styles.TabsContainer}>
         <Tabs
           className={styles.Tabs}
@@ -486,15 +606,26 @@ const Top = () => {
           <Tab label={t("deliverables")} />
           <Tab label={t("qa")} />
         </Tabs>
-        {role == "Student" && (
-          <DraftsModal
-            id={editData.student_id}
-            handleSettingtoHonban={setHonban}
-            handleSettingDraft={setDraft}
-          />
+
+        {role === "Student" && hasDraft && currentDraft && (
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Chip
+              label={currentDraft.status || "draft"}
+              size="small"
+              color={
+                currentDraft.status === "approved"
+                  ? "success"
+                  : currentDraft.status === "disapproved"
+                    ? "error"
+                    : "warning"
+              }
+              variant="outlined"
+            />
+          </Box>
         )}
       </Box>
-      {role == "Staff" && !isChecking && (
+
+      {role === "Staff" && !isChecking && currentDraft && currentDraft.id && (
         <Box
           sx={{
             my: 2,
@@ -513,17 +644,7 @@ const Top = () => {
           </Button>
         </Box>
       )}
-      {role == "Student" && (
-        <Box
-          sx={{
-            mt: "8px",
-            textAlign: "center",
-            color: isHonban ? "green" : "red",
-          }}
-        >
-          {currentProfileType}
-        </Box>
-      )}
+
       {subTabIndex === 0 && (
         <Box my={2}>
           <TextField
@@ -620,7 +741,7 @@ const Top = () => {
             isFromTopPage={true}
             topEditMode={editMode}
             handleDraftUpsert={handleDraftUpsert}
-            isHonban={isHonban}
+            isHonban={true}
             setTopEditMode={setTopEditMode}
           />
         </Box>
@@ -630,4 +751,3 @@ const Top = () => {
 };
 
 export default Top;
-
