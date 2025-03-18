@@ -137,19 +137,58 @@ const Student = ({ OnlyBookmarked = false }) => {
 
   const setProfileVisibility = async (id, visibility) => {
     try {
-      // Example final confirmation logic:
-      const res = await axios.put(`/api/students/${id}`, {
-        visibility: visibility,
-      });
+      // If we're making the profile visible, ensure we apply the latest approved draft
+      if (visibility) {
+        // First get the latest approved draft for this student
+        const student = await axios.get(`/api/students/${id}`);
+        const studentId = student.data.student_id;
 
-      if (res.status == 200) {
-        showAlert(t["profileConfirmed"], "success");
-        return true;
+        // Get the latest approved draft
+        const draftsResponse = await axios.get(`/api/draft/student/${studentId}`);
+
+        if (draftsResponse.data &&
+          draftsResponse.data.draft &&
+          draftsResponse.data.draft.status === "approved") {
+
+          // Apply the draft data and set visibility true in one request
+          const profileData = draftsResponse.data.draft.profile_data || {};
+          const res = await axios.put(`/api/students/${id}`, {
+            ...profileData,
+            visibility: true
+          });
+
+          if (res.status === 200) {
+            showAlert(t["profileVisibilityEnabled"], "success");
+            return true;
+          }
+        } else {
+          // No approved draft found, just set visibility
+          const res = await axios.put(`/api/students/${id}`, {
+            visibility: true
+          });
+
+          if (res.status === 200) {
+            showAlert(t["profileVisibilityEnabled"], "success");
+            return true;
+          }
+        }
       } else {
-        return false;
+        // Simply hide the profile
+        const res = await axios.put(`/api/students/${id}`, {
+          visibility: false
+        });
+
+        if (res.status === 200) {
+          showAlert(t["profileHidden"], "success");
+          return true;
+        }
       }
+
+      return false;
     } catch (error) {
-      showAlert(t["errorConfirmingProfile"], "error");
+      console.error("Error setting profile visibility:", error);
+      showAlert(t["errorSettingVisibility"], "error");
+      return false;
     }
   };
 

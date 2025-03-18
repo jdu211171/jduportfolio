@@ -633,14 +633,19 @@ const Top = () => {
         {role === "Student" && hasDraft && currentDraft && (
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Chip
-              label={currentDraft.status || "draft"}
+              label={
+                currentDraft.status === "submitted" ? t("submitted") :
+                  currentDraft.status === "approved" ?
+                    t("approved") : currentDraft.status === "disapproved" ?
+                      t("disapproved") : currentDraft.status === "resubmission_required" ?
+                        t("resubmission_required") : t("draft")
+              }
               size="small"
               color={
-                currentDraft.status === "approved"
-                  ? "success"
-                  : currentDraft.status === "disapproved"
-                    ? "error"
-                    : "warning"
+                currentDraft.status === "submitted" ? "primary" :
+                  currentDraft.status === "approved" ? "success" :
+                    currentDraft.status === "disapproved" ? "error" :
+                      currentDraft.status === "resubmission_required" ? "warning" : "default"
               }
               variant="outlined"
             />

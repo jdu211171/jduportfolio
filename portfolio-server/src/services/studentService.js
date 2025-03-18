@@ -100,12 +100,15 @@ class StudentService {
         query[Op.and] = [];
       }
 
-      query[Op.and].push(querySearch, queryOther, { active: true })
-      if (userType == "Recruiter") {
-        query[Op.and].push({ visibility: true })
+      query[Op.and].push(querySearch, queryOther, { active: true });
+      
+      // If the user is a recruiter, only show students with visibility=true
+      if (userType === "Recruiter") {
+        query[Op.and].push({ visibility: true });
       }
-      if (onlyBookmarked == "true") {
-
+      
+      // Handle bookmarked filtering
+      if (onlyBookmarked === "true") {
         query[Op.and].push(
           sequelize.literal(`EXISTS (
             SELECT 1
@@ -116,19 +119,18 @@ class StudentService {
         );
       }
 
-
       // Execute the query to fetch students
       const students = await Student.findAll({
         where: query,
         attributes: {
-          include: [
+          include: recruiterId ? [
             [sequelize.literal(`EXISTS (
               SELECT 1
               FROM "Bookmarks" AS "Bookmark"
               WHERE "Bookmark"."studentId" = "Student"."id"
                 AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
             )`), 'isBookmarked']
-          ]
+          ] : []
         }
       });
 
@@ -198,21 +200,56 @@ class StudentService {
   // }
 
     static async updateStudent(studentId, studentData) {
-      let student;
-      // If it's a numeric ID, use the primary key
-      if (!isNaN(parseInt(studentId))) {
-        student = await Student.findByPk(studentId);
-      } else {
-        // Otherwise use the student_id string
-        student = await Student.findOne({ where: { student_id: studentId } });
+      try {
+        let student;
+        // If it's a numeric ID, use the primary key
+        if (!isNaN(parseInt(studentId))) {
+          student = await Student.findByPk(studentId);
+        } else {
+          // Otherwise use the student_id string
+          student = await Student.findOne({ where: { student_id: studentId } });
+        }
+        
+        if (!student) {
+          throw new Error('Student not found');
+        }
+        
+        // If we're setting visibility to true, ensure we have the latest approved draft
+        if (studentData.visibility === true) {
+          // Check if we already have draft data in the request
+          const hasDraftData = studentData.hasOwnProperty('self_introduction') || 
+                               studentData.hasOwnProperty('hobbies') ||
+                               studentData.hasOwnProperty('skills') ||
+                               studentData.hasOwnProperty('it_skills');
+          
+          // If no draft data provided, try to find the latest approved draft
+          if (!hasDraftData) {
+            const latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id);
+            
+            if (latestApprovedDraft) {
+              console.log("Applying latest approved draft to student profile...");
+              
+              // Extract profile data from the draft
+              const profileData = latestApprovedDraft.profile_data || {};
+              
+              // Merge the profile data with the request data
+              studentData = {
+                ...profileData,
+                ...studentData,
+                visibility: true
+              };
+            }
+          }
+        }
+        
+        // Update the student with the provided data
+        await student.update(studentData);
+        return student;
+      } catch (error) {
+        console.error("Error updating student:", error);
+        throw error;
       }
-      
-      if (!student) {
-        throw new Error('Student not found');
-      }
-      await student.update(studentData);
-      return student;
-    }
+  }
 
 
   // Service method to update a student by kintone_id
