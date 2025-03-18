@@ -149,6 +149,13 @@ const translations = {
       日本語弁論大会学内: "Japanese Speech Contest",
       ITコンテスト学内: "IT contest"
     },
+    approved: "Approved",
+    disapproved: "Disapproved",
+    resubmission_required: "Resubmission Required",
+    submitted: "Submitted",
+    draft: "Draft",
+    published: "Public",
+    private: "Private",
   },
   ja: {
     confirmationStatus: "確認状況",
@@ -318,6 +325,12 @@ const translations = {
     approvalStatus: "承認状況",
     visible: "公開",
     invisible: "非公開",
+    status: "ステータス",
+    approved: "承認",
+    disapproved: "差し戻し",
+    resubmission_required: "修正して再申請してください",
+    submitted: "提出済",
+    draft: "未提出",
   },
   uz: {
     general: "Umumiy",
@@ -472,6 +485,13 @@ const translations = {
       日本語弁論大会学内: "Yapon tili notiqlik san'ati",
       ITコンテスト学内: "IT tanlov"
     },
+    approved: "Tasdiqlangan",
+    disapproved: "Rad etildi",
+    resubmission_required: "Qayta topshirish talab etildi",
+    submitted: "Topshirildi",
+    draft: "Qoralama",
+    published: "Ochiq",
+    private: "Maxfiy",
   },
 };
 

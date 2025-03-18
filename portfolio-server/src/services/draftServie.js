@@ -139,108 +139,158 @@ class DraftService {
 
   static async getAll(filter) {
     try {
-        console.log(filter);
+      console.log(filter);
+      
+      const semesterMapping = {
+        '1年生': ['1', '2'],
+        '2年生': ['3', '4'],
+        '3年生': ['5', '6'],
+        '4年生': ['7', '8', '9'],
+      };
+
+      const statusMapping = {
+        '未確認': "submitted",
+        '確認中': 'checking',
+        '要修正': 'resubmission_required',
+        '確認済': 'approved',
+      };
+
+      // New mapping for approval_status filter
+      const approvalStatusMapping = {
+        '未承認': ["draft", "submitted", "checking"],
+        '承認済': ["approved"],
+        '差し戻し': ["resubmission_required", "disapproved"],
+      };
+
+      // New mapping for visibility filter
+      const visibilityMapping = {
+        '公開': true,
+        '非公開': false,
+      };
+
+      const getSemesterNumbers = (term) => semesterMapping[term] || [];
+
+      if (filter.semester) {
+        filter.semester = filter.semester.flatMap(term => getSemesterNumbers(term));
+      }
+
+      let query = {}; 
+      let querySearch = {};
+      let queryOther = {};
+      queryOther[Op.and] = [];
+
+      // Process visibility filter before the main loop
+      if (filter.visibility && Array.isArray(filter.visibility) && filter.visibility.length > 0) {
+        const visibilityValues = filter.visibility.map(val => visibilityMapping[val]).filter(val => val !== undefined);
+        if (visibilityValues.length) {
+          queryOther['visibility'] = { [Op.in]: visibilityValues };
+        }
+        delete filter.visibility; // Remove to avoid double handling
+      }
+
+      const searchableColumns = ['email', 'first_name', 'last_name', 'self_introduction', 'hobbies', 'skills', 'it_skills', 'jlpt']; 
+      let statusFilter = "";
+      let approvalStatusFilter = ""; // New filter for approval_status
+
+      // Process approval_status filter
+      if (filter.approval_status && Array.isArray(filter.approval_status) && filter.approval_status.length > 0) {
+        const draftStatuses = [];
+        filter.approval_status.forEach(approvalStatus => {
+          if (approvalStatusMapping[approvalStatus]) {
+            draftStatuses.push(...approvalStatusMapping[approvalStatus]);
+          }
+        });
         
-        const semesterMapping = {
-            '1年生': ['1', '2'],
-            '2年生': ['3', '4'],
-            '3年生': ['5', '6'],
-            '4年生': ['7', '8', '9'],
-        };
+        approvalStatusFilter = draftStatuses.length
+          ? `AND d.status IN (${draftStatuses.map(s => `'${s}'`).join(", ")})`
+          : "";
+        
+        delete filter.approval_status; // Remove to avoid double handling
+      }
 
-        const statusMapping = {
-            '未確認': "submitted",
-            '確認中': 'checking',
-            '要修正': 'resubmission_required',
-            '確認済': 'approved',
-        };
+      Object.keys(filter).forEach(key => {
+          if (filter[key] && key !== "draft_status") {
+              if (key === 'search') {
+                  querySearch[Op.or] = searchableColumns.map(column => ({
+                      [column]: { [Op.iLike]: `%${filter[key]}%` }
+                  }));
+              } else if (key === 'skills' || key === "it_skills") {
+                  queryOther[Op.and].push({
+                      [Op.or]: [
+                          { [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+                          { [key]: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+                          { [key]: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } }
+                      ]
+                  });
+              } else if (key === 'partner_university_credits') {
+                  queryOther[key] = { [Op.lt]: Number(filter[key]) };
+              } else if (key === 'other_information') {
+                  queryOther[key] = filter[key] === '有り' ? { [Op.ne]: null } : { [Op.is]: null };
+              } else if (key === 'jlpt' || key === 'ielts' || key === 'jdu_japanese_certification') {
+                  queryOther[Op.and].push({
+                      [Op.or]: filter[key].map(level => ({ [key]: { [Op.iLike]: `%${level}"%` } }))
+                  });
+              } else if (Array.isArray(filter[key])) {
+                  queryOther[key] = { [Op.in]: filter[key] };
+              } else if (typeof filter[key] === 'string') {
+                  queryOther[key] = { [Op.like]: `%${filter[key]}%` };
+              } else {
+                  queryOther[key] = filter[key];
+              }
+          }
 
-        const getSemesterNumbers = (term) => semesterMapping[term] || [];
+          if (filter[key] && key === "draft_status") {
+              const filteredStatuses = filter[key].map(status => statusMapping[status]);
+              statusFilter = filteredStatuses.length
+                  ? `AND d.status IN (${filteredStatuses.map(s => `'${s}'`).join(", ")})`
+                  : "";
+          }
+      });
 
-        if (filter.semester) {
-            filter.semester = filter.semester.flatMap(term => getSemesterNumbers(term));
-        }
+      if (!query[Op.and]) {
+          query[Op.and] = [];
+      }
 
-        let query = {}; 
-        let querySearch = {};
-        let queryOther = {};
-        queryOther[Op.and] = [];
+      query[Op.and].push(querySearch, queryOther, { active: true });
 
-        const searchableColumns = ['email', 'first_name', 'last_name', 'self_introduction', 'hobbies', 'skills', 'it_skills', 'jlpt']; 
-        let statusFilter = "";
+      // Combine status filters (combine draft_status and approval_status)
+      let combinedStatusFilter = "";
+      if (statusFilter && approvalStatusFilter) {
+          // If both filters are specified, use OR logic between them
+          const statusPart = statusFilter.replace(/^AND /, "");
+          const approvalPart = approvalStatusFilter.replace(/^AND /, "");
+          combinedStatusFilter = `AND (${statusPart} OR ${approvalPart})`;
+      } else {
+          combinedStatusFilter = statusFilter || approvalStatusFilter;
+      }
 
-        Object.keys(filter).forEach(key => {
-            if (filter[key] && key !== "draft_status") {
-                if (key === 'search') {
-                    querySearch[Op.or] = searchableColumns.map(column => ({
-                        [column]: { [Op.iLike]: `%${filter[key]}%` }
-                    }));
-                } else if (key === 'skills' || key === "it_skills") {
-                    queryOther[Op.and].push({
-                        [Op.or]: [
-                            { [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-                            { [key]: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-                            { [key]: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } }
-                        ]
-                    });
-                } else if (key === 'partner_university_credits') {
-                    queryOther[key] = { [Op.lt]: Number(filter[key]) };
-                } else if (key === 'other_information') {
-                    queryOther[key] = filter[key] === '有り' ? { [Op.ne]: null } : { [Op.is]: null };
-                } else if (key === 'jlpt' || key === 'ielts' || key === 'jdu_japanese_certification') {
-                    queryOther[Op.and].push({
-                        [Op.or]: filter[key].map(level => ({ [key]: { [Op.iLike]: `%${level}"%` } }))
-                    });
-                } else if (Array.isArray(filter[key])) {
-                    queryOther[key] = { [Op.in]: filter[key] };
-                } else if (typeof filter[key] === 'string') {
-                    queryOther[key] = { [Op.like]: `%${filter[key]}%` };
-                } else {
-                    queryOther[key] = filter[key];
-                }
-            }
+      const students = await Student.findAll({
+          where: query,
+          include: [
+              {
+                  model: Draft,
+                  as: "draft",
+                  required: true,
+                  where: {
+                      status: { [Op.ne]: "draft" }, 
+                      updated_at: {
+                          [Op.eq]: sequelize.literal(`
+                              (SELECT MAX("updated_at") 
+                              FROM "Drafts" AS d
+                              WHERE d.student_id = "Student".student_id
+                              AND d.status != 'draft' ${combinedStatusFilter})
+                          `),
+                      },
+                  },
+              },
+          ],
+      });
 
-            if (filter[key] && key === "draft_status") {
-                const filteredStatuses = filter[key].map(status => statusMapping[status]);
-                statusFilter = filteredStatuses.length
-                    ? `AND d.status IN (${filteredStatuses.map(s => `'${s}'`).join(", ")})`
-                    : "";
-            }
-        });
-
-        if (!query[Op.and]) {
-            query[Op.and] = [];
-        }
-
-        query[Op.and].push(querySearch, queryOther, { active: true });
-
-        const students = await Student.findAll({
-            where: query,
-            include: [
-                {
-                    model: Draft,
-                    as: "draft",
-                    required: true,
-                    where: {
-                        status: { [Op.ne]: "draft" }, 
-                        updated_at: {
-                            [Op.eq]: sequelize.literal(`
-                                (SELECT MAX("updated_at") 
-                                FROM "Drafts" AS d
-                                WHERE d.student_id = "Student".student_id
-                                AND d.status != 'draft' ${statusFilter})
-                            `),
-                        },
-                    },
-                },
-            ],
-        });
-
-        return students;
+      return students;
     } catch (error) {
-        throw error;
+      throw error;
     }
-}
+  }
 
 
 
