@@ -1,35 +1,35 @@
-const express = require('express');
-const { param } = require('express-validator');
-const QAController = require('../controllers/qaController');
+const express = require('express')
+const { param } = require('express-validator')
+const QAController = require('../controllers/qaController')
 const {
-  validateQACreation,
-  validateQAUpdate
-} = require('../middlewares/qa-validation');
+	validateQACreation,
+	validateQAUpdate,
+} = require('../middlewares/qa-validation')
 
-const router = express.Router();
+const router = express.Router()
 
 // POST /api/qa
-router.post('/', validateQACreation, QAController.createQA);
+router.post('/', validateQACreation, QAController.createQA)
 
 // GET /api/qa
-router.get('/', QAController.getAllQA);
+router.get('/', QAController.getAllQA)
 
 // GET /api/qa/:id
-router.get('/:id', QAController.getQAById);
+router.get('/:id', QAController.getQAById)
 
 // PUT /api/qa/:id
-router.put('/:id', validateQAUpdate, QAController.updateQA);
+router.put('/:id', validateQAUpdate, QAController.updateQA)
 
 // DELETE /api/qa/:id
-router.delete('/:id', QAController.deleteQA);
+router.delete('/:id', QAController.deleteQA)
 
 // GET /api/qa/category/:categoryId (category ID)
-router.get('/category/:categoryId', QAController.findQAByCategory);
+router.get('/category/:categoryId', QAController.findQAByCategory)
 
 // GET /api/qa/student/:studentId (student ID)
-router.get('/student/:studentId', QAController.findQAByStudentId);
+router.get('/student/:studentId', QAController.findQAByStudentId)
 
 // GET /api/qa/count (count of all QA entries)
-router.get('/count', QAController.countQA);
+router.get('/count', QAController.countQA)
 
-module.exports = router;
+module.exports = router
