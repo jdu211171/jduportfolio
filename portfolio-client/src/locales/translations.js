@@ -138,7 +138,8 @@ const translations = {
     selectSkill: "Select Skill",
     skill: "Skill",
     level: "Level",
-    levelInfo: "Advanced: Over 3 years | Intermediate: 1-1.5 years | Beginner: Basic",
+    levelInfo:
+      "Advanced: Over 3 years | Intermediate: 1-1.5 years | Beginner: Basic",
     levels: {
       上級: "Advanced",
       中級: "Intermediate",
@@ -147,7 +148,7 @@ const translations = {
       JDU_JLPT: "JDU Japanese Certification Test",
       IELTS: "IELTS",
       日本語弁論大会学内: "Japanese Speech Contest",
-      ITコンテスト学内: "IT contest"
+      ITコンテスト学内: "IT contest",
     },
     approved: "Approved",
     disapproved: "Disapproved",
@@ -254,14 +255,16 @@ const translations = {
     user_fetch_error: "ユーザーデータの取得に失敗しました。",
     profile_update_success: "プロフィールが更新されました。",
     profile_update_failed: "プロフィールの更新に失敗しました。",
-    profile_update_failed_retry: "プロフィールの更新に失敗しました。再試行してください。",
+    profile_update_failed_retry:
+      "プロフィールの更新に失敗しました。再試行してください。",
     unknown_role_error: "不明な役割が検出されました。",
     password_mismatch: "パスワードが一致しません。",
     current_password_required: "現在のパスワードを入力してください。",
     unknown_role: "不明な役割です。",
     fetch_user_failed: "ユーザーデータの取得に失敗しました。",
     profile_updated: "プロフィールが更新されました。",
-    profile_update_failed: "プロフィールの更新に失敗しました。再試行してください。",
+    profile_update_failed:
+      "プロフィールの更新に失敗しました。再試行してください。",
     sync_successful: "同期に成功しました。",
     notFoundTitle: "404 - ページが見つかりません",
     notFoundMessage: "お探しのページは見つかりませんでした。",
@@ -317,7 +320,7 @@ const translations = {
       JDU_JLPT: "JDU日本語認定試験",
       IELTS: "IELTS",
       日本語弁論大会学内: "日本語弁論大会学内",
-      ITコンテスト学内: "ITコンテスト学内"
+      ITコンテスト学内: "ITコンテスト学内",
     },
     not_approved_yet: "未承認",
     approved: "承認済",
@@ -337,7 +340,7 @@ const translations = {
     home: "Bosh sahifa",
     profile: "Profil",
     student_search: "Talabalarni qidirish",
-    student_check: "プロフィール確認",
+    student_check: "Talabalarni tekshirish",
     staff: "Xodimlar",
     recruiter: "Ish beruvchi",
     bookmarked: "Saqlanganlar",
@@ -419,16 +422,20 @@ const translations = {
     user_fetch_error: "Foydalanuvchi maʼlumotlarini olishda xatolik yuz berdi.",
     profile_update_success: "Profil muvaffaqiyatli yangilandi.",
     profile_update_failed: "Profilni yangilashda xatolik yuz berdi.",
-    profile_update_failed_retry: "Profilni yangilashda xatolik yuz berdi. Qayta urinib ko‘ring.",
+    profile_update_failed_retry:
+      "Profilni yangilashda xatolik yuz berdi. Qayta urinib ko‘ring.",
     unknown_role_error: "Nomaʼlum rol aniqlangan.",
     password_mismatch: "Parollar mos kelmadi.",
     current_password_required: "Joriy parolingizni kiriting.",
     unknown_role: "Noma'lum rol.",
-    fetch_user_failed: "Foydalanuvchi ma'lumotlarini olish muvaffaqiyatsiz tugadi.",
+    fetch_user_failed:
+      "Foydalanuvchi ma'lumotlarini olish muvaffaqiyatsiz tugadi.",
     profile_updated: "Profil muvaffaqiyatli yangilandi.",
-    profile_update_failed: "Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko'ring.",
+    profile_update_failed:
+      "Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko'ring.",
     sync_successful: "Sinxronizatsiya muvaffaqiyatli o'tdi.",
-    sync_failed: "Sinxronizatsiya muvaffaqiyatsiz tugadi. Qaytadan urinib ko'ring.",
+    sync_failed:
+      "Sinxronizatsiya muvaffaqiyatsiz tugadi. Qaytadan urinib ko'ring.",
     notFoundTitle: "404 - Sahifa topilmadi",
     notFoundMessage: "Qidirgan sahifangiz mavjud emas.",
     backToHome: "Bosh sahifaga qaytish",
@@ -474,7 +481,8 @@ const translations = {
     selectSkill: "Ko'nikmani tanlang",
     skill: "Ko'nikma",
     level: "Daraja",
-    levelInfo: "Yuqori: 3 yildan ortiq | O'rtacha: 1-1.5 yil | Boshlang'ich: Asosiy",
+    levelInfo:
+      "Yuqori: 3 yildan ortiq | O'rtacha: 1-1.5 yil | Boshlang'ich: Asosiy",
     levels: {
       初級: "Boshlang'ich",
       中級: "O'rta",
@@ -483,7 +491,7 @@ const translations = {
       JDU_JLPT: "JDU Yapon tili sertifikati",
       IELTS: "IELTS",
       日本語弁論大会学内: "Yapon tili notiqlik san'ati",
-      ITコンテスト学内: "IT tanlov"
+      ITコンテスト学内: "IT tanlov",
     },
     approved: "Tasdiqlangan",
     disapproved: "Rad etildi",
