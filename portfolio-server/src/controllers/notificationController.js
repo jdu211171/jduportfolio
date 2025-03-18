@@ -15,6 +15,7 @@ class NotificationController {
 	static async getNotificationsByUserId(req, res) {
 		try {
 			const { id, userType } = req.user
+			console.log(req.user);
 
 			if (!id || !userType) {
 				return res
@@ -86,6 +87,10 @@ class NotificationController {
 
 	static async getAllNotifications(req, res) {
 		try {
+			const { userType } = req.user
+			if(	userType !== 'Admin') {
+				return res.status(403).json({ error: 'Permission denied. Only admin can get all notifications.' })
+			}
 			const notifications = await NotificationService.getAll()
 			return res.status(200).json(notifications)
 		} catch (error) {
@@ -104,6 +109,7 @@ class NotificationController {
 			}
 
 			let user_id = id
+			
 
 			if (userType === 'Student') {
 				const student = await getStudentById(id)
