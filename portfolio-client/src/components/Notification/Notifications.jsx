@@ -35,12 +35,13 @@ export default function Notifications() {
 
 	const fetchData = async () => {
 		try {
-			const [messagesRes, recruitersRes, staffRes, adminRes] = await Promise.all([
-				axios.get('/api/notification'),
-				axios.get('/api/students'),
-				axios.get('/api/staff'),
-				axios.get('/api/admin/1'),
-			])
+			const [messagesRes, recruitersRes, staffRes, adminRes] =
+				await Promise.all([
+					axios.get('/api/notification'),
+					axios.get('/api/students'),
+					axios.get('/api/staff'),
+					axios.get('/api/admin/1'),
+				])
 
 			setIsMessages(messagesRes.data)
 			setIsStudents(recruitersRes.data)
@@ -55,7 +56,9 @@ export default function Notifications() {
 	}, [])
 
 	useEffect(() => {
-		setIscount(isMessages?.filter(message => message.status === 'unread').length || 0)
+		setIscount(
+			isMessages?.filter(message => message.status === 'unread').length || 0
+		)
 	}, [isMessages])
 
 	const click = item => {
@@ -94,7 +97,10 @@ export default function Notifications() {
 						{count > 99 ? '99+' : count}
 					</span>
 				)}
-				<CircleNotificationsIcon fontSize='large' className={styles.notificationIcon} />
+				<CircleNotificationsIcon
+					fontSize='large'
+					className={styles.notificationIcon}
+				/>
 			</div>
 
 			{isVisible && (
@@ -120,16 +126,20 @@ export default function Notifications() {
 												item.user_role === 'student'
 													? isStudents[item.user_id]?.photo
 													: item.user_role === 'staff'
-													? isStaff[item.user_id]?.photo
-													: item.user_role === 'admin'
-													? isAdmin.photo
-													: ''
+														? isStaff[item.user_id]?.photo
+														: item.user_role === 'admin'
+															? isAdmin.photo
+															: ''
 											}
 											alt={item.image}
 											className={styles.avatar}
 										/>
 										<div className={styles.messageContainer}>
-											<div className={item.status === 'unread' ? styles.unread : ''}>
+											<div
+												className={
+													item.status === 'unread' ? styles.unread : ''
+												}
+											>
 												{shortText(item.message, 28)}
 											</div>
 											<div>{shortText(item.createdAt, 10, true)}</div>

@@ -182,8 +182,8 @@ const Layout = () => {
 					</div>
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
-              <Notifications />
-              {/*
+							<Notifications />
+							{/*
 							<select
 								onChange={e => changeLanguage(e.target.value)}
 								defaultValue={language}
