@@ -1,4 +1,4 @@
-const { Student } = require('../models')
+const { Student, Admin } = require('../models')
 const { Draft, Staff, Notification } = require('../models')
 const DraftService = require('../services/draftServie')
 const NotificationService = require('../services/notificationService')
@@ -201,12 +201,12 @@ class DraftController {
 			}
 			draft.submit_count += 1
 			draft.status = 'submitted'
+			draft.comments = null
 			let student_id = draft.student_id
 			await Student.update({ visibility: false }, { where: { student_id } })
 			await draft.save()
 			const studentID = draft.student_id || 'Unknown'
 			if (staff_id) {
-				// Agar faqat bitta staff uchun jo‘natilsa
 				const staff = await Staff.findByPk(staff_id)
 				if (!staff) {
 					return res.status(404).json({ error: 'Staff not found' })
@@ -257,9 +257,9 @@ class DraftController {
 			const reviewed_by = req.user.id
 			const usertype = req.user.userType
 
-			// if (usertype.toLowerCase() !== 'staff') {
-			//   return res.status(403).json({ error: 'Permission denied. Only staff can update status.' });
-			// }
+			if (usertype.toLowerCase() !== 'staff') {
+			  return res.status(403).json({ error: 'Permission denied. Only staff can update status.' });
+			}
 			if (!status) {
 				return res.status(400).json({ error: 'Status is required' })
 			}
@@ -283,14 +283,33 @@ class DraftController {
 			let student_id = draft.student_id
 			await Student.update({ visibility: false }, { where: { student_id } })
 
-			await NotificationService.create({
+			const notification = await NotificationService.create({
 				message: ` Sizning malumotlaringiz "${status}" holatga o'tdi.`,
 				status: 'unread',
-				user_id: student.id,
+				user_id: student.student_id,
 				user_role: 'student',
 				type: status.toLowerCase() === 'approved' ? 'approved' : 'etc',
 				related_id: draft.id,
 			})
+			console.log(notification);
+
+			if (status.toLowerCase() === 'approved'){
+				const admins = await Admin.findAll();
+				console.log(admins);
+				
+				const adminNotifications = admins.map(admin => {
+					NotificationService.create({
+						message: `Talaba (ID: ${student.student_id}) ma'lumotlari staff (ID: ${reviewed_by}) tomonidan tasdiqlandi.`,
+						status: 'unread',
+						user_id: admin.id,
+						user_role: 'admin',
+						type: 'approved',
+						related_id: draft.id,
+					})
+				})
+				console.log(adminNotifications);
+			}
+			
 			return res.json({
 				message: 'Draft status updated successfully and notification sent',
 				draft,
@@ -313,7 +332,6 @@ class DraftController {
 		}
 	}
 
-	// Controller method to get all students
 	static async getAllDrafts(req, res, next) {
 		try {
 			let filter
