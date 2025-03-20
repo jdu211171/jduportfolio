@@ -19,6 +19,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
 
 import logo from '/src/assets/logo.png'
 import style from './Layout.module.css'
+import Notifications from '../Notification/Notifications.jsx'
 
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
@@ -181,6 +182,8 @@ const Layout = () => {
 					</div>
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
+							<Notifications />
+							{/*
 							<select
 								onChange={e => changeLanguage(e.target.value)}
 								defaultValue={language}
@@ -189,6 +192,7 @@ const Layout = () => {
 								<option value='en'>English</option>
 								<option value='uz'>O‘zbek</option>
 							</select>
+              */}
 						</div>
 						<div className={style.timeBox}>
 							<div style={{ textAlign: 'right' }}>
