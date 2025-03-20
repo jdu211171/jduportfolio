@@ -132,25 +132,37 @@ const StudentProfile = ({ userId = 0 }) => {
 									<Chip
 										label={`${t.published}`}
 										variant='outlined'
-										color={student.visibility ? 'secondary' : 'default'}
 										sx={{
 											fontSize: '12px',
 											padding: '2px 6px',
 											height: 'auto',
 											lineHeight: 1,
 											width: '80px',
+											color: student.visibility ? '#4CAF50' : '#9e9e9e',
+											borderColor: student.visibility ? '#4CAF50' : '#9e9e9e',
+											'&.MuiChip-outlined': {
+												backgroundColor: student.visibility
+													? 'rgba(76, 175, 80, 0.08)'
+													: 'transparent',
+											},
 										}}
 									/>
 									<Chip
 										label={`${t.private}`}
 										variant='outlined'
-										color={!student.visibility ? 'error' : 'default'}
 										sx={{
 											fontSize: '12px',
 											padding: '2px 6px',
 											height: 'auto',
 											lineHeight: 1,
 											width: '80px',
+											color: !student.visibility ? '#4CAF50' : '#9e9e9e',
+											borderColor: !student.visibility ? '#4CAF50' : '#9e9e9e',
+											'&.MuiChip-outlined': {
+												backgroundColor: !student.visibility
+													? 'rgba(76, 175, 80, 0.08)'
+													: 'transparent',
+											},
 										}}
 									/>
 								</Box>
