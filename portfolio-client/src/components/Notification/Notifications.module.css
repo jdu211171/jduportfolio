@@ -1,253 +1,317 @@
 /* Notification.module.css */
 .notificationContainer {
-  position: relative;
-  display: inline-block;
-  right: 1rem;
+	position: relative;
+	display: inline-block;
+	right: 1rem; /* Ikonning joylashuvi */
 }
 
 .notificationBadge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(25%, -33%);
-  color: white;
-  font-weight: bold;
-  border-radius: 9999px;
-  background-color: #DF4066;
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 0.625rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	position: absolute;
+	top: 0;
+	right: 0;
+	transform: translate(25%, -33%);
+	color: white;
+	font-weight: bold;
+	border-radius: 9999px;
+	background-color: #df4066;
+	width: 1.25rem;
+	height: 1.25rem;
+	font-size: 0.625rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1100; /* Badge ikon ustida bo‘lishi uchun */
 }
 
 .notificationIcon {
-  cursor: pointer;
+	cursor: pointer;
 }
 
 .dropdown {
-  position: absolute;
-  right: -0.75rem;
-  top: 3rem;
-  z-index: 100;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+	position: absolute;
+	right: -0.75rem;
+	top: 3rem;
+	z-index: 2000; /* Dropdown boshqa elementlardan yuqorida */
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+	background-color: white; /* Fon rangi qo‘shildi */
+	border-radius: 0.313rem;
+	width: 24rem; /* Kenglik aniq belgilandi */
 }
 
 .dropdownArrow {
-  position: absolute;
-  top: -0.5rem;
-  right: 1.375rem;
-  width: 0;
-  height: 0;
-  border-left: 0.5rem solid transparent;
-  border-right: 0.5rem solid transparent;
-  border-bottom: 0.5rem solid #F4555A;
+	position: absolute;
+	top: -0.5rem;
+	right: 1.375rem;
+	width: 0;
+	height: 0;
+	border-left: 0.5rem solid transparent;
+	border-right: 0.5rem solid transparent;
+	border-bottom: 0.5rem solid #f4555a;
+	z-index: 2001; /* Strelka dropdown ustida */
 }
 
 .headerZone {
-  width: 24rem;
-  height: 4rem;
-  background-color: #F4555A;
-  border-top-left-radius: 0.313rem;
-  border-top-right-radius: 0.313rem;
-  color: white;
-  font-weight: bold;
-  font-size: 1.25rem;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding-left: 1.25rem;
+	width: 100%; /* To‘liq kenglik */
+	height: 4rem;
+	background-color: #f4555a;
+	border-top-left-radius: 0.313rem;
+	border-top-right-radius: 0.313rem;
+	color: white;
+	font-weight: bold;
+	font-size: 1.25rem;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	padding-left: 1.25rem;
 }
 
 .mainPage {
-  width: 24rem;
-  height: 18rem;
-  background-color: white;
-  border-bottom-left-radius: 0.313rem;
-  border-bottom-right-radius: 0.313rem;
-  overflow-y: auto;
-  padding: 0.25rem;
-  display: flex;
-  flex-direction: column;
+	width: 100%; /* To‘liq kenglik */
+	height: 18rem; /* Maksimal balandlik */
+	background-color: white;
+	border-bottom-left-radius: 0.313rem;
+	border-bottom-right-radius: 0.313rem;
+	overflow-y: auto;
+	padding: 0.25rem;
+	display: flex;
+	flex-direction: column;
 }
 
 .notificationItem {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-top: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
-  border-radius: 0.125rem;
+	display: flex;
+	align-items: center; /* Vertikal markazlashtirish */
+	justify-content: space-between;
+	gap: 0.5rem;
+	cursor: pointer;
+	padding: 0.5rem; /* Bir oz ko‘proq padding */
+	border-bottom: 1px solid #e5e7eb;
+	border-radius: 0.125rem;
 }
 
 .notificationItem:hover {
-  background-color: #d1d5db;
+	background-color: #d1d5db;
 }
 
 .avatarContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .avatar {
-  border-radius: 9999px;
-  width: 2.5rem;
-  height: 2.5rem;
+	border-radius: 9999px;
+	width: 2.5rem;
+	height: 2.5rem;
+	object-fit: cover; /* Rasmni to‘g‘ri ko‘rsatish uchun */
 }
 
 .messageContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	flex: 1; /* Bo‘sh joyni to‘ldirish */
 }
 
 .unread {
-  font-weight: bold;
+	font-weight: bold;
 }
 
 .newIndicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  color: #10b981;
-  font-size: 0.625rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-weight: bold;
+	color: #10b981;
+	font-size: 0.625rem;
 }
 
 .noNotifications {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  font-weight: 600;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	font-weight: 600;
+	color: #666;
 }
 
 .modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(4px);
+	z-index: 3000; /* Modal dropdown va boshqalardan yuqorida */
 }
 
 .modalContent {
-  position: relative;
-  background-color: white;
-  width: 500px;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	position: relative;
+	background-color: white;
+	width: 500px;
+	padding: 1.5rem;
+	border-radius: 0.5rem;
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	z-index: 3001; /* Modal ichidagi kontent */
 }
 
 .modalHeader {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 1rem;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	border-bottom: 1px solid #e5e7eb;
+	padding-bottom: 1rem;
 }
 
 .modalAvatar {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 9999px;
-  border: 1px solid #d1d5db;
-  object-fit: cover;
+	width: 5rem;
+	height: 5rem;
+	border-radius: 9999px;
+	border: 1px solid #d1d5db;
+	object-fit: cover;
 }
 
 .userName {
-  font-size: 1.25rem;
-  font-weight: 700;
+	font-size: 1.25rem;
+	font-weight: 700;
 }
 
 .userRole {
-  color: #6b7280;
-  font-size: 0.875rem;
-  text-transform: capitalize;
+	color: #6b7280;
+	font-size: 0.875rem;
+	text-transform: capitalize;
 }
 
 .messageBody {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #fef3c7;
-  border-radius: 0.5rem;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  overflow-wrap: break-word;
+	margin-top: 2rem;
+	padding: 1rem;
+	background-color: #fef3c7;
+	border-radius: 0.5rem;
+	box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+	overflow-wrap: break-word;
 }
 
 .messageText {
-  color: #1f2937;
+	color: #1f2937;
 }
 
 .messageDate {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+	color: #6b7280;
+	font-size: 0.875rem;
+	margin-top: 0.5rem;
 }
 
 .modalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+	margin-top: 1.5rem;
 }
 
 .okButton {
-  background-color: #10b981;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+	background-color: #10b981;
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+	border: none; /* Tugma uchun */
+	cursor: pointer;
 }
 
 .okButton:hover {
-  background-color: #059669;
-  transition: background-color 0.2s;
+	background-color: #059669;
+	transition: background-color 0.2s;
 }
 
 .deleteButton {
-  background-color: #ef4444;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
+	background-color: #ef4444;
+	color: white;
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+	border: none; /* Tugma uchun */
+	cursor: pointer;
 }
 
 .deleteButton:hover {
-  background-color: #dc2626;
-  transition: background-color 0.2s;
+	background-color: #dc2626;
+	transition: background-color 0.2s;
 }
 
+.closeButton {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: #f0f0f0;
+	border: none;
+	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	color: #666;
+	transition: background-color 0.3s ease;
+}
+.closeButton:hover {
+	background-color: #e0e0e0;
+	color: #333;
+}
+
+.filterTabs {
+	display: flex;
+	justify-content: space-around;
+	padding: 10px 0;
+	border-bottom: 1px solid #e0e0e0;
+	background-color: white; /* Filtrlarga fon */
+}
+
+.filterButton {
+	background: none;
+	border: none;
+	padding: 5px 10px;
+	cursor: pointer;
+	font-size: 14px;
+	color: #666;
+}
+
+.filterButton.active {
+	color: #000;
+	font-weight: bold;
+	border-bottom: 2px solid #007bff;
+}
+
+/* Media queries */
 @media (max-width: 700px) {
-  .dropdown {
-    right: -18rem;
-  }
+	.dropdown {
+		right: -18rem; /* Mobil uchun moslashtirish */
+		width: 20rem; /* Kichik ekranlarda kenglik */
+	}
 
-  .dropdownArrow {
-    right: 18.563rem;
-  }
+	.dropdownArrow {
+		right: 18.563rem;
+	}
 
-  .modalContent {
-    width: 100%;
-  }
+	.modalContent {
+		width: 90%; /* Mobil uchun to‘liq kenglik */
+		max-width: 400px;
+	}
+
+	.headerZone,
+	.mainPage {
+		width: 100%; /* Mobil uchun to‘liq kenglik */
+	}
 }
 
 @media (min-width: 768px) {
-  .modalContent {
-    width: 600px;
-  }
+	.modalContent {
+		width: 600px;
+	}
 }
 
 @media (min-width: 1024px) {
-  .modalContent {
-    width: 700px;
-  }
+	.modalContent {
+		width: 700px;
+	}
 }
