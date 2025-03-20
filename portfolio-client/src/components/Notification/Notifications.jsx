@@ -197,19 +197,6 @@ export default function Notifications() {
 									}`}
 								>
 									<div className={styles.avatarContainer}>
-										<img
-											src={
-												item.user_role === 'student'
-													? userData.students[item.user_id]?.photo
-													: item.user_role === 'staff'
-														? userData.staff[item.user_id]?.photo
-														: item.user_role === 'admin'
-															? userData.admin.photo
-															: 'https://via.placeholder.com/40'
-											}
-											alt='User Avatar'
-											className={styles.avatar}
-										/>
 										<div className={styles.messageContainer}>
 											<div>{shortText(item.message, 28)}</div>
 											<div>{shortText(item.createdAt, 10, true)}</div>
