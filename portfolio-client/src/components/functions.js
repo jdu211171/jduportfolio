@@ -8,4 +8,3 @@ export const shortText = (text, maxLength, dot) => {
 	}
 	return text
 }
-
