@@ -1,8 +1,8 @@
-const { Student, Admin } = require('../models')
-const { Draft, Staff, Notification } = require('../models')
+const { Student, Admin, Draft, Staff, Notification } = require('../models')
 const DraftService = require('../services/draftServie')
 const NotificationService = require('../services/notificationService')
 const StudentService = require('../services/studentService')
+const StaffService = require('../services/staffService')
 // const emailService = require('../utils/emailService');
 
 class DraftController {
@@ -283,8 +283,18 @@ class DraftController {
 			let student_id = draft.student_id
 			await Student.update({ visibility: false }, { where: { student_id } })
 
+			const staffMember = await StaffService.getStaffById(draft.reviewed_by) //// TODO
+			let staffName = '';
+			if (staffMember && staffMember.first_name && staffMember.last_name) {
+				staffName = `${staffMember.first_name} ${staffMember.last_name} tomonidan`;
+			} else if (staffMember && staffMember.first_name) {
+				staffName = `${staffMember.first_name} tomonidan`;
+			} else {
+				staffName = `Staff xodimi tomonidan`; // Agar ismi topilmasa
+			}
+
 			const notification = await NotificationService.create({
-				message: ` Sizning malumotlaringiz "${status}" holatga o'tdi.`,
+				message: ` Sizning malumotlaringiz ${staffName} "${status}" holatga o'tkazildi. `,
 				status: 'unread',
 				user_id: student.student_id,
 				user_role: 'student',
