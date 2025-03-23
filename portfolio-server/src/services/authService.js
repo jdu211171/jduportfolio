@@ -55,12 +55,12 @@ class AuthService {
 		res.clearCookie('token', {
 			httpOnly: false,
 			secure: process.env.NODE_ENV === 'production',
-			expires: new Date(0),
+			// expires: new Date(0),
 		})
 		res.clearCookie('userType', {
 			httpOnly: false,
 			secure: process.env.NODE_ENV === 'production',
-			expires: new Date(0),
+			// expires: new Date(0),
 		})
 	}
 }

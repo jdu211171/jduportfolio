@@ -6,5 +6,6 @@ router.get('/:key', SettingsController.getSetting) // Get specific setting by ke
 router.put('/:key', SettingsController.updateSetting) // Update setting by key
 router.get('/', SettingsController.getAllSettings) // Get all settings
 router.post('/keys', SettingsController.getSettingsByKeys)
+router.get('/homepage', SettingsController.getHomepageSetting)
 
 module.exports = router
