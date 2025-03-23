@@ -17,6 +17,39 @@ const fileRoutes = require('./routes/file-routes')
 const kintoneRoutes = require('./routes/kintone-routes')
 const webhookRoutes = require('./routes/webhook-routes')
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Auth
+ *     description: Authentication-related endpoints
+ *   - name: Admin
+ *     description: Administration-related endpoints
+ *   - name: Recruiters
+ *     description: Endpoints for recruiter-related operations
+ *   - name: Staff
+ *     description: Endpoints for managing staff activities
+ *   - name: Students
+ *     description: Endpoints for student management
+ *   - name: Bookmarks
+ *     description: Bookmarks management endpoints
+ *   - name: QA
+ *     description: Question and answer endpoints
+ *   - name: Files
+ *     description: Endpoints for file uploads and downloads
+ *   - name: Kintone
+ *     description: Endpoints integrating with Kintone
+ *   - name: Webhook
+ *     description: Endpoints for webhook handling
+ *   - name: Settings
+ *     description: Endpoints for system settings
+ *   - name: Drafts
+ *     description: Draft management endpoints
+ *   - name: Log
+ *     description: Endpoints for logging operations
+ *   - name: Notification
+ *     description: Notification endpoints
+ */
+
 const configureRoutes = app => {
 	// Auth routes
 	app.use('/api/auth', authRoute)
@@ -38,3 +71,4 @@ const configureRoutes = app => {
 }
 
 module.exports = configureRoutes
+
