@@ -24,9 +24,9 @@ const apps = {
 		token: 'TdTKkIbmcZiQ4nWUpZXvJraEB3UnkWBJehShvs2q',
 	},
 	certificate_ielts: {
-		appId: '140',
-		token: 'vxcMSuOmpTctlwRhP2p5sQlC7fv6b2r33YjOMUfR',
-	},
+		appId: '197',
+		token: 'K6voeCUJhCSvNwVm2gsNNCLOEFIA8MTwkeiE5OET',
+	},  
 	credit_details: {
 		appId: '160',
 		token: '7xOoiYhgxne97O0TLnKVR1mLUwV5lpKfUuTRxOER',

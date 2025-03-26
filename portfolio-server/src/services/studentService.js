@@ -370,8 +370,11 @@ class StudentService {
 					const formattedData = {
 						email: data.mail,
 						student_id: data.studentId,
-						first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
-						last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
+						// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
+						// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
+						first_name: data.studentFirstName, // "studenFirstName" emas
+				        last_name: data.studentLastName,
+
 						date_of_birth: data.birthday,
 						// Include other fields as needed
 						semester: data.semester,
