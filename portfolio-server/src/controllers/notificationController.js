@@ -13,44 +13,6 @@ class NotificationController {
 		}
 	}
 
-	// static async getNotificationsByUserId(req, res) {
-	// 	try {
-	// 		const { id, userType } = req.user
-	// 		console.log(req.user);
-
-	// 		if (!id || !userType) {
-	// 			return res
-	// 				.status(400)
-	// 				.json({ error: 'User ID and user type are required' })
-	// 		}
-
-	// 		let user_id = id
-	// 		if (userType === 'Student') {
-	// 			const student = await getStudentById(id)
-	// 			if (!student) {
-	// 				return res.status(404).json({ error: 'Student not found' })
-	// 			}
-	// 			user_id = student.student_id
-	// 		}
-
-	// 		// const notifications = await NotificationService.getByUserId(user_id);
-	// 		const notifications = await NotificationService.getByUserId(user_id, {
-	// 			status: { [Op.ne]: 'read' },
-	// 		})
-
-	// 		if (!notifications || notifications.length === 0) {
-	// 			return res
-	// 				.status(404)
-	// 				.json({ message: 'No notifications found for this user' })
-	// 		}
-
-	// 		return res.status(200).json(notifications)
-	// 	} catch (error) {
-	// 		console.error('Error fetching notifications:', error)
-	// 		return res.status(500).json({ error: 'Internal Server Error' })
-	// 	}
-	// }
-
 	static async getNotificationsByUserId(req, res) {
 		try {
 			const { id, userType } = req.user
@@ -93,19 +55,6 @@ class NotificationController {
 		}
 	}
 	
-	// static async getNotificationById(req, res) {
-	//   try {
-	//     const { id } = req.params;
-	//     const notification = await NotificationService.getById(id);
-	//     if (!notification) {
-	//       return res.status(404).json({ error: 'Notification not found' });
-	//     }
-	//     return res.status(200).json(notification);
-	//   } catch (error) {
-	//     return res.status(400).json({ error: error.message });
-	//   }
-	// }
-
 	static async updateNotification(req, res) {
 		try {
 			const { id } = req.params
@@ -216,6 +165,37 @@ class NotificationController {
 			return res.status(500).json({ error: 'Internal Server Error' })
 		}
 	}
+
+	static async markNotificationAsReadAll(req, res) {
+        try {
+            const { id, userType } = req.user
+
+            if (!id || !userType) {
+                return res
+                    .status(400)
+                    .json({ error: 'User ID and user type are required' })
+            }
+
+            let user_id = id
+
+            if (userType === 'Student') {
+                const student = await getStudentById(id)
+                if (!student) {
+                    return res.status(404).json({ error: 'Student not found' })
+                }
+                user_id = student.student_id
+            }
+
+            const updatedCount = await NotificationService.markAllAsRead(user_id, userType);
+
+            return res.status(200).json({
+                message: `${updatedCount} notification(s) marked as read for this user.`,
+            });
+        } catch (error) {
+            console.error('Error marking all notifications as read:', error);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
 }
 
 module.exports = NotificationController

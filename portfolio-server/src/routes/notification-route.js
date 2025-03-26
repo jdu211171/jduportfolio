@@ -133,16 +133,7 @@ router.patch(
 	NotificationController.markNotificationAsRead
 )
 
-/**
- * @swagger
- * /api/notification/history:
- *   get:
- *     tags: [Notification]
- *     summary: Retrieve read notification history
- *     responses:
- *       200:
- *         description: Returns previously read notifications
- */
+router.patch('/read-all', NotificationController.markNotificationAsReadAll);
 
 router.get('/history', NotificationController.historyNotification)
 

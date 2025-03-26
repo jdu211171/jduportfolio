@@ -1,4 +1,5 @@
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications'
+import CheckIcon from '@mui/icons-material/Check' // Added for icon
 import axios from '../../utils/axiosUtils.js'
 import { useState, useEffect, useRef } from 'react'
 import { shortText } from '../functions.js'
@@ -20,13 +21,13 @@ export default function Notifications() {
 	const [currentUser, setCurrentUser] = useState({})
 	const [unreadCount, setUnreadCount] = useState(0)
 	const [filter, setFilter] = useState('all')
+	const [isLoading, setIsLoading] = useState(false) // Added for loading state
 	const modalRef = useRef(null)
 	const dropdownRef = useRef(null)
 
 	const fetchData = async (statusFilter = 'all') => {
 		try {
 			let fetchedMessages = []
-
 			if (statusFilter === 'all') {
 				const [unreadRes, readRes] = await Promise.all([
 					axios.get('/api/notification/user').catch(() => ({ data: [] })),
@@ -54,7 +55,6 @@ export default function Notifications() {
 					? readRes.data.notifications
 					: []
 			}
-
 			console.log(`Filter: ${statusFilter}, Fetched Messages:`, fetchedMessages)
 			setMessages(fetchedMessages)
 			setUnreadCount(
@@ -75,28 +75,26 @@ export default function Notifications() {
 
 	useEffect(() => {
 		const handleClickOutside = event => {
-			// Modal ochiq bo‘lsa va modal tashqarisiga bosilsa
 			if (
 				modalIsVisible &&
 				modalRef.current &&
 				!modalRef.current.contains(event.target)
 			) {
-				setModalIsVisible(false) // Faqat modal yopiladi
-				return // Dropdownni yopishga o‘tmaydi
+				setModalIsVisible(false)
+				return
 			}
-			// Modal yopiq bo‘lsa va dropdown tashqarisiga bosilsa
 			if (
 				!modalIsVisible &&
 				dropdownRef.current &&
 				!dropdownRef.current.contains(event.target) &&
 				!event.target.closest(`.${styles.notificationIcon}`)
 			) {
-				setIsVisible(false) // Dropdown yopiladi
+				setIsVisible(false)
 			}
 		}
 		document.addEventListener('mousedown', handleClickOutside)
 		return () => document.removeEventListener('mousedown', handleClickOutside)
-	}, [modalIsVisible]) // modalIsVisible holatini kuzatish uchun qo‘shildi
+	}, [modalIsVisible])
 
 	const del = async id => {
 		try {
@@ -122,20 +120,33 @@ export default function Notifications() {
 		}
 	}
 
+	const markAllAsRead = async () => {
+		setIsLoading(true) // Show loading state
+		try {
+			const response = await axios.patch('/api/notification/read-all')
+			if (response.status === 200) {
+				console.log('✅ All notifications marked as read!')
+				fetchData(filter)
+			}
+		} catch (error) {
+			console.error('Error marking all as read:', error)
+		} finally {
+			setIsLoading(false) // Reset loading state
+		}
+	}
+
 	const handleClick = item => {
 		const userRoles = {
 			student: userData.students[item.user_id],
 			staff: userData.staff[item.user_id],
 			admin: userData.admin,
 		}
-
 		setCurrentUser({
 			first_name: userRoles[item.user_role]?.first_name || 'Unknown',
 			last_name: userRoles[item.user_role]?.last_name || '',
 			photo:
 				userRoles[item.user_role]?.photo || 'https://via.placeholder.com/80',
 		})
-
 		setSelectedMessage(item)
 		setModalIsVisible(true)
 		if (item.status === 'unread') markAsRead(item.id)
@@ -158,7 +169,32 @@ export default function Notifications() {
 			{isVisible && (
 				<div ref={dropdownRef} className={styles.dropdown}>
 					<div className={styles.dropdownArrow}></div>
-					<div className={styles.headerZone}>Notifications</div>
+					<div
+						className={styles.headerZone}
+						style={{ backgroundColor: '#4682B4' }}
+					>
+						<span>Notifications</span>
+						{unreadCount > 0 && (
+							<button
+								className={styles.markAllButton}
+								onClick={markAllAsRead}
+								disabled={isLoading} // Disable during loading
+								aria-label='Mark all notifications as read'
+							>
+								{isLoading ? (
+									'Loading...'
+								) : (
+									<>
+										<CheckIcon
+											fontSize='small'
+											style={{ marginRight: '4px' }}
+										/>
+										Mark All Read
+									</>
+								)}
+							</button>
+						)}
+					</div>
 					<div className={styles.filterTabs}>
 						<button
 							className={`${styles.filterButton} ${
@@ -197,6 +233,19 @@ export default function Notifications() {
 									}`}
 								>
 									<div className={styles.avatarContainer}>
+										<img
+											src={
+												item.user_role === 'student'
+													? userData.students[item.user_id]?.photo
+													: item.user_role === 'staff'
+														? userData.staff[item.user_id]?.photo
+														: item.user_role === 'admin'
+															? userData.admin.photo
+															: 'https://via.placeholder.com/40'
+											}
+											alt='User Avatar'
+											className={styles.avatar}
+										/>
 										<div className={styles.messageContainer}>
 											<div>{shortText(item.message, 28)}</div>
 											<div>{shortText(item.createdAt, 10, true)}</div>
@@ -231,19 +280,6 @@ export default function Notifications() {
 						>
 							<CloseIcon />
 						</button>
-						{/* <div className={styles.modalHeader}>
-							<img
-								className={styles.modalAvatar}
-								src={currentUser.photo}
-								alt='User'
-							/>
-							<div>
-								<h2 className={styles.userName}>
-									{currentUser.first_name} {currentUser.last_name}
-								</h2>
-								<p className={styles.userRole}>{selectedMessage.user_role}</p>
-							</div>
-						</div> */}
 						<div className={styles.messageBody}>
 							<p className={styles.messageText}>{selectedMessage.message}</p>
 							<p className={styles.messageDate}>
