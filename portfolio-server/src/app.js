@@ -3,7 +3,6 @@ const dotenv = require('dotenv')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
-const cors = require('cors')
 const multer = require('multer')
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
