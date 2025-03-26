@@ -49,7 +49,6 @@ module.exports = router
  *         description: Draft created successfully
  *       400:
  *         description: Bad request
- * /api/draft:
  *   get:
  *     tags: [Drafts]
  *     summary: Get all drafts
