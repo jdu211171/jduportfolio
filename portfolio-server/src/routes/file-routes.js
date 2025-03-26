@@ -9,6 +9,38 @@ const upload = multer({ storage: multer.memoryStorage() })
 const fs = require('fs')
 const axios = require('axios')
 
+/**
+ * @swagger
+ * /api/files/upload:
+ *   post:
+ *     tags: [Files]
+ *     summary: Upload one or more files
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *               role:
+ *                 type: string
+ *               imageType:
+ *                 type: string
+ *               id:
+ *                 type: string
+ *               oldFilePath:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Returns file upload info
+ *       500:
+ *         description: Error uploading file(s)
+ */
 // Endpoint to upload one or more files
 router.post('/upload', upload.any(), async (req, res) => {
 	const files = req.files // This will be an array of files
@@ -50,6 +82,24 @@ router.post('/upload', upload.any(), async (req, res) => {
 	}
 })
 
+/**
+ * @swagger
+ * /api/files/download/{objectName}:
+ *   get:
+ *     tags: [Files]
+ *     summary: Download a file by its object name
+ *     parameters:
+ *       - in: path
+ *         name: objectName
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The requested file
+ *       500:
+ *         description: Error downloading file
+ */
 // Endpoint to download a file
 router.get('/download/:objectName', async (req, res) => {
 	const { objectName } = req.params
@@ -153,3 +203,4 @@ router.get('/download/:objectName', async (req, res) => {
 // })
 
 module.exports = router
+
