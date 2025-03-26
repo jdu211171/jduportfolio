@@ -157,4 +157,5 @@ router.patch('/read-all', NotificationController.markNotificationAsReadAll);
  */
 router.get('/history', NotificationController.historyNotification);
 
+
 module.exports = router
