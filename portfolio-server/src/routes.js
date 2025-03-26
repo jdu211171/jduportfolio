@@ -14,6 +14,7 @@ const logRoute = require('./routes/log-route')
 const notificationRoute = require('./routes/notification-route')
 
 const fileRoutes = require('./routes/file-routes')
+const imageRoutes = require('./routes/image-routes')
 const kintoneRoutes = require('./routes/kintone-routes')
 const webhookRoutes = require('./routes/webhook-routes')
 
@@ -67,6 +68,7 @@ const configureRoutes = app => {
 	app.use('/api/settings', settingRoute)
 	app.use('/api/draft', authMiddleware, draftRoute)
 	app.use('/api/log', logRoute)
+	app.use('/api/images', imageRoutes)
 	app.use('/api/notification', authMiddleware, notificationRoute)
 }
 
