@@ -3,7 +3,7 @@ const dotenv = require('dotenv')
 const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
-
+const multer = require('multer')
 const cron = require('node-cron')
 
 const configureRoutes = require('./routes')
@@ -15,6 +15,40 @@ const PORT = process.env.PORT || 5000
 dotenv.config()
 const CronService = require('./services/cronService')
 const app = express()
+
+
+
+// const upload = multer({ storage: multer.memoryStorage() });
+
+// app.post('/test-upload', upload.single('image'), (req, res) => {
+//     console.log('req.file:', req.file);
+//     console.log('req.body:', req.body);
+//     if (!req.file) {
+//         return res.status(400).json({ message: 'Rasm fayli yuklanmadi' });
+//     }
+//     res.status(200).json({ message: 'Fayl muvaffaqiyatli yuklandi', file: req.file });
+// });
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // Maksimal hajm: 5MB
+});
+
+app.post('/test-upload', upload.single('image'), (req, res) => {
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
+    if (!req.file) {
+        return res.status(400).json({ message: 'Rasm fayli yuklanmadi' });
+    }
+    res.status(200).json({ message: 'Fayl muvaffaqiyatli yuklandi', file: req.file });
+}, (err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        return res.status(400).json({ message: `Xato: ${err.message}` });
+    }
+    res.status(500).json({ message: 'Kutilmagan xato yuz berdi' });
+});
+
+
 
 // Use cookie-parser middleware
 app.use(cookieParser())
@@ -36,6 +70,8 @@ cron.schedule('0 4 * * *', async () => {
 	console.log('syncing with kintone')
 	await KintoneService.syncData()
 })
+
+
 
 CronService.scheduleJobs()
 
