@@ -16,9 +16,9 @@ import translations from '../../locales/translations'
 
 const Home = () => {
 	const navigate = useNavigate()
-	const { language } = useLanguage() // Получение текущего языка из контекста
+	const { language } = useLanguage()
 
-	const t = key => translations[language][key] || key // Функция перевода
+	const t = key => translations[language][key] || key
 
 	const [role, setRole] = useState(null)
 	const [editData, setEditData] = useState('')
@@ -75,8 +75,6 @@ const Home = () => {
 
 	return (
 		<div key={language}>
-			{' '}
-			{/* Динамическое обновление при смене языка */}
 			<Box className={styles.header}>
 				<h3>
 					<a href='https://www.jdu.uz/'>Japan Digital University</a>

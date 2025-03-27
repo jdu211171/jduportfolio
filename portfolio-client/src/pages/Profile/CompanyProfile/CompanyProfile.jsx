@@ -71,29 +71,24 @@ const CompanyProfile = ({ userId = 0 }) => {
 		try {
 			const formData = new FormData()
 
-			// Append new images to form data
 			newImages.forEach((file, index) => {
 				formData.append(`files[${index}]`, file)
 			})
 
-			// Append other necessary fields
 			formData.append('role', role)
 			formData.append('imageType', 'CompanyGallery')
 			formData.append('id', id)
 
-			// Append the array of deleted URLs
 			deletedUrls.forEach((url, index) => {
 				formData.append(`oldFilePath[${index}]`, url)
 			})
 
-			// Send the form data via POST requesïït for new images
 			const fileResponse = await axios.post('/api/files/upload', formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 				},
 			})
 
-			// Update gallery URLs with new file locations
 			let oldFiles = editData.gallery
 			if (Array.isArray(fileResponse.data)) {
 				fileResponse.data.forEach(file => {
@@ -105,9 +100,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 			await handleUpdateEditData('gallery', oldFiles)
 
-			// Handle deleted URLs
-
-			// Save updated company data
 			await axios.put(`/api/recruiters/${id}`, editData)
 			setCompany(editData)
 			setEditMode(false)
@@ -120,17 +112,13 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 	const handleGalleryUpdate = (files, isNewFiles = false, isDelete = false) => {
 		if (isNewFiles && !isDelete) {
-			// Convert FileList to an array of files
 			const newFiles = Array.from(files)
 
-			// Update the state with new files
 			setNewImages(prevImages => [...prevImages, ...newFiles])
 		} else if (isDelete) {
 			if (isNewFiles) {
-				// Remove new files (filtered by index)
 				setNewImages(prevImages => prevImages.filter((_, i) => i !== files))
 			} else {
-				// Remove old files (by index)
 				let oldFiles = editData.gallery
 				deletedUrls.push(oldFiles[files])
 				oldFiles.splice(files, 1)

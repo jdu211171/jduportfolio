@@ -137,12 +137,8 @@ const QA = ({
 		setConfirmMode(prev => !prev)
 	}
 
-	// ---------------------
-	// Confirm Profile Handler
-	// ---------------------
 	const handleConfirmProfile = async () => {
 		try {
-			// Example final confirmation logic:
 			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
 			if (res.status == 200) {
 				showAlert(t['profileConfirmed'], 'success')
@@ -150,14 +146,12 @@ const QA = ({
 		} catch (error) {
 			showAlert(t['errorConfirmingProfile'], 'error')
 		} finally {
-			// Always close the dialog
 			setConfirmMode(false)
 		}
 	}
 
 	const approveProfile = async value => {
 		try {
-			// Example final confirmation logic:
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
 				comments: comment.comment,
@@ -166,14 +160,12 @@ const QA = ({
 		} catch (error) {
 			showAlert(t['errorConfirmingProfile'], 'error')
 		} finally {
-			// Always close the dialog
 			setConfirmMode(false)
 		}
 	}
 
 	const setProfileVisible = async visibility => {
 		try {
-			// Example final confirmation logic:
 			const res = await axios.put(`/api/students/${id}`, {
 				visibility: visibility,
 			})
@@ -181,7 +173,6 @@ const QA = ({
 		} catch (error) {
 			showAlert(t['errorConfirmingProfile'], 'error')
 		} finally {
-			// Always close the dialog
 			setConfirmMode(false)
 		}
 	}
@@ -191,9 +182,8 @@ const QA = ({
 			if (role == 'Admin') {
 				let questions = removeKey(editData, 'answer')
 
-				const updatedValue = JSON.stringify(questions) // Ensure it is stringified
+				const updatedValue = JSON.stringify(questions)
 
-				// Send a PUT request to save the updated FAQ data
 				const response = await axios.put(`/api/settings/studentQA`, {
 					value: updatedValue,
 				})
@@ -262,7 +252,6 @@ const QA = ({
 				updatedEditData[category] &&
 				updatedEditData[category][indexToDelete]
 			) {
-				// Delete the key from the category
 				delete updatedEditData[category][indexToDelete]
 			}
 
@@ -275,7 +264,6 @@ const QA = ({
 
 		for (const key in obj) {
 			if (key === 'idList') {
-				// Directly copy idList without modifications
 				newObj[key] = obj[key]
 			} else if (typeof obj[key] === 'object' && obj[key] !== null) {
 				newObj[key] = {}
@@ -284,12 +272,12 @@ const QA = ({
 						typeof obj[key][subKey] === 'object' &&
 						obj[key][subKey] !== null
 					) {
-						const { [excludeKey]: excluded, ...rest } = obj[key][subKey] // Exclude the `answer`/`question` key
+						const { [excludeKey]: excluded, ...rest } = obj[key][subKey]
 						newObj[key][subKey] = rest
 					}
 				}
 			} else {
-				newObj[key] = obj[key] // Copy other non-object properties as-is
+				newObj[key] = obj[key]
 			}
 		}
 
@@ -302,21 +290,19 @@ const QA = ({
 		if (firsttime) {
 			setIsFirstTime(true)
 		}
-		// Loop through each category (e.g., '専門知識', '個性', etc.)
 		for (const category in questions) {
 			if (category == 'idList') {
 				combinedData[category] = answers[category]
 			} else {
 				combinedData[category] = {}
-				// For each question in the category, find the corresponding answer
 				for (const key in questions[category]) {
 					combinedData[category][key] = {
-						question: questions[category][key].question, // Store the question
+						question: questions[category][key].question,
 						answer: firsttime
 							? ''
 							: !answers[category][key]
 								? ''
-								: answers[category][key].answer, // Store the answer
+								: answers[category][key].answer,
 					}
 				}
 			}
@@ -346,7 +332,7 @@ const QA = ({
 
 	const getCategoryData = index => {
 		const category = labels[index]
-		return editData[category] || {} // Ensure we return an empty object if category not found
+		return editData[category] || {}
 	}
 
 	if (!studentQA) {
@@ -475,9 +461,9 @@ const QA = ({
 						([key, { question, answer }]) => (
 							<QATextField
 								key={key}
-								data={studentQA} // Pass any relevant data here if needed
+								data={studentQA}
 								editData={editData}
-								category={labels[subTabIndex]} // Use labels to get the current category
+								category={labels[subTabIndex]}
 								question={question}
 								keyName={key}
 								aEdit={role == 'Admin'}

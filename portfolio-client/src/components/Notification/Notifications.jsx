@@ -1,5 +1,5 @@
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications'
-import CheckIcon from '@mui/icons-material/Check' // Added for icon
+import CheckIcon from '@mui/icons-material/Check'
 import axios from '../../utils/axiosUtils.js'
 import { useState, useEffect, useRef } from 'react'
 import { shortText } from '../functions.js'
@@ -21,7 +21,7 @@ export default function Notifications() {
 	const [currentUser, setCurrentUser] = useState({})
 	const [unreadCount, setUnreadCount] = useState(0)
 	const [filter, setFilter] = useState('all')
-	const [isLoading, setIsLoading] = useState(false) // Added for loading state
+	const [isLoading, setIsLoading] = useState(false)
 	const modalRef = useRef(null)
 	const dropdownRef = useRef(null)
 
@@ -121,7 +121,7 @@ export default function Notifications() {
 	}
 
 	const markAllAsRead = async () => {
-		setIsLoading(true) // Show loading state
+		setIsLoading(true)
 		try {
 			const response = await axios.patch('/api/notification/read-all')
 			if (response.status === 200) {
@@ -131,7 +131,7 @@ export default function Notifications() {
 		} catch (error) {
 			console.error('Error marking all as read:', error)
 		} finally {
-			setIsLoading(false) // Reset loading state
+			setIsLoading(false)
 		}
 	}
 

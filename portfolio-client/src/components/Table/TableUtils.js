@@ -1,6 +1,3 @@
-// tableUtils.js
-
-// Descending comparator function used by stableSort
 export function descendingComparator(a, b, orderBy) {
 	if (b[orderBy] < a[orderBy]) {
 		return -1
@@ -11,7 +8,6 @@ export function descendingComparator(a, b, orderBy) {
 	return 0
 }
 
-// Stable sort function that maintains order for equal elements
 export function stableSort(array, comparator) {
 	const stabilizedThis = array.map((el, index) => [el, index])
 	stabilizedThis.sort((a, b) => {
@@ -22,7 +18,6 @@ export function stableSort(array, comparator) {
 	return stabilizedThis.map(el => el[0])
 }
 
-// Comparator function generator for ascending and descending order
 export function getComparator(order, orderBy) {
 	return order === 'desc'
 		? (a, b) => descendingComparator(a, b, orderBy)

@@ -17,13 +17,13 @@ import {
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import { useLanguage } from '../../contexts/LanguageContext' // Import the language context
-import translations from '../../locales/translations' // Import translations
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 import style from './Filter.module.css'
 
 const Filter = ({ fields, filterState, onFilterChange }) => {
-	const { language } = useLanguage() // Get the current language
-	const t = key => translations[language][key] || key // Translation function
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 
 	const [open, setOpen] = useState(false)
 	const [collapse, setCollapse] = useState(false)
@@ -107,23 +107,22 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 
 	const handleSubmit = e => {
 		e.preventDefault()
-		onFilterChange(localFilterState) // Update filterState with localFilterState
+		onFilterChange(localFilterState)
 		handleClick()
 	}
 
 	const handleClear = () => {
-		// Reset local filter state to initial state (or empty state)
 		const clearedFilterState = fields.reduce((acc, field) => {
 			if (field.type === 'checkbox') {
-				acc[field.key] = [] // Reset checkbox arrays to empty
+				acc[field.key] = []
 			} else {
-				acc[field.key] = '' // Reset other fields to empty strings
+				acc[field.key] = ''
 			}
 			return acc
 		}, {})
 
-		setLocalFilterState(clearedFilterState) // Update local state
-		onFilterChange(clearedFilterState) // Notify parent component with cleared filters
+		setLocalFilterState(clearedFilterState)
+		onFilterChange(clearedFilterState)
 	}
 
 	const handleClick = (onSearch = false) => {
@@ -159,16 +158,16 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 							type='submit'
 							sx={{
 								fontSize: {
-									xs: '0.75rem', // Small screen
-									sm: '1rem', // Medium and larger screens
+									xs: '0.75rem',
+									sm: '1rem',
 								},
 								padding: {
-									xs: '0px 0px', // Small screen
-									sm: '0px 0px', // Medium and larger screens
+									xs: '0px 0px',
+									sm: '0px 0px',
 								},
 							}}
 						>
-							{t('search')} {/* Translation for 検索 */}
+							{t('search')}
 						</Button>
 					</ButtonGroup>
 				</Grid>
@@ -185,7 +184,7 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 			</Grid>
 			<Grid item xs={12} style={{ position: 'relative' }}>
 				<div className={style.clear} onClick={handleClear}>
-					{t('reset')} {/* Translation for 戻る */}
+					{t('reset')}
 				</div>
 				<div className={style.filterButtonContainer}>
 					{fields.length > 1 && (
