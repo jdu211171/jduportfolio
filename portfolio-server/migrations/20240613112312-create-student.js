@@ -89,7 +89,7 @@ module.exports = {
       },
       semester: {
         type: Sequelize.ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', "卒業"),
-        defaultValue: '1', // Note that the default value should be a string to match ENUM options
+        defaultValue: '1',
       },
       partner_university: {
         type: Sequelize.STRING,
