@@ -46,7 +46,7 @@
 	height: 0;
 	border-left: 0.5rem solid transparent;
 	border-right: 0.5rem solid transparent;
-	border-bottom: 0.5rem solid #f4555a;
+	border-bottom: 0.5rem solid #4682b4;
 	z-index: 2001; /* Strelka dropdown ustida */
 }
 
@@ -280,6 +280,39 @@
 	color: #000;
 	font-weight: bold;
 	border-bottom: 2px solid #007bff;
+}
+
+.markAllButton {
+	margin-left: auto;
+	padding: 6px 12px; /* Slightly larger for better touch target */
+	background-color: #ffffff;
+	border: 1px solid #87ceeb; /* LightSkyBlue border to match warm blue theme */
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px; /* Slightly larger for readability */
+	color: #4682b4; /* Matches header background */
+	display: flex;
+	align-items: center;
+	transition: all 0.2s ease; /* Smooth transitions */
+}
+
+.markAllButton:hover:not(:disabled) {
+	background-color: #f0f8ff; /* AliceBlue for subtle hover effect */
+	border-color: #4169e1; /* RoyalBlue on hover */
+}
+
+.markAllButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.headerZone {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px;
+	color: #ffffff;
+	font-weight: 500;
 }
 
 /* Media queries */
