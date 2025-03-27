@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import Table from '../../components/Table/Table'
@@ -230,7 +230,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 				submitted: '未確認',
 				checking: '確認中',
 				resubmission_required: '確認済',
-				approved: '確認済',
+				approved: '承認済'
 			},
 		},
 		{
@@ -326,3 +326,4 @@ const Student = ({ OnlyBookmarked = false }) => {
 }
 
 export default Student
+
