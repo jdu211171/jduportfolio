@@ -1,35 +1,34 @@
-/* src/components/TextField.module.css */
 .container {
-  margin: 30px auto;
+	margin: 30px auto;
 }
 .title {
-  font-size: 20px;
-  font-weight: 600;
-  margin: 15px auto;
+	font-size: 20px;
+	font-weight: 600;
+	margin: 15px auto;
 }
 
 .description {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 10px;
-  flex-wrap: wrap;
-  width: fit-content;
-  padding: 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	gap: 10px;
+	flex-wrap: wrap;
+	width: fit-content;
+	padding: 10px;
 }
 
 .description div {
-  padding: 8px;
+	padding: 8px;
 }
 
 .data {
-  margin-top: 20px;
+	margin-top: 20px;
 }
 
 .data table {
-  border-spacing: 10px 10px;
+	border-spacing: 10px 10px;
 }
 
 .data td {
-  min-width: 38px;
+	min-width: 38px;
 }

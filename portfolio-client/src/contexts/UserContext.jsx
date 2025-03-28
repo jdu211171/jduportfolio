@@ -1,6 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
 
-// Create a Context for the user
 export const UserContext = createContext()
 
 export const UserProvider = ({ children }) => {
@@ -9,7 +8,7 @@ export const UserProvider = ({ children }) => {
 	const [activeUser, setActiveUser] = useState(null)
 	const [language, setLanguage] = useState(
 		localStorage.getItem('language') || 'ja'
-	) // Default to English
+	)
 
 	const fetchAndSetUser = () => {
 		const userRole = sessionStorage.getItem('role')
@@ -30,7 +29,6 @@ export const UserProvider = ({ children }) => {
 		return fetchAndSetUser()
 	}
 
-	// Function to change the language
 	const changeLanguage = lang => {
 		setLanguage(lang)
 		localStorage.setItem('language', lang)

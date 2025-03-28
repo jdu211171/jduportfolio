@@ -13,12 +13,12 @@ import EmailIcon from '@mui/icons-material/Email'
 import styles from './StudentProfile.module.css'
 import translations from '../../../locales/translations'
 import { useContext } from 'react'
-import { UserContext } from '../../../contexts/UserContext' // Добавьте эту строку
+import { UserContext } from '../../../contexts/UserContext'
 
 const StudentProfile = ({ userId = 0 }) => {
 	const { studentId } = useParams()
-	const { language } = useContext(UserContext) // Получаем текущий язык
-	const t = translations[language] || translations.en // Выбираем переводы на основе языка
+	const { language } = useContext(UserContext)
+	const t = translations[language] || translations.en
 	let id
 	if (userId != 0) {
 		id = userId

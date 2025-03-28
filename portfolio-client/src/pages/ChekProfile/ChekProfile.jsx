@@ -6,12 +6,12 @@ import Filter from '../../components/Filter/Filter'
 
 import axios from '../../utils/axiosUtils'
 import { useAlert } from '../../contexts/AlertContext'
-import { useLanguage } from '../../contexts/LanguageContext' // Подключение контекста языка
-import translations from '../../locales/translations' // Подключение переводов
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 
 const Student = ({ OnlyBookmarked = false }) => {
-	const { language } = useLanguage() // Получение текущего языка из контекста
-	const t = key => translations[language][key] || key // Функция перевода
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 	const [filterState, setFilterState] = useState({})
 
 	const showAlert = useAlert()
@@ -133,13 +133,10 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const setProfileVisibility = async (id, visibility) => {
 		try {
-			// If we're making the profile visible, ensure we apply the latest approved draft
 			if (visibility) {
-				// First get the latest approved draft for this student
 				const student = await axios.get(`/api/students/${id}`)
 				const studentId = student.data.student_id
 
-				// Get the latest approved draft
 				const draftsResponse = await axios.get(
 					`/api/draft/student/${studentId}`
 				)
@@ -149,7 +146,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 					draftsResponse.data.draft &&
 					draftsResponse.data.draft.status === 'approved'
 				) {
-					// Apply the draft data and set visibility true in one request
 					const profileData = draftsResponse.data.draft.profile_data || {}
 					const res = await axios.put(`/api/students/${id}`, {
 						...profileData,
@@ -161,7 +157,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 						return true
 					}
 				} else {
-					// No approved draft found, just set visibility
 					const res = await axios.put(`/api/students/${id}`, {
 						visibility: true,
 					})
@@ -172,7 +167,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 					}
 				}
 			} else {
-				// Simply hide the profile
 				const res = await axios.put(`/api/students/${id}`, {
 					visibility: false,
 				})
@@ -230,7 +224,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 				submitted: '未確認',
 				checking: '確認中',
 				resubmission_required: '確認済',
-				approved: '承認済'
+				approved: '承認済',
 			},
 		},
 		{
@@ -312,7 +306,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-			{/* Перерендеринг при смене языка */}
 			<Box sx={{ width: '100%', height: '100px' }}>
 				<Filter
 					fields={filterProps}
@@ -326,4 +319,3 @@ const Student = ({ OnlyBookmarked = false }) => {
 }
 
 export default Student
-

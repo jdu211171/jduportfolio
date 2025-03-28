@@ -35,31 +35,28 @@ const FAQ = () => {
 		const userRole = sessionStorage.getItem('role')
 		await setRole(userRole)
 		try {
-			const response = await axios.get('/api/settings/faq') // Assuming this is the endpoint for FAQ
-			await setEditData(JSON.parse(response.data.value)) // Set the FAQ data
+			const response = await axios.get('/api/settings/faq')
+			await setEditData(JSON.parse(response.data.value))
 		} catch (error) {
 			console.error('Error fetching FAQ data:', error)
 		}
 	}
 
 	const fetchSettings = async () => {
-		const keys = ['contactEmail', 'contactPhone', 'workingHours', 'location'] // Define the keys here
+		const keys = ['contactEmail', 'contactPhone', 'workingHours', 'location']
 
 		try {
-			// Make the GET request to the endpoint with the keys
 			const response = await axios.get('/api/settings', {
 				params: {
-					keys: keys.join(','), // Convert the array into a comma-separated string
+					keys: keys.join(','),
 				},
 			})
 
-			// Process the response and return the settings object
 			const data = response.data
 			setSettings(data)
 			return data
 		} catch (error) {
 			console.error('Error fetching settings:', error)
-			// Handle errors appropriately, for example by showing a notification
 			throw new Error('Failed to fetch settings')
 		}
 	}
@@ -71,14 +68,12 @@ const FAQ = () => {
 
 	const handleUpdate = (keyName, value, qa) => {
 		setEditData(prevEditData => {
-			// Clone the previous editData
 			const updatedEditData = [...prevEditData]
 
-			// If the key exists, update the corresponding value
 			if (updatedEditData[keyName]) {
 				updatedEditData[keyName] = {
 					...updatedEditData[keyName],
-					[qa]: value, // Update the 'answer' field
+					[qa]: value,
 				}
 			}
 
@@ -92,9 +87,8 @@ const FAQ = () => {
 
 	const handleSave = async () => {
 		try {
-			const updatedValue = JSON.stringify(editData) // Ensure it is stringified
+			const updatedValue = JSON.stringify(editData)
 
-			// Send a PUT request to save the updated FAQ data
 			const response = await axios.put(`/api/settings/faq`, {
 				value: updatedValue,
 			})
@@ -190,9 +184,9 @@ const FAQ = () => {
 						Object.entries(editData).map(([key, { question, answer }]) => (
 							<Box key={key}>
 								<QATextField
-									data={editData} // Pass any relevant data here if needed
+									data={editData}
 									editData={editData}
-									category={false} // Use labels to get the current category
+									category={false}
 									question={question}
 									keyName={key}
 									updateEditData={handleUpdate}

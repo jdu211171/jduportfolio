@@ -1,8 +1,7 @@
-/* Notification.module.css */
 .notificationContainer {
 	position: relative;
 	display: inline-block;
-	right: 1rem; /* Ikonning joylashuvi */
+	right: 1rem;
 }
 
 .notificationBadge {
@@ -20,7 +19,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 1100; /* Badge ikon ustida bo‘lishi uchun */
+	z-index: 1100;
 }
 
 .notificationIcon {
@@ -31,11 +30,11 @@
 	position: absolute;
 	right: -0.75rem;
 	top: 3rem;
-	z-index: 2000; /* Dropdown boshqa elementlardan yuqorida */
+	z-index: 2000;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-	background-color: white; /* Fon rangi qo‘shildi */
+	background-color: white;
 	border-radius: 0.313rem;
-	width: 24rem; /* Kenglik aniq belgilandi */
+	width: 24rem;
 }
 
 .dropdownArrow {
@@ -46,12 +45,12 @@
 	height: 0;
 	border-left: 0.5rem solid transparent;
 	border-right: 0.5rem solid transparent;
-	border-bottom: 0.5rem solid #f4555a;
-	z-index: 2001; /* Strelka dropdown ustida */
+	border-bottom: 0.5rem solid #4682b4;
+	z-index: 2001;
 }
 
 .headerZone {
-	width: 100%; /* To‘liq kenglik */
+	width: 100%;
 	height: 4rem;
 	background-color: #f4555a;
 	border-top-left-radius: 0.313rem;
@@ -66,8 +65,8 @@
 }
 
 .mainPage {
-	width: 100%; /* To‘liq kenglik */
-	height: 18rem; /* Maksimal balandlik */
+	width: 100%;
+	height: 18rem;
 	background-color: white;
 	border-bottom-left-radius: 0.313rem;
 	border-bottom-right-radius: 0.313rem;
@@ -79,11 +78,11 @@
 
 .notificationItem {
 	display: flex;
-	align-items: center; /* Vertikal markazlashtirish */
+	align-items: center;
 	justify-content: space-between;
 	gap: 0.5rem;
 	cursor: pointer;
-	padding: 0.5rem; /* Bir oz ko‘proq padding */
+	padding: 0.5rem;
 	border-bottom: 1px solid #e5e7eb;
 	border-radius: 0.125rem;
 }
@@ -103,7 +102,7 @@
 	border-radius: 9999px;
 	width: 2.5rem;
 	height: 2.5rem;
-	object-fit: cover; /* Rasmni to‘g‘ri ko‘rsatish uchun */
+	object-fit: cover;
 }
 
 .messageContainer {
@@ -111,7 +110,7 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: flex-start;
-	flex: 1; /* Bo‘sh joyni to‘ldirish */
+	flex: 1;
 }
 
 .unread {
@@ -144,7 +143,7 @@
 	justify-content: center;
 	background-color: rgba(0, 0, 0, 0.5);
 	backdrop-filter: blur(4px);
-	z-index: 3000; /* Modal dropdown va boshqalardan yuqorida */
+	z-index: 3000;
 }
 
 .modalContent {
@@ -154,7 +153,7 @@
 	padding: 1.5rem;
 	border-radius: 0.5rem;
 	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-	z-index: 3001; /* Modal ichidagi kontent */
+	z-index: 3001;
 }
 
 .modalHeader {
@@ -215,7 +214,7 @@
 	color: white;
 	padding: 0.5rem 1rem;
 	border-radius: 0.25rem;
-	border: none; /* Tugma uchun */
+	border: none;
 	cursor: pointer;
 }
 
@@ -229,7 +228,7 @@
 	color: white;
 	padding: 0.5rem 1rem;
 	border-radius: 0.25rem;
-	border: none; /* Tugma uchun */
+	border: none;
 	cursor: pointer;
 }
 
@@ -264,7 +263,7 @@
 	justify-content: space-around;
 	padding: 10px 0;
 	border-bottom: 1px solid #e0e0e0;
-	background-color: white; /* Filtrlarga fon */
+	background-color: white;
 }
 
 .filterButton {
@@ -284,21 +283,21 @@
 
 .markAllButton {
 	margin-left: auto;
-	padding: 6px 12px; /* Slightly larger for better touch target */
+	padding: 6px 12px;
 	background-color: #ffffff;
-	border: 1px solid #87ceeb; /* LightSkyBlue border to match warm blue theme */
+	border: 1px solid #87ceeb;
 	border-radius: 4px;
 	cursor: pointer;
-	font-size: 14px; /* Slightly larger for readability */
-	color: #4682b4; /* Matches header background */
+	font-size: 14px;
+	color: #4682b4;
 	display: flex;
 	align-items: center;
-	transition: all 0.2s ease; /* Smooth transitions */
+	transition: all 0.2s ease;
 }
 
 .markAllButton:hover:not(:disabled) {
-	background-color: #f0f8ff; /* AliceBlue for subtle hover effect */
-	border-color: #4169e1; /* RoyalBlue on hover */
+	background-color: #f0f8ff;
+	border-color: #4169e1;
 }
 
 .markAllButton:disabled {
@@ -318,8 +317,8 @@
 /* Media queries */
 @media (max-width: 700px) {
 	.dropdown {
-		right: -18rem; /* Mobil uchun moslashtirish */
-		width: 20rem; /* Kichik ekranlarda kenglik */
+		right: -18rem;
+		width: 20rem;
 	}
 
 	.dropdownArrow {
@@ -327,13 +326,13 @@
 	}
 
 	.modalContent {
-		width: 90%; /* Mobil uchun to‘liq kenglik */
+		width: 90%;
 		max-width: 400px;
 	}
 
 	.headerZone,
 	.mainPage {
-		width: 100%; /* Mobil uchun to‘liq kenglik */
+		width: 100%;
 	}
 }
 

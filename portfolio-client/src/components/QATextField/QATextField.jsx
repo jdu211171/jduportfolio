@@ -1,9 +1,7 @@
-// src/components/QATextField.js
-
 import React, { useState, useEffect } from 'react'
 import { TextField as MuiTextField, IconButton, Box } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
-import styles from './QATextField.module.css' // Assuming you have some CSS for styling
+import styles from './QATextField.module.css'
 
 const QATextField = ({
 	category,
@@ -15,10 +13,9 @@ const QATextField = ({
 	aEdit = false,
 	qEdit = false,
 }) => {
-	// Initialize editData with the value from props
 	const [localEditData, setLocalEditData] = useState('')
 	const [localEditQuestion, setLocalQuestion] = useState('')
-	// Update localEditData when editData changes
+
 	useEffect(() => {
 		if (category == false) {
 			setLocalEditData(editData[keyName]?.answer || '')
@@ -34,20 +31,16 @@ const QATextField = ({
 
 		if (category == false) {
 			if (fieldType === 'question') {
-				// Update the question field
-				setLocalQuestion(updatedValue) // Assuming you're using a state for the question (e.g., `setQuestion`)
+				setLocalQuestion(updatedValue)
 			} else if (fieldType === 'answer') {
-				// Update the answer fields
-				setLocalEditData(updatedValue) // Update the answer field (localEditData state)
+				setLocalEditData(updatedValue)
 			}
 			updateEditData(keyName, updatedValue, fieldType)
 		} else {
 			if (fieldType === 'question') {
-				// Update the question field
-				setLocalQuestion(updatedValue) // Assuming you're using a state for the question (e.g., `setQuestion`)
+				setLocalQuestion(updatedValue)
 			} else if (fieldType === 'answer') {
-				// Update the answer fields
-				setLocalEditData(updatedValue) // Update the answer field (localEditData state)
+				setLocalEditData(updatedValue)
 			}
 			updateEditData(category, keyName, updatedValue, fieldType)
 		}
@@ -60,7 +53,7 @@ const QATextField = ({
 					<Box display={'flex'}>
 						<MuiTextField
 							value={localEditQuestion}
-							onChange={e => handleChange(e, 'question')} // Pass 'question' as a type identifier
+							onChange={e => handleChange(e, 'question')}
 							variant='outlined'
 							fullWidth
 							multiline
@@ -85,7 +78,7 @@ const QATextField = ({
 				{qEdit ? (
 					<MuiTextField
 						value={localEditData}
-						onChange={e => handleChange(e, 'answer')} // Pass 'answer' as a type identifier
+						onChange={e => handleChange(e, 'answer')}
 						variant='outlined'
 						fullWidth
 						multiline

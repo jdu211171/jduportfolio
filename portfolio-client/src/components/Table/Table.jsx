@@ -23,13 +23,13 @@ import {
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 
-import { stableSort, getComparator } from './TableUtils' // Import sorting utilities
-import { useLanguage } from '../../contexts/LanguageContext' // Используем контекст языка
-import translations from '../../locales/translations' // Импорт переводов
+import { stableSort, getComparator } from './TableUtils'
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 
 const EnhancedTable = ({ tableProps, updatedBookmark }) => {
-	const { language } = useLanguage() // Получаем текущий язык
-	const t = key => translations[language][key] || key // Функция перевода
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 
 	const role = sessionStorage.getItem('role')
 
@@ -39,7 +39,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useState(10)
 	const [rows, setRows] = useState([])
-	const [loading, setLoading] = useState(false) // Initialize loading state
+	const [loading, setLoading] = useState(false)
 	const [refresher, setRefresher] = useState(0)
 	const [anchorEls, setAnchorEls] = useState({})
 
@@ -47,7 +47,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 	const handleClick = (event, rowId) => {
 		setAnchorEls(prev => ({
 			...prev,
-			[rowId]: event.currentTarget, // Store anchor element for this row
+			[rowId]: event.currentTarget,
 		}))
 	}
 	const handleClose = async (id, action) => {
@@ -58,7 +58,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 		}
 		setAnchorEls(prev => ({
 			...prev,
-			[id]: null, // Reset the anchor for this row
+			[id]: null,
 		}))
 	}
 
@@ -67,21 +67,20 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 	}
 
 	const fetchUserData = async () => {
-		setLoading(true) // Start loading indicator
+		setLoading(true)
 		try {
 			const response = await axios.get(tableProps.dataLink, {
 				params: {
 					filter: tableProps.filter,
 					recruiterId: tableProps.recruiterId,
-					onlyBookmarked: tableProps.OnlyBookmarked, // Assuming you add recruiterId to the filter
+					onlyBookmarked: tableProps.OnlyBookmarked,
 				},
 			})
 			setRows(response.data)
 		} catch (error) {
 			console.error('Error fetching students:', error)
-			// Handle error: Set error state, display error message, etc.
 		} finally {
-			setLoading(false) // Stop loading indicator regardless of success or failure
+			setLoading(false)
 		}
 	}
 
@@ -165,7 +164,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{loading ? ( // Show loading indicator if loading is true
+						{loading ? (
 							<TableRow>
 								<TableCell colSpan={tableProps.headers.length} align='center'>
 									<LinearProgress />
@@ -326,17 +325,18 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 																		vertical: 'top',
 																		horizontal: 'right',
 																	}}
-																	anchorEl={anchorEls[row.id] || null} // Use row-specific anchorEl
-																	open={Boolean(anchorEls[row.id])} // Only open if this row's menu is clicked
+																	anchorEl={anchorEls[row.id] || null}
+																	open={Boolean(anchorEls[row.id])}
+																	is
+																	clicked
 																	onClose={() => {
 																		setAnchorEls(prev => ({
 																			...prev,
-																			[row.id]: null, // Reset the anchor for this row
+																			[row.id]: null,
 																		}))
-																	}} // Close only this row's menu
+																	}}
 																>
 																	{header.options.map((option, key) => {
-																		// Check if the option should be shown based on its shouldShow property
 																		const shouldBeVisible =
 																			option.visibleTo === role &&
 																			(!option.shouldShow ||
@@ -408,7 +408,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 				page={page}
 				onPageChange={handleChangePage}
 				onRowsPerPageChange={handleChangeRowsPerPage}
-				labelRowsPerPage={t('rows_per_page')} // Используем перевод
+				labelRowsPerPage={t('rows_per_page')}
 			/>
 		</Box>
 	)
@@ -430,7 +430,7 @@ EnhancedTable.propTypes = {
 				keyIdentifier: PropTypes.string,
 			})
 		).isRequired,
-		filter: PropTypes.object.isRequired, // Assuming filter is an object
+		filter: PropTypes.object.isRequired,
 	}).isRequired,
 }
 
