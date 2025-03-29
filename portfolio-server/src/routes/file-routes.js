@@ -7,7 +7,40 @@ const path = require('path')
 const multer = require('multer')
 const upload = multer({ storage: multer.memoryStorage() })
 const fs = require('fs')
+const axios = require('axios')
 
+/**
+ * @swagger
+ * /api/files/upload:
+ *   post:
+ *     tags: [Files]
+ *     summary: Upload one or more files
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *               role:
+ *                 type: string
+ *               imageType:
+ *                 type: string
+ *               id:
+ *                 type: string
+ *               oldFilePath:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Returns file upload info
+ *       500:
+ *         description: Error uploading file(s)
+ */
 // Endpoint to upload one or more files
 router.post('/upload', upload.any(), async (req, res) => {
 	const files = req.files // This will be an array of files
@@ -36,6 +69,7 @@ router.post('/upload', upload.any(), async (req, res) => {
 					`${role}/${imageType}/${id}/` + uniqueFilename
 				)
 				uploadedFiles.push(uploadedFile)
+
 			}
 		}
 
@@ -48,6 +82,24 @@ router.post('/upload', upload.any(), async (req, res) => {
 	}
 })
 
+/**
+ * @swagger
+ * /api/files/download/{objectName}:
+ *   get:
+ *     tags: [Files]
+ *     summary: Download a file by its object name
+ *     parameters:
+ *       - in: path
+ *         name: objectName
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The requested file
+ *       500:
+ *         description: Error downloading file
+ */
 // Endpoint to download a file
 router.get('/download/:objectName', async (req, res) => {
 	const { objectName } = req.params
@@ -61,4 +113,94 @@ router.get('/download/:objectName', async (req, res) => {
 	}
 })
 
+
+
+
+// // Endpoint to upload images (Create)
+// router.post('/images/upload', upload.any(), async (req, res) => {
+//     const files = req.files // Array of image files
+//     const { role, imageType, id } = req.body
+
+//     try {
+//         const uploadedImages = []
+//         if (files && files.length !== 0) {
+//             for (const file of files) {
+//                 const fileBuffer = file.buffer
+//                 const uniqueFilename = generateUniqueFilename(file.originalname)
+//                 const uploadedImage = await uploadFile(
+//                     fileBuffer,
+//                     `${role}/${imageType}/${id}/` + uniqueFilename
+//                 )
+//                 uploadedImages.push(uploadedImage)
+//             }
+//         }
+
+//         res.status(200).send(uploadedImages)
+//     } catch (error) {
+//         console.error(error)
+//         res.status(500).send('Error uploading image(s)')
+//     }
+// })
+
+// // Endpoint to update images (Update)
+// router.put('/images/update', upload.any(), async (req, res) => {
+//     const files = req.files // Array of new image files
+//     const { role, imageType, id, oldImagePaths } = req.body
+
+//     try {
+//         // Delete old images
+//         if (oldImagePaths && oldImagePaths.length > 0) {
+//             for (const imagePath of oldImagePaths) {
+//                 try {
+//                     await deleteFile(imagePath)
+//                 } catch (err) {
+//                     console.error(`Failed to delete image at ${imagePath}: ${err}`)
+//                 }
+//             }
+//         }
+
+//         // Upload new images
+//         const uploadedImages = []
+//         if (files && files.length !== 0) {
+//             for (const file of files) {
+//                 const fileBuffer = file.buffer
+//                 const uniqueFilename = generateUniqueFilename(file.originalname)
+//                 const uploadedImage = await uploadFile(
+//                     fileBuffer,
+//                     `${role}/${imageType}/${id}/` + uniqueFilename
+//                 )
+//                 uploadedImages.push(uploadedImage)
+//             }
+//         }
+
+//         res.status(200).send(uploadedImages)
+//     } catch (error) {
+//         console.error(error)
+//         res.status(500).send('Error updating image(s)')
+//     }
+// })
+
+// // Endpoint to delete images (Delete)
+// router.delete('/images/delete', async (req, res) => {
+//     const { imagePaths } = req.body // Array of image paths to delete
+
+//     try {
+//         if (imagePaths && imagePaths.length > 0) {
+//             for (const imagePath of imagePaths) {
+//                 try {
+//                     await deleteFile(imagePath)
+//                 } catch (err) {
+//                     console.error(`Failed to delete image at ${imagePath}: ${err}`)
+//                 }
+//             }
+//         }
+
+//         res.status(200).send('Images deleted successfully')
+//     } catch (error) {
+//         console.error(error)
+//         res.status(500).send('Error deleting image(s)')
+//     }
+// })
+
 module.exports = router
+

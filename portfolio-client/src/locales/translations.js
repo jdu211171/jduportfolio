@@ -329,7 +329,6 @@ const translations = {
 		visible: '公開',
 		invisible: '非公開',
 		status: 'ステータス',
-		approved: '申請済',
 		disapproved: '差し戻し',
 		resubmission_required: '修正して再申請してください',
 		submitted: '申請済',
@@ -504,3 +503,4 @@ const translations = {
 }
 
 export default translations
+

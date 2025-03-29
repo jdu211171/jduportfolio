@@ -1,4 +1,4 @@
-require('dotenv').config() // Load environment variables from .env
+require('dotenv').config()
 
 const env = process.env.NODE_ENV || 'development'
 
@@ -18,7 +18,7 @@ const config = {
 		dialectOptions: {
 			ssl: {
 				require: true,
-				rejectUnauthorized: false, // This line can be omitted if your CA cert is trusted
+				rejectUnauthorized: false,
 			},
 		},
 		dialectModule: require('pg'),
@@ -36,7 +36,7 @@ module.exports = {
 	sequelizeOptions: {
 		define: {
 			timestamps: true,
-			underscored: true, // Use snake_case for automatically added attributes (createdAt, updatedAt)
+			underscored: true,
 		},
 	},
 }

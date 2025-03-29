@@ -7,72 +7,122 @@ const {
 const https = require('https')
 const fs = require('fs')
 
+// const s3Client = new S3Client({
+// 	endpoint: `${process.env.AWS_S3_ENDPOINT}:${process.env.AWS_S3_PORT}`,
+// 	region: process.env.AWS_S3_REGION,
+// 	credentials: {
+// 		accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+// 		secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+// 	},
+// 	forcePathStyle: true, // needed with MinIO
+// 	requestHandler: new https.Agent({
+// 		rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0',
+// 	}),
+// 	signatureVersion: 'v4',
+// })
 const s3Client = new S3Client({
-	endpoint: `${process.env.AWS_S3_ENDPOINT}:${process.env.AWS_S3_PORT}`,
-	region: process.env.AWS_S3_REGION,
-	credentials: {
-		accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-		secretAccessKey: process.env.AWS_S3_SECRET_KEY,
-	},
-	forcePathStyle: true, // needed with MinIO
-	requestHandler: new https.Agent({
-		rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0',
-	}),
-	signatureVersion: 'v4',
-})
+    endpoint: process.env.AWS_S3_ENDPOINT,
+    region: process.env.AWS_S3_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+    },
+    forcePathStyle: true, // MinIO uchun kerak
+    requestHandler: new https.Agent({
+        rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0',
+    }),
+});
 
 const bucketName = process.env.AWS_S3_BUCKET_NAME
 
 // Function to upload a file
+// const uploadFile = async (fileBuffer, objectName) => {
+// 	try {
+// 		const uploadParams = {
+// 			Bucket: bucketName,
+// 			Key: objectName,
+// 			Body: fileBuffer,
+// 			ACL: 'public-read',
+// 		}
+// 		const command = new PutObjectCommand(uploadParams)
+// 		const data = await s3Client.send(command)
+
+// 		const Location = `${process.env.AWS_S3_ENDPOINT}:${process.env.AWS_S3_PORT}/${bucketName}/${objectName}`
+
+// 		return {
+// 			...data,
+// 			Location, // Include the constructed URL in the response
+// 		}
+// 	} catch (error) {
+// 		console.log('Error uploading file:', error)
+// 		throw error
+// 	}
+// }
+
 const uploadFile = async (fileBuffer, objectName) => {
-	try {
-		const uploadParams = {
-			Bucket: bucketName,
-			Key: objectName,
-			Body: fileBuffer,
-			ACL: 'public-read',
-		}
-		const command = new PutObjectCommand(uploadParams)
-		const data = await s3Client.send(command)
+    try {
+        const uploadParams = {
+            Bucket: bucketName,
+            Key: objectName,
+            Body: fileBuffer,
+            ACL: 'public-read',
+        };
+        const command = new PutObjectCommand(uploadParams);
+        await s3Client.send(command);
 
-		const Location = `${process.env.AWS_S3_ENDPOINT}:${process.env.AWS_S3_PORT}/${bucketName}/${objectName}`
+        // Correctly construct the file URL
+        const Location = `${process.env.AWS_S3_ENDPOINT}/${bucketName}/${objectName}`;
 
-		return {
-			...data,
-			Location, // Include the constructed URL in the response
-		}
-	} catch (error) {
-		console.log('Error uploading file:', error)
-		throw error
-	}
-}
+        return { Location };
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        throw error;
+    }
+};
 
 // Function to delete a file using the file's URL
-const deleteFile = async fileUrl => {
-	try {
-		// Extract the object key from the file URL
-		const url = new URL(fileUrl)
-		let objectName = decodeURIComponent(url.pathname.substring(1)) // Remove the leading '/' and decode any encoded characters
+// const deleteFile = async fileUrl => {
+// 	try {
+// 		// Extract the object key from the file URL
+// 		const url = new URL(fileUrl)
+// 		let objectName = decodeURIComponent(url.pathname.substring(1)) // Remove the leading '/' and decode any encoded characters
 
-		// Remove the "portfolio/" prefix if it exists
-		const prefix = 'portfolio/'
-		if (objectName.startsWith(prefix)) {
-			objectName = objectName.substring(prefix.length)
-		}
+// 		// Remove the "portfolio/" prefix if it exists
+// 		const prefix = 'portfolio/'
+// 		if (objectName.startsWith(prefix)) {
+// 			objectName = objectName.substring(prefix.length)
+// 		}
 
-		const deleteParams = {
-			Bucket: bucketName,
-			Key: objectName,
-		}
+// 		const deleteParams = {
+// 			Bucket: bucketName,
+// 			Key: objectName,
+// 		}
 
-		const command = new DeleteObjectCommand(deleteParams)
-		await s3Client.send(command)
-		console.log(`File ${objectName} deleted successfully.`)
-	} catch (error) {
-		console.error('Error deleting file:', error)
-		throw error
-	}
-}
+// 		const command = new DeleteObjectCommand(deleteParams)
+// 		await s3Client.send(command)
+// 		console.log(`File ${objectName} deleted successfully.`)
+// 	} catch (error) {
+// 		console.error('Error deleting file:', error)
+// 		throw error
+// 	}
+// }
+
+const deleteFile = async (fileUrl) => {
+    try {
+        const url = new URL(fileUrl);
+        const objectName = decodeURIComponent(url.pathname.substring(1)); // Remove leading '/'
+        const deleteParams = {
+            Bucket: bucketName,
+            Key: objectName,
+        };
+        const command = new DeleteObjectCommand(deleteParams);
+        await s3Client.send(command);
+        console.log(`File ${objectName} deleted successfully.`);
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        throw error;
+    }
+};
 
 // Function to download a file
 const getFile = async (objectName, downloadPath) => {

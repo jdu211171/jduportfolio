@@ -105,7 +105,6 @@ package-lock.json
 build/
 
 # Environment files
-.env
 .env*.local
 
 # Logs and databases

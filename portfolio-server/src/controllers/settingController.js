@@ -27,7 +27,9 @@ class SettingsController {
 
 	static async getAllSettings(req, res) {
 		try {
+			console.log(req.user, "Ushbu get all settingsga muroojat qilindi");
 			const settings = await SettingsService.getAllSettings()
+			console.log(settings, "Ushbu get all settingsga muroojat qilindi");
 			res.json(settings)
 		} catch (error) {
 			res.status(500).json({ error: 'Internal server error' })
@@ -36,7 +38,9 @@ class SettingsController {
 
 	static async getSettingsByKeys(req, res) {
 		try {
+			console.log(req, "getSettingby KEYS");
 			const { keys } = req.body // Expecting an array of keys in the body
+			// console.log(keys, "Ushbu get settings by keysga muroojat qilindi");
 			if (!Array.isArray(keys)) {
 				return res
 					.status(400)
@@ -45,6 +49,18 @@ class SettingsController {
 
 			const settings = await SettingsService.getSettingsByKeys(keys)
 			res.json(settings)
+		} catch (error) {
+			res.status(500).json({ error: 'Internal server error' })
+		}
+	}
+
+	static async getHomepageSetting(req, res) {
+		try {
+			const homepageValue = await SettingsService.getSetting('homepage')
+            if (homepageValue === null) {
+                return res.status(404).json({ error: 'Homepage setting not found' })
+            }
+            res.json({ key: 'homepage', value: homepageValue })
 		} catch (error) {
 			res.status(500).json({ error: 'Internal server error' })
 		}

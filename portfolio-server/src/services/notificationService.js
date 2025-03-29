@@ -1,3 +1,4 @@
+const { Op } = require('sequelize')
 const { Notification } = require('../models')
 
 class NotificationService {
@@ -47,6 +48,24 @@ class NotificationService {
 
 		return notification
 	}
+
+	static async markAllAsRead(userId, userType) {
+        let whereClause = {};
+
+        if (userType.toLowerCase() === 'student') {
+            whereClause = { user_id: userId, user_role: 'student', status: { [Op.ne]: 'read' } };
+        } else if (userType.toLowerCase() === 'admin') {
+            whereClause = { user_role: 'admin', status: { [Op.ne]: 'read' } };
+        } else {
+            whereClause = { user_id: userId, user_role: userType.toLowerCase(), status: { [Op.ne]: 'read' } };
+        }
+
+        const [updatedCount] = await Notification.update(
+            { status: 'read' },
+            { where: whereClause }
+        );
+        return updatedCount;
+    }
 }
 
 module.exports = NotificationService
