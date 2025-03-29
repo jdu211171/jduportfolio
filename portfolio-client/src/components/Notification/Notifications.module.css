@@ -46,7 +46,7 @@
 	height: 0;
 	border-left: 0.5rem solid transparent;
 	border-right: 0.5rem solid transparent;
-	border-bottom: 0.5rem solid #f4555a;
+	border-bottom: 0.5rem solid #4682b4;
 	z-index: 2001; /* Strelka dropdown ustida */
 }
 
