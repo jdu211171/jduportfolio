@@ -238,10 +238,10 @@ export default function Notifications() {
 												item.user_role === 'student'
 													? userData.students[item.user_id]?.photo
 													: item.user_role === 'staff'
-														? userData.staff[item.user_id]?.photo
-														: item.user_role === 'admin'
-															? userData.admin.photo
-															: 'https://via.placeholder.com/40'
+													? userData.staff[item.user_id]?.photo
+													: item.user_role === 'admin'
+													? userData.admin.photo
+													: 'https://via.placeholder.com/40'
 											}
 											alt='User Avatar'
 											className={styles.avatar}
@@ -262,8 +262,8 @@ export default function Notifications() {
 								{filter === 'all'
 									? 'notifications'
 									: filter === 'unread'
-										? 'unread notifications'
-										: 'read notifications'}{' '}
+									? 'unread notifications'
+									: 'read notifications'}{' '}
 								yet...
 							</div>
 						)}
