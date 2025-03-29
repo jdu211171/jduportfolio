@@ -183,8 +183,7 @@ const Layout = () => {
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
 							<Notifications />
-						</div>
-						<div className={style.languageSwitcher}>
+							{/*
 							<select
 								onChange={e => changeLanguage(e.target.value)}
 								defaultValue={language}
@@ -193,6 +192,7 @@ const Layout = () => {
 								<option value='en'>English</option>
 								<option value='uz'>O‘zbek</option>
 							</select>
+              */}
 						</div>
 						<div className={style.timeBox}>
 							<div style={{ textAlign: 'right' }}>
