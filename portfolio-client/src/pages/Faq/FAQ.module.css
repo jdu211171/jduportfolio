@@ -1,55 +1,85 @@
 .faq-title {
-  font-family: Georgia, "Times New Roman", Times, serif !important;
+	font-family: Georgia, 'Times New Roman', Times, serif !important;
 }
 .accordion-box {
-  width: 70%;
+	width: 70%;
 }
 .title-accordion {
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif !important;
-  font-size: 20px !important;
+	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif !important;
+	font-size: 20px !important;
 }
 .body-accordion {
-  font-family: Times, Helvetica, sans-serif !important;
+	font-family: Times, Helvetica, sans-serif !important;
 }
 
 .help-info-box {
-  margin-top: 40px;
-  display: flex;
-  justify-content: space-around;
+	margin-top: 40px;
+	display: flex;
+	justify-content: space-around;
 }
 .faq-box {
-  display: flex;
+	display: flex;
 }
 .faq-icons {
-  margin-right: 0.5rem;
-  background-color: rgba(79, 78, 78, 0.1);
-  border-radius: 5px;
-  padding: 5px;
+	margin-right: 0.5rem;
+	background-color: rgba(79, 78, 78, 0.1);
+	border-radius: 5px;
+	padding: 5px;
 }
 
 .faq-content {
-  overflow: scroll;
-  height: 64vh;
+	overflow: scroll;
+	margin-bottom: 20px;
 }
 
 .faq-content::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .faq-content {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-@media screen and (max-width: 600px) {
-  .faq-content {
-    height: 56vh;
-  }
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
 }
 
 @media screen and (max-width: 400px) {
-  .faq-content {
-    height: 48vh;
-  }
+	.faq-content {
+		height: 48vh;
+	}
+}
+
+.contact-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: start;
+	gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+	.contact-container {
+		flex-direction: row;
+		align-items: start;
+	}
+}
+
+.contact-group {
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	gap: 1rem;
+}
+
+@media (min-width: 1280px) {
+	.contact-group {
+		flex-direction: row;
+		align-items: center;
+		gap: 5rem;
+	}
+}
+
+.contact-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }

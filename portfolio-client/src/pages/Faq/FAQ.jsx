@@ -213,40 +213,38 @@ const FAQ = () => {
 				</Box>
 			</Box>
 
-			<Box position={'absolute'} bottom={'8px'}>
-				<Grid container spacing={2}>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<EmailIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>test@jdu.uz</Typography>
-							{/* {settings.contactEmail} */}
-						</Box>
-					</Grid>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<PhoneIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>+998 90 123 45 67</Typography>
-							{/* {settings.contactPhone} */}
-						</Box>
-					</Grid>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<AccessTimeIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>09:00 ~ 18:00</Typography>
-							{/* {settings.workingHours} */}
-						</Box>
-					</Grid>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<LocationOnIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>
-								Tashkent, Shayontohur district, Sebzor, 21
-							</Typography>
-							{/* {settings.location} */}
-						</Box>
-					</Grid>
-				</Grid>
-			</Box>
+			<div className={FAQstyle['contact-container']}>
+				<div className={FAQstyle['contact-group']}>
+					<div className={FAQstyle['contact-item']}>
+						<EmailIcon className={FAQstyle['faq-icons']} />
+						<Typography>test@jdu.uz</Typography>
+					</div>
+					<div className={FAQstyle['contact-item']}>
+						<PhoneIcon className={FAQstyle['faq-icons']} />
+						<Typography
+							className='text-nowrap'
+							style={{ 'text-wrap': 'nowrap' }}
+						>
+							+998 90 123 45 67
+						</Typography>
+					</div>
+				</div>
+				<div className={FAQstyle['contact-group']}>
+					<div className={FAQstyle['contact-item']}>
+						<AccessTimeIcon className={FAQstyle['faq-icons']} />
+						<Typography
+							className='text-nowrap'
+							style={{ 'text-wrap': 'nowrap' }}
+						>
+							09:00 ~ 18:00
+						</Typography>
+					</div>
+					<div className={FAQstyle['contact-item']}>
+						<LocationOnIcon className={FAQstyle['faq-icons']} />
+						<Typography>Tashkent, Shayontohur district, Sebzor, 21</Typography>
+					</div>
+				</div>
+			</div>
 		</Container>
 	)
 }
