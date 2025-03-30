@@ -20,7 +20,7 @@ import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
 import logo from '/src/assets/logo.png'
 import style from './Layout.module.css'
 import Notifications from '../Notification/Notifications.jsx'
-
+import { LanguageSelect } from '../languageSelector/LanguageSelect.jsx'
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
 	return allowedRoles.includes(role)
@@ -30,7 +30,7 @@ const Layout = () => {
 	const savedLanguage = localStorage.getItem('language') || 'ja' // Получаем язык из localStorage
 	const [language, setLanguage] = useState(savedLanguage) // Устанавливаем начальный язык
 
-	const t = key => translations[language][key] || key // Простая функция перевода
+	const t = key => translations[language][key] || key
 
 	const navItems = [
 		{
@@ -159,12 +159,6 @@ const Layout = () => {
 		setIsMenuOpen(prevState => !prevState)
 	}
 
-	const changeLanguage = lng => {
-		setLanguage(lng) // Устанавливаем язык
-		localStorage.setItem('language', lng) // Сохраняем язык в localStorage
-		window.location.reload() // Перезагружаем страницу
-	}
-
 	return (
 		<div className={isMenuOpen ? style.menuOpen : style.menuClose}>
 			<div className={style.topBar}>
@@ -183,17 +177,9 @@ const Layout = () => {
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
 							<Notifications />
-							{/*
-							<select
-								onChange={e => changeLanguage(e.target.value)}
-								defaultValue={language}
-							>
-								<option value='ja'>日本語</option>
-								<option value='en'>English</option>
-								<option value='uz'>O‘zbek</option>
-							</select>
-              */}
+							<LanguageSelect />
 						</div>
+
 						<div className={style.timeBox}>
 							<div style={{ textAlign: 'right' }}>
 								<div className={style.timeText}>{t('japan')}</div>
