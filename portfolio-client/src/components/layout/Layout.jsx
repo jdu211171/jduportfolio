@@ -186,7 +186,8 @@ const Layout = () => {
 								language={language}
 								changeLanguage={changeLanguage}
 							/>
-
+						</div>
+						<div className={style.languageSwitcher}>
 							<select
 								onChange={e => changeLanguage(e.target.value)}
 								defaultValue={language}
