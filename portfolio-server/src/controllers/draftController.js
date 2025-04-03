@@ -215,7 +215,7 @@ class DraftController {
 					user_id: staff.id,
 					user_role: 'staff',
 					type: 'draft_submitted',
-					message: `Student ${studentID} tomonidan profil ma'lumotlari jo'natildi`,
+					message: `学生${studentID}からプロフィール情報が送信されました`,
 					status: 'unread',
 					related_id: draft.id,
 				})
@@ -226,7 +226,7 @@ class DraftController {
 						user_id: staff.id,
 						user_role: 'staff',
 						type: 'draft_submitted',
-						message: `Student ${studentID} tomonidan profil ma'lumotlari jo'natildi`,
+						message: `学生${studentID}からプロフィール情報が送信されました`,
 						status: 'unread',
 						related_id: draft.id,
 					})
@@ -286,15 +286,15 @@ class DraftController {
 			const staffMember = await StaffService.getStaffById(draft.reviewed_by) //// TODO
 			let staffName = '';
 			if (staffMember && staffMember.first_name && staffMember.last_name) {
-				staffName = `${staffMember.first_name} ${staffMember.last_name} tomonidan`;
+				staffName = `${staffMember.first_name} ${staffMember.last_name} によって`;
 			} else if (staffMember && staffMember.first_name) {
-				staffName = `${staffMember.first_name} tomonidan`;
+				staffName = `${staffMember.first_name} によって`;
 			} else {
-				staffName = `Staff xodimi tomonidan`; // Agar ismi topilmasa
+				staffName = `スタッフによって`; // Agar ismi topilmasa
 			}
 
 			const notification = await NotificationService.create({
-				message: ` Sizning malumotlaringiz ${staffName} "${status}" holatga o'tkazildi. `,
+				message: `あなたの情報は${staffName} 「${status}」ステータスに変更されました。`,
 				status: 'unread',
 				user_id: student.student_id,
 				user_role: 'student',
@@ -309,7 +309,7 @@ class DraftController {
 				
 				const adminNotifications = admins.map(admin => {
 					NotificationService.create({
-						message: `Talaba (ID: ${student.student_id}) ma'lumotlari staff (ID: ${reviewed_by}) tomonidan tasdiqlandi.`,
+						message: `学生 (ID: ${student.student_id}) の情報は、スタッフ (ID: ${reviewed_by}) によって承認されました。`,
 						status: 'unread',
 						user_id: admin.id,
 						user_role: 'admin',
