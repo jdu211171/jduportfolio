@@ -4,7 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material'
 import AppRoutes from './routes'
 import { UserProvider } from './contexts/UserContext'
 import { AlertProvider } from './contexts/AlertContext'
-import { LanguageProvider } from './contexts/LanguageContext' // Новый контекст языка
+import { LanguageProvider } from './contexts/LanguageContext'
 
 import theme from './styles/theme'
 import './styles/index.css'

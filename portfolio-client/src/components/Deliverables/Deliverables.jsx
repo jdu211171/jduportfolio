@@ -20,7 +20,7 @@ const Deliverables = ({
 	onImageUpload,
 }) => {
 	const textFieldRef = useRef(null)
-	const fileInputRef = useRef(null) // Ref for file input
+	const fileInputRef = useRef(null)
 	const [newData, setNewData] = useState(editData)
 	const [activeDeliverable, setActiveDeliverable] = useState(0)
 	const [imagePreview, setImagePreview] = useState({})
@@ -109,7 +109,6 @@ const Deliverables = ({
 	const handleFileChange = e => {
 		const file = e.target.files[0]
 
-		// Preview the image immediately
 		const reader = new FileReader()
 		reader.onloadend = () => {
 			setImagePreview(prevPreview => ({
@@ -119,12 +118,11 @@ const Deliverables = ({
 		}
 		reader.readAsDataURL(file)
 
-		// Pass the file to the parent component
 		onImageUpload(activeDeliverable, file)
 	}
 
 	const handleUploadClick = () => {
-		fileInputRef.current.click() // Trigger file input click
+		fileInputRef.current.click()
 	}
 
 	return (
@@ -204,11 +202,11 @@ const Deliverables = ({
 							<Upload />
 						</IconButton>
 						<input
-							ref={fileInputRef} // Attach ref
+							ref={fileInputRef}
 							type='file'
 							accept='image/*'
 							onChange={handleFileChange}
-							style={{ display: 'none' }} // Hide input
+							style={{ display: 'none' }}
 						/>
 					</div>
 				)}

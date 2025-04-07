@@ -22,8 +22,8 @@ import translations from '../../locales/translations'
 const Setting = () => {
 	const { activeUser, updateUser } = useContext(UserContext)
 
-	const { language } = useLanguage() // Получение текущего языка
-	const t = key => translations[language][key] || key // Функция перевода
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 	const [role, setRole] = useState(null)
 	const [user, setUser] = useState({})
 	const [avatarImage, setAvatarImage] = useState(null)
@@ -84,7 +84,6 @@ const Setting = () => {
 				}
 				setUser(response.data)
 				setAvatarImage(response.data.photo)
-				// Update form default values after fetching user data
 				reset({
 					first_name: response.data.first_name || '',
 					last_name: response.data.last_name || '',
@@ -109,7 +108,7 @@ const Setting = () => {
 	const handleAvatarChange = event => {
 		const file = event.target.files[0]
 		if (file) {
-			setSelectedFile(file) // Set the selected file
+			setSelectedFile(file)
 			const reader = new FileReader()
 			reader.onload = e => {
 				setAvatarImage(e.target.result)
@@ -138,7 +137,7 @@ const Setting = () => {
 		if (data.password !== data.confirmPassword) {
 			setError('confirmPassword', {
 				type: 'manual',
-				message: t('password_mismatch'), // Используем перевод
+				message: t('password_mismatch'),
 			})
 			return false
 		}
@@ -146,7 +145,7 @@ const Setting = () => {
 		if (data.password && !data.currentPassword) {
 			setError('currentPassword', {
 				type: 'manual',
-				message: t('current_password_required'), // Используем перевод
+				message: t('current_password_required'),
 			})
 			return false
 		}
@@ -245,7 +244,6 @@ const Setting = () => {
 
 	const handleCancel = () => {
 		setIsEditing(false)
-		// Optionally reset form values to their initial state
 		reset()
 	}
 

@@ -5,10 +5,9 @@ import axios from '../../utils/axiosUtils'
 import styles from './DraftsModal.module.css'
 
 const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
-	const [open, setOpen] = useState(false) // Modal visibility state
-	const [drafts, setDrafts] = useState([]) // Store drafts
+	const [open, setOpen] = useState(false)
+	const [drafts, setDrafts] = useState([])
 
-	// Function to fetch drafts by student_id
 	const fetchDrafts = async () => {
 		try {
 			const response = await axios.get(`/api/draft/student/${id}`)
@@ -22,13 +21,12 @@ const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
 		handleSettingDraft(draft)
 		setOpen(false)
 	}
-	// Open modal and fetch drafts
+
 	const handleOpen = () => {
 		setOpen(true)
 		fetchDrafts()
 	}
 
-	// Close modal
 	const handleClose = () => {
 		setOpen(false)
 	}

@@ -5,7 +5,8 @@
 	width: 70%;
 }
 .title-accordion {
-	font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif !important;
+	font-family:
+		'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif !important;
 	font-size: 20px !important;
 }
 .body-accordion {
@@ -29,57 +30,26 @@
 
 .faq-content {
 	overflow: scroll;
-	margin-bottom: 20px;
+	height: 64vh;
 }
 
 .faq-content::-webkit-scrollbar {
 	display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .faq-content {
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+@media screen and (max-width: 600px) {
+	.faq-content {
+		height: 56vh;
+	}
 }
 
 @media screen and (max-width: 400px) {
 	.faq-content {
 		height: 48vh;
 	}
-}
-
-.contact-container {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	align-items: start;
-	gap: 1rem;
-}
-
-@media (min-width: 1024px) {
-	.contact-container {
-		flex-direction: row;
-		align-items: start;
-	}
-}
-
-.contact-group {
-	display: flex;
-	flex-direction: column;
-	align-items: start;
-	gap: 1rem;
-}
-
-@media (min-width: 1280px) {
-	.contact-group {
-		flex-direction: row;
-		align-items: center;
-		gap: 5rem;
-	}
-}
-
-.contact-item {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
 }

@@ -2,9 +2,8 @@ import React, { useState, useEffect, useContext } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import UserAvatar from '../Table/Avatar/UserAvatar'
-import translations from '../../locales/translations' // Импорт переводов
+import translations from '../../locales/translations'
 
-// icons
 import { ReactComponent as NavButtonIcon } from '../../assets/icons/navButton.svg'
 import { ReactComponent as HomeIcon } from '../../assets/icons/home.svg'
 import { ReactComponent as StudentIcon } from '../../assets/icons/student.svg'
@@ -21,20 +20,19 @@ import logo from '/src/assets/logo.png'
 import style from './Layout.module.css'
 import Notifications from '../Notification/Notifications.jsx'
 
-// Utility function to check roles
 const checkRole = (role, allowedRoles) => {
 	return allowedRoles.includes(role)
 }
 
 const Layout = () => {
-	const savedLanguage = localStorage.getItem('language') || 'ja' // Получаем язык из localStorage
-	const [language, setLanguage] = useState(savedLanguage) // Устанавливаем начальный язык
+	const savedLanguage = localStorage.getItem('language') || 'ja'
+	const [language, setLanguage] = useState(savedLanguage)
 
-	const t = key => translations[language][key] || key // Простая функция перевода
+	const t = key => translations[language][key] || key
 
 	const navItems = [
 		{
-			section: 'GENERAL', // Оставляем статичным
+			section: 'GENERAL',
 			items: [
 				{
 					to: '/',
@@ -87,7 +85,7 @@ const Layout = () => {
 			],
 		},
 		{
-			section: 'GENERAL', // Оставляем статичным
+			section: 'GENERAL',
 			items: [
 				{
 					to: '/settings',
@@ -115,7 +113,7 @@ const Layout = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
 	const [userData, setUserData] = useState({})
-	const [role, setRole] = useState(sessionStorage.getItem('role')) // Get role from sessionStorage
+	const [role, setRole] = useState(sessionStorage.getItem('role'))
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
@@ -145,7 +143,7 @@ const Layout = () => {
 	useEffect(() => {
 		window.addEventListener('resize', handleResize)
 		setUserData(JSON.parse(sessionStorage.getItem('loginUser')))
-		// Initial check
+
 		handleResize()
 		updateTime()
 		const intervalId = setInterval(updateTime, 60000)
@@ -160,9 +158,9 @@ const Layout = () => {
 	}
 
 	const changeLanguage = lng => {
-		setLanguage(lng) // Устанавливаем язык
-		localStorage.setItem('language', lng) // Сохраняем язык в localStorage
-		window.location.reload() // Перезагружаем страницу
+		setLanguage(lng)
+		localStorage.setItem('language', lng)
+		window.location.reload()
 	}
 
 	return (
@@ -182,11 +180,7 @@ const Layout = () => {
 					</div>
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
-							<Notifications
-								language={language}
-								changeLanguage={changeLanguage}
-							/>
-
+							<Notifications />
 							<select
 								onChange={e => changeLanguage(e.target.value)}
 								defaultValue={language}
