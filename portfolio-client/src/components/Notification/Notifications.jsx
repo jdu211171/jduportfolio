@@ -1,6 +1,5 @@
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications'
 import CheckIcon from '@mui/icons-material/Check'
-import CloseIcon from '@mui/icons-material/Close'
 import axios from '../../utils/axiosUtils.js'
 import { useState, useEffect, useRef } from 'react'
 import { shortText } from '../functions.js'

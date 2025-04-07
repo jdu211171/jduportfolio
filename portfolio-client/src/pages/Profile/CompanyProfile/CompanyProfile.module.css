@@ -1,114 +1,114 @@
 .container {
-  padding: 16px;
-  display: flex;
-  align-items: start;
+	padding: 16px;
+	display: flex;
+	align-items: start;
 }
 
 .avatarContainer {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
+	display: flex;
+	align-items: center;
+	margin-bottom: 16px;
 }
 
 .topControlButtons {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
 }
 
 .infoContainer {
-  margin-top: 8px;
-  margin-left: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100%;
+	margin-top: 8px;
+	margin-left: 16px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
 }
 
 .nameEmailContainer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  flex-wrap: wrap;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	flex-wrap: wrap;
 }
 
 .mainTitle {
-  display: flex;
-  align-items: center;
+	display: flex;
+	align-items: center;
 }
 
 .email {
-  color: #0094ff;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  width: 100%;
+	color: #0094ff;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	font-size: 14px;
+	width: 100%;
 }
 
 .emailIcon {
-  margin-right: 4px;
-  font-size: 16px; /* Уменьшение размера иконки */
+	margin-right: 4px;
+	font-size: 16px;
 }
 
 .chipContainer {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-  flex-wrap: wrap;
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+	flex-wrap: wrap;
 }
 
 .navbar {
-  display: flex;
-  background-color: #e8e8e8;
-  border-radius: 4px;
-  justify-content: space-between;
+	display: flex;
+	background-color: #e8e8e8;
+	border-radius: 4px;
+	justify-content: space-between;
 }
 
 .navbar a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  height: 40px;
-  font-size: 16px;
-  color: #74828f;
-  user-select: none;
-  cursor: pointer;
-  gap: 10px;
-  text-decoration: none;
-  font-weight: 500;
-  width: 33%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 8px;
+	height: 40px;
+	font-size: 16px;
+	color: #74828f;
+	user-select: none;
+	cursor: pointer;
+	gap: 10px;
+	text-decoration: none;
+	font-weight: 500;
+	width: 33%;
 }
 
 .buttonsContainer {
-  display: flex;
-  flex-direction: row-reverse;
-  top: -32px;
-  gap: 8px;
+	display: flex;
+	flex-direction: row-reverse;
+	top: -32px;
+	gap: 8px;
 }
 
 .navbar a:hover {
-  background-color: #ccc;
-  transform: translateY(-1px);
+	background-color: #ccc;
+	transform: translateY(-1px);
 }
 
 .active {
-  background-color: #5627dc !important;
-  color: #ffffff !important;
+	background-color: #5627dc !important;
+	color: #ffffff !important;
 }
 
 @media only screen and (max-width: 460px) {
-  .container {
-    flex-direction: column;
-    justify-content: center;
-  }
+	.container {
+		flex-direction: column;
+		justify-content: center;
+	}
 }
 @media only screen and (max-width: 440px) {
-  .topControlButtons {
-    display: block;
-    align-items: center;
-  }
+	.topControlButtons {
+		display: block;
+		align-items: center;
+	}
 }

@@ -14,7 +14,7 @@ const Recruiter = () => {
 	const navigate = useNavigate()
 	const navigateToCompanyProfile = recruiter => {
 		navigate(`/companyprofile`, {
-			state: { recruiterId: recruiter.id }, // passing state
+			state: { recruiterId: recruiter.id },
 		})
 	}
 
@@ -54,7 +54,6 @@ const Recruiter = () => {
 	]
 
 	const [filterState, setFilterState] = useState({})
-	// must match with db table col names
 	const filterProps = [
 		{ key: 'name', label: t('name'), type: 'text', minWidth: '160px' },
 	]

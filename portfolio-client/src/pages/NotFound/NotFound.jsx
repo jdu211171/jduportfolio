@@ -7,8 +7,8 @@ import { UserContext } from '../../contexts/UserContext'
 
 const NotFound = () => {
 	const navigate = useNavigate()
-	const { language } = useContext(UserContext) // Получаем текущий язык из контекста
-	const t = translations[language] || translations.en // Получаем переводы для текущего языка
+	const { language } = useContext(UserContext)
+	const t = translations[language] || translations.en
 
 	const handleBackToHome = () => {
 		navigate('/')
@@ -18,17 +18,17 @@ const NotFound = () => {
 		<Box className={styles.notfoundBackground}>
 			<Container maxWidth='md' className={styles.notfoundContainer}>
 				<Typography variant='h3' gutterBottom>
-					{t.notFoundTitle} {/* Перевод заголовка */}
+					{t.notFoundTitle}
 				</Typography>
 				<Typography variant='body1' gutterBottom>
-					{t.notFoundMessage} {/* Перевод сообщения */}
+					{t.notFoundMessage}
 				</Typography>
 				<Button
 					onClick={handleBackToHome}
 					variant='contained'
 					className={styles.notfoundButton}
 				>
-					{t.backToHome} {/* Перевод кнопки */}
+					{t.backToHome}
 				</Button>
 			</Container>
 		</Box>

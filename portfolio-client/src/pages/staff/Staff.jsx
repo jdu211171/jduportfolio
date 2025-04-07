@@ -4,19 +4,19 @@ import { Box } from '@mui/material'
 
 import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
-import { useLanguage } from '../../contexts/LanguageContext' // Import language context
-import translations from '../../locales/translations' // Import translations
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 
 const Staff = () => {
-	const { language } = useLanguage() // Get current language from context
-	const t = key => translations[language][key] || key // Translation function
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 
 	const headers = [
 		{
 			id: 'first_name',
 			numeric: false,
 			disablePadding: false,
-			label: t('staff'), // Translation for "職員"
+			label: t('staff'),
 			type: 'avatar',
 			minWidth: '220px',
 		},
@@ -24,7 +24,7 @@ const Staff = () => {
 			id: 'email',
 			numeric: false,
 			disablePadding: false,
-			label: t('email'), // Translation for "メール"
+			label: t('email'),
 			type: 'email',
 			minWidth: '160px',
 		},
@@ -32,29 +32,28 @@ const Staff = () => {
 			id: 'department',
 			numeric: false,
 			disablePadding: false,
-			label: t('department'), // Translation for "部署"
+			label: t('department'),
 			minWidth: '160px',
 		},
 		{
 			id: 'position',
 			numeric: false,
 			disablePadding: false,
-			label: t('position'), // Translation for "役職"
+			label: t('position'),
 			minWidth: '160px',
 		},
 		{
 			id: 'phone',
 			numeric: true,
 			disablePadding: false,
-			label: t('phone_number'), // Translation for "電話番号"
+			label: t('phone_number'),
 			minWidth: '200px',
 		},
 	]
 
 	const [filterState, setFilterState] = useState({})
-	// must match with db table col names
 	const filterProps = [
-		{ key: 'name', label: t('name'), type: 'text', minWidth: '160px' }, // Translation for "名前"
+		{ key: 'name', label: t('name'), type: 'text', minWidth: '160px' },
 	]
 
 	const tableProps = {
