@@ -1,12 +1,11 @@
-/* src/components/TextField.module.css */
 .container {
-  margin: 10px auto;
+	margin: 10px auto;
 }
 .title {
-  color: #74828F;
-  font-size: 18px;
+	color: #74828f;
+	font-size: 18px;
 }
 
 .data {
-  color: #5E6871;
+	color: #5e6871;
 }

@@ -14,7 +14,6 @@ import axios from 'axios'
 //   }
 // );
 
-// Add a response interceptor
 axios.interceptors.response.use(
 	function (response) {
 		return response
@@ -25,7 +24,7 @@ axios.interceptors.response.use(
 			originalRequest._retry = true
 			window.location.href = '/login'
 
-			return axios(originalRequest) // Retry the original request
+			return axios(originalRequest)
 		}
 		return Promise.reject(error)
 	}

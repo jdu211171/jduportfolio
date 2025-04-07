@@ -54,7 +54,6 @@ const AppRoutes = () => {
 							<Route index element={<Student key='students' />} />
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
-								{/* Redirect index to top */}
 								<Route path='top' element={<Top />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
@@ -67,7 +66,6 @@ const AppRoutes = () => {
 							<Route index element={<ChekProfile key='checkprofile' />} />
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
-								{/* Redirect index to top */}
 								<Route path='top' element={<Top />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
@@ -106,8 +104,7 @@ const AppRoutes = () => {
 								<Route
 									index
 									element={<Navigate to='top' state={{ userId: userId }} />}
-								/>{' '}
-								{/* Redirect index to top */}
+								/>
 								<Route path='top' element={<Top />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
@@ -137,7 +134,6 @@ const AppRoutes = () => {
 							/>
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
-								{/* Redirect index to top */}
 								<Route path='top' element={<Top />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>

@@ -5,12 +5,12 @@ import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
 
 import axios from '../../utils/axiosUtils'
-import { useLanguage } from '../../contexts/LanguageContext' // Подключение контекста языка
-import translations from '../../locales/translations' // Подключение переводов
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 
 const Student = ({ OnlyBookmarked = false }) => {
-	const { language } = useLanguage() // Получение текущего языка из контекста
-	const t = key => translations[language][key] || key // Функция перевода
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 	const [filterState, setFilterState] = useState({})
 	const [updatedBookmark, setUpdatedBookmark] = useState({
 		studentId: null,
@@ -164,8 +164,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-			{' '}
-			{/* Перерендеринг при смене языка */}
 			<Box sx={{ width: '100%', height: '100px' }}>
 				<Filter
 					fields={filterProps}

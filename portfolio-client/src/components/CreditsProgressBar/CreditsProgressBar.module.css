@@ -1,25 +1,25 @@
 .graphContainer {
-  padding: 30px 40px;
-  overflow-x:visible; /* Start hidden */
-  position: relative;
+	padding: 30px 40px;
+	overflow-x: visible;
+	position: relative;
 }
 
 .graphContainer.scrollable {
-  overflow-x: auto; /* Show scrollbar when content is scrollable */
+	overflow-x: auto;
 }
 
 .graphContainer::-webkit-scrollbar {
-  height: 10px; /* Adjust the height of the scrollbar */
+	height: 10px;
 }
 
 .graphContainer::-webkit-scrollbar-thumb {
-  background: #888; /* Color of the scrollbar thumb */
+	background: #888;
 }
 
 .graphContainer::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Color of the scrollbar thumb on hover */
+	background: #555;
 }
 
 .graphContainer svg {
-  min-width: 250px;
+	min-width: 250px;
 }

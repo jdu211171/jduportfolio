@@ -29,8 +29,8 @@ const CreditsProgressBar = ({ breakpoints, unit, credits, semester }) => {
 			}
 		}
 
-		checkScrollable() // Initial check
-		window.addEventListener('resize', checkScrollable) // Check on resize
+		checkScrollable()
+		window.addEventListener('resize', checkScrollable)
 
 		return () => {
 			window.removeEventListener('resize', checkScrollable)

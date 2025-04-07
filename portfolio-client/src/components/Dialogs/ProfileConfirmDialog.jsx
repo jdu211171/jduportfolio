@@ -16,7 +16,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 			open={open}
 			onClose={onClose}
 			fullWidth
-			maxWidth='sm' // You can change to "xs", "md", etc.
+			maxWidth='sm'
 			closeAfterTransition={false}
 		>
 			{/* Large Title */}

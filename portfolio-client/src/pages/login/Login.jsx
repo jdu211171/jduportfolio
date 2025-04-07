@@ -18,7 +18,7 @@ const Login = () => {
 	const [password, setPassword] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
 	const [error, setError] = useState('')
-	const [loginMode, setLoginMode] = useState(true) // состояние для переключения режимов
+	const [loginMode, setLoginMode] = useState(true)
 
 	const handleLogin = async e => {
 		e.preventDefault()
@@ -146,7 +146,6 @@ const Login = () => {
 						</button>
 					</form>
 				) : (
-					// Forgot Password mode
 					<form onSubmit={handleForgotPassword}>
 						<div className={styles['input-group']}>
 							<label>メールアドレス</label>
