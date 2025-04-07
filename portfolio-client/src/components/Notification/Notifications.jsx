@@ -1,14 +1,17 @@
 import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications'
-import CheckIcon from '@mui/icons-material/Check' // Added for icon
+import CheckIcon from '@mui/icons-material/Check'
+import CloseIcon from '@mui/icons-material/Close'
 import axios from '../../utils/axiosUtils.js'
 import { useState, useEffect, useRef } from 'react'
 import { shortText } from '../functions.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import styles from './Notifications.module.css'
-import CloseIcon from '@mui/icons-material/Close'
+import translations from '../../locales/translations.js' // Tarjimalarni import qilamiz
 
-export default function Notifications() {
+export default function Notifications({ language, changeLanguage }) {
+	const t = key => translations[language][key] || key // Tarjima funksiyasi, language ga bog‘liq
+
 	const [isVisible, setIsVisible] = useState(false)
 	const [modalIsVisible, setModalIsVisible] = useState(false)
 	const [selectedMessage, setSelectedMessage] = useState(null)
@@ -21,7 +24,7 @@ export default function Notifications() {
 	const [currentUser, setCurrentUser] = useState({})
 	const [unreadCount, setUnreadCount] = useState(0)
 	const [filter, setFilter] = useState('all')
-	const [isLoading, setIsLoading] = useState(false) // Added for loading state
+	const [isLoading, setIsLoading] = useState(false)
 	const modalRef = useRef(null)
 	const dropdownRef = useRef(null)
 
@@ -55,7 +58,6 @@ export default function Notifications() {
 					? readRes.data.notifications
 					: []
 			}
-			console.log(`Filter: ${statusFilter}, Fetched Messages:`, fetchedMessages)
 			setMessages(fetchedMessages)
 			setUnreadCount(
 				Array.isArray(fetchedMessages)
@@ -121,17 +123,17 @@ export default function Notifications() {
 	}
 
 	const markAllAsRead = async () => {
-		setIsLoading(true) // Show loading state
+		setIsLoading(true)
 		try {
 			const response = await axios.patch('/api/notification/read-all')
 			if (response.status === 200) {
-				console.log('✅ All notifications marked as read!')
+				console.log('✅ Hammasi o‘qilgan deb belgilandi!')
 				fetchData(filter)
 			}
 		} catch (error) {
-			console.error('Error marking all as read:', error)
+			console.error('Xatolik yuz berdi:', error)
 		} finally {
-			setIsLoading(false) // Reset loading state
+			setIsLoading(false)
 		}
 	}
 
@@ -142,7 +144,7 @@ export default function Notifications() {
 			admin: userData.admin,
 		}
 		setCurrentUser({
-			first_name: userRoles[item.user_role]?.first_name || 'Unknown',
+			first_name: userRoles[item.user_role]?.first_name || 'Noma’lum',
 			last_name: userRoles[item.user_role]?.last_name || '',
 			photo:
 				userRoles[item.user_role]?.photo || 'https://via.placeholder.com/80',
@@ -173,23 +175,23 @@ export default function Notifications() {
 						className={styles.headerZone}
 						style={{ backgroundColor: '#4682B4' }}
 					>
-						<span>Notifications</span>
+						<span>{t('notifications')}</span>
 						{unreadCount > 0 && (
 							<button
 								className={styles.markAllButton}
 								onClick={markAllAsRead}
-								disabled={isLoading} // Disable during loading
-								aria-label='Mark all notifications as read'
+								disabled={isLoading}
+								aria-label={t('mark_all_read')}
 							>
 								{isLoading ? (
-									'Loading...'
+									t('loading')
 								) : (
 									<>
 										<CheckIcon
 											fontSize='small'
 											style={{ marginRight: '4px' }}
 										/>
-										Mark All Read
+										{t('mark_all_read')}
 									</>
 								)}
 							</button>
@@ -202,7 +204,7 @@ export default function Notifications() {
 							}`}
 							onClick={() => setFilter('all')}
 						>
-							All
+							{t('all')}
 						</button>
 						<button
 							className={`${styles.filterButton} ${
@@ -210,7 +212,7 @@ export default function Notifications() {
 							}`}
 							onClick={() => setFilter('unread')}
 						>
-							Unread
+							{t('unread')}
 						</button>
 						<button
 							className={`${styles.filterButton} ${
@@ -218,7 +220,7 @@ export default function Notifications() {
 							}`}
 							onClick={() => setFilter('read')}
 						>
-							Read
+							{t('read')}
 						</button>
 					</div>
 
@@ -238,12 +240,12 @@ export default function Notifications() {
 												item.user_role === 'student'
 													? userData.students[item.user_id]?.photo
 													: item.user_role === 'staff'
-													? userData.staff[item.user_id]?.photo
-													: item.user_role === 'admin'
-													? userData.admin.photo
-													: 'https://via.placeholder.com/40'
+														? userData.staff[item.user_id]?.photo
+														: item.user_role === 'admin'
+															? userData.admin.photo
+															: 'https://via.placeholder.com/40'
 											}
-											alt='User Avatar'
+											alt='Foydalanuvchi rasmi'
 											className={styles.avatar}
 										/>
 										<div className={styles.messageContainer}>
@@ -252,19 +254,17 @@ export default function Notifications() {
 										</div>
 									</div>
 									{item.status === 'unread' && (
-										<div className={styles.newIndicator}>NEW</div>
+										<div className={styles.newIndicator}>{t('new')}</div>
 									)}
 								</div>
 							))
 						) : (
 							<div className={styles.noNotifications}>
-								No{' '}
 								{filter === 'all'
-									? 'notifications'
+									? t('no_notifications')
 									: filter === 'unread'
-									? 'unread notifications'
-									: 'read notifications'}{' '}
-								yet...
+										? t('no_unread_notifications')
+										: t('no_read_notifications')}
 							</div>
 						)}
 					</div>
@@ -291,13 +291,13 @@ export default function Notifications() {
 								className={styles.okButton}
 								onClick={() => setModalIsVisible(false)}
 							>
-								OK
+								{t('ok')}
 							</button>
 							<button
 								className={styles.deleteButton}
 								onClick={() => del(selectedMessage.id)}
 							>
-								<FontAwesomeIcon icon={faTrash} />
+								<FontAwesomeIcon icon={faTrash} /> {t('delete')}
 							</button>
 						</div>
 					</div>
