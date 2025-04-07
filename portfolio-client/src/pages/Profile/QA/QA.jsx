@@ -218,28 +218,41 @@ const QA = ({
 
 	const handleAdd = async () => {
 		let keys = Object.keys(getCategoryData(subTabIndex))
-		let lastKey = keys[keys.length - 1]
-		let nextKeyNumber = parseInt(lastKey.slice(1)) + 1
-		let nextKey = 'q' + nextKeyNumber
-
-		await setEditData(prevEditData => {
-			const updatedEditData = { ...prevEditData }
-			const category = labels[subTabIndex]
-			if (updatedEditData[category]) {
-				updatedEditData[category] = {
-					...updatedEditData[category],
-					[nextKey]: {
-						question: '',
-						answer: '',
-					},
+		if (keys.length === 0) {
+			// Start from q1 if there are no existing questions
+			await setEditData(prevEditData => {
+				const updatedEditData = { ...prevEditData }
+				const category = labels[subTabIndex]
+				if (!updatedEditData[category]) {
+					updatedEditData[category] = {}
 				}
-			}
-			return updatedEditData
-		})
+				updatedEditData[category]['q1'] = { question: '', answer: '' }
+				return updatedEditData
+			})
+		} else {
+			let lastKey = keys[keys.length - 1]
+			let nextKeyNumber = parseInt(lastKey.slice(1)) + 1
+			let nextKey = 'q' + nextKeyNumber
+
+			await setEditData(prevEditData => {
+				const updatedEditData = { ...prevEditData }
+				const category = labels[subTabIndex]
+				if (updatedEditData[category]) {
+					updatedEditData[category] = {
+						...updatedEditData[category],
+						[nextKey]: {
+							question: '',
+							answer: '',
+						},
+					}
+				}
+				return updatedEditData
+			})
+		}
 		console.log(
 			document
 				.querySelectorAll('textarea[aria-invalid="false"]')
-				[nextKeyNumber - 1].focus()
+				[keys.length].focus()
 		)
 	}
 
@@ -591,3 +604,4 @@ const QA = ({
 }
 
 export default QA
+

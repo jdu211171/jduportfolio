@@ -105,7 +105,6 @@ package-lock.json
 build/
 
 # Environment files
-.env
 .env*.local
 
 # Logs and databases
@@ -133,3 +132,4 @@ Thumbs.db
 /portfolio-client/.expo
 /portfolio-client/dist
 
+.qodo
