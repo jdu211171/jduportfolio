@@ -17,6 +17,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+backup.env
 
 # Logs
 logs/
@@ -133,3 +134,4 @@ Thumbs.db
 /portfolio-client/dist
 
 .qodo
+portfolio-server/backup.env

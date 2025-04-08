@@ -177,7 +177,7 @@ footer {
   }
 
   .menuOpen .left {
-    margin-left: 0px;
+    margin-left: 0;
   }
   .menuOpen .right {
     flex: 100%;

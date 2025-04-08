@@ -15,7 +15,7 @@ import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
 
 import { useLanguage } from '../../contexts/LanguageContext'
-import translations from '../../locales/translations' // Импортируем переводы
+import translations from '../../locales/translations'
 
 const SkillSelector = ({
 	title,
@@ -33,35 +33,32 @@ const SkillSelector = ({
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
 
-	const { language } = useLanguage() // Получение текущего языка из контекста
+	const { language } = useLanguage()
 
-	const t = key => translations[language][key] || key // Функция перевода
+	const t = key => translations[language][key] || key
 	useEffect(() => {
 		setJsonData(data[keyName])
 		setEditJsonData(editData[keyName])
 	}, [data])
 	const handleAddSkill = () => {
 		if (selectedSkill && selectedLevel) {
-			// Check if the selected skill already exists in any level
 			let skillExists = false
 			Object.keys(editJsonData).forEach(level => {
 				if (
 					editJsonData[level].some(skill => skill.name === selectedSkill.name)
 				) {
 					skillExists = true
-					// Optional: Notify or handle duplicate skill case here
+
 					alert(
 						`Skill "${selectedSkill.name}" is already added for level "${level}"`
 					)
 				}
 			})
 
-			// If skill exists, return without adding
 			if (skillExists) {
 				return
 			}
 
-			// Skill does not exist, proceed to add it
 			const updatedSkills = {
 				...editJsonData,
 				[selectedLevel]: [

@@ -24,13 +24,10 @@ const CreditDetails = () => {
 	const [creditData, setCreditData] = useState([])
 
 	function base64DecodeUnicode(str) {
-		// Convert URL-safe Base64 to standard Base64
 		const base64 = (str + '==').replace(/-/g, '+').replace(/_/g, '/')
 
-		// Decode Base64 to bytes
 		const binaryString = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
 
-		// Convert bytes to a string
 		const decoder = new TextDecoder('utf-8')
 		return decoder.decode(binaryString)
 	}
@@ -41,9 +38,7 @@ const CreditDetails = () => {
 
 		if (encodedData) {
 			try {
-				// Decode the URI component and parse the JSON
 				const decodedData = JSON.parse(decodeURIComponent(encodedData))
-				// Handle the student data
 				setStudent(decodedData)
 			} catch (e) {
 				console.error('Failed to decode or parse student data:', e)

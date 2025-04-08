@@ -28,7 +28,7 @@
 }
 
 .faq-content {
-  overflow: scroll;
+  overflow: auto;
   height: 64vh;
 }
 
