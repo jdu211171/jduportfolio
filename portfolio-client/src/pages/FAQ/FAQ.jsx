@@ -1,18 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
 	Container,
 	Typography,
 	Box,
 	Grid,
-	useTheme,
-	IconButton,
-	Button,
+	Button, Divider,
 } from '@mui/material'
 import EmailIcon from '@mui/icons-material/Email'
 import PhoneIcon from '@mui/icons-material/Phone'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
-import DeleteIcon from '@mui/icons-material/Delete'
 import FAQstyle from './FAQ.module.css'
 
 import QATextField from '../../components/QATextField/QATextField'
@@ -28,9 +25,6 @@ const FAQ = () => {
 	const [role, setRole] = useState(null)
 
 	const showAlert = useAlert()
-
-	const theme = useTheme()
-
 	const fetchFAQ = async () => {
 		const userRole = sessionStorage.getItem('role')
 		await setRole(userRole)
@@ -120,15 +114,14 @@ const FAQ = () => {
 		])
 		console.log(
 			document
-				.querySelectorAll('textarea[aria-invalid="false"]')
-				[editData.length * 2].focus()
+				.querySelectorAll('textarea[aria-invalid="false"]')[editData.length * 2].focus()
 		)
 	}
 
 	const handleDelete = indexToDelete => {
 		setEditData(prevEditData =>
 			prevEditData.filter((_, index) => {
-				return index != indexToDelete
+				return index !== indexToDelete
 			})
 		)
 	}
@@ -140,7 +133,7 @@ const FAQ = () => {
 					FAQ
 				</Typography>
 				<Box display={'flex'} gap={'10px'}>
-					{role == 'Admin' && (
+					{role === 'Admin' && (
 						<>
 							{editMode ? (
 								<>
@@ -184,10 +177,11 @@ const FAQ = () => {
 					)}
 				</Box>
 			</Box>
+
 			<Box className={FAQstyle['faq-content']}>
 				<Box my={2}>
 					{editMode &&
-						Object.entries(editData).map(([key, { question, answer }]) => (
+						Object.entries(editData).map(([key, { question,  }]) => (
 							<Box key={key}>
 								<QATextField
 									data={editData} // Pass any relevant data here if needed
@@ -197,8 +191,8 @@ const FAQ = () => {
 									keyName={key}
 									updateEditData={handleUpdate}
 									DeleteQA={handleDelete}
-									aEdit={role == 'Admin'}
-									qEdit={role == 'Admin'}
+									aEdit={role === 'Admin'}
+									qEdit={role === 'Admin'}
 								/>
 							</Box>
 						))}
@@ -216,7 +210,11 @@ const FAQ = () => {
 				</Box>
 			</Box>
 
-			<Box position={'absolute'} bottom={'8px'}>
+			<Box my={4}>
+				<Divider />
+			</Box>
+
+			<Box mt={4} pb={3}>
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={6} md={6}>
 						<Box display='flex'>
