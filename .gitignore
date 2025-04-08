@@ -134,3 +134,4 @@ Thumbs.db
 /portfolio-client/dist
 
 .qodo
+portfolio-server/backup.env
