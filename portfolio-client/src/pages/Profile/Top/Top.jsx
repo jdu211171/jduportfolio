@@ -572,13 +572,13 @@ const Top = () => {
 						<Chip
 							label={
 								currentDraft.status === 'submitted'
-									? t('submitted')
+									? t('submitted_draft')
 									: currentDraft.status === 'approved'
-										? t('approved')
+										? t('approved_draft')
 										: currentDraft.status === 'disapproved'
-											? t('disapproved')
+											? t('disapproved_draft')
 											: currentDraft.status === 'resubmission_required'
-												? t('resubmission_required')
+												? t('resubmission_required_draft')
 												: t('draft')
 							}
 							size='small'
