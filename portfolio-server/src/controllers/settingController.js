@@ -27,9 +27,7 @@ class SettingsController {
 
 	static async getAllSettings(req, res) {
 		try {
-			console.log(req.user, "Ushbu get all settingsga muroojat qilindi");
 			const settings = await SettingsService.getAllSettings()
-			console.log(settings, "Ushbu get all settingsga muroojat qilindi");
 			res.json(settings)
 		} catch (error) {
 			res.status(500).json({ error: 'Internal server error' })
