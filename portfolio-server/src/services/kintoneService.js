@@ -1,6 +1,7 @@
 const axios = require('axios')
 const kintoneConfig = require('../config/kintoneConfig')
 const StudentService = require('./studentService')
+const RecruiterService = require('./recruiterService')
 
 class KintoneService {
 	static baseUrl = process.env.KINTONE_API_BASE_URL
@@ -237,7 +238,6 @@ class KintoneService {
 			let certificate_it_contest = (
 				await this.getAllRecords('certificate_it_contest')
 			).records
-
 			let jlptData = this.formatCertificateData(certificate_jlpt, 'level', true)
 			let jduJlptData = this.formatCertificateData(
 				certificate_jdu_jlpt,
@@ -255,6 +255,22 @@ class KintoneService {
 				'award',
 				true
 			)
+
+			// recruiters
+
+			const recruiters = (await this.getAllRecords('recruiters')).records;
+			const formattedRecruiterData = recruiters.map((record) => ({
+				email: record.recruiterEmail?.value || '',
+				first_name: record.recruiterFirstName?.value || '',
+				last_name: record.recruiterLastName?.value || '',
+				company_name: record.recruiterCompany?.value || '',
+				phone: record.recruiterPhone?.value || '',
+				kintone_id: record['$id']?.value || record['レコード番号']?.value,
+				password: 'default_password', // Standart parol yoki generatsiya qilish mumkin
+			  }));
+			
+
+
 
 			const formattedStudentData = students.map(record => ({
 				studentId: record.studentId.value,
@@ -294,11 +310,32 @@ class KintoneService {
 						: ''
 				),
 			}))
-
+			let recresult = await RecruiterService.syncRecruiterData(formattedRecruiterData);
 			let result = await StudentService.syncStudentData(formattedStudentData)
 		} catch (error) {
 			console.log(error)
 			throw error
+		}
+	}
+
+	static async syncFromKintone(records) {
+
+		for (const record of records) {
+			const recruiterData = {
+				email: record.recruiterEmail.value,
+				first_name: record.recruiterFirstName.value,
+				last_name: record.recruiterLastName.value,
+				company_name: record.recruiterCompany.value,
+				phone: record.recruiterPhone.value,
+				kintone_id: record['$id'].value,
+				password: 'default_password', // Yoki avtomatik yaratish
+			};
+			const existing = await Recruiter.findOne({ where: { kintone_id: recruiterData.kintone_id } });
+			if (existing) {
+				await existing.update(recruiterData);
+			} else {
+				await Recruiter.create(recruiterData);
+			}
 		}
 	}
 

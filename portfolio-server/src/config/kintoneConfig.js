@@ -31,6 +31,15 @@ const apps = {
 		appId: '160',
 		token: '7xOoiYhgxne97O0TLnKVR1mLUwV5lpKfUuTRxOER',
 	},
+	recruiters: {
+		appId: '167',
+		token: 'Jpxmh0NJtaKCmxGGy0jqFTqRmj6TPLRzJo6TpLsV',
+	},
+
+
+
+
+	
 }
 
 module.exports = apps

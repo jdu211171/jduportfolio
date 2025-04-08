@@ -1,17 +1,31 @@
 const bcrypt = require('bcrypt')
+const generatePassword = require('generate-password');
 const { Recruiter } = require('../models')
 
 class RecruiterService {
 	// Service method to create a new recruiter
+	// static async createRecruiter(recruiterData) {
+	// 	try {
+	// 		const newRecruiter = await Recruiter.create(recruiterData)
+	// 		return newRecruiter
+	// 	} catch (error) {
+	// 		throw error // Throw the error for the controller to handle
+	// 	}
+		
+	// }
 	static async createRecruiter(recruiterData) {
 		try {
-			const newRecruiter = await Recruiter.create(recruiterData)
-			return newRecruiter
+		  // Parolni hash qilish (agar berilgan bo'lsa)
+		  if (recruiterData.password) {
+			const salt = await bcrypt.genSalt(10);
+			recruiterData.password = await bcrypt.hash(recruiterData.password, salt);
+		  }
+		  const newRecruiter = await Recruiter.create(recruiterData);
+		  return newRecruiter;
 		} catch (error) {
-			throw error // Throw the error for the controller to handle
+		  throw error; // Throw the error for the controller to handle
 		}
-		å
-	}
+	  }
 
 	// Service method to retrieve all recruiters
 	static async getAllRecruiters(filter) {
@@ -106,11 +120,16 @@ class RecruiterService {
 				kintone_id: data.kintone_id,
 			}
 
+			// if (data.password) {
+			// 	updatedData.password = data.password
+			// }
 			if (data.password) {
-				updatedData.password = data.password
+				const salt = await bcrypt.genSalt(10);
+				updatedData.password = await bcrypt.hash(data.password, salt);
 			}
 
-			return await recruiter.update(updatedData)
+			await recruiter.update(updatedData)
+			return recruiter;
 		} catch (error) {
 			throw error
 		}
@@ -124,6 +143,59 @@ class RecruiterService {
 			throw error
 		}
 	}
+
+	// static async syncRecruiterData(recruiterData) {
+	// 	try {
+	// 	  for (const data of recruiterData) {
+	// 		const existing = await Recruiter.findOne({ where: { kintone_id: data.kintone_id } });
+	// 		if (existing) {
+	// 		  await existing.update(data);
+	// 		} else {
+	// 		  await Recruiter.create(data);
+	// 		}
+	// 	  }
+	// 	  console.log('Recruiter ma\'lumotlari muvaffaqiyatli sinxronlashtirildi');
+	// 	} catch (error) {
+	// 	  console.error('Recruiter ma\'lumotlarini sinxronlashtirishda xato:', error);
+	// 	  throw error;
+	// 	}
+	// }
+
+	static async syncRecruiterData(recruiterData) {
+        try {
+            for (const data of recruiterData) {
+                const existing = await Recruiter.findOne({ where: { kintone_id: data.kintone_id } });
+                if (existing) {
+                    await existing.update(data);
+                } else {
+                    // Generate a plain password
+                    const plainPassword = generatePassword.generate({ 
+                        length: 12, 
+                        numbers: true 
+                    });
+                    
+                    // Send welcome email with plain password
+                    await EmailService.EmailToRecruiter(
+                        data.email,
+                        plainPassword,
+                        data.first_name,
+                        data.last_name
+                    );
+
+                    // Hash the password for storage
+                    const salt = await bcrypt.genSalt(10);
+                    data.password = await bcrypt.hash(plainPassword, salt);
+
+                    // Create the new recruiter
+                    await Recruiter.create(data);
+                }
+            }
+            console.log('Recruiter ma\'lumotlari muvaffaqiyatli sinxronlashtirildi');
+        } catch (error) {
+            console.error('Recruiter ma\'lumotlarini sinxronlashtirishda xato:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = RecruiterService
