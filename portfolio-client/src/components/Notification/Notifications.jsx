@@ -6,21 +6,24 @@ import { shortText } from '../functions.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import styles from './Notifications.module.css'
-import translations from '../../locales/translations.js' // Tarjimalarni import qilamiz
+import translations from '../../locales/translations.js'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import CloseIcon from '@mui/icons-material/Close'
 
-export default function Notifications({ language, changeLanguage }) {
-	const t = key => translations[language][key] || key // Tarjima funksiyasi, language ga bog‘liq
+export default function Notifications() {
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 
 	const [isVisible, setIsVisible] = useState(false)
 	const [modalIsVisible, setModalIsVisible] = useState(false)
 	const [selectedMessage, setSelectedMessage] = useState(null)
 	const [messages, setMessages] = useState([])
-	const [userData, setUserData] = useState({
+	const [userData,] = useState({
 		students: [],
 		staff: {},
 		admin: {},
 	})
-	const [currentUser, setCurrentUser] = useState({})
+	const [, setCurrentUser] = useState({})
 	const [unreadCount, setUnreadCount] = useState(0)
 	const [filter, setFilter] = useState('all')
 	const [isLoading, setIsLoading] = useState(false)
@@ -42,7 +45,7 @@ export default function Notifications({ language, changeLanguage }) {
 					? readRes.data.notifications
 					: []
 				fetchedMessages = [...unreadData, ...readData].sort(
-					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt),
 				)
 			} else if (statusFilter === 'unread') {
 				const unreadRes = await axios
@@ -61,7 +64,7 @@ export default function Notifications({ language, changeLanguage }) {
 			setUnreadCount(
 				Array.isArray(fetchedMessages)
 					? fetchedMessages.filter(msg => msg.status === 'unread').length
-					: 0
+					: 0,
 			)
 		} catch (error) {
 			console.error('Xatolik yuz berdi:', error)
@@ -101,10 +104,10 @@ export default function Notifications({ language, changeLanguage }) {
 		try {
 			const response = await axios.delete(`/api/notification/${id}`)
 			if (response.status === 200) {
-				console.log("✅ Xabar muvaffaqiyatli o'chirildi!")
+				console.log('✅ Xabar muvaffaqiyatli o\'chirildi!')
 				fetchData(filter)
 			} else {
-				console.log("❌ Xabarni o'chirib bo'lmadi!")
+				console.log('❌ Xabarni o\'chirib bo\'lmadi!')
 			}
 		} catch (error) {
 			console.error('Xatolik:', error)
@@ -162,7 +165,7 @@ export default function Notifications({ language, changeLanguage }) {
 					</span>
 				)}
 				<CircleNotificationsIcon
-					fontSize='large'
+					fontSize="large"
 					className={styles.notificationIcon}
 				/>
 			</div>
@@ -187,7 +190,7 @@ export default function Notifications({ language, changeLanguage }) {
 								) : (
 									<>
 										<CheckIcon
-											fontSize='small'
+											fontSize="small"
 											style={{ marginRight: '4px' }}
 										/>
 										{t('mark_all_read')}
@@ -244,7 +247,7 @@ export default function Notifications({ language, changeLanguage }) {
 															? userData.admin.photo
 															: 'https://via.placeholder.com/40'
 											}
-											alt='Foydalanuvchi rasmi'
+											alt="Foydalanuvchi rasmi"
 											className={styles.avatar}
 										/>
 										<div className={styles.messageContainer}>

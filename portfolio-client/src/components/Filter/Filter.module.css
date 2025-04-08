@@ -15,7 +15,7 @@
   border: 1px solid #a8abb3;
   border-radius: 10px;
   margin: 4px 0;
-  padding: auto 10px;
+  padding: 0 10px;
   width: 100%;
 }
 
@@ -53,7 +53,7 @@
 }
 
 .invisible {
-  height: 0vh;
+  height: 0;
   overflow: hidden;
 }
 
