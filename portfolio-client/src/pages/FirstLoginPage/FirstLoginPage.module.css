@@ -104,13 +104,11 @@
 }
 
 .firstDividerContainer {
-    margin: 5px;
-    margin-bottom: 40px;
+    margin: 5px 5px 40px;
 }
 
 .dividerContainer {
-    margin: 30px 0;
-    margin-top: 40px;
+    margin: 40px 0 30px;
 }
 
 .divider {
