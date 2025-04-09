@@ -10,7 +10,13 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
 import { UserContext } from '../../contexts/UserContext'
+import { LanguageSelect } from '../../components/languageSelector/LanguageSelect'
+import translations from '../../locales/translations'
+
 const Login = () => {
+	const savedLanguage = localStorage.getItem('language') || 'ja'
+	const [language, setLanguage] = useState(savedLanguage)
+	const t = key => translations[language][key] || key
 	const navigate = useNavigate()
 	const { updateUser } = useContext(UserContext)
 
@@ -18,7 +24,7 @@ const Login = () => {
 	const [password, setPassword] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
 	const [error, setError] = useState('')
-	const [loginMode, setLoginMode] = useState(true) // состояние для переключения режимов
+	const [loginMode, setLoginMode] = useState(true)
 
 	const handleLogin = async e => {
 		e.preventDefault()
@@ -75,24 +81,29 @@ const Login = () => {
 				<div className={styles['header-container']}>
 					<img src={logo} alt='Logo' className={styles['logo']} />
 					<div className={styles['text-container']}>
-						<h2>{loginMode ? 'おかえりなさい' : 'パスワードをお忘れですか'}</h2>
-						<p>
-							{loginMode
-								? '情報をご入力ください!'
-								: 'パスワード変更用リンクを電子メールに送信します'}
+						<h2 style={{ textWrap: 'wrap' }}>
+							{loginMode ? t('welcome') : t('forgotPassword')}
+						</h2>
+						<p style={{ textWrap: 'wrap' }}>
+							{loginMode ? t('enterYourInfo') : t('resetPassword')}
 						</p>
+						{!loginMode && <p>{t('resetPassword2')}</p>}
 					</div>
 				</div>
 				{error && <p style={{ color: 'red' }}>{error}</p>}
 				{loginMode ? (
 					<form onSubmit={handleLogin}>
+						<div className={styles['login-label']}>
+							<label style={{ fontWeight: 700, marginRight: '1rem' }}>{t('loginLabel')}</label>
+							<LanguageSelect />
+						</div>
 						<div className={styles['input-group']}>
-							<label>ログイン</label>
+							<label>{t('email')}</label>
 							<div className={styles['input-icon']}>
 								<BadgeOutlinedIcon />
 								<input
 									type='email'
-									placeholder='ログインをご入力ください'
+									placeholder={t('enterYourLogin')}
 									value={email}
 									onChange={e => setEmail(e.target.value)}
 									required
@@ -100,11 +111,12 @@ const Login = () => {
 							</div>
 						</div>
 						<div className={styles['input-group']}>
+							<label>{t('current_password')}</label>
 							<div className={styles['input-icon']}>
 								<LockOutlinedIcon />
 								<input
 									type={showPassword ? 'text' : 'password'}
-									placeholder='パスワードをご入力ください'
+									placeholder={t('enterYourPassword')}
 									value={password}
 									onChange={e => setPassword(e.target.value)}
 									required
@@ -126,7 +138,7 @@ const Login = () => {
 						<div className={styles['remember-me-container']}>
 							<div className={styles['remember-me']}>
 								<input type='checkbox' id='remember' name='remember' />
-								<label htmlFor='remember'>保存</label>
+								<label htmlFor='remember'>{t('save')}</label>
 							</div>
 							<div className={styles['forgot-password']}>
 								<button
@@ -134,7 +146,7 @@ const Login = () => {
 									onClick={() => setLoginMode(false)}
 									className={styles['forgot-password-button']}
 								>
-									パスワードをお忘れですか
+									{t('forgotPassword')}
 								</button>
 							</div>
 						</div>
@@ -142,38 +154,44 @@ const Login = () => {
 							type='submit'
 							className={`${styles['button-custom']} ${styles['submit-button']}`}
 						>
-							ログイン
+							{t('login')}
 						</button>
 					</form>
 				) : (
 					// Forgot Password mode
 					<form onSubmit={handleForgotPassword}>
+						<div className={styles['login-label']}>
+							<label style={{ fontWeight: 700 }}>{t('mailAddress')}</label>
+							<LanguageSelect />
+						</div>
 						<div className={styles['input-group']}>
-							<label>メールアドレス</label>
+							<label>{t('email')}</label>
 							<div className={styles['input-icon']}>
 								<BadgeOutlinedIcon />
 								<input
 									type='email'
-									placeholder='メールをご入力ください'
+									placeholder={t('enterYourLogin')}
 									value={email}
 									onChange={e => setEmail(e.target.value)}
 									required
 								/>
 							</div>
 						</div>
-						<button
-							type='submit'
-							className={`${styles['button-custom']} ${styles['submit-button']}`}
-						>
-							送信
-						</button>
-						<button
-							type='button'
-							className={`${styles['button-custom']} ${styles['submit-button']}`}
-							onClick={() => setLoginMode(true)}
-						>
-							戻る
-						</button>
+						<div className={styles['button-group']}>
+							<button
+								type='submit'
+								className={`${styles['button-custom']} ${styles['submit-button']}`}
+							>
+								{t('send')}
+							</button>
+							<button
+								type='button'
+								className={`${styles['button-custom']} ${styles['back-button']}`}
+								onClick={() => setLoginMode(true)}
+							>
+								{t('back')}
+							</button>
+						</div>
 					</form>
 				)}
 			</div>

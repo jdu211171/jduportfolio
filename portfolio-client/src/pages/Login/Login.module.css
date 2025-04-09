@@ -15,8 +15,15 @@
 
 .header-container {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+}
+
+.left-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .logo {
@@ -175,4 +182,10 @@
   .login-image {
     display: none;
   }
+}
+
+.login-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
