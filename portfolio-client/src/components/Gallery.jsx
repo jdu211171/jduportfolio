@@ -76,13 +76,14 @@ const Gallery = ({
 						? galleryUrls[parentKey]?.[keyName].slice(0, 2)
 						: galleryUrls[keyName].slice(0, 2)
 				).map((url, index) => (
-					<img
-						key={`gallery-${index}`}
-						src={url}
-						alt={`ギャラリー ${index}`}
-						className={styles.galleryImage}
-						onClick={handleClickOpen}
-					/>
+					<div className={styles.galleryImageContainer} key={`gallery-${index}`}>
+						<img
+							src={url}
+							alt={`ギャラリー ${index}`}
+							className={styles.galleryImage}
+							onClick={handleClickOpen}
+						/>
+					</div>
 				))}
 				{editMode && (
 					<Tooltip
