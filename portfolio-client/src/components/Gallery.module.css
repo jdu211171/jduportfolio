@@ -5,9 +5,8 @@
 }
 
 .galleryImage {
-	width: 30%;
-	aspect-ratio: 1 / 1;
-	min-width: 150px;
+	width: 100%;
+	height: auto;
 	cursor: pointer;
 }
 
@@ -26,30 +25,32 @@
 }
 
 .fullGalleryContainer {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
+	column-count: 4;
+	column-gap: 8px;
+}
+
+.galleryImageContainer {
+	width: 30%;
+	min-width: 150px;
 }
 
 .fullGalleryImageContainer {
 	position: relative;
-	width: 24%;
-	min-width: 150px;
-	min-height: 150px;
-	aspect-ratio: 1 / 1;
+	display: inline-block;
+	width: 100%;
+	margin-bottom: 8px;
+	break-inside: avoid;
 }
 
 .fullGalleryImage {
 	width: 100%;
-	height: 100%;
-	min-width: 150px;
-	min-height: 150px;
+	height: auto;
 }
 
-.fullEditPlaceholder {
-	width: 24%;
-	min-width: 150px;
-	min-height: 150px;
+.fullEditPlaceholder .editPlaceholder {
+	width: 100%;
+	height: 150px;
+	aspect-ratio: unset;
 	border: 2px dashed #ccc;
 	display: flex;
 	align-items: center;
@@ -57,4 +58,11 @@
 	cursor: pointer;
 	font-size: 24px;
 	color: #ccc;
+	user-select: none;
+}
+
+@media (max-width: 600px) {
+	.fullGalleryContainer {
+		column-count: 2;
+	}
 }
