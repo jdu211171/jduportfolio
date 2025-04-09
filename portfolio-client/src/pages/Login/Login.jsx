@@ -84,17 +84,14 @@ const Login = () => {
 						<h2 style={{ textWrap: 'wrap' }}>
 							{loginMode ? t('welcome') : t('forgotPassword')}
 						</h2>
-						<p style={{ textWrap: 'wrap' }}>
-							{loginMode ? t('enterYourInfo') : t('resetPassword')}
-						</p>
 						{!loginMode && <p>{t('resetPassword2')}</p>}
 					</div>
 				</div>
 				{error && <p style={{ color: 'red' }}>{error}</p>}
 				{loginMode ? (
 					<form onSubmit={handleLogin}>
-						<div className={styles['login-label']}>
-							<label style={{ fontWeight: 700, marginRight: '1rem' }}>{t('loginLabel')}</label>
+						<p className={styles['login-label']}>{t('loginLabel')}</p>
+						<div className={styles['login-translate']}>
 							<LanguageSelect />
 						</div>
 						<div className={styles['input-group']}>
