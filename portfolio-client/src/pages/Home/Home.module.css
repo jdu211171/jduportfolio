@@ -79,7 +79,7 @@
   display: inline-block;
   text-decoration: none;
   transition: background-color 0.3s ease;
-  width: 100px;
+  width: fit-content;
 }
 
 .button:hover {
