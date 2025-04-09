@@ -79,7 +79,7 @@ const Home = () => {
 			{/* Динамическое обновление при смене языка */}
 			<Box className={styles.header}>
 				<h3>
-					<a href='https://www.jdu.uz/'>Japan Digital University</a>
+					<a href='https://www.jdu.uz/' target='_blank'>Japan Digital University</a>
 				</h3>
 				<Box display={'flex'} gap={'10px'}>
 					{role === 'Admin' && (

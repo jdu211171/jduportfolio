@@ -71,16 +71,17 @@ const Gallery = ({
 
 	return (
 		<Box>
-			<Box className={styles.galleryContainer} onClick={handleClickOpen}>
+			<Box className={styles.galleryContainer}>
 				{(parentKey
-					? galleryUrls[parentKey]?.[keyName].slice(0, 2)
-					: galleryUrls[keyName].slice(0, 2)
+						? galleryUrls[parentKey]?.[keyName].slice(0, 2)
+						: galleryUrls[keyName].slice(0, 2)
 				).map((url, index) => (
 					<img
 						key={`gallery-${index}`}
 						src={url}
 						alt={`ギャラリー ${index}`}
 						className={styles.galleryImage}
+						onClick={handleClickOpen}
 					/>
 				))}
 				{editMode && (
