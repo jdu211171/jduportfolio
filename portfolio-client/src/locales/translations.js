@@ -341,7 +341,7 @@ const translations = {
 		new: '新着',
 		ok: 'OK',
 		delete: '削除',
-		welcome: 'JDUポートフォリオへようこそ',
+		welcome: 'JDUポートフォリオ',
 		forgotPassword: 'パスワードをお忘れですか',
 		resetPassword2: 'パスワードリセット手順を受け取るメールアドレスを入力してください',
 		enterYourLogin: 'メールアドレスを入力',
