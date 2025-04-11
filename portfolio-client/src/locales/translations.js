@@ -158,8 +158,7 @@ const translations = {
 		loading: 'Loading...',
 		welcome: 'Welcome to JDU Portfolio',
 		forgotPassword: 'Forgot Password',
-		resetPassword2:
-			'Enter your email address to receive password reset instructions',
+		resetPassword2:'Enter your email address to receive password reset instructions',
 		enterYourLogin: 'Enter your email',
 		enterYourPassword: 'Enter your password',
 		mailAddress: 'Email Address',
@@ -344,8 +343,7 @@ const translations = {
 		delete: '削除',
 		welcome: 'JDUポートフォリオ',
 		forgotPassword: 'パスワードをお忘れですか',
-		resetPassword2:
-			'パスワードリセット手順を受け取るメールアドレスを入力してください',
+		resetPassword2:'パスワードリセット手順を受け取るメールアドレスを入力してください',
 		enterYourLogin: 'メールアドレスを入力',
 		enterYourPassword: 'パスワードを入力',
 		mailAddress: 'メールアドレス',
@@ -516,8 +514,7 @@ const translations = {
 		private: 'Maxfiy',
 		welcome: 'JDU Portfolioga xush kelibsiz',
 		forgotPassword: 'Parolni unutdingizmi',
-		resetPassword2:
-			"Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
+		resetPassword2:"Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
 		enterYourLogin: 'Elektron pochtangizni kiriting',
 		enterYourPassword: 'Parolingizni kiriting',
 		mailAddress: 'Elektron pochta manzili',
