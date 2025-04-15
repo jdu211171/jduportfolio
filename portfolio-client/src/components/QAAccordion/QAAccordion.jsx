@@ -40,7 +40,9 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 				</StyledAccordionSummary>
 				{!notExpand && (
 					<AccordionDetails className={styles.answer}>
-						<Typography>{answer} </Typography>
+						<Typography>
+							<pre>{answer}</pre>
+						</Typography>
 					</AccordionDetails>
 				)}
 			</Accordion>
