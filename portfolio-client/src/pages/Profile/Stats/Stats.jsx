@@ -53,7 +53,6 @@ const Stats = () => {
 						'JDU_JLPT',
 						JSON.parse(studentData.jdu_japanese_certification)
 					)
-					setCertificateData('main', 'IELTS', JSON.parse(studentData.ielts))
 					setCertificateData(
 						'other',
 						'日本語弁論大会学内',
@@ -83,7 +82,7 @@ const Stats = () => {
 			data?.list?.forEach(x => {
 				let obj = {
 					name: x.level,
-					date: x.date.slice(0, 7),
+					// date: x.date.slice(0, 7),
 					color: certificateColors[type][x.level],
 				}
 				temp.push(obj)
@@ -92,7 +91,7 @@ const Stats = () => {
 			data?.list?.forEach(x => {
 				let obj = {
 					name: x.level,
-					date: x.date.slice(0, 7),
+					// date: x.date.slice(0, 7),
 					color: certificateColors[key][x.level],
 				}
 				temp.push(obj)
