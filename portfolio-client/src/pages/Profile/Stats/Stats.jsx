@@ -53,7 +53,6 @@ const Stats = () => {
 						'JDU_JLPT',
 						JSON.parse(studentData.jdu_japanese_certification)
 					)
-					setCertificateData('main', 'IELTS', JSON.parse(studentData.ielts))
 					setCertificateData(
 						'other',
 						'日本語弁論大会学内',
