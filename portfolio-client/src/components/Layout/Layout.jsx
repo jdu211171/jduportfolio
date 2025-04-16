@@ -179,7 +179,7 @@ const Layout = () => {
 					</div>
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
-							<Notifications />
+							{role != 'Recruiter' && <Notifications />}
 						</div>
 						<div className={style.languageSwitcher}>
 							<select
