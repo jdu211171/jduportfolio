@@ -87,7 +87,7 @@ const Gallery = ({
 				))}
 				{editMode && (
 					<Tooltip
-						title='クリックして画像をアップロードしてください。対応形式: JPG, PNG。最大ファイルサイズ: 5MB'
+						title='クリックして画像をアップロードしてください。対応形式: JPG, PNG 最大ファイルサイズ: 5MB。画像の理想的なサイズは、最適のサイズは500x500pxです。'
 						placement='top'
 					>
 						<label
@@ -175,7 +175,7 @@ const Gallery = ({
 						))}
 						{editMode && (
 							<Tooltip
-								title='クリックして画像をアップロードしてください。対応形式: JPG, PNG。最大ファイルサイズ: 5MB'
+								title='クリックして画像をアップロードしてください。対応形式: JPG, PNG 最大ファイルサイズ: 5MB。画像の理想的なサイズは、最適のサイズは500x500pxです。'
 								placement='top'
 							>
 								<label
