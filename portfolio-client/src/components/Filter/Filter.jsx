@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
 	TextField,
 	FormControl,
@@ -14,12 +14,14 @@ import {
 	ButtonGroup,
 	IconButton,
 	Collapse,
+	Autocomplete,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import { useLanguage } from '../../contexts/LanguageContext' // Import the language context
 import translations from '../../locales/translations' // Import translations
 import style from './Filter.module.css'
+import { debounce } from 'lodash'
 
 const Filter = ({ fields, filterState, onFilterChange }) => {
 	const { language } = useLanguage() // Get the current language
@@ -28,12 +30,66 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 	const [open, setOpen] = useState(false)
 	const [collapse, setCollapse] = useState(false)
 	const [localFilterState, setLocalFilterState] = useState(filterState)
+	const [inputValue, setInputValue] = useState('')
+	const [noMatches, setNoMatches] = useState(false)
+
+	// Memoize all potential filter options for suggestions
+	const allFilterOptions = useMemo(() => {
+		const options = []
+		fields.forEach(field => {
+			if (field.options) {
+				field.options.forEach(option => {
+					options.push({
+						label: option,
+						field: field.key,
+						type: field.type
+					})
+				})
+			}
+		})
+		return options
+	}, [fields])
+
+	// Create suggestions based on input
+	const [suggestions, setSuggestions] = useState([])
+
+	useEffect(() => {
+		if (!inputValue.trim()) {
+			setSuggestions([])
+			return
+		}
+
+		const filtered = allFilterOptions.filter(option =>
+			option.label.toLowerCase().includes(inputValue.toLowerCase())
+		)
+		setSuggestions(filtered)
+		setNoMatches(inputValue.trim().length > 0 && filtered.length === 0)
+	}, [inputValue, allFilterOptions])
+
+	// Debounce input changes for performance
+	const debouncedSetInputValue = useMemo(
+		() => debounce(value => setInputValue(value), 300),
+		[]
+	)
+
+	// Clean up debounce on unmount
+	useEffect(() => {
+		return () => {
+			debouncedSetInputValue.cancel()
+		}
+	}, [debouncedSetInputValue])
 
 	const handleChange = (key, value) => {
 		setLocalFilterState(prevState => ({
 			...prevState,
 			[key]: value,
 		}))
+
+		// Auto-expand the form when a filter is selected
+		if (key !== 'search' && !open) {
+			setOpen(true)
+			setCollapse(true)
+		}
 	}
 
 	const renderField = (field, index) => {
@@ -87,8 +143,8 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 													localFilterState[field.key] || []
 												).includes(option)
 													? (localFilterState[field.key] || []).filter(
-															item => item !== option
-														)
+														item => item !== option
+													)
 													: [...(localFilterState[field.key] || []), option]
 												handleChange(field.key, newValue)
 											}}
@@ -174,11 +230,37 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 				</Grid>
 				<Grid item xs={10} sx={{ p: 1 }}>
 					<FormControl fullWidth>
-						<TextField
-							className={style.textfield}
-							label={t('name_search')}
-							value={localFilterState.search || ''}
-							onChange={e => handleChange('search', e.target.value)}
+						<Autocomplete
+							freeSolo
+							options={suggestions}
+							getOptionLabel={(option) => typeof option === 'string' ? option : option.label}
+							inputValue={inputValue}
+							onInputChange={(event, newInputValue) => {
+								debouncedSetInputValue(newInputValue)
+							}}
+							onChange={(event, newValue) => {
+								if (newValue && typeof newValue !== 'string') {
+									// User selected a suggestion
+									setCollapse(true)
+									setOpen(true)
+
+									handleChange(newValue.field, newValue.type === 'checkbox' ? [newValue.label] : newValue.label)
+								}
+							}}
+							noOptionsText={noMatches ? t('no_matches_found') : t('start_typing')}
+							renderInput={(params) => (
+								<TextField
+									{...params}
+									className={style.textfield}
+									label={t('name_search')}
+									value={localFilterState.search || ''}
+									onChange={(e) => {
+										handleChange('search', e.target.value)
+										setInputValue(e.target.value)
+									}}
+									aria-label={t('search_filters')}
+								/>
+							)}
 						/>
 					</FormControl>
 				</Grid>
