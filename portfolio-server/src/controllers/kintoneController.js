@@ -147,7 +147,7 @@ class KintoneController {
     throw new Error(`No app name found for appId: ${appId}`)
    }
    const data = req.body
-   console.log(`App Name: ${appName}, Data:`, data) // Debugging uchun
+   // console.log(`App Name: ${appName}, Data:`, data) // Debugging uchun
    const result = await KintoneService.createRecord(appName, data)
    res.status(201).json(result)
   } catch (error) {
@@ -199,14 +199,14 @@ static async delete(req, res) {
     try {
         const appId = req.query.app || kintoneConfig.students.appId; // Default: students app
         const appName = appIdToName[appId];
-        console.log(`App ID: ${appId}, App Name: ${appName}`); // Debugging uchun
+        // console.log(`App ID: ${appId}, App Name: ${appName}`); // Debugging uchun
 
         if (!appName) {
             throw new Error(`No app name found for appId: ${appId}`);
         }
 
         const recordId = req.params.id;
-        console.log(`Deleting record with ID: ${recordId}`); // Debugging uchun
+        // console.log(`Deleting record with ID: ${recordId}`); // Debugging uchun
 
         await KintoneService.deleteRecord(appName, recordId);
         res.status(204).json();

@@ -6,7 +6,7 @@ const { Op } = require('sequelize')
 class CronService {
 	static async sendDraftEmails() {
 		try {
-			console.log('submitted draft ...')
+			// console.log('submitted draft ...')
 
 			// const today = new Date().toISOString().split('T')[0];
 			const drafts = await sequelize.query(
@@ -22,13 +22,13 @@ class CronService {
 			)
 
 			if (drafts.length === 0) {
-				console.log('No drafts submitted today')
+				// console.log('No drafts submitted today')
 				return
 			}
 
 			const staffMembers = await Staff.findAll({ attributes: ['email'] })
 			if (staffMembers.length === 0) {
-				console.log('No staff found.')
+				// console.log('No staff found.')
 				return
 			}
 
@@ -80,10 +80,10 @@ class CronService {
 					`本日提出された学生情報の一覧`,
 					emailBody
 				)
-				console.log(`Email sent to ${email}`)
+				// console.log(`Email sent to ${email}`)
 			}
 
-			console.log('✅ Cron job finished successfully')
+			// console.log('✅ Cron job finished successfully')
 		} catch (error) {
 			console.error('Error in scheduled task:', error)
 		}

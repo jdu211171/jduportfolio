@@ -108,7 +108,7 @@ class KintoneService {
 	static async createRecord(appName, data) {
 		try {
 			const { appId, token } = this.getAppConfig(appName)
-			console.log(`Creating record in app ${appId} with data:`, data)
+			// console.log(`Creating record in app ${appId} with data:`, data)
 
 			const response = await axios.post(
 				`${this.baseUrl}/k/v1/record.json`,
@@ -138,10 +138,10 @@ class KintoneService {
 	static async updateRecord(appName, recordId, data) {
 		try {
 			const { appId, token } = this.getAppConfig(appName)
-			console.log(
-				`Updating record ${recordId} in app ${appId} with data:`,
-				data
-			)
+			// console.log(
+			// 	`Updating record ${recordId} in app ${appId} with data:`,
+			// 	data
+			// )
 
 			const response = await axios.put(
 				`${this.baseUrl}/k/v1/record.json`,
@@ -197,7 +197,7 @@ class KintoneService {
 	static async deleteRecord(appName, recordId) {
 		try {
 			const { appId, token } = this.getAppConfig(appName);
-			console.log(`Deleting record ${recordId} from app ${appId}`); // Debugging uchun
+			// console.log(`Deleting record ${recordId} from app ${appId}`); // Debugging uchun
 	
 			const response = await axios.post(
 				`${this.baseUrl}/k/v1/records.json`,

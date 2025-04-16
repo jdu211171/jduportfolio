@@ -16,7 +16,7 @@ class NotificationController {
 	static async getNotificationsByUserId(req, res) {
 		try {
 			const { id, userType } = req.user
-			console.log(req.user)
+			// console.log(req.user)
 
 			if (!id || !userType) {
 				return res.status(400).json({ error: 'User ID and user type are required' })

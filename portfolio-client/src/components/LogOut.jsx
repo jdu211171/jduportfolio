@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../utils/axiosUtils'
 import Cookies from 'js-cookie'
 
 const Logout = () => {
 	const navigate = useNavigate()
-	const functions = () => {
-		console.log()
-	}
-
 	useEffect(() => {
 		const handleLogout = async () => {
 			try {
