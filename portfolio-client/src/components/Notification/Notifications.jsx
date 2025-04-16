@@ -44,14 +44,22 @@ export default function Notifications() {
 				const readData = Array.isArray(readRes.data.notifications)
 					? readRes.data.notifications
 					: []
-				fetchedMessages = [...unreadData, ...readData].sort(
-					(a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+
+				const sortedUnread = [...unreadData].sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
 				)
+				const sortedRead = [...readData].sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+				)
+
+				// Concatenate with unread first, then read
+				fetchedMessages = [...sortedUnread, ...sortedRead]
 			} else if (statusFilter === 'unread') {
 				const unreadRes = await axios
 					.get('/api/notification/user')
 					.catch(() => ({ data: [] }))
 				fetchedMessages = Array.isArray(unreadRes.data) ? unreadRes.data : []
+				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			} else if (statusFilter === 'read') {
 				const readRes = await axios
 					.get('/api/notification/history')
@@ -59,6 +67,7 @@ export default function Notifications() {
 				fetchedMessages = Array.isArray(readRes.data.notifications)
 					? readRes.data.notifications
 					: []
+				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			}
 			setMessages(fetchedMessages)
 			setUnreadCount(
@@ -230,30 +239,12 @@ export default function Notifications() {
 						{messages.length > 0 ? (
 							messages.map(item => (
 								<div
-									key={item.id || Math.random()}
 									onClick={() => handleClick(item)}
-									className={`${styles.notificationItem} ${
-										item.status === 'unread' ? styles.unread : ''
-									}`}
+									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''}`}
 								>
-									<div className={styles.avatarContainer}>
-										<img
-											src={
-												item.user_role === 'student'
-													? userData.students[item.user_id]?.photo
-													: item.user_role === 'staff'
-														? userData.staff[item.user_id]?.photo
-														: item.user_role === 'admin'
-															? userData.admin.photo
-															: 'https://via.placeholder.com/40'
-											}
-											alt="Foydalanuvchi rasmi"
-											className={styles.avatar}
-										/>
-										<div className={styles.messageContainer}>
-											<div>{shortText(item.message, 28)}</div>
-											<div>{shortText(item.createdAt, 10, true)}</div>
-										</div>
+									<div className={styles.messageContainer}>
+										<div>{shortText(item.message, 28)}</div>
+										<div>{shortText(item.createdAt, 10, true)}</div>
 									</div>
 									{item.status === 'unread' && (
 										<div className={styles.newIndicator}>{t('new')}</div>
