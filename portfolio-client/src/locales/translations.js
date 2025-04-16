@@ -164,6 +164,26 @@ const translations = {
 		mailAddress: 'Email Address',
 		send: 'Send Email',
 		loginLabel: 'Login',
+		profile_publish_request: 'Application for Publication',
+		profile_publish_explanation: `We will release your profile on the JDU Portfolio Service upon your application for the purpose of facilitating your job search.
+For the purpose of facilitating your job search, your profile will be published on the JDU Portfolio Service based on your application.
+
+After your application is submitted, it will be sent to the JDU Japan Employment Department, where a JDU staff member will review the contents.
+If you have any questions or concerns about the content of your profile, we will contact you by email.
+If there are no questions or concerns, your application will be approved and your profile will be made public.
+
+Please make sure that your profile does not fall under any of the prohibited activities listed below, and submit your request for publication by clicking the "Submit" button.`,
+		prohibited_actions: 'Prohibited acts',
+		prohibited_actions_content: `JDU students shall not engage in any of the following acts when using the Service.
+(1) Providing false or inaccurate information
+(2) Slander, defame, or threaten any individual or group, or any action that may lead to such a slander, defamation, or threat.
+(3) Infringing or threatening to infringe the rights of others, including copyrights, trademarks, and other intellectual property rights. e.g.: Using pictures, works, characters, etc. of celebrities or others without permission.
+(5)Any action that interferes with the smooth operation of this service, or damages or may damage the reputation or credibility of the Company or the job seeker. e.g.: Direct contact or interview with the job seeker.
+(6)Criminal acts or acts that offend or may offend public order and morals, such as acts against laws and regulations.
+(7)Actions that belong to organizations related to antisocial forces, etc., or that have or may have inappropriate relationships with antisocial forces, such as providing benefits to or using antisocial forces, etc.`,
+		confirm_no_prohibited_actions: 'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
+		no_button: 'No',
+		apply_button: 'Submit',
 	},
 	ja: {
 		confirmationStatus: '確認状況',
@@ -349,6 +369,33 @@ const translations = {
 		mailAddress: 'メールアドレス',
 		send: '送信',
 		loginLabel: 'ログイン',
+		profile_publish_request: '公開申請',
+		profile_publish_explanation: `就職活動を円滑にする目的のために、あなたのプロフィールを申請に基づき、JDUポー
+トフォリオサービス上に公開します。
+公開申請後はJDU日本就業部に送信され、職員による内容確認が行われます。
+記載内容について不明点や質問がある場合は、メールにてご連絡します。
+記載内容について不明点や質問がない場合は、申請内容が承認され、あなたのプロフ
+ィールが公開されます。
+あなたのプロフィールの内容等が以下の禁止行為に該当しないこと確認し、申請ボタ
+ンから公開申請をしてください。`,
+		prohibited_actions: '（禁止行為）',
+		prohibited_actions_content: `JDU学生は、本サービスの利用に際し、次の各号の行為を行ってはならないものとしま
+す。
+(1)虚偽または不正確な情報を提供する行為
+(2)個人や団体を誹謗、中傷、脅迫、またはそのおそれのある行為
+(3)著作権、商標権、その他の知的財産権を含む他人の権利を侵害し、またはそのおそ
+れのある行為　例：芸能人や他人の写真、作品、キャラクターなどを無断で利用す
+る行為
+(5)本サービスの円滑な運営を妨げる行為、または当社および求人者の信用または名誉
+を毀損する行為、もしくはそれらのおそれのある行為　例：求人者への直接連絡、
+面談等の行為
+(6)犯罪行為、または法令に反する行為等公序良俗に反する行為、もしくはそれらのお
+それのある行為
+(7)反社会的勢力等に関連する組織に属する行為、反社会的勢力に利益を与え、または
+利用する等不適切な関係を持つ行為、もしくはそれらのおそれのある行為`,
+		confirm_no_prohibited_actions: '上記の禁止行為に該当しないことを確認しました。',
+		no_button: 'いいえ',
+		apply_button: '申請する',
 	},
 	uz: {
 		general: 'Umumiy',
@@ -520,6 +567,23 @@ const translations = {
 		mailAddress: 'Elektron pochta manzili',
 		send: 'Yuborish',
 		loginLabel: 'Kirish',
+		profile_publish_request: 'Nashr etish uchun ariza',
+		profile_publish_explanation: `Ish qidirishingizni osonlashtirish uchun profilingiz arizangiz asosida JDU Portfolio xizmatida nashr etiladi.
+Nashr etish uchun ariza topshirilgandan soʻng, u JDUning Yaponiyada ish bilan taʼminlash boʻlimiga yuboriladi va u erda uning mazmuni xodimlar tomonidan koʻrib chiqiladi.
+Agar arizangiz mazmuni boʻyicha kamchiliklar yoki savollar boʻlsa, siz bilan elektron pochta orqali bogʻlanishadi.
+Agar arizangiz mazmuni boʻyicha hech qanday kamchiliklar yoki savollar boʻlmasa, arizangiz maʼqullanadi hamda profilingiz eʼlon qilinadi.
+Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakatlarga toʻgʻri kelmasligiga ishonch hosil qiling, Ariza yuborish tugmasini bosib nashr etish uchun ariza bering.`,
+		prohibited_actions: '（Taqiqlangan xatti-harakatlar）',
+		prohibited_actions_content: `JDU talabalari ushbu xizmatdan foydalanganda quyidagi harakatlarni amalga oshirmasliklari kerak.
+(1)Yolgoʻon yoki notoʻgʻri bo\`lgan maʼlumotlarni taqdim etish harakatlari
+(2)Shaxslar hamda tashkilotga nisbatan tuhmat qilish, tahdid qilish, qoʻrqitish yoki shunga oʻxshash nojoyi harakatlarga olib keluvchi harakatlar
+(3)Boshqalarning huquqlarini, shu jumladan mualliflik huquqlari, savdo belgilari va boshqa intellektual mulk huquqlarini buzadigan yoki buzishi mumkin boʻlgan harakat. Masalan, ruxsatsiz taniqli shaxslar yoki boshqa shaxslarning fotosuratlari, asarlari yoki personajlaridan foydalanish bilan bogʻliq boʻlgan harakat
+(5)Xizmatning uzluksiz ishlashiga xalaqit beradigan, kompaniya yoki yollovchining obroʻsi yoki ishonchiga putur yetkazadigan har qanday harakat yoki bunday zararga olib kelishi mumkin boʻlgan har qanday harakat. Masalan, ishga yollovchi bilan bevosita aloqa yoki u bilan suhbat
+(6)Jinoiy harakatlar, jamoat tartibi va intizomiga zid harakatlar, shu jumladan qonunga zid harakatlar yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar
+(7)Jamiyatga qarshi kuchlar bilan bogʻliq boʻlgan tashkilotlarga tegishli boʻlish va boshqalar yoki nomaqbul munosabatlarga ega boʻlish, masalan, imtiyozlar berish yoki jamiyatga qarshi kuchlardan foydalanish yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar`,
+		apply_button: 'Yuborish',
+		no_button: 'Yo\'q',
+		confirm_no_prohibited_actions: 'Yuqoridagi taqiqlangan xatti-harakatlarni qilmaslikni tasdiqlayman.',
 	},
 }
 
