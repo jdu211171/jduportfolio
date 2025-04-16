@@ -6,20 +6,15 @@
 
 .notificationBadge {
 	position: absolute;
-	top: 0;
-	right: 0;
-	transform: translate(25%, -33%);
+	top: -8px;
+	right: -8px;
+	background-color: #5627dc;
 	color: white;
-	font-weight: bold;
-	border-radius: 9999px;
-	background-color: #df4066;
-	width: 1.25rem;
-	height: 1.25rem;
-	font-size: 0.625rem;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	z-index: 1100;
+	border-radius: 50%;
+	padding: 2px 6px;
+	font-size: 12px;
+	min-width: 18px;
+	text-align: center;
 }
 
 .notificationIcon {
@@ -108,16 +103,17 @@
 }
 
 .unread {
-	font-weight: bold;
+	border-left: 3px solid #5627dc;
+	background-color: rgba(86, 39, 220, 0.05);
 }
 
 .newIndicator {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-weight: bold;
-	color: #10b981;
-	font-size: 0.625rem;
+	background-color: #5627dc;
+	color: white;
+	padding: 2px 6px;
+	border-radius: 10px;
+	font-size: 12px;
+	margin-left: 5px;
 }
 
 .noNotifications {
@@ -212,9 +208,26 @@
 	cursor: pointer;
 }
 
+.okButton, .markAllButton {
+	background-color: #5627dc;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
 .okButton:hover {
 	background-color: #059669;
 	transition: background-color 0.2s;
+}
+
+.okButton:hover, .markAllButton:hover {
+	background-color: #4720b5;
+}
+
+.dropdown {
+	box-shadow: 0 4px 12px rgba(86, 39, 220, 0.2);
 }
 
 .deleteButton {
@@ -270,9 +283,12 @@
 }
 
 .filterButton.active {
-	color: #000;
-	font-weight: bold;
-	border-bottom: 2px solid #007bff;
+	background-color: #5627dc;
+	color: white;
+}
+
+.filterButton:hover {
+	background-color: rgba(86, 39, 220, 0.1);
 }
 
 .markAllButton {
@@ -300,12 +316,13 @@
 }
 
 .headerZone {
+	background-color: #5627dc !important;
+	color: white;
+	padding: 10px 15px;
 	display: flex;
-	align-items: center;
 	justify-content: space-between;
-	padding: 10px;
-	color: #ffffff;
-	font-weight: 500;
+	align-items: center;
+	font-weight: bold;
 }
 
 /* Media queries */

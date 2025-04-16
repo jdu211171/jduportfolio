@@ -44,14 +44,22 @@ export default function Notifications() {
 				const readData = Array.isArray(readRes.data.notifications)
 					? readRes.data.notifications
 					: []
-				fetchedMessages = [...unreadData, ...readData].sort(
-					(a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+
+				const sortedUnread = [...unreadData].sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
 				)
+				const sortedRead = [...readData].sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+				)
+
+				// Concatenate with unread first, then read
+				fetchedMessages = [...sortedUnread, ...sortedRead]
 			} else if (statusFilter === 'unread') {
 				const unreadRes = await axios
 					.get('/api/notification/user')
 					.catch(() => ({ data: [] }))
 				fetchedMessages = Array.isArray(unreadRes.data) ? unreadRes.data : []
+				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			} else if (statusFilter === 'read') {
 				const readRes = await axios
 					.get('/api/notification/history')
@@ -59,6 +67,7 @@ export default function Notifications() {
 				fetchedMessages = Array.isArray(readRes.data.notifications)
 					? readRes.data.notifications
 					: []
+				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			}
 			setMessages(fetchedMessages)
 			setUnreadCount(
