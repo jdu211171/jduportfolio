@@ -230,30 +230,12 @@ export default function Notifications() {
 						{messages.length > 0 ? (
 							messages.map(item => (
 								<div
-									key={item.id || Math.random()}
 									onClick={() => handleClick(item)}
-									className={`${styles.notificationItem} ${
-										item.status === 'unread' ? styles.unread : ''
-									}`}
+									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''}`}
 								>
-									<div className={styles.avatarContainer}>
-										<img
-											src={
-												item.user_role === 'student'
-													? userData.students[item.user_id]?.photo
-													: item.user_role === 'staff'
-														? userData.staff[item.user_id]?.photo
-														: item.user_role === 'admin'
-															? userData.admin.photo
-															: 'https://via.placeholder.com/40'
-											}
-											alt="Foydalanuvchi rasmi"
-											className={styles.avatar}
-										/>
-										<div className={styles.messageContainer}>
-											<div>{shortText(item.message, 28)}</div>
-											<div>{shortText(item.createdAt, 10, true)}</div>
-										</div>
+									<div className={styles.messageContainer}>
+										<div>{shortText(item.message, 28)}</div>
+										<div>{shortText(item.createdAt, 10, true)}</div>
 									</div>
 									{item.status === 'unread' && (
 										<div className={styles.newIndicator}>{t('new')}</div>
