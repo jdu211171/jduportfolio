@@ -153,21 +153,22 @@ const Top = () => {
 	const fetchStudentData = async () => {
 		try {
 			const response = await axios.get(`/api/students/${id}`)
-			const mappedData = mapData(response.data)
+			const studentData = response.data
+			const mappedData = mapData(studentData)
 			setStudent(mappedData)
 			setEditData(mappedData)
 			SetUpdateQA(!updateQA)
 
-			await fetchDraft()
+			await fetchDraft(studentData)
 		} catch (error) {
 			console.error('Error fetching student data:', error)
 			showAlert('Error fetching student data', 'error')
 		}
 	}
 
-	const fetchDraft = async () => {
+	const fetchDraft = async (studentData = null) => {
 		try {
-			const studentIdToUse = id
+			const studentIdToUse = studentData?.student_id || student?.student_id || id
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data && response.data.draft) {
@@ -181,6 +182,19 @@ const Top = () => {
 				}
 
 				setCurrentDraft(draft)
+
+				setEditData(prevEditData => {
+					const updatedEditData = {
+						...prevEditData,
+						draft: {
+							...prevEditData.draft,
+							...(draft.profile_data || {}),
+						},
+					}
+					return updatedEditData
+				})
+
+				SetUpdateQA(!updateQA)
 			} else {
 				setHasDraft(false)
 			}
