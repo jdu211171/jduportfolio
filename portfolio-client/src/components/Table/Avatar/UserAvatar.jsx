@@ -6,7 +6,6 @@ const UserAvatar = ({ photo, name, studentId }) => {
 	return (
 		<div className={style.avatarContainer}>
 			<Avatar sx={{ width: 48, height: 48 }} alt={name} src={photo} />{' '}
-			{/*gets photo as param*/}
 			<div className={style.nameIdContainer}>
 				<div>{name}</div>
 				{studentId ? (
