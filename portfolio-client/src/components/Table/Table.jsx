@@ -41,7 +41,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 	const [orderBy, setOrderBy] = useState('')
 	const [selected, setSelected] = useState([])
 	const [page, setPage] = useState(0)
-	const [rowsPerPage, setRowsPerPage] = useAtom(rowsPerPageAtom)
+	const [rowsPerPage, setRowsPerPage] = useState(25)
 	const [rows, setRows] = useState([])
 	const [loading, setLoading] = useState(false)
 	const [refresher, setRefresher] = useState(0)
