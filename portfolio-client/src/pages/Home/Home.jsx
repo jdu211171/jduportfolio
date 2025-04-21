@@ -69,6 +69,28 @@ const Home = () => {
 		}
 	}
 
+	// Clean HTML content by removing <p> tags but keeping their content and other formatting
+	const cleanHtmlContent = (html) => {
+		if (!html) return '';
+
+		// Create a temporary DOM element
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = html;
+
+		// Find all paragraph tags
+		const paragraphs = tempDiv.querySelectorAll('p');
+
+		// Replace each paragraph with its inner HTML content
+		paragraphs.forEach(p => {
+			// Create a span to preserve any styling
+			const span = document.createElement('span');
+			span.innerHTML = p.innerHTML;
+			p.parentNode.replaceChild(span, p);
+		});
+
+		return tempDiv.innerHTML;
+	}
+
 	useEffect(() => {
 		fetchHomePageData()
 	}, [])
@@ -127,7 +149,7 @@ const Home = () => {
 					{!editMode && (
 						<p
 							className={styles.textParagraph}
-							dangerouslySetInnerHTML={{ __html: editData }}
+							dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
 						></p>
 					)}
 
