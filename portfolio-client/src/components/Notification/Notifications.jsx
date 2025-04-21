@@ -113,10 +113,7 @@ export default function Notifications() {
 		try {
 			const response = await axios.delete(`/api/notification/${id}`)
 			if (response.status === 200) {
-				console.log('✅ Xabar muvaffaqiyatli o\'chirildi!')
 				fetchData(filter)
-			} else {
-				console.log('❌ Xabarni o\'chirib bo\'lmadi!')
 			}
 		} catch (error) {
 			console.error('Xatolik:', error)
@@ -138,7 +135,6 @@ export default function Notifications() {
 		try {
 			const response = await axios.patch('/api/notification/read-all')
 			if (response.status === 200) {
-				console.log('✅ Hammasi o‘qilgan deb belgilandi!')
 				fetchData(filter)
 			}
 		} catch (error) {

@@ -301,11 +301,11 @@ class DraftController {
 				type: status.toLowerCase() === 'approved' ? 'approved' : 'etc',
 				related_id: draft.id,
 			})
-			console.log(notification);
+			// console.log(notification);
 
 			if (status.toLowerCase() === 'approved'){
 				const admins = await Admin.findAll();
-				console.log(admins);
+				// console.log(admins);
 				
 				const adminNotifications = admins.map(admin => {
 					NotificationService.create({
@@ -317,7 +317,7 @@ class DraftController {
 						related_id: draft.id,
 					})
 				})
-				console.log(adminNotifications);
+				// console.log(adminNotifications);
 			}
 			
 			return res.json({

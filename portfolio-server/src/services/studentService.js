@@ -177,7 +177,7 @@ class StudentService {
 	/// test getAllStudents
 	static async getAllStudents(filter, recruiterId, onlyBookmarked, userType) {
 		try {
-		  console.log('Received filter:', filter);
+		  // console.log('Received filter:', filter);
 	  
 		  const semesterMapping = {
 			'1年生': ['1', '2'],
@@ -213,12 +213,12 @@ class StudentService {
 	  
 		  Object.keys(filter).forEach(key => {
 			if (filter[key]) {
-			  console.log(`Processing key: ${key}, value: ${filter[key]}`);
+			  // console.log(`Processing key: ${key}, value: ${filter[key]}`);
 			  if (key === 'search') {
 				const searchValue = String(filter[key]);
-				console.log('Search value:', searchValue);
+				// console.log('Search value:', searchValue);
 				querySearch[Op.or] = searchableColumns.map(column => {
-				  console.log(`Building condition for column: ${column}`);
+				  // console.log(`Building condition for column: ${column}`);
 				  if (['skills', 'it_skills'].includes(column)) {
 					return {
 					  [Op.or]: [
@@ -284,7 +284,7 @@ class StudentService {
 			);
 		  }
 	  
-		  console.log('Generated Query:', JSON.stringify(query, null, 2));
+		  // console.log('Generated Query:', JSON.stringify(query, null, 2));
 		  const students = await Student.findAll({
 			where: query,
 			attributes: {
@@ -402,7 +402,7 @@ class StudentService {
 						)
 
 					if (latestApprovedDraft) {
-						console.log('Applying latest approved draft to student profile...')
+						// console.log('Applying latest approved draft to student profile...')
 
 						// Extract profile data from the draft
 						const profileData = latestApprovedDraft.profile_data || {}

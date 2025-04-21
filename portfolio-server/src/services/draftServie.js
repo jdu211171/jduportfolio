@@ -133,7 +133,7 @@ class DraftService {
 
 	static async getAll(filter) {
 		try {
-			console.log(filter)
+			// console.log(filter)
 
 			const semesterMapping = {
 				'1年生': ['1', '2'],

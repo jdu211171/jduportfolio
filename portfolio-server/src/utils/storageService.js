@@ -117,7 +117,6 @@ const deleteFile = async (fileUrl) => {
         };
         const command = new DeleteObjectCommand(deleteParams);
         await s3Client.send(command);
-        console.log(`File ${objectName} deleted successfully.`);
     } catch (error) {
         console.error('Error deleting file:', error);
         throw error;
@@ -138,7 +137,7 @@ const getFile = async (objectName, downloadPath) => {
 		// Write the file to disk
 		const body = await streamToBuffer(data.Body)
 		fs.writeFileSync(downloadPath, body)
-		console.log(`File ${objectName} downloaded to ${downloadPath}`)
+		// console.log(`File ${objectName} downloaded to ${downloadPath}`)
 	} catch (error) {
 		console.error('Error downloading file:', error)
 		throw error

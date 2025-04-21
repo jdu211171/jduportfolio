@@ -36,7 +36,7 @@ class SettingsController {
 
 	static async getSettingsByKeys(req, res) {
 		try {
-			console.log(req, "getSettingby KEYS");
+			// console.log(req, "getSettingby KEYS");
 			const { keys } = req.body // Expecting an array of keys in the body
 			// console.log(keys, "Ushbu get settings by keysga muroojat qilindi");
 			if (!Array.isArray(keys)) {
