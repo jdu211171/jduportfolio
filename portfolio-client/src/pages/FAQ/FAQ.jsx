@@ -105,11 +105,11 @@ const FAQ = () => {
 			...prevEditData,
 			{ question: '', answer: '' },
 		])
-		console.log(
-			document
-				.querySelectorAll('textarea[aria-invalid="false"]')
-				[editData.length * 2].focus()
-		)
+		// console.log(
+		// 	document
+		// 		.querySelectorAll('textarea[aria-invalid="false"]')
+		// 		[editData.length * 2].focus()
+		// )
 	}
 
 	const handleDelete = indexToDelete => {

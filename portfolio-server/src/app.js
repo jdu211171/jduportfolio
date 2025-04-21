@@ -85,8 +85,8 @@ const upload = multer({
 });
 
 app.post('/test-upload', upload.single('image'), (req, res) => {
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
+    // console.log('req.file:', req.file);
+    // console.log('req.body:', req.body);
     if (!req.file) {
         return res.status(400).json({ message: 'Rasm fayli yuklanmadi' });
     }
@@ -119,7 +119,7 @@ app.use(cors({
 configureRoutes(app)
 
 cron.schedule('0 4 * * *', async () => {
-	console.log('syncing with kintone')
+	// console.log('syncing with kintone')
 	await KintoneService.syncData()
 })
 

@@ -249,11 +249,11 @@ const QA = ({
 				return updatedEditData
 			})
 		}
-		console.log(
-			document
-				.querySelectorAll('textarea[aria-invalid="false"]')
-				[keys.length].focus()
-		)
+		// console.log(
+		// 	document
+		// 		.querySelectorAll('textarea[aria-invalid="false"]')
+		// 		[keys.length].focus()
+		// )
 	}
 
 	const handleDelete = indexToDelete => {

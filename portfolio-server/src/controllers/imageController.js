@@ -8,8 +8,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 exports.createImage = [
     upload.single('image'),
     async (req, res) => {
-        console.log('req.file:', req.file);
-        console.log('req.body:', req.body);
+        // console.log('req.file:', req.file);
+        // console.log('req.body:', req.body);
         try {
             if (!req.file) {
                 return res.status(400).json({ message: 'Rasm fayli yuklanmadi' });
@@ -19,7 +19,7 @@ exports.createImage = [
             const uniqueFilename = generateUniqueFilename(req.file.originalname);
             const result = await uploadFile(req.file.buffer, `${role}/${imageType}/${id}/` + uniqueFilename);
             const imageUrl = result.Location;
-            console.log('imageUrl:', imageUrl);
+            // console.log('imageUrl:', imageUrl);
             // Ma'lumotlar bazasiga rasm haqida yozuv qo'shish (agar kerak bo'lsa)
             const newImage = await Image.create({ imageUrl });
             res.status(201).json(newImage);
@@ -138,7 +138,7 @@ exports.updateImage = [
                 imageUrl = req.body.imageUrl;
             }
 
-            console.log('Yangilangan imageUrl:', imageUrl); // Konsolda chop eting
+            // console.log('Yangilangan imageUrl:', imageUrl); // Konsolda chop eting
 
             const [updatedRows] = await Image.update({ imageUrl }, { where: { id } });
 

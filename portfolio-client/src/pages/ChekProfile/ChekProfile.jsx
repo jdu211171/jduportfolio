@@ -118,7 +118,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 	}
 
 	const updateDraftStatus = async (draftId, status) => {
-		console.log(draftId, status)
 		const res = await axios.put(`/api/draft/status/${draftId}`, {
 			status: status,
 			reviewed_by: userId,

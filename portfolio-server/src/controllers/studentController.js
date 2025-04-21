@@ -155,7 +155,7 @@ class StudentController {
 		try {
 		  let filter = {};
 		  const userType = req.user.userType;
-		  console.log('Raw query filter:', req.query.filter);
+		  // console.log('Raw query filter:', req.query.filter);
 		  if (req.query.filter) {
 			try {
 			  filter = typeof req.query.filter === 'string' ? JSON.parse(req.query.filter) : req.query.filter;
@@ -164,7 +164,7 @@ class StudentController {
 			  return res.status(400).json({ error: 'Invalid filter format' });
 			}
 		  }
-		  console.log('Parsed filter:', filter);
+		  // console.log('Parsed filter:', filter);
 	  
 		  const recruiterId = req.query.recruiterId;
 		  const onlyBookmarked = req.query.onlyBookmarked;
@@ -213,7 +213,7 @@ class StudentController {
 				)
 
 				if (studentDraft && studentDraft.status === 'approved') {
-					console.log('Applying approved draft to student profile...')
+					// console.log('Applying approved draft to student profile...')
 
 					// Draftdan profile_data ni olish va studentni yangilash
 					const profileData = studentDraft.profile_data || {}
