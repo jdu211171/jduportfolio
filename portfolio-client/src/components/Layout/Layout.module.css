@@ -239,6 +239,11 @@ footer {
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 	text-align: center;
 }
+
+.modalContent:focus {
+	outline: none;
+}
+
 .modalContent h2{
 	text-align: left;
 }
@@ -249,20 +254,24 @@ footer {
   gap: 10px;
 	margin-top: 25px;
 }
-.yesbutton{
-  background-color: #9af184;
+
+.yesbutton {
+	background-color: #5627aa;
+  color: white;
 }
-.yesbutton:hover{
-  background-color: #7be36d;
+
+.yesbutton:hover {
+	background-color: #6f45e6;
 }
-.nobutton{
-  background-color: #f18484;
-  
+
+.nobutton {
+	background-color: #e9e3c9;
 }
-.nobutton:hover{
-  background-color: #e36d6d;
-  
+
+.nobutton:hover {
+	background-color: #e9e3e6;
 }
+
 .modalButtons button {
 	padding: 8px 16px;
 	border: none;

@@ -286,8 +286,8 @@ const Layout = () => {
 					<h2>{t('logout')}</h2>
 					<p>{t('Are_you_sure')}</p>
 					<div className={style.modalButtons}>
-						<button onClick={handleLogout} className={style.yesbutton}>{t('yes')}</button>
-						<button onClick={() => setOpenLogoutModal(false)} className={style.nobutton}>{t('no')}</button>
+						<button onClick={handleLogout} className={style.yesbutton}>{t('yesModal')}</button>
+						<button onClick={() => setOpenLogoutModal(false)} className={style.nobutton}>{t('noModal')}</button>
 					</div>
 				</div>
 			</Modal>
