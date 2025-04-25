@@ -4,7 +4,7 @@ import { UserContext } from '../../contexts/UserContext'
 import UserAvatar from '../Table/Avatar/UserAvatar'
 import translations from '../../locales/translations'
 import { useLanguage } from '../../contexts/LanguageContext'
-
+import { Modal } from '@mui/material'
 // icons
 import { ReactComponent as NavButtonIcon } from '../../assets/icons/navButton.svg'
 import { ReactComponent as HomeIcon } from '../../assets/icons/home.svg'
@@ -28,9 +28,14 @@ const checkRole = (role, allowedRoles) => {
 }
 
 const Layout = () => {
+	const [openLogoutModal, setOpenLogoutModal] = useState(false)
 	const { language, changeLanguage } = useLanguage()
 	const t = key => translations[language][key] || key
-
+	
+	const handleLogout = () => {
+		sessionStorage.clear()
+		window.location.href = '/login'
+	}
 	const navItems = [
 		{
 			section: 'GENERAL', // Оставляем статичным
@@ -257,16 +262,9 @@ const Layout = () => {
 							</ul>
 						))}
 
-						<ul className={style.NavbarBottom}>
-							<li>
-								<NavLink
-									to='/logout'
-									className={({ isActive }) => (isActive ? style.active : '')}
-								>
-									<LogOutIcon />
-									<div>{t('logout')}</div>
-								</NavLink>
-							</li>
+						<ul className={style.NavbarBottom} onClick={() => setOpenLogoutModal(true)}>
+							<LogOutIcon />
+							<div>{t('logout')}</div>
 						</ul>
 					</nav>
 				</header>
@@ -283,6 +281,16 @@ const Layout = () => {
 					<Outlet />
 				</main>
 			</div>
+			<Modal open={openLogoutModal} onClose={() => setOpenLogoutModal(false)}>
+				<div className={style.modalContent}>
+					<h2>{t('logout')}</h2>
+					<p>{t('Are_you_sure')}</p>
+					<div className={style.modalButtons}>
+						<button onClick={handleLogout} className={style.yesbutton}>{t('yesModal')}</button>
+						<button onClick={() => setOpenLogoutModal(false)} className={style.nobutton}>{t('noModal')}</button>
+					</div>
+				</div>
+			</Modal>
 		</div>
 	)
 }
