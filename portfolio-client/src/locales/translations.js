@@ -12,9 +12,9 @@ const translations = {
 		help: 'Help',
 		student_qa: 'Student Questions',
 		logout: 'Log Out',
-		Are_you_sure:'Are you sure you want to log out?',
-		yesModal:'Yes',
-		noModal:'No',
+		Are_you_sure: 'Are you sure you want to log out?',
+		yesModal: 'Yes',
+		noModal: 'No',
 		jdu_portfolio: 'JDU Portfolio',
 		japan: 'Japan',
 		uzbekistan: 'Uzbekistan',
@@ -161,7 +161,8 @@ const translations = {
 		loading: 'Loading...',
 		welcome: 'Welcome to JDU Portfolio',
 		forgotPassword: 'Forgot Password',
-		resetPassword2: 'Enter your email address to receive password reset instructions',
+		resetPassword2:
+			'Enter your email address to receive password reset instructions',
 		enterYourLogin: 'Enter your email',
 		enterYourPassword: 'Enter your password',
 		mailAddress: 'Email Address',
@@ -184,7 +185,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 (5)Any action that interferes with the smooth operation of this service, or damages or may damage the reputation or credibility of the Company or the job seeker. e.g.: Direct contact or interview with the job seeker.
 (6)Criminal acts or acts that offend or may offend public order and morals, such as acts against laws and regulations.
 (7)Actions that belong to organizations related to antisocial forces, etc., or that have or may have inappropriate relationships with antisocial forces, such as providing benefits to or using antisocial forces, etc.`,
-		confirm_no_prohibited_actions: 'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
+		confirm_no_prohibited_actions:
+			'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
 		no_button: 'No',
 		apply_button: 'Submit',
 	},
@@ -211,9 +213,9 @@ Please make sure that your profile does not fall under any of the prohibited act
 		help: 'ヘルプ',
 		student_qa: '学生質問管理',
 		logout: 'ログアウト',
-		Are_you_sure:'ログアウトしてもよろしいですか？',
-		yesModal:'はい',
-		noModal:'いえ',
+		Are_you_sure: 'ログアウトしてもよろしいですか？',
+		yesModal: 'はい',
+		noModal: 'いいえ',
 		jdu_portfolio: 'JDU ポートフォリオ',
 		japan: '日本',
 		uzbekistan: 'ウズベキスタン',
@@ -369,7 +371,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		delete: '削除',
 		welcome: 'JDUポートフォリオ',
 		forgotPassword: 'パスワードをお忘れですか',
-		resetPassword2: 'パスワードリセット手順を受け取るメールアドレスを入力してください',
+		resetPassword2:
+			'パスワードリセット手順を受け取るメールアドレスを入力してください',
 		enterYourLogin: 'メールアドレスを入力',
 		enterYourPassword: 'パスワードを入力',
 		mailAddress: 'メールアドレス',
@@ -399,7 +402,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 それのある行為
 (7)反社会的勢力等に関連する組織に属する行為、反社会的勢力に利益を与え、または
 利用する等不適切な関係を持つ行為、もしくはそれらのおそれのある行為`,
-		confirm_no_prohibited_actions: '上記の禁止行為に該当しないことを確認しました。',
+		confirm_no_prohibited_actions:
+			'上記の禁止行為に該当しないことを確認しました。',
 		no_button: 'いいえ',
 		apply_button: '申請する',
 	},
@@ -416,9 +420,9 @@ Please make sure that your profile does not fall under any of the prohibited act
 		help: 'Yordam',
 		student_qa: 'Talaba Savollari',
 		logout: 'Chiqish',
-		Are_you_sure:'Chiqmoqchi ekanligingizga ishonchingiz komilmi?',
-		yesModal:'Ha',
-		noModal:'Yo\'q',
+		Are_you_sure: 'Chiqmoqchi ekanligingizga ishonchingiz komilmi?',
+		yesModal: 'Ha',
+		noModal: "Yo'q",
 		jdu_portfolio: 'JDU Portfolio',
 		japan: 'Yaponiya',
 		uzbekistan: 'O‘zbekiston',
@@ -570,7 +574,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		private: 'Maxfiy',
 		welcome: 'JDU Portfolioga xush kelibsiz',
 		forgotPassword: 'Parolni unutdingizmi',
-		resetPassword2: 'Parolni tiklash yo\'riqnomasini olish uchun elektron pochta manzilingizni kiriting',
+		resetPassword2:
+			"Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
 		enterYourLogin: 'Elektron pochtangizni kiriting',
 		enterYourPassword: 'Parolingizni kiriting',
 		mailAddress: 'Elektron pochta manzili',
@@ -591,8 +596,9 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 (6)Jinoiy harakatlar, jamoat tartibi va intizomiga zid harakatlar, shu jumladan qonunga zid harakatlar yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar
 (7)Jamiyatga qarshi kuchlar bilan bogʻliq boʻlgan tashkilotlarga tegishli boʻlish va boshqalar yoki nomaqbul munosabatlarga ega boʻlish, masalan, imtiyozlar berish yoki jamiyatga qarshi kuchlardan foydalanish yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar`,
 		apply_button: 'Yuborish',
-		no_button: 'Yo\'q',
-		confirm_no_prohibited_actions: 'Yuqoridagi taqiqlangan xatti-harakatlarni qilmaslikni tasdiqlayman.',
+		no_button: "Yo'q",
+		confirm_no_prohibited_actions:
+			'Yuqoridagi taqiqlangan xatti-harakatlarni qilmaslikni tasdiqlayman.',
 	},
 }
 
