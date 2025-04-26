@@ -32,7 +32,7 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 						if (notExpand) e.stopPropagation()
 						else {
 							setExpandable(!expandable)
-						} // Prevent expanding when `expand` is false
+						}
 					}}
 				>
 					<div className={styles.qPart}>Q</div>
@@ -40,7 +40,7 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 				</StyledAccordionSummary>
 				{!notExpand && (
 					<AccordionDetails className={styles.answer}>
-						<Typography>{answer} </Typography>
+						<pre>{answer}</pre>
 					</AccordionDetails>
 				)}
 			</Accordion>

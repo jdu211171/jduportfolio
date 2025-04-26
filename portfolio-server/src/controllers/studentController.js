@@ -122,31 +122,67 @@ class StudentController {
 	}
 
 	// Controller method to get all students
+	// static async getAllStudents(req, res, next) {
+	// 	try {
+	// 		let filter
+	// 		const userType = req.user.userType
+	// 		console.log('Raw query filter:', req.query.filter); 
+	// 		if (req.query.filter) {
+	// 			filter = req.query.filter
+	// 		} else {
+	// 			filter = {}
+	// 		}
+
+	// 		const recruiterId = req.query.recruiterId
+	// 		const onlyBookmarked = req.query.onlyBookmarked
+
+	// 		const students = await StudentService.getAllStudents(
+	// 			filter,
+	// 			recruiterId,
+	// 			onlyBookmarked,
+	// 			userType
+	// 		)
+	// 		res.status(200).json(students)
+	// 	} catch (error) {
+	// 		next(error)
+	// 	}
+	// }
+
+
+
+	// test getAllStudents
 	static async getAllStudents(req, res, next) {
 		try {
-			let filter
-			const userType = req.user.userType
-			if (req.query.filter) {
-				filter = req.query.filter
-			} else {
-				filter = {}
+		  let filter = {};
+		  const userType = req.user.userType;
+		  // console.log('Raw query filter:', req.query.filter);
+		  if (req.query.filter) {
+			try {
+			  filter = typeof req.query.filter === 'string' ? JSON.parse(req.query.filter) : req.query.filter;
+			} catch (e) {
+			  console.error('Failed to parse filter:', e.message);
+			  return res.status(400).json({ error: 'Invalid filter format' });
 			}
-
-			const recruiterId = req.query.recruiterId
-			const onlyBookmarked = req.query.onlyBookmarked
-
-			const students = await StudentService.getAllStudents(
-				filter,
-				recruiterId,
-				onlyBookmarked,
-				userType
-			)
-			res.status(200).json(students)
+		  }
+		  // console.log('Parsed filter:', filter);
+	  
+		  const recruiterId = req.query.recruiterId;
+		  const onlyBookmarked = req.query.onlyBookmarked;
+	  
+		  const students = await StudentService.getAllStudents(
+			filter,
+			recruiterId,
+			onlyBookmarked,
+			userType
+		  );
+		  res.status(200).json(students);
 		} catch (error) {
-			next(error)
+		  console.error('Error in getAllStudents controller:', error.message);
+		  next(error);
 		}
-	}
+	  }
 
+	  
 	// Controller method to get a student by ID
 	static async getStudentById(req, res, next) {
 		try {
@@ -157,72 +193,7 @@ class StudentController {
 			next(error)
 		}
 	}
-
-	// Controller method to update a student
-	// static async updateStudent(req, res, next) {
-	//   try {
-	//     const { id } = req.params;
-	//     const studentData = req.body;
-	//     const { currentPassword, password, ...updateData } = req.body;
-
-	//     // Fetch student
-	//     const student = await StudentService.getStudentById(id);
-	//     if (!student) {
-	//       return res.status(404).json({ error: "Student not found" });
-	//     }
-	//     // true bolsa
-	//     if (studentData.visibility) {
-	//       // Fetch the latest approved draftStudentService
-	//       let latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id);
-
-	//       if (latestApprovedDraft) {
-	//         console.log("Applying latest approved draft to student profile...");
-
-	//         // Extract profile data from the draft
-	//         const profileData = latestApprovedDraft.profile_data || {};
-	//         // Update the student with the draft data
-	//         await StudentService.updateStudent(id, {
-	//           ...profileData, // Apply profile data from the draft
-	//           visibility: true, // Ensure visibility is enabled after approval
-	//         });
-
-	//         const draftQAData = latestApprovedDraft.profile_data?.qa || {};
-	//         if (draftQAData.idList) {
-	//           Object.entries(draftQAData.idList).forEach(async ([key, category]) => {
-	//             const updatedQA = await QAService.updateQA(key, draftQAData[category]);
-	//           });
-	//         }
-	//       }
-	//     }
-
-	//     if (studentData.visibility === false) {
-	//       await StudentService.updateStudent(id, {
-	//         visibility: false,
-	//       });
-	//     }
-
-	//     // Password validation
-	//     if (password) {
-	//       const studentWithPassword = await StudentService.getStudentById(req.params.id, true);
-	//       if (!studentWithPassword || !(await bcrypt.compare(currentPassword, studentWithPassword.password))) {
-	//         return res.status(400).json({ error: "現在のパスワードを入力してください" });
-	//       }
-	//     }
-
-	//     // Update student with new data
-	//     const updatedStudent = await StudentService.updateStudent(id, {
-	//       ...studentData,
-	//       password: password || undefined,
-	//     });
-
-	//     res.status(200).json(updatedStudent);
-	//   } catch (error) {
-	//     next(error);
-	//   }
-	// }
-
-	// TODO studentni visibility = true qilib sinab korishim kerak
-	// yangi update
+	
 	static async updateStudent(req, res, next) {
 		try {
 			const { id } = req.params
@@ -242,7 +213,7 @@ class StudentController {
 				)
 
 				if (studentDraft && studentDraft.status === 'approved') {
-					console.log('Applying approved draft to student profile...')
+					// console.log('Applying approved draft to student profile...')
 
 					// Draftdan profile_data ni olish va studentni yangilash
 					const profileData = studentDraft.profile_data || {}

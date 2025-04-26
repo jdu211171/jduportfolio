@@ -17,6 +17,7 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
+backup.env
 
 # Logs
 logs/
@@ -105,7 +106,6 @@ package-lock.json
 build/
 
 # Environment files
-.env
 .env*.local
 
 # Logs and databases
@@ -133,3 +133,5 @@ Thumbs.db
 /portfolio-client/.expo
 /portfolio-client/dist
 
+.qodo
+portfolio-server/backup.env

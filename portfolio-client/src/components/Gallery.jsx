@@ -18,7 +18,7 @@ import styles from './Gallery.module.css'
 const Gallery = ({
 	galleryUrls,
 	newImages,
-	deletedUrls, // 参照用
+	deletedUrls,
 	editMode,
 	updateEditData,
 	keyName,
@@ -37,18 +37,16 @@ const Gallery = ({
 	}
 
 	const handleFileChange = e => {
-		const files = Array.from(e.target.files) // Convert FileList to an array
-		const MAX_SIZE = 5 * 1024 * 1024 // 5MB in bytes
+		const files = Array.from(e.target.files)
+		const MAX_SIZE = 5 * 1024 * 1024
 
-		// Check if any file exceeds the size limit
 		for (let file of files) {
 			if (file.size > MAX_SIZE) {
 				alert(`ファイル "${file.name}" は最大5MBのサイズを超えています。`)
-				return // Prevent further processing if a file exceeds size limit
+				return
 			}
 		}
 
-		// If all files are valid, call the updateEditData function
 		updateEditData(files, true, false, (parentKey = parentKey))
 	}
 
@@ -57,11 +55,9 @@ const Gallery = ({
 	}
 
 	useEffect(() => {
-		// 新しい画像のオブジェクトURLを作成
 		const urls = newImages.map(file => URL.createObjectURL(file))
 		setNewImageUrls(urls)
 
-		// クリーンアップ関数：コンポーネントのアンマウント時や新しい画像が変更されたときにオブジェクトURLを解放
 		return () => {
 			urls.forEach(url => URL.revokeObjectURL(url))
 		}
@@ -75,21 +71,23 @@ const Gallery = ({
 
 	return (
 		<Box>
-			<Box className={styles.galleryContainer} onClick={handleClickOpen}>
+			<Box className={styles.galleryContainer}>
 				{(parentKey
-					? galleryUrls[parentKey]?.[keyName].slice(0, 2)
-					: galleryUrls[keyName].slice(0, 2)
+						? galleryUrls[parentKey]?.[keyName].slice(0, 2)
+						: galleryUrls[keyName].slice(0, 2)
 				).map((url, index) => (
-					<img
-						key={`gallery-${index}`}
-						src={url}
-						alt={`ギャラリー ${index}`}
-						className={styles.galleryImage}
-					/>
+					<div className={styles.galleryImageContainer} key={`gallery-${index}`}>
+						<img
+							src={url}
+							alt={`ギャラリー ${index}`}
+							className={styles.galleryImage}
+							onClick={handleClickOpen}
+						/>
+					</div>
 				))}
 				{editMode && (
 					<Tooltip
-						title='クリックして画像をアップロードしてください。対応形式: JPG, PNG。最大ファイルサイズ: 5MB'
+						title='クリックして画像をアップロードしてください。対応形式: JPG, PNG 最大ファイルサイズ: 5MB。画像の理想的なサイズは、最適のサイズは500x500pxです。'
 						placement='top'
 					>
 						<label
@@ -177,7 +175,7 @@ const Gallery = ({
 						))}
 						{editMode && (
 							<Tooltip
-								title='クリックして画像をアップロードしてください。対応形式: JPG, PNG。最大ファイルサイズ: 5MB'
+								title='クリックして画像をアップロードしてください。対応形式: JPG, PNG 最大ファイルサイズ: 5MB。画像の理想的なサイズは、最適のサイズは500x500pxです。'
 								placement='top'
 							>
 								<label
@@ -201,7 +199,7 @@ const Gallery = ({
 				id='file-upload'
 				type='file'
 				inputProps={{ multiple: true, accept: 'image/jpeg, image/png' }}
-				style={{ display: 'none' }} // ファイル入力を非表示
+				style={{ display: 'none' }}
 				ref={fileInputRef}
 				onChange={handleFileChange}
 			/>

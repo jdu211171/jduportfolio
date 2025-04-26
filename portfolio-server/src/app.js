@@ -66,9 +66,6 @@ dotenv.config()
 const CronService = require('./services/cronService')
 const app = express()
 
-
-
-
 // Use cookie-parser middleware
 app.use(cookieParser())
 // Middleware to parse JSON bodies
@@ -88,7 +85,7 @@ app.use(cors({
 configureRoutes(app)
 
 cron.schedule('0 4 * * *', async () => {
-	console.log('syncing with kintone')
+	// console.log('syncing with kintone')
 	await KintoneService.syncData()
 })
 

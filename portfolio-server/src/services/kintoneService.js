@@ -108,7 +108,7 @@ class KintoneService {
 	static async createRecord(appName, data) {
 		try {
 			const { appId, token } = this.getAppConfig(appName)
-			console.log(`Creating record in app ${appId} with data:`, data)
+			// console.log(`Creating record in app ${appId} with data:`, data)
 
 			const response = await axios.post(
 				`${this.baseUrl}/k/v1/record.json`,
@@ -138,10 +138,10 @@ class KintoneService {
 	static async updateRecord(appName, recordId, data) {
 		try {
 			const { appId, token } = this.getAppConfig(appName)
-			console.log(
-				`Updating record ${recordId} in app ${appId} with data:`,
-				data
-			)
+			// console.log(
+			// 	`Updating record ${recordId} in app ${appId} with data:`,
+			// 	data
+			// )
 
 			const response = await axios.put(
 				`${this.baseUrl}/k/v1/record.json`,
@@ -169,29 +169,54 @@ class KintoneService {
 	}
 
 	// Service method to delete a record
+	// static async deleteRecord(appName, recordId) {
+	// 	try {
+	// 		const { appId, token } = this.getAppConfig(appName)
+	// 		console.log(`Deleting record ${recordId} from app ${appId}`)
+
+	// 		const response = await axios.post(`${this.baseUrl}/k/v1/record.json`, {
+	// 			headers: {
+	// 				'X-Cybozu-API-Token': token,
+	// 			},
+	// 			data: {
+	// 				app: appId,
+	// 				ids: [recordId],
+	// 			},
+	// 		})
+
+	// 		return response.data
+	// 	} catch (error) {
+	// 		console.error('Error deleting record from Kintone:', error.message)
+	// 		console.error(
+	// 			'Error details:',
+	// 			error.response ? error.response.data : error
+	// 		)
+	// 		throw error
+	// 	}
+	// }
 	static async deleteRecord(appName, recordId) {
 		try {
-			const { appId, token } = this.getAppConfig(appName)
-			console.log(`Deleting record ${recordId} from app ${appId}`)
-
-			const response = await axios.delete(`${this.baseUrl}/k/v1/record.json`, {
-				headers: {
-					'X-Cybozu-API-Token': token,
-				},
-				data: {
+			const { appId, token } = this.getAppConfig(appName);
+			// console.log(`Deleting record ${recordId} from app ${appId}`); // Debugging uchun
+	
+			const response = await axios.post(
+				`${this.baseUrl}/k/v1/records.json`,
+				{
 					app: appId,
-					ids: [recordId],
+					ids: [recordId], // O'chiriladigan yozuvlar ID'si
 				},
-			})
-
-			return response.data
+				{
+					headers: {
+						'X-Cybozu-API-Token': token,
+					},
+				}
+			);
+	
+			return response.data;
 		} catch (error) {
-			console.error('Error deleting record from Kintone:', error.message)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
-			throw error
+			console.error('Error deleting record from Kintone:', error.message);
+			console.error('Error details:', error.response ? error.response.data : error);
+			throw error;
 		}
 	}
 
@@ -233,7 +258,10 @@ class KintoneService {
 
 			const formattedStudentData = students.map(record => ({
 				studentId: record.studentId.value,
-				studentName: record.studentName.value,
+				// studentName: record.studentName.value,
+				studentFirstName: record.studentFirstName.value, // To‘g‘ri nom
+    			studentLastName: record.studentLastName.value, // To‘g‘ri nom
+
 				mail: record.studentEmail.value,
 				jduDate: record.jduEnrollmentDate.value,
 				birthday: record.birthDate.value,

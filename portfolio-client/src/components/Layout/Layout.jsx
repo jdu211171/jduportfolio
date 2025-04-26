@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'
 import UserAvatar from '../Table/Avatar/UserAvatar'
-import translations from '../../locales/translations' // Импорт переводов
-
+import translations from '../../locales/translations'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { Modal } from '@mui/material'
 // icons
 import { ReactComponent as NavButtonIcon } from '../../assets/icons/navButton.svg'
 import { ReactComponent as HomeIcon } from '../../assets/icons/home.svg'
@@ -27,11 +28,14 @@ const checkRole = (role, allowedRoles) => {
 }
 
 const Layout = () => {
-	const savedLanguage = localStorage.getItem('language') || 'ja' // Получаем язык из localStorage
-	const [language, setLanguage] = useState(savedLanguage) // Устанавливаем начальный язык
-
-	const t = key => translations[language][key] || key // Простая функция перевода
-
+	const [openLogoutModal, setOpenLogoutModal] = useState(false)
+	const { language, changeLanguage } = useLanguage()
+	const t = key => translations[language][key] || key
+	
+	const handleLogout = () => {
+		sessionStorage.clear()
+		window.location.href = '/login'
+	}
 	const navItems = [
 		{
 			section: 'GENERAL', // Оставляем статичным
@@ -114,8 +118,8 @@ const Layout = () => {
 	const { activeUser } = useContext(UserContext)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
-	const [userData, setUserData] = useState({})
-	const [role, setRole] = useState(sessionStorage.getItem('role')) // Get role from sessionStorage
+	const [, setUserData] = useState({})
+	const [role, ] = useState(sessionStorage.getItem('role')) // Get role from sessionStorage
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
@@ -159,10 +163,8 @@ const Layout = () => {
 		setIsMenuOpen(prevState => !prevState)
 	}
 
-	const changeLanguage = lng => {
-		setLanguage(lng) // Устанавливаем язык
-		localStorage.setItem('language', lng) // Сохраняем язык в localStorage
-		window.location.reload() // Перезагружаем страницу
+	const handleChangeLanguage = lng => {
+		changeLanguage(lng)
 	}
 
 	return (
@@ -182,11 +184,11 @@ const Layout = () => {
 					</div>
 					<div className={style.topBarBox}>
 						<div className={style.languageSwitcher}>
-							<Notifications />
+							{role != 'Recruiter' && <Notifications />}
 						</div>
 						<div className={style.languageSwitcher}>
 							<select
-								onChange={e => changeLanguage(e.target.value)}
+								onChange={e => handleChangeLanguage(e.target.value)}
 								defaultValue={language}
 							>
 								<option value='ja'>日本語</option>
@@ -260,16 +262,9 @@ const Layout = () => {
 							</ul>
 						))}
 
-						<ul className={style.NavbarBottom}>
-							<li>
-								<NavLink
-									to='/logout'
-									className={({ isActive }) => (isActive ? style.active : '')}
-								>
-									<LogOutIcon />
-									<div>{t('logout')}</div>
-								</NavLink>
-							</li>
+						<ul className={style.NavbarBottom} onClick={() => setOpenLogoutModal(true)}>
+							<LogOutIcon />
+							<div>{t('logout')}</div>
 						</ul>
 					</nav>
 				</header>
@@ -286,8 +281,19 @@ const Layout = () => {
 					<Outlet />
 				</main>
 			</div>
+			<Modal open={openLogoutModal} onClose={() => setOpenLogoutModal(false)}>
+				<div className={style.modalContent}>
+					<h2>{t('logout')}</h2>
+					<p>{t('Are_you_sure')}</p>
+					<div className={style.modalButtons}>
+						<button onClick={handleLogout} className={style.yesbutton}>{t('yesModal')}</button>
+						<button onClick={() => setOpenLogoutModal(false)} className={style.nobutton}>{t('noModal')}</button>
+					</div>
+				</div>
+			</Modal>
 		</div>
 	)
 }
 
 export default Layout
+

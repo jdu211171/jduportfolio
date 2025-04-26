@@ -7,41 +7,57 @@ import {
 	Typography,
 	Button,
 	Checkbox,
+	Divider,
+	Box
 } from '@mui/material'
+import { useTranslation } from 'react-i18next'
+import translations from '../../locales/translations.js'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 
 function ConfirmationDialog({ open, onClose, onConfirm }) {
 	const [checked, setChecked] = React.useState(false)
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
+
 	return (
 		<Dialog
 			open={open}
 			onClose={onClose}
 			fullWidth
-			maxWidth='sm' // You can change to "xs", "md", etc.
+			maxWidth='sm'
 			closeAfterTransition={false}
 		>
 			{/* Large Title */}
-			<DialogTitle sx={{ fontWeight: '100' }}>公開申請</DialogTitle>
+			<DialogTitle sx={{ fontWeight: '100' }}>{t('profile_publish_request')}</DialogTitle>
 
 			<DialogContent dividers>
-				{/* Large Title */}
-				<Typography variant='body1' sx={{ fontWeight: 'bold' }}>
-					あなたの情報が承認されるためJDU職員に送信されます
-				</Typography>
-
-				{/* Body text; using whiteSpace: pre-line lets you preserve \n as line breaks */}
+				<Divider sx={{ my: 1 }} />
+				
+				{/* Main content */}
 				<Typography variant='body2' sx={{ whiteSpace: 'pre-line', mt: 1 }}>
-					{`プロフィールの承認依頼はJDU就業部へ送信され、職員による内容確認が行われます。
-不明点や追加の質問がある場合は、メールにてご連絡します。
-問題がなければ承認され、あなたの入力情報や成績情報などがJDU大学のサポート企業に公開され、就職活動がよりスムーズになります。
-プロフィール公開に同意しますか？`}
+					{t('profile_publish_explanation')}
 				</Typography>
-				<Typography>
+				
+				<Divider sx={{ my: 1 }} />
+				
+				{/* Prohibited actions section */}
+				<Typography variant='body2' sx={{ fontWeight: 'bold', mt: 1 }}>
+					{t('prohibited_actions')}
+				</Typography>
+				<Typography variant='body2' sx={{ whiteSpace: 'pre-line' }}>
+					{t('prohibited_actions_content')}
+				</Typography>
+				
+				<Divider sx={{ my: 1 }} />
+				
+				{/* Agreement checkbox */}
+				<Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
 					<Checkbox
 						checked={checked}
 						onChange={e => setChecked(e.target.checked)}
 					/>
-					同意
-				</Typography>
+					<Typography>{t('confirm_no_prohibited_actions')}</Typography>
+				</Box>
 			</DialogContent>
 
 			<DialogActions sx={{ pr: 3, pb: 2 }}>
@@ -51,7 +67,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 					onClick={onClose}
 					sx={{ mr: 2 }}
 				>
-					いいえ
+					{t('no_button')}
 				</Button>
 
 				<Button
@@ -60,7 +76,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 					onClick={onConfirm}
 					disabled={!checked}
 				>
-					申請
+					{t('apply_button')}
 				</Button>
 			</DialogActions>
 		</Dialog>

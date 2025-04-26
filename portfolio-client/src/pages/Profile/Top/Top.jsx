@@ -24,19 +24,14 @@ const Top = () => {
 	const { language } = useLanguage()
 	const showAlert = useAlert()
 
-	// Translation helper
 	const t = key => translations[language][key] || key
 
-	// Determine which ID to use
 	if (userId !== 0 && userId) {
 		id = userId
 	} else {
 		id = studentId
 	}
 
-	// ---------------------
-	// Component state
-	// ---------------------
 	const [student, setStudent] = useState(null)
 	const [editData, setEditData] = useState({})
 	const [editMode, setEditMode] = useState(false)
@@ -51,22 +46,16 @@ const Top = () => {
 	const [isLoading, setIsLoading] = useState(true)
 	const [confirmMode, setConfirmMode] = useState(false)
 
-	// ---------------------
-	// Fetch data
-	// ---------------------
 	useEffect(() => {
 		const loadData = async () => {
 			setIsLoading(true)
 			try {
 				if (statedata) {
-					// If data was passed via navigation state
 					handleStateData()
 				} else {
-					// For Student role, always show draft data
 					if (role === 'Student') {
 						await fetchDraftData()
 					} else {
-						// For other roles, show the data based on the student ID
 						await fetchStudentData()
 					}
 				}
@@ -79,10 +68,8 @@ const Top = () => {
 		}
 
 		loadData()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [id, role])
 
-	// Handle data from navigation state
 	const handleStateData = () => {
 		if (statedata.draft) {
 			setDraft(statedata.draft)
@@ -95,7 +82,6 @@ const Top = () => {
 				setIsChecking(false)
 			}
 
-			// Map student data from state
 			const mappedData = {
 				...statedata,
 				draft: statedata.draft.profile_data || {},
@@ -108,10 +94,8 @@ const Top = () => {
 		}
 	}
 
-	// Fetch draft data directly (for Student role)
 	const fetchDraftData = async () => {
 		try {
-			// Get student ID from context or navigation
 			const studentIdToUse =
 				role === 'Student' ? getStudentIdFromLoginUser() : id
 
@@ -120,16 +104,13 @@ const Top = () => {
 				return
 			}
 
-			// Fetch student with draft data
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data) {
-				// Extract student and draft data
 				const studentData = { ...response.data }
 				const draftData = studentData.draft
 				delete studentData.draft
 
-				// Set current draft
 				if (draftData) {
 					setCurrentDraft(draftData)
 					setHasDraft(true)
@@ -142,7 +123,6 @@ const Top = () => {
 					}
 				}
 
-				// Structure data for component state
 				const mappedData = {
 					...studentData,
 					draft: draftData ? draftData.profile_data : {},
@@ -160,7 +140,6 @@ const Top = () => {
 		}
 	}
 
-	// Get student ID from login user data
 	const getStudentIdFromLoginUser = () => {
 		try {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
@@ -171,27 +150,25 @@ const Top = () => {
 		}
 	}
 
-	// Fetch student data (for non-Student roles)
 	const fetchStudentData = async () => {
 		try {
 			const response = await axios.get(`/api/students/${id}`)
-			const mappedData = mapData(response.data)
+			const studentData = response.data
+			const mappedData = mapData(studentData)
 			setStudent(mappedData)
 			setEditData(mappedData)
 			SetUpdateQA(!updateQA)
 
-			// Also fetch draft data
-			await fetchDraft()
+			await fetchDraft(studentData)
 		} catch (error) {
 			console.error('Error fetching student data:', error)
 			showAlert('Error fetching student data', 'error')
 		}
 	}
 
-	// Fetch draft separately (for non-Student roles)
-	const fetchDraft = async () => {
+	const fetchDraft = async (studentData = null) => {
 		try {
-			const studentIdToUse = id
+			const studentIdToUse = studentData?.student_id || student?.student_id || id
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data && response.data.draft) {
@@ -205,6 +182,19 @@ const Top = () => {
 				}
 
 				setCurrentDraft(draft)
+
+				setEditData(prevEditData => {
+					const updatedEditData = {
+						...prevEditData,
+						draft: {
+							...prevEditData.draft,
+							...(draft.profile_data || {}),
+						},
+					}
+					return updatedEditData
+				})
+
+				SetUpdateQA(!updateQA)
 			} else {
 				setHasDraft(false)
 			}
@@ -214,7 +204,6 @@ const Top = () => {
 		}
 	}
 
-	// Function to structure incoming data into "draft"
 	const mapData = data => {
 		const draftKeys = [
 			'deliverables',
@@ -233,8 +222,6 @@ const Top = () => {
 			}, {}),
 		}
 	}
-
-	// Submit draft
 	const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
@@ -244,13 +231,11 @@ const Top = () => {
 				)
 				if (response.status === 200) {
 					showAlert(t('draftSubmittedSuccessfully'), 'success')
-					// Update current draft with new status
 					setCurrentDraft({
 						...currentDraft,
 						status: 'submitted',
 						submit_count: (currentDraft.submit_count || 0) + 1,
 					})
-					// Refresh data
 					if (role === 'Student') {
 						fetchDraftData()
 					} else {
@@ -296,9 +281,6 @@ const Top = () => {
 		}
 	}
 
-	// ---------------------
-	// Edit data update
-	// ---------------------
 	const handleUpdateEditData = (key, value) => {
 		setEditData(prevEditData => ({
 			...prevEditData,
@@ -309,16 +291,13 @@ const Top = () => {
 		}))
 	}
 
-	// ---------------------
-	// Edit data update
-	// ---------------------
 	const handleQAUpdate = value => {
 		setEditData(prevEditData => {
 			const updatedEditData = {
 				...prevEditData,
 				draft: {
-					...prevEditData.draft, // Preserve existing draft data
-					qa: value, // Save inside `qa` within `draft`
+					...prevEditData.draft,
+					qa: value,
 				},
 			}
 			setStudent(updatedEditData)
@@ -326,9 +305,6 @@ const Top = () => {
 		})
 	}
 
-	// ---------------------
-	// Gallery updates
-	// ---------------------
 	const handleGalleryUpdate = (
 		files,
 		isNewFiles = false,
@@ -336,16 +312,12 @@ const Top = () => {
 		parentKey = null
 	) => {
 		if (isNewFiles && !isDelete) {
-			// Add new images
 			const newFiles = Array.from(files)
 			setNewImages(prevImages => [...prevImages, ...newFiles])
 		} else if (isDelete) {
-			// Deleting an image
 			if (isNewFiles) {
-				// If we're deleting from the newImages array
 				setNewImages(prevImages => prevImages.filter((_, i) => i !== files))
 			} else {
-				// If we're deleting from existing images
 				const oldFiles = parentKey
 					? [...editData[parentKey].gallery]
 					: [...editData.draft.gallery]
@@ -360,7 +332,6 @@ const Top = () => {
 		}
 	}
 
-	// Handle each deliverable image
 	const handleImageUpload = (activeDeliverable, file) => {
 		setDeliverableImages(prevImages => ({
 			...prevImages,
@@ -368,14 +339,8 @@ const Top = () => {
 		}))
 	}
 
-	// ---------------------
-	// Toggle states
-	// ---------------------
 	const toggleEditMode = () => setEditMode(prev => !prev)
 
-	// ---------------------
-	// Save / Draft Handlers
-	// ---------------------
 	const handleSave = async () => {
 		try {
 			const formData = new FormData()
@@ -389,27 +354,22 @@ const Top = () => {
 				formData.append(`oldFilePath[${index}]`, url)
 			})
 
-			// Upload new/deleted images
 			const fileResponse = await axios.post('/api/files/upload', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			})
 
 			let oldFiles = editData.draft.gallery
 
-			// If multiple files
 			if (Array.isArray(fileResponse.data)) {
 				fileResponse.data.forEach(file => {
 					oldFiles.push(file.Location)
 				})
-			}
-			// If only one file
-			else if (fileResponse.data.Location) {
+			} else if (fileResponse.data.Location) {
 				oldFiles.push(fileResponse.data.Location)
 			}
 
 			await handleUpdateEditData('gallery', oldFiles)
 
-			// Handle deliverable images
 			for (const [index, file] of Object.entries(deliverableImages)) {
 				if (file) {
 					const deliverableFormData = new FormData()
@@ -427,15 +387,12 @@ const Top = () => {
 						{ headers: { 'Content-Type': 'multipart/form-data' } }
 					)
 					const deliverableImageLink = deliverableFileResponse.data.Location
-					// Update the deliverable's imageLink
 					editData.draft.deliverables[index].imageLink = deliverableImageLink
 				}
 			}
 
-			// Finally, update student data
 			await axios.put(`/api/students/${id}`, editData)
 
-			// Reset states
 			setStudent(editData)
 			setNewImages([])
 			setDeletedUrls([])
@@ -460,7 +417,6 @@ const Top = () => {
 				formData.append(`oldFilePath[${index}]`, url)
 			})
 
-			// Upload new/deleted images
 			const fileResponse = await axios.post('/api/files/upload', formData, {
 				headers: { 'Content-Type': 'multipart/form-data' },
 			})
@@ -475,7 +431,6 @@ const Top = () => {
 			}
 			await handleUpdateEditData('gallery', oldFiles)
 
-			// Handle deliverable images
 			for (const [index, file] of Object.entries(deliverableImages)) {
 				if (file) {
 					const deliverableFormData = new FormData()
@@ -497,7 +452,6 @@ const Top = () => {
 				}
 			}
 
-			// Determine correct student_id to use
 			const studentIdToUse = student.student_id || id
 
 			const draftData = {
@@ -507,12 +461,10 @@ const Top = () => {
 				submit_count: currentDraft.submit_count || 0,
 			}
 
-			// Create or update draft - the backend will handle whether to create new or update existing
 			const res = await axios.post(`/api/draft`, draftData)
 			setCurrentDraft(res.data.draft)
 			setHasDraft(true)
 
-			// Reset
 			setStudent(editData)
 			setNewImages([])
 			setDeletedUrls([])
@@ -529,7 +481,6 @@ const Top = () => {
 	}
 	const handleConfirmProfile = async () => {
 		try {
-			// Example final confirmation logic:
 			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
 			if (res.status == 200) {
 				showAlert(t['profileConfirmed'], 'success')
@@ -537,20 +488,15 @@ const Top = () => {
 		} catch (error) {
 			showAlert(t['errorConfirmingProfile'], 'error')
 		} finally {
-			// Always close the dialog
 			setConfirmMode(false)
 		}
 	}
 
-	// Cancel editing
 	const handleCancel = () => {
 		setEditData(student)
 		setEditMode(false)
 	}
 
-	// ---------------------
-	// Tab handling
-	// ---------------------
 	const handleSubTabChange = (event, newIndex) => {
 		setSubTabIndex(newIndex)
 	}
@@ -563,9 +509,6 @@ const Top = () => {
 		return <div>{t('noDataFound')}</div>
 	}
 
-	// ---------------------
-	// Button Portal Content
-	// ---------------------
 	const portalContent = (
 		<Box className={styles.buttonsContainer}>
 			{role === 'Student' && (
@@ -600,7 +543,6 @@ const Top = () => {
 								{t('editProfile')}
 							</Button>
 
-							{/* Show Submit button when draft exists and status is "draft" */}
 							{hasDraft && currentDraft && currentDraft.status === 'draft' && (
 								<Button
 									onClick={toggleConfirmMode}
@@ -644,13 +586,13 @@ const Top = () => {
 						<Chip
 							label={
 								currentDraft.status === 'submitted'
-									? t('submitted')
+									? t('submitted_draft')
 									: currentDraft.status === 'approved'
-										? t('approved')
+										? t('approved_draft')
 										: currentDraft.status === 'disapproved'
-											? t('disapproved')
+											? t('disapproved_draft')
 											: currentDraft.status === 'resubmission_required'
-												? t('resubmission_required')
+												? t('resubmission_required_draft')
 												: t('draft')
 							}
 							size='small'

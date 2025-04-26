@@ -69,6 +69,28 @@ const Home = () => {
 		}
 	}
 
+	// Clean HTML content by removing <p> tags but keeping their content and other formatting
+	const cleanHtmlContent = (html) => {
+		if (!html) return '';
+
+		// Create a temporary DOM element
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = html;
+
+		// Find all paragraph tags
+		const paragraphs = tempDiv.querySelectorAll('p');
+
+		// Replace each paragraph with its inner HTML content
+		paragraphs.forEach(p => {
+			// Create a span to preserve any styling
+			const span = document.createElement('span');
+			span.innerHTML = p.innerHTML;
+			p.parentNode.replaceChild(span, p);
+		});
+
+		return tempDiv.innerHTML;
+	}
+
 	useEffect(() => {
 		fetchHomePageData()
 	}, [])
@@ -79,7 +101,7 @@ const Home = () => {
 			{/* Динамическое обновление при смене языка */}
 			<Box className={styles.header}>
 				<h3>
-					<a href='https://www.jdu.uz/'>Japan Digital University</a>
+					<a href='https://www.jdu.uz/' target='_blank'>Japan Digital University</a>
 				</h3>
 				<Box display={'flex'} gap={'10px'}>
 					{role === 'Admin' && (
@@ -127,7 +149,7 @@ const Home = () => {
 					{!editMode && (
 						<p
 							className={styles.textParagraph}
-							dangerouslySetInnerHTML={{ __html: editData }}
+							dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
 						></p>
 					)}
 

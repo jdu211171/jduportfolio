@@ -115,9 +115,6 @@
   transition: margin-left 0.2s ease-in;
 }
 
-.NavbarBottom {
-  margin-top: auto;
-}
 
 .left nav ul {
   margin-top: 20px;
@@ -177,7 +174,7 @@ footer {
   }
 
   .menuOpen .left {
-    margin-left: 0px;
+    margin-left: 0;
   }
   .menuOpen .right {
     flex: 100%;
@@ -209,4 +206,75 @@ footer {
   border-radius: 5px;
   padding: 5px 10px;
   font-size: 14px; 
+}
+
+
+.NavbarBottom {
+  margin: 0px 25px 0px 25px;
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  height: 48px;
+  font-size: 16px;
+  color: #121212;
+  user-select: none;
+  cursor: pointer;
+  border-radius: 4px;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 500;
+}
+.NavbarBottom:hover {
+  background-color:#eee;
+}
+
+.modalContent {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: white;
+	padding: 24px;
+	border-radius: 8px;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+	text-align: center;
+}
+
+.modalContent:focus {
+	outline: none;
+}
+
+.modalContent h2{
+	text-align: left;
+}
+
+.modalButtons {
+	display: flex;
+	justify-content: center;
+  gap: 10px;
+	margin-top: 25px;
+}
+
+.yesbutton {
+	background-color: #5627aa;
+  color: white;
+}
+
+.yesbutton:hover {
+	background-color: #6f45e6;
+}
+
+.nobutton {
+	background-color: #e9e3c9;
+}
+
+.nobutton:hover {
+	background-color: #e9e3e6;
+}
+
+.modalButtons button {
+	padding: 8px 16px;
+	border: none;
+	cursor: pointer;
+	border-radius: 4px;
 }

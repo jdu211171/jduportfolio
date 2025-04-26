@@ -12,13 +12,13 @@ const translations = {
 		help: 'Help',
 		student_qa: 'Student Questions',
 		logout: 'Log Out',
+		Are_you_sure: 'Are you sure you want to log out?',
+		yesModal: 'Yes',
+		noModal: 'No',
 		jdu_portfolio: 'JDU Portfolio',
 		japan: 'Japan',
 		uzbekistan: 'Uzbekistan',
-		save: 'Save',
-		cancel: 'Cancel',
-		edit: 'Edit',
-		next_button: 'Next ➜',
+		next_button: 'Go to student search ➜',
 		large_class_photo_alt: 'Large class photo',
 		group_photo_alt: 'Group photo',
 		changes_saved: 'Changes saved successfully!',
@@ -42,14 +42,11 @@ const translations = {
 		kyoto_university: 'Kyoto University',
 		otemae_university: 'Otemae University',
 		niigata_university: 'Niigata University',
-		email: 'Email',
 		student: 'Student',
 		rows_per_page: 'Rows per page:',
 		search: 'Search',
 		reset: 'Reset',
 		name_search: 'Search by name',
-		staff: 'Staff',
-		email: 'Email',
 		department: 'Department',
 		position: 'Position',
 		phone_number: 'Phone Number',
@@ -79,7 +76,6 @@ const translations = {
 		location: 'Location',
 		user_fetch_error: 'Failed to fetch user data.',
 		profile_update_success: 'Profile updated successfully.',
-		profile_update_failed: 'Failed to update profile.',
 		profile_update_failed_retry: 'Failed to update profile. Please try again.',
 		unknown_role_error: 'Unknown role encountered.',
 		password_mismatch: 'Passwords do not match.',
@@ -98,8 +94,6 @@ const translations = {
 		unauthorizedButton: 'Go to Login Page',
 		back: 'Back',
 		add: 'add',
-		save: 'Save',
-		cancel: 'Cancel',
 		saveDraft: 'New Draft',
 		updateDraft: 'Update Draft',
 		submitAgree: 'Submit/Consent',
@@ -112,7 +106,6 @@ const translations = {
 		top: 'Top',
 		qa: 'Q&A',
 		stats: 'Credits and Skills',
-		errorFetchingStudent: 'Error fetching student data.',
 		errorFetchingStudent: 'Error fetching student data.',
 		changesSavedSuccessfully: 'Changes saved successfully!',
 		errorSavingChanges: 'Error saving changes.',
@@ -128,9 +121,6 @@ const translations = {
 		threeYearsOrMore: 'Three years or more',
 		oneToOneAndHalfYears: 'One to one and a half years',
 		basic: 'Basic',
-		loading: 'Loading...',
-		save: 'Save',
-		cancel: 'Cancel',
 		editProfile: 'Edit Profile',
 		skillExists: 'Skill already exists at this level!',
 		skillAdded: 'Skill added successfully!',
@@ -157,6 +147,48 @@ const translations = {
 		draft: 'Draft',
 		published: 'Public',
 		private: 'Private',
+		notifications: 'Notifications',
+		mark_all_read: 'Mark All Read',
+		all: 'All',
+		unread: 'Unread',
+		read: 'Read',
+		no_notifications: 'No notifications yet...',
+		no_unread_notifications: 'No unread notifications yet...',
+		no_read_notifications: 'No read notifications yet...',
+		new: 'NEW',
+		ok: 'OK',
+		delete: 'Delete',
+		loading: 'Loading...',
+		welcome: 'Welcome to JDU Portfolio',
+		forgotPassword: 'Forgot Password',
+		resetPassword2:
+			'Enter your email address to receive password reset instructions',
+		enterYourLogin: 'Enter your email',
+		enterYourPassword: 'Enter your password',
+		mailAddress: 'Email Address',
+		send: 'Send Email',
+		loginLabel: 'Login',
+		profile_publish_request: 'Application for Publication',
+		profile_publish_explanation: `We will release your profile on the JDU Portfolio Service upon your application for the purpose of facilitating your job search.
+For the purpose of facilitating your job search, your profile will be published on the JDU Portfolio Service based on your application.
+
+After your application is submitted, it will be sent to the JDU Japan Employment Department, where a JDU staff member will review the contents.
+If you have any questions or concerns about the content of your profile, we will contact you by email.
+If there are no questions or concerns, your application will be approved and your profile will be made public.
+
+Please make sure that your profile does not fall under any of the prohibited activities listed below, and submit your request for publication by clicking the "Submit" button.`,
+		prohibited_actions: 'Prohibited acts',
+		prohibited_actions_content: `JDU students shall not engage in any of the following acts when using the Service.
+(1) Providing false or inaccurate information
+(2) Slander, defame, or threaten any individual or group, or any action that may lead to such a slander, defamation, or threat.
+(3) Infringing or threatening to infringe the rights of others, including copyrights, trademarks, and other intellectual property rights. e.g.: Using pictures, works, characters, etc. of celebrities or others without permission.
+(5)Any action that interferes with the smooth operation of this service, or damages or may damage the reputation or credibility of the Company or the job seeker. e.g.: Direct contact or interview with the job seeker.
+(6)Criminal acts or acts that offend or may offend public order and morals, such as acts against laws and regulations.
+(7)Actions that belong to organizations related to antisocial forces, etc., or that have or may have inappropriate relationships with antisocial forces, such as providing benefits to or using antisocial forces, etc.`,
+		confirm_no_prohibited_actions:
+			'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
+		no_button: 'No',
+		apply_button: 'Submit',
 	},
 	ja: {
 		confirmationStatus: '確認状況',
@@ -166,7 +198,7 @@ const translations = {
 		checking: '確認中',
 		resubmission_required: '要修正',
 		approved: '確認済',
-		start_checking: '確認開始',
+		start_check_drafting: '確認開始',
 		setToChecking: 'ステータスが確認中に更新されました',
 
 		general: '一般',
@@ -181,16 +213,17 @@ const translations = {
 		help: 'ヘルプ',
 		student_qa: '学生質問管理',
 		logout: 'ログアウト',
+		Are_you_sure: 'ログアウトしてもよろしいですか？',
+		yesModal: 'はい',
+		noModal: 'いいえ',
 		jdu_portfolio: 'JDU ポートフォリオ',
 		japan: '日本',
 		uzbekistan: 'ウズベキスタン',
-		save: '保存',
-		cancel: 'キャンセル',
 		edit: '編集',
 		saveDraft: '新規保存',
 		updateDraft: '上書き保存',
 		submitAgree: '承認依頼・同意',
-		next_button: '次へ➜',
+		next_button: '学生検索へ ➜',
 		large_class_photo_alt: '大きなクラスの写真',
 		group_photo_alt: 'グループの写真',
 		changes_saved: '変更が正常に保存されました！',
@@ -219,15 +252,11 @@ const translations = {
 		search: '検索',
 		reset: '戻る',
 		name_search: '氏名の検索',
-		staff: '職員',
 		company_name: '会社名',
 		department: '部署',
 		position: '役職',
 		phone_number: '電話番号',
 		name: '名前',
-		edit: '編集',
-		cancel: 'キャンセル',
-		save: '保存',
 		sync: '同期',
 		user_avatar: 'ユーザーアバター',
 		company_logo: '会社ロゴ',
@@ -254,7 +283,6 @@ const translations = {
 		location: '位置',
 		user_fetch_error: 'ユーザーデータの取得に失敗しました。',
 		profile_update_success: 'プロフィールが更新されました。',
-		profile_update_failed: 'プロフィールの更新に失敗しました。',
 		profile_update_failed_retry:
 			'プロフィールの更新に失敗しました。再試行してください。',
 		unknown_role_error: '不明な役割が検出されました。',
@@ -274,8 +302,6 @@ const translations = {
 		unauthorizedButton: 'ログインページへ戻る',
 		back: '戻る',
 		add: '追加',
-		save: '保存',
-		cancel: 'キャンセル',
 		edit_profile: 'プロフィールを編集',
 		qa_edit: 'QAを編集',
 		q_edit: '質問を編集',
@@ -285,7 +311,6 @@ const translations = {
 		top: 'トップ',
 		qa: 'Q&A',
 		stats: '単位数とスキル',
-		errorFetchingStudent: '学生データの取得中にエラーが発生しました。',
 		errorFetchingStudent: '学生データの取得中にエラーが発生しました。',
 		changesSavedSuccessfully: '変更が正常に保存されました！',
 		errorSavingChanges: '変更の保存中にエラーが発生しました。',
@@ -323,17 +348,64 @@ const translations = {
 			ITコンテスト学内: 'ITコンテスト学内',
 		},
 		not_approved_yet: '未承認',
-		approved: '承認済',
-		disapproved: '差し戻し',
+		approved_draft: '承認済',
+		disapproved_draft: '差し戻し',
 		approvalStatus: '承認状況',
 		visible: '公開',
 		invisible: '非公開',
 		status: 'ステータス',
-		approved: '申請済',
 		disapproved: '差し戻し',
-		resubmission_required: '修正して再申請してください',
-		submitted: '申請済',
+		resubmission_required_draft: '修正して再申請してください',
+		submitted_draft: '申請済',
 		draft: '未申請',
+		notifications: '通知',
+		mark_all_read: 'すべて既読にする',
+		all: 'すべて',
+		unread: '未読',
+		read: '既読',
+		no_notifications: 'まだ通知がありません...',
+		no_unread_notifications: 'まだ未読の通知がありません...',
+		no_read_notifications: 'まだ既読の通知がありません...',
+		new: '新着',
+		ok: 'OK',
+		delete: '削除',
+		welcome: 'JDUポートフォリオ',
+		forgotPassword: 'パスワードをお忘れですか',
+		resetPassword2:
+			'パスワードリセット手順を受け取るメールアドレスを入力してください',
+		enterYourLogin: 'メールアドレスを入力',
+		enterYourPassword: 'パスワードを入力',
+		mailAddress: 'メールアドレス',
+		send: '送信',
+		loginLabel: 'ログイン',
+		profile_publish_request: '公開申請',
+		profile_publish_explanation: `就職活動を円滑にする目的のために、あなたのプロフィールを申請に基づき、JDUポー
+トフォリオサービス上に公開します。
+公開申請後はJDU日本就業部に送信され、職員による内容確認が行われます。
+記載内容について不明点や質問がある場合は、メールにてご連絡します。
+記載内容について不明点や質問がない場合は、申請内容が承認され、あなたのプロフ
+ィールが公開されます。
+あなたのプロフィールの内容等が以下の禁止行為に該当しないこと確認し、申請ボタ
+ンから公開申請をしてください。`,
+		prohibited_actions: '（禁止行為）',
+		prohibited_actions_content: `JDU学生は、本サービスの利用に際し、次の各号の行為を行ってはならないものとしま
+す。
+(1)虚偽または不正確な情報を提供する行為
+(2)個人や団体を誹謗、中傷、脅迫、またはそのおそれのある行為
+(3)著作権、商標権、その他の知的財産権を含む他人の権利を侵害し、またはそのおそ
+れのある行為　例：芸能人や他人の写真、作品、キャラクターなどを無断で利用す
+る行為
+(5)本サービスの円滑な運営を妨げる行為、または当社および求人者の信用または名誉
+を毀損する行為、もしくはそれらのおそれのある行為　例：求人者への直接連絡、
+面談等の行為
+(6)犯罪行為、または法令に反する行為等公序良俗に反する行為、もしくはそれらのお
+それのある行為
+(7)反社会的勢力等に関連する組織に属する行為、反社会的勢力に利益を与え、または
+利用する等不適切な関係を持つ行為、もしくはそれらのおそれのある行為`,
+		confirm_no_prohibited_actions:
+			'上記の禁止行為に該当しないことを確認しました。',
+		no_button: 'いいえ',
+		apply_button: '申請する',
 	},
 	uz: {
 		general: 'Umumiy',
@@ -348,13 +420,14 @@ const translations = {
 		help: 'Yordam',
 		student_qa: 'Talaba Savollari',
 		logout: 'Chiqish',
+		Are_you_sure: 'Chiqmoqchi ekanligingizga ishonchingiz komilmi?',
+		yesModal: 'Ha',
+		noModal: "Yo'q",
 		jdu_portfolio: 'JDU Portfolio',
 		japan: 'Yaponiya',
 		uzbekistan: 'O‘zbekiston',
-		save: 'Saqlash',
-		cancel: 'Bekor qilish',
 		edit: 'Tahrirlash',
-		next_button: 'Keyingi ➜',
+		next_button: 'Talabalarni qidirish ➜',
 		large_class_photo_alt: 'Katta sinf rasmi',
 		group_photo_alt: 'Guruh rasmi',
 		changes_saved: "O'zgartirishlar muvaffaqiyatli saqlandi!",
@@ -378,25 +451,17 @@ const translations = {
 		kyoto_university: 'Kioto Universiteti',
 		otemae_university: 'Otemae Universiteti',
 		niigata_university: 'Niigata Universiteti',
-		email: 'Elektron pochta',
 		student: 'Talaba',
 		rows_per_page: 'Qatorlar soni:',
-		search: 'Qidirish',
 		search_by_name: "Ism bo'yicha qidirish",
-		reset: 'Bekor qilish',
 		search: 'Qidiruv',
 		reset: 'Bekor qilish',
 		name_search: 'Ism orqali qidiruv',
-		staff: 'Xodimlar',
-		email: 'Elektron pochta',
 		company_name: 'Kompaniya nomi',
 		department: "Bo'lim",
 		position: 'Lavozim',
 		phone_number: 'Telefon raqami',
 		name: 'Ism',
-		edit: 'Tahrirlash',
-		cancel: 'Bekor qilish',
-		save: 'Saqlash',
 		saveDraft: 'Yangi Qoralama',
 		updateDraft: 'Ustiga yozish',
 		submitAgree: 'Topshirish/Rozi',
@@ -421,7 +486,6 @@ const translations = {
 		location: 'Joylashuv',
 		user_fetch_error: 'Foydalanuvchi maʼlumotlarini olishda xatolik yuz berdi.',
 		profile_update_success: 'Profil muvaffaqiyatli yangilandi.',
-		profile_update_failed: 'Profilni yangilashda xatolik yuz berdi.',
 		profile_update_failed_retry:
 			'Profilni yangilashda xatolik yuz berdi. Qayta urinib ko‘ring.',
 		unknown_role_error: 'Nomaʼlum rol aniqlangan.',
@@ -444,8 +508,6 @@ const translations = {
 		unauthorizedButton: 'Kirish sahifasiga qaytish',
 		back: 'Orqaga',
 		add: "yangi qo'shish",
-		save: 'Saqlash',
-		cancel: 'Bekor qilish',
 		edit_profile: 'Profilni tahrirlash',
 		qa_edit: 'QA tahrirlash',
 		q_edit: 'Savolni tahrirlash',
@@ -455,7 +517,6 @@ const translations = {
 		top: 'Asosiy',
 		qa: 'Savol-javob',
 		stats: "Kreditlar va Ko'nikmalar",
-		errorFetchingStudent: "Talaba ma'lumotlarini olishda xatolik yuz berdi.",
 		errorFetchingStudent: "Talaba ma'lumotlarini olishda xatolik yuz berdi.",
 		changesSavedSuccessfully: "O'zgarishlar muvaffaqiyatli saqlandi!",
 		errorSavingChanges: "O'zgarishlarni saqlashda xatolik yuz berdi.",
@@ -483,6 +544,17 @@ const translations = {
 		level: 'Daraja',
 		levelInfo:
 			"Yuqori: 3 yildan ortiq | O'rtacha: 1-1.5 yil | Boshlang'ich: Asosiy",
+		notifications: 'Bildirishnomalar',
+		mark_all_read: "Barchasini o'qish",
+		all: 'Hammasi',
+		unread: 'O‘qilmagan',
+		read: 'O‘qilgan',
+		no_notifications: 'Hozircha xabarnomalar yo‘q...',
+		no_unread_notifications: 'Hozircha o‘qilmagan xabarnomalar yo‘q...',
+		no_read_notifications: 'Hozircha o‘qilgan xabarnomalar yo‘q...',
+		new: 'YANGI',
+		ok: 'OK',
+		delete: 'O‘chirish',
 		levels: {
 			初級: "Boshlang'ich",
 			中級: "O'rta",
@@ -500,6 +572,33 @@ const translations = {
 		draft: 'Qoralama',
 		published: 'Ochiq',
 		private: 'Maxfiy',
+		welcome: 'JDU Portfolioga xush kelibsiz',
+		forgotPassword: 'Parolni unutdingizmi',
+		resetPassword2:
+			"Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
+		enterYourLogin: 'Elektron pochtangizni kiriting',
+		enterYourPassword: 'Parolingizni kiriting',
+		mailAddress: 'Elektron pochta manzili',
+		send: 'Yuborish',
+		loginLabel: 'Kirish',
+		profile_publish_request: 'Nashr etish uchun ariza',
+		profile_publish_explanation: `Ish qidirishingizni osonlashtirish uchun profilingiz arizangiz asosida JDU Portfolio xizmatida nashr etiladi.
+Nashr etish uchun ariza topshirilgandan soʻng, u JDUning Yaponiyada ish bilan taʼminlash boʻlimiga yuboriladi va u erda uning mazmuni xodimlar tomonidan koʻrib chiqiladi.
+Agar arizangiz mazmuni boʻyicha kamchiliklar yoki savollar boʻlsa, siz bilan elektron pochta orqali bogʻlanishadi.
+Agar arizangiz mazmuni boʻyicha hech qanday kamchiliklar yoki savollar boʻlmasa, arizangiz maʼqullanadi hamda profilingiz eʼlon qilinadi.
+Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakatlarga toʻgʻri kelmasligiga ishonch hosil qiling, Ariza yuborish tugmasini bosib nashr etish uchun ariza bering.`,
+		prohibited_actions: '（Taqiqlangan xatti-harakatlar）',
+		prohibited_actions_content: `JDU talabalari ushbu xizmatdan foydalanganda quyidagi harakatlarni amalga oshirmasliklari kerak.
+(1)Yolgoʻon yoki notoʻgʻri bo\`lgan maʼlumotlarni taqdim etish harakatlari
+(2)Shaxslar hamda tashkilotga nisbatan tuhmat qilish, tahdid qilish, qoʻrqitish yoki shunga oʻxshash nojoyi harakatlarga olib keluvchi harakatlar
+(3)Boshqalarning huquqlarini, shu jumladan mualliflik huquqlari, savdo belgilari va boshqa intellektual mulk huquqlarini buzadigan yoki buzishi mumkin boʻlgan harakat. Masalan, ruxsatsiz taniqli shaxslar yoki boshqa shaxslarning fotosuratlari, asarlari yoki personajlaridan foydalanish bilan bogʻliq boʻlgan harakat
+(5)Xizmatning uzluksiz ishlashiga xalaqit beradigan, kompaniya yoki yollovchining obroʻsi yoki ishonchiga putur yetkazadigan har qanday harakat yoki bunday zararga olib kelishi mumkin boʻlgan har qanday harakat. Masalan, ishga yollovchi bilan bevosita aloqa yoki u bilan suhbat
+(6)Jinoiy harakatlar, jamoat tartibi va intizomiga zid harakatlar, shu jumladan qonunga zid harakatlar yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar
+(7)Jamiyatga qarshi kuchlar bilan bogʻliq boʻlgan tashkilotlarga tegishli boʻlish va boshqalar yoki nomaqbul munosabatlarga ega boʻlish, masalan, imtiyozlar berish yoki jamiyatga qarshi kuchlardan foydalanish yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar`,
+		apply_button: 'Yuborish',
+		no_button: "Yo'q",
+		confirm_no_prohibited_actions:
+			'Yuqoridagi taqiqlangan xatti-harakatlarni qilmaslikni tasdiqlayman.',
 	},
 }
 
