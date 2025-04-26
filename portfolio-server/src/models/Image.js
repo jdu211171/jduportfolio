@@ -2,21 +2,29 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Image extends Model {
-        static associate(models) {
-            // Assotsiatsiyalar (boshqa modellar bilan aloqalar) shu yerda aniqlanadi
-        }
-    }
-    Image.init({
-        imageUrl: {
-            type: DataTypes.STRING(2048),
-            allowNull: false,
-        },
-    }, {
-        sequelize,
-        modelName: 'Image',
-        tableName: 'Images', // Ma'lumotlar bazasidagi jadval nomi
-        timestamps: true,   // `createdAt` va `updatedAt` ustunlarini avtomatik yaratish
-    });
-    return Image;
+  class Image extends Model {
+    static associate(models) {}
+  }
+  Image.init({
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    image_url: {
+      type: DataTypes.STRING(2048),
+      allowNull: false,
+    },
+    image_version: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
+  }, {
+    sequelize,
+    modelName: 'Image',
+    tableName: 'Images',
+    timestamps: true,
+  });
+  return Image;
 };
