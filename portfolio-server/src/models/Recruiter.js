@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
 				defaultValue: false,
 			},
 			kintone_id: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.STRING,
 				allowNull: false,
 			},
 		},
