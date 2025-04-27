@@ -1,26 +1,26 @@
-import { useState, useEffect, useContext } from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
-import { UserContext } from '../../contexts/UserContext'
-import UserAvatar from '../Table/Avatar/UserAvatar'
-import translations from '../../locales/translations'
-import { useLanguage } from '../../contexts/LanguageContext'
 import { Modal } from '@mui/material'
+import { useContext, useEffect, useState } from 'react'
+import { NavLink, Outlet } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { UserContext } from '../../contexts/UserContext'
+import translations from '../../locales/translations'
+import UserAvatar from '../Table/Avatar/UserAvatar'
 // icons
-import { ReactComponent as NavButtonIcon } from '../../assets/icons/navButton.svg'
-import { ReactComponent as HomeIcon } from '../../assets/icons/home.svg'
-import { ReactComponent as StudentIcon } from '../../assets/icons/student.svg'
-import { ReactComponent as UserPlusIcon } from '../../assets/icons/userPlus.svg'
-import { ReactComponent as SettingsIcon } from '../../assets/icons/settings.svg'
-import { ReactComponent as HelpIcon } from '../../assets/icons/help.svg'
-import { ReactComponent as LogOutIcon } from '../../assets/icons/logOut.svg'
+import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import LiveHelpOutlinedIcon from '@mui/icons-material/LiveHelpOutlined'
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
+import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined'
+import SearchSharpIcon from '@mui/icons-material/SearchSharp'
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
+import { ReactComponent as NavButtonIcon } from '../../assets/icons/navButton.svg'
 import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
-
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
-
-import logo from '/src/assets/logo.png'
-import style from './Layout.module.css'
 import Notifications from '../Notification/Notifications.jsx'
+import style from './Layout.module.css'
+import logo from '/src/assets/logo.png'
 
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
@@ -38,11 +38,11 @@ const Layout = () => {
 	}
 	const navItems = [
 		{
-			section: 'GENERAL', // Оставляем статичным
+			section: 'GENERAL',
 			items: [
 				{
 					to: '/',
-					icon: <HomeIcon />,
+					icon: <HomeOutlinedIcon fontSize='small'/>,
 					label: t('home'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
@@ -54,19 +54,19 @@ const Layout = () => {
 				},
 				{
 					to: '/student',
-					icon: <StudentIcon />,
+					icon: <SearchSharpIcon fontSize='small'/>,
 					label: t('student_search'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
 				{
 					to: '/checkprofile',
-					icon: <StudentIcon />,
+					icon: <PersonSearchOutlinedIcon fontSize='small'/>,
 					label: t('student_check'),
 					roles: ['Admin', 'Staff'],
 				},
 				{
 					to: '/staff',
-					icon: <UserPlusIcon />,
+					icon: <GroupsOutlinedIcon fontSize='small'/>,
 					label: t('staff'),
 					roles: ['Admin'],
 				},
@@ -78,7 +78,7 @@ const Layout = () => {
 				},
 				{
 					to: '/recruiter',
-					icon: <UserPlusIcon />,
+					icon: <PersonAddOutlinedIcon fontSize='small'/>,
 					label: t('recruiter'),
 					roles: ['Admin', 'Staff', 'Student'],
 				},
@@ -91,23 +91,23 @@ const Layout = () => {
 			],
 		},
 		{
-			section: 'GENERAL', // Оставляем статичным
+			section: 'GENERAL',
 			items: [
 				{
 					to: '/settings',
-					icon: <SettingsIcon />,
+					icon: <SettingsOutlinedIcon  fontSize='small'/>,
 					label: t('settings'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/help',
-					icon: <HelpIcon />,
+					icon: <InfoOutlinedIcon fontSize='small'/>,
 					label: t('help'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/student-qa',
-					icon: <QuestionAnswerIcon sx={{ height: '18px', width: '18px' }} />,
+					icon: <LiveHelpOutlinedIcon fontSize='small'/>,
 					label: t('student_qa'),
 					roles: ['Admin'],
 				},
@@ -170,14 +170,14 @@ const Layout = () => {
 	return (
 		<div className={isMenuOpen ? style.menuOpen : style.menuClose}>
 			<div className={style.topBar}>
+
 				<div className={style.left}>
 					<div className={style.logo}>
-						<div>
-							<img src={logo} alt='Logo' />
-						</div>
-						<div>JDU Portfolio</div>
+						<img src={logo} alt='Logo' width={40}/>
+						<div style={{fontWeight:700}}>JDU Portfolio</div>
 					</div>
 				</div>
+
 				<div className={style.right}>
 					<div className={style.navButton} onClick={handleNavButtonClick}>
 						<NavButtonIcon />
@@ -241,10 +241,12 @@ const Layout = () => {
 			<div className={style.sideBar}>
 				<header className={style.left}>
 					<nav>
-						{navItems.map((section, index) => (
+						{navItems.map((item, index) => (
 							<ul key={'ul-' + index}>
-								<span className={style.navGroup}>{section.section}</span>
-								{section.items
+								<span className={style.navGroup}>
+									{item.section}
+								</span>
+								{item.items
 									.filter(item => checkRole(role, item.roles))
 									.map((item, index) => (
 										<li key={index}>
@@ -262,9 +264,11 @@ const Layout = () => {
 							</ul>
 						))}
 
-						<ul className={style.NavbarBottom} onClick={() => setOpenLogoutModal(true)}>
-							<LogOutIcon />
-							<div>{t('logout')}</div>
+						<ul onClick={() => setOpenLogoutModal(true)}>
+							<li className={style.NavbarBottom}>
+								<LogoutOutlinedIcon style={{ transform: 'rotate(180deg)'}}/>
+								<div>{t('logout')}</div>
+							</li>
 						</ul>
 					</nav>
 				</header>

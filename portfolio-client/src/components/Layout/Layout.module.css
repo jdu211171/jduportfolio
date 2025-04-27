@@ -1,5 +1,5 @@
 .topBar {
-  height: 80px;
+  height: 65px;
   display: flex;
 }
 
@@ -25,6 +25,7 @@
 .menuClose .left nav {
   margin-left: -250px;
 }
+
 .menuClose .right {
   flex: 100%;
 }
@@ -39,20 +40,18 @@
   height: 100%;
   min-width: 250px;
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: start;
   align-items: center;
-}
-
-.logo img {
-  height: 60px;
-  width: 60px;
+  gap: 10px;
+  padding: 20px;
 }
 
 .left .navGroup {
   content: "GENERAL";
-  font-size: 10px;
-  color: #333;
+  font-weight: 800;
+  font-size: 12px;
+  color: #6B7280;
+  padding: 20px;
 }
 
 .navButton {
@@ -86,6 +85,7 @@
   justify-content: flex-start;
   align-items: center;
 }
+
 .timeBox {
   display: flex;
   flex-direction: row;
@@ -99,11 +99,9 @@
   color: #777;
 }
 
-
-
-.navButton:active {
+/* .navButton:active {
   scale: 0.95;
-}
+} */
 
 .left nav {
   width: 100%;
@@ -115,54 +113,37 @@
   transition: margin-left 0.2s ease-in;
 }
 
-
 .left nav ul {
-  margin-top: 20px;
-  padding: 20px;
+  padding: 13px 0px;
   list-style-type: none;
 }
 
-.left nav ul li {
-  border-radius: 4px;
-}
 .left nav ul li a {
   display: flex;
   align-items: center;
   padding-left: 20px;
   height: 48px;
   font-size: 16px;
-  color: #121212;
+  color: #374151;
   user-select: none;
   cursor: pointer;
-  border-radius: 4px;
   gap: 10px;
   text-decoration: none;
   font-weight: 500;
 }
 
 .left nav ul li:hover {
-  background-color: #eee;
+  background-color: #F7F3FB;
+  transition: all 0.3s;
 }
 
 .active {
-  background-color: #5627dc;
-}
-
-.active:hover {
-  background-color: #5627dc !important;
+  background-color: #F0E6F7;
+  border-left: 3px solid #6A0DAD;
 }
 
 .active * {
-  color: white !important;
-  stroke: white;
-}
-
-.left nav a:visited {
-  color: #121212;
-}
-
-footer {
-  height: 80px;
+  color: #6A0DAD;
 }
 
 @media only screen and (max-width: 768px) {
@@ -210,22 +191,18 @@ footer {
 
 
 .NavbarBottom {
-  margin: 0px 25px 0px 25px;
+  padding: 0px 25px 0px 25px;
   display: flex;
   align-items: center;
   padding-left: 20px;
   height: 48px;
   font-size: 16px;
-  color: #121212;
+  color: #374151;
   user-select: none;
   cursor: pointer;
-  border-radius: 4px;
   gap: 10px;
   text-decoration: none;
   font-weight: 500;
-}
-.NavbarBottom:hover {
-  background-color:#eee;
 }
 
 .modalContent {
