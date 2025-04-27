@@ -53,7 +53,7 @@
   box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
   background-color: #F9FAFB;
   width: 100%;
-  padding: 40px;
+  padding: 20px 40px;
   overflow-y: auto;
 }
 
