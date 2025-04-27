@@ -6,6 +6,7 @@
 .sideBar {
   height: calc(100vh - 80px);
   display: flex;
+  justify-content: space-between;
 }
 
 .left {
@@ -16,10 +17,28 @@
 }
 
 .right {
-  border-bottom: 1px solid #99999944;
-  position: relative;
   width: 100%;
+  border-bottom: 1px solid #99999944;
   transition: margin-left 0.2s ease-in;
+  display: flex;
+  align-items: center;
+  justify-content: space-between
+}
+
+.navButton {
+  margin: 0px 20px;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+}
+
+.topBarBox {
+  padding: 0px 14px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
 }
 
 .menuClose .left nav {
@@ -31,9 +50,11 @@
 }
 
 #main {
-  position: relative;
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+  background-color: #F9FAFB;
+  width: 100%;
   padding: 40px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .logo {
@@ -54,54 +75,31 @@
   padding: 20px;
 }
 
-.navButton {
-  position: relative;
-  top: 50%;
-  left: 10px;
-  padding: 0 4px;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
-  user-select: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-}
-
-.topBarBox {
-  height: 100%;
-  right: 20px;
-  position: absolute;
-  top: 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-}
-
 .loginUser {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+  letter-spacing: 0.1px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .timeBox {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: start;
+  padding-right: 30px;
+  padding-left: 15px;
+}
+
+.timeBoxCountry {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  margin-right: 20px;
+  gap: 4px;
+  font-size: 13px;
+  color: #4B5563;
 }
-
-.timeText {
-  font-size: 14px;
-  color: #777;
-}
-
-/* .navButton:active {
-  scale: 0.95;
-} */
 
 .left nav {
   width: 100%;
@@ -179,7 +177,6 @@
 .languageSwitcher {
   display: flex;
   align-items: center;
-  margin-right: 20px;
 }
 
 .languageSwitcher select {
