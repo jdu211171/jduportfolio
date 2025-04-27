@@ -1,22 +1,21 @@
-import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import Cookies from 'js-cookie';
-import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import googleIcon from '../../../public/google-icon.webp';
-import logo from '../../assets/logo40.png';
-import universityImage from '../../assets/university.png';
-import { LanguageSelect } from '../../components/languageSelector/LanguageSelect';
-import { UserContext } from '../../contexts/UserContext';
-import translations from '../../locales/translations';
-import axios from '../../utils/axiosUtils';
-import styles from './Login.module.css';
+import React, { useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from '../../utils/axiosUtils'
+import Cookies from 'js-cookie'
+import styles from './Login.module.css'
+import logo from '../../assets/logo.png'
+import universityImage from '../../assets/university.png'
+import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
+import { UserContext } from '../../contexts/UserContext'
+import { LanguageSelect } from '../../components/languageSelector/LanguageSelect'
+import translations from '../../locales/translations'
 
 const Login = () => {
 	const savedLanguage = localStorage.getItem('language') || 'ja'
-	const [language] = useState(savedLanguage)
+	const [language, setLanguage] = useState(savedLanguage)
 	const t = key => translations[language][key] || key
 	const navigate = useNavigate()
 	const { updateUser } = useContext(UserContext)
@@ -80,7 +79,7 @@ const Login = () => {
 		<div className={styles['login-container']}>
 			<div className={styles['login-form']}>
 				<div className={styles['header-container']}>
-					<img src={logo} alt='Logo' width={80} height={80}/>
+					<img src={logo} alt='Logo' className={styles['logo']} />
 					<div className={styles['text-container']}>
 						<h2 style={{ textWrap: 'wrap' }}>
 							{loginMode ? t('welcome') : t('forgotPassword')}
@@ -91,13 +90,14 @@ const Login = () => {
 				{error && <p style={{ color: 'red' }}>{error}</p>}
 				{loginMode ? (
 					<form onSubmit={handleLogin}>
+						<p className={styles['login-label']}>{t('loginLabel')}</p>
+						<div className={styles['login-translate']}>
+							<LanguageSelect />
+						</div>
 						<div className={styles['input-group']}>
-							<div className={styles['language']}>
-								<div style={{fontWeight:700}}>{t('email')}</div>
-								<LanguageSelect style={{padding:"2px"}}/>
-							</div>
+							<label>{t('email')}</label>
 							<div className={styles['input-icon']}>
-								<EmailOutlinedIcon />
+								<BadgeOutlinedIcon />
 								<input
 									type='email'
 									placeholder={t('enterYourLogin')}
@@ -151,14 +151,7 @@ const Login = () => {
 							type='submit'
 							className={`${styles['button-custom']} ${styles['submit-button']}`}
 						>
-							{t('loginLabel')}
-						</button>
-						<button
-							type='button'
-							className={`${styles['button-google-custom']}`}
-						>
-							<img src={googleIcon} alt="google-icon" width={23}/>
-							Googleでログイン
+							{t('login')}
 						</button>
 					</form>
 				) : (
@@ -171,6 +164,7 @@ const Login = () => {
 						<div className={styles['input-group']}>
 							<label>{t('email')}</label>
 							<div className={styles['input-icon']}>
+								<BadgeOutlinedIcon />
 								<input
 									type='email'
 									placeholder={t('enterYourLogin')}
