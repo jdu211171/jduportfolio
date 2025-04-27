@@ -3,10 +3,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import Cookies from 'js-cookie';
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import googleIcon from '../../../public/google-icon.webp';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo40.png';
 import universityImage from '../../assets/university.png';
 import { LanguageSelect } from '../../components/languageSelector/LanguageSelect';
 import { UserContext } from '../../contexts/UserContext';
@@ -16,7 +16,7 @@ import styles from './Login.module.css';
 
 const Login = () => {
 	const savedLanguage = localStorage.getItem('language') || 'ja'
-	const [language, setLanguage] = useState(savedLanguage)
+	const [language] = useState(savedLanguage)
 	const t = key => translations[language][key] || key
 	const navigate = useNavigate()
 	const { updateUser } = useContext(UserContext)
@@ -80,7 +80,7 @@ const Login = () => {
 		<div className={styles['login-container']}>
 			<div className={styles['login-form']}>
 				<div className={styles['header-container']}>
-					<img src={logo} alt='Logo' width={60}/>
+					<img src={logo} alt='Logo' width={80} height={80}/>
 					<div className={styles['text-container']}>
 						<h2 style={{ textWrap: 'wrap' }}>
 							{loginMode ? t('welcome') : t('forgotPassword')}
@@ -151,7 +151,7 @@ const Login = () => {
 							type='submit'
 							className={`${styles['button-custom']} ${styles['submit-button']}`}
 						>
-							{t('login')}
+							{t('loginLabel')}
 						</button>
 						<button
 							type='button'
@@ -171,7 +171,6 @@ const Login = () => {
 						<div className={styles['input-group']}>
 							<label>{t('email')}</label>
 							<div className={styles['input-icon']}>
-								<BadgeOutlinedIcon />
 								<input
 									type='email'
 									placeholder={t('enterYourLogin')}
