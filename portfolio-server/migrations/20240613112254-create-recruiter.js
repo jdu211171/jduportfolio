@@ -60,7 +60,7 @@ module.exports = {
         defaultValue: false,
       },
       kintone_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       createdAt: {
