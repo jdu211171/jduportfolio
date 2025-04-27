@@ -5,7 +5,6 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import Cookies from 'js-cookie';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import googleIcon from '../../../public/google-icon.webp';
 import logo from '../../assets/logo40.png';
 import universityImage from '../../assets/university.png';
 import { LanguageSelect } from '../../components/languageSelector/LanguageSelect';
@@ -157,7 +156,7 @@ const Login = () => {
 							type='button'
 							className={`${styles['button-google-custom']}`}
 						>
-							<img src={googleIcon} alt="google-icon" width={23}/>
+							<img src="/google-icon.webp" alt="google-icon" width={23}/>
 							Googleでログイン
 						</button>
 					</form>
