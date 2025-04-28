@@ -258,6 +258,7 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 										handleChange('search', e.target.value)
 										setInputValue(e.target.value)
 									}}
+									onClick={() => handleClick(true)}
 									aria-label={t('search_filters')}
 								/>
 							)}
