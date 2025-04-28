@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import Photo1 from '../../assets/Photo1.jpg'
@@ -110,11 +110,6 @@ const Home = () => {
 	return (
 		<div key={language}>
 			<Box className={styles.header}>
-				<h3>
-					<a  target='_blank'>
-						Japan Digital University
-					</a>
-				</h3>
 				<Box display={'flex'} gap={'10px'}>
 					{role === 'Admin' && (
 						<>

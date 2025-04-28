@@ -20,7 +20,7 @@ import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
-import logo from '/src/assets/logo.png'
+import logo from '/src/assets/logo40.png'
 
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
@@ -119,7 +119,7 @@ const Layout = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
 	const [, setUserData] = useState({})
-	const [role, ] = useState(sessionStorage.getItem('role')) // Get role from sessionStorage
+	const [role, ] = useState(sessionStorage.getItem('role'))
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
@@ -149,7 +149,6 @@ const Layout = () => {
 	useEffect(() => {
 		window.addEventListener('resize', handleResize)
 		setUserData(JSON.parse(sessionStorage.getItem('loginUser')))
-		// Initial check
 		handleResize()
 		updateTime()
 		const intervalId = setInterval(updateTime, 60000)
