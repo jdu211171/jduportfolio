@@ -1,11 +1,12 @@
 .topBar {
-  height: 80px;
+  height: 65px;
   display: flex;
 }
 
 .sideBar {
   height: calc(100vh - 80px);
   display: flex;
+  justify-content: space-between;
 }
 
 .left {
@@ -16,93 +17,88 @@
 }
 
 .right {
-  border-bottom: 1px solid #99999944;
-  position: relative;
   width: 100%;
+  border-bottom: 1px solid #99999944;
   transition: margin-left 0.2s ease-in;
+  display: flex;
+  align-items: center;
+  justify-content: space-between
+}
+
+.navButton {
+  margin: 0px 20px;
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+}
+
+.topBarBox {
+  padding: 0px 14px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
 }
 
 .menuClose .left nav {
   margin-left: -250px;
 }
+
 .menuClose .right {
   flex: 100%;
 }
 
 #main {
-  position: relative;
-  padding: 40px;
-  overflow-y: scroll;
+  box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.2);
+  background-color: #F9FAFB;
+  width: 100%;
+  padding: 20px 40px;
+  overflow-y: auto;
 }
 
 .logo {
   height: 100%;
   min-width: 250px;
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: start;
   align-items: center;
-}
-
-.logo img {
-  height: 60px;
-  width: 60px;
+  gap: 10px;
+  padding: 20px;
 }
 
 .left .navGroup {
   content: "GENERAL";
-  font-size: 10px;
-  color: #333;
-}
-
-.navButton {
-  position: relative;
-  top: 50%;
-  left: 10px;
-  padding: 0 4px;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
-  user-select: none;
-  cursor: pointer;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-}
-
-.topBarBox {
-  height: 100%;
-  right: 20px;
-  position: absolute;
-  top: 0;
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
+  font-weight: 800;
+  font-size: 12px;
+  color: #6B7280;
+  padding: 20px;
 }
 
 .loginUser {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+  letter-spacing: 0.1px;
+  font-weight: 600;
+  font-size: 14px;
 }
+
 .timeBox {
   display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: start;
+  padding-right: 30px;
+  padding-left: 15px;
+}
+
+.timeBoxCountry {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  margin-right: 20px;
-}
-
-.timeText {
-  font-size: 14px;
-  color: #777;
-}
-
-
-
-.navButton:active {
-  scale: 0.95;
+  gap: 4px;
+  font-size: 13px;
+  color: #4B5563;
 }
 
 .left nav {
@@ -115,54 +111,37 @@
   transition: margin-left 0.2s ease-in;
 }
 
-
 .left nav ul {
-  margin-top: 20px;
-  padding: 20px;
+  padding: 13px 0px;
   list-style-type: none;
 }
 
-.left nav ul li {
-  border-radius: 4px;
-}
 .left nav ul li a {
   display: flex;
   align-items: center;
   padding-left: 20px;
   height: 48px;
   font-size: 16px;
-  color: #121212;
+  color: #374151;
   user-select: none;
   cursor: pointer;
-  border-radius: 4px;
   gap: 10px;
   text-decoration: none;
   font-weight: 500;
 }
 
 .left nav ul li:hover {
-  background-color: #eee;
+  background-color: #F7F3FB;
+  transition: all 0.3s;
 }
 
 .active {
-  background-color: #5627dc;
-}
-
-.active:hover {
-  background-color: #5627dc !important;
+  background-color: #F0E6F7;
+  border-left: 3px solid #6A0DAD;
 }
 
 .active * {
-  color: white !important;
-  stroke: white;
-}
-
-.left nav a:visited {
-  color: #121212;
-}
-
-footer {
-  height: 80px;
+  color: #6A0DAD;
 }
 
 @media only screen and (max-width: 768px) {
@@ -198,7 +177,6 @@ footer {
 .languageSwitcher {
   display: flex;
   align-items: center;
-  margin-right: 20px;
 }
 
 .languageSwitcher select {
@@ -210,22 +188,18 @@ footer {
 
 
 .NavbarBottom {
-  margin: 0px 25px 0px 25px;
+  padding: 0px 25px 0px 25px;
   display: flex;
   align-items: center;
   padding-left: 20px;
   height: 48px;
   font-size: 16px;
-  color: #121212;
+  color: #374151;
   user-select: none;
   cursor: pointer;
-  border-radius: 4px;
   gap: 10px;
   text-decoration: none;
   font-weight: 500;
-}
-.NavbarBottom:hover {
-  background-color:#eee;
 }
 
 .modalContent {

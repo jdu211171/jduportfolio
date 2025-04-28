@@ -1,31 +1,45 @@
-import React, { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import axios from '../../utils/axiosUtils'
-import { useAlert } from '../../contexts/AlertContext'
-import { useLanguage } from '../../contexts/LanguageContext'
-
-import RichTextEditor from '../../components/RichTextEditor/RichTextEditor'
-
-import styles from './Home.module.css'
 import Photo1 from '../../assets/Photo1.jpg'
 import Photo2 from '../../assets/Photo2.jpg'
-import { Box, Button } from '@mui/material'
+import { useAlert } from '../../contexts/AlertContext'
+import { useLanguage } from '../../contexts/LanguageContext'
+import axios from '../../utils/axiosUtils'
 
+import { Box, Button } from '@mui/material'
+import styles from './Home.module.css'
+
+import RichTextEditor from '../../components/RichTextEditor/RichTextEditor'
 import translations from '../../locales/translations'
+
+const footerData = [
+	{
+		date:'April 25, 2025',
+		title: 'Spring Orientation Session',
+		discription:'Welcome event for new students joining this semester from both Japan and Uzbekistan.'
+	},
+	{
+		date:'May 10, 2025',
+		title: 'Japanese Culture Festival',
+		discription:'Annual cultural exchange event showcasing traditional Japanese arts and modern culture.'
+	},
+	{
+		date:'May 15, 2025',
+		title: 'Industry Career Fair',
+		discription:'Connect with Japanese companies offering career opportunities.'
+	}
+]
+
 
 const Home = () => {
 	const navigate = useNavigate()
-	const { language } = useLanguage() // Получение текущего языка из контекста
-
-	const t = key => translations[language][key] || key // Функция перевода
-
+	const { language } = useLanguage() 
+	const t = key => translations[language][key] || key 
 	const [role, setRole] = useState(null)
 	const [editData, setEditData] = useState('')
 	const [editMode, setEditMode] = useState(false)
-
 	const showAlert = useAlert()
-
 	const fetchHomePageData = async () => {
 		const userRole = sessionStorage.getItem('role')
 		setRole(userRole)
@@ -69,20 +83,18 @@ const Home = () => {
 		}
 	}
 
-	// Clean HTML content by removing <p> tags but keeping their content and other formatting
 	const cleanHtmlContent = (html) => {
 		if (!html) return '';
 
-		// Create a temporary DOM element
+	
 		const tempDiv = document.createElement('div');
 		tempDiv.innerHTML = html;
 
-		// Find all paragraph tags
+	
 		const paragraphs = tempDiv.querySelectorAll('p');
 
-		// Replace each paragraph with its inner HTML content
+	
 		paragraphs.forEach(p => {
-			// Create a span to preserve any styling
 			const span = document.createElement('span');
 			span.innerHTML = p.innerHTML;
 			p.parentNode.replaceChild(span, p);
@@ -97,27 +109,23 @@ const Home = () => {
 
 	return (
 		<div key={language}>
-			{' '}
-			{/* Динамическое обновление при смене языка */}
 			<Box className={styles.header}>
-				<h3>
-					<a href='https://www.jdu.uz/' target='_blank'>Japan Digital University</a>
-				</h3>
 				<Box display={'flex'} gap={'10px'}>
 					{role === 'Admin' && (
 						<>
 							{editMode ? (
 								<>
 									<Button
+										sx={{ backgroundColor: '#6A0DAD',borderRadius: '10px',fontWeight:600}}
 										onClick={handleSave}
 										variant='contained'
-										color='primary'
 										size='small'
 									>
 										{t('save')}
 									</Button>
 
 									<Button
+											sx={{borderRadius: '10px',fontWeight:600}}
 										onClick={handleCancel}
 										variant='outlined'
 										color='error'
@@ -130,7 +138,7 @@ const Home = () => {
 								<Button
 									onClick={toggleEditMode}
 									variant='contained'
-									color='primary'
+									sx={{ backgroundColor: '#6A0DAD',borderRadius: '10px',fontWeight:600}}
 									size='small'
 								>
 									{t('edit')}
@@ -141,28 +149,57 @@ const Home = () => {
 				</Box>
 			</Box>
 			<div className={styles.container}>
-				<div className={styles.textSection}>
-					{editMode && (
-						<RichTextEditor value={editData} onChange={handleContentChange} />
-					)}
-
-					{!editMode && (
-						<p
-							className={styles.textParagraph}
-							dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
-						></p>
-					)}
-
-					<div className={styles.buttonContainer}>
+				<div className={styles.main}>
+					<img src="https://b4.3ddd.ru/media/cache/sky_gallery_big_resize/gallery_images/582249d33ca6a.jpeg" alt="universty photo"/>
+					<div className={styles.gradientOverlay}>
+						{editMode && (
+							<RichTextEditor value={editData} onChange={handleContentChange}/>
+						)}
+						{!editMode && (
+							<p
+								className={styles.discription}
+								dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
+							></p>
+						)}
 						<button className={styles.button} onClick={handleClick}>
-							{t('next_button')}
+								{t('next_button')}
 						</button>
 					</div>
 				</div>
-				<div className={styles.imageSection}>
-					<img src={Photo1} alt={t('large_class_photo_alt')} />
-					<img src={Photo2} alt={t('group_photo_alt')} />
+				<div className={styles.mainImages}>
+					<div className={styles.mainImage}>
+						<img src={Photo1} alt={t('large_class_photo_alt')} width={'100%'} height={300}/>
+						<div>
+							<div style={{fontWeight:600, fontSize:'22px'}}>私たちの大学</div>
+							<div>
+								ウズベキスタンに設立し運営している正式な私立大学です。ウズベキスタンにあるサテライトキャンパスをJDUと呼びます。ウズベキスタンの学生は、提携している日本の大学の授業にオンラインで参加し、日本の大学の試験を経て単位取得、卒業を目指します。（日本とウズベキスタン両国の学位を取得して卒業することが可能です）卒業時には日本企業への就職を目指し、毎年に数多くの学生が入学しています。
+							</div>
+						</div>
+					</div>
+					<div className={styles.mainImage}>
+						<img src={Photo2} alt={t('group_photo_alt')} width={'100%'} height={300}/>
+						<div>
+							<div style={{fontWeight:600, fontSize:'22px'}}>About Our University</div>
+							<div>
+								Japan Digital University is an official private university established and operated in Uzbekistan. We call our satellite campus in Uzbekistan JDU.
+								Students in Uzbekistan participate in classes at affiliated Japanese universities online, take exams at Japanese universities, and aim to earn credits and graduate. (It is possible to graduate with degrees from both Japan and Uzbekistan.) Upon graduation, students aim to find employment at Japanese companies, and many students enroll every year.
+							</div>
+						</div>
+					</div>
 				</div>
+			</div>
+			<div className={styles.footer}>
+				<div style={{fontSize:"20px",fontWeight:700}}>Upcoming Events</div>
+				<div className={styles.cards}>
+					{footerData.map((item,ind)=>(
+					<div key={ind} className={styles.card}>
+						<div style={{fontSize:'17px',fontWeight:500,color:'#6A0DAD'}}>{item.date}</div>
+						<div style={{fontSize:'17px',fontWeight:600,marginBlockStart:'5px'}}>{item.title}</div>
+						<div style={{fontSize:'14px',marginBlockStart:'5px',color:'#6B7280'}}>{item.discription}</div>
+					</div>
+				))}
+				</div>
+
 			</div>
 		</div>
 	)
