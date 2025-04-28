@@ -1,14 +1,14 @@
-import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications'
-import CheckIcon from '@mui/icons-material/Check'
-import axios from '../../utils/axiosUtils.js'
-import { useState, useEffect, useRef } from 'react'
-import { shortText } from '../functions.js'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import styles from './Notifications.module.css'
-import translations from '../../locales/translations.js'
-import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
+import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined'
+import { useEffect, useRef, useState } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import translations from '../../locales/translations.js'
+import axios from '../../utils/axiosUtils.js'
+import { shortText } from '../functions.js'
+import styles from './Notifications.module.css'
 
 export default function Notifications() {
 	const { language } = useLanguage()
@@ -163,14 +163,14 @@ export default function Notifications() {
 
 	return (
 		<div className={styles.notificationContainer}>
-			<div onClick={() => setIsVisible(!isVisible)}>
+			<div onClick={() => setIsVisible(!isVisible)} className={styles.notificationsIconBox}>
 				{unreadCount > 0 && (
 					<span className={styles.notificationBadge}>
 						{unreadCount > 99 ? '99+' : unreadCount}
 					</span>
 				)}
-				<CircleNotificationsIcon
-					fontSize="large"
+				<NotificationsNoneOutlinedIcon
+					color=''
 					className={styles.notificationIcon}
 				/>
 			</div>
