@@ -1,27 +1,27 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import {
-	TextField,
+	Autocomplete,
+	Box,
+	Button,
+	ButtonGroup,
+	Checkbox,
+	Collapse,
 	FormControl,
 	FormControlLabel,
-	RadioGroup,
-	Radio,
-	Checkbox,
-	Button,
-	FormLabel,
 	FormGroup,
-	Box,
+	FormLabel,
 	Grid,
-	ButtonGroup,
 	IconButton,
-	Collapse,
-	Autocomplete,
+	Radio,
+	RadioGroup,
+	TextField,
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import ExpandLessIcon from '@mui/icons-material/ExpandLess'
-import { useLanguage } from '../../contexts/LanguageContext' // Import the language context
-import translations from '../../locales/translations' // Import translations
-import style from './Filter.module.css'
 import { debounce } from 'lodash'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext'; // Import the language context
+import translations from '../../locales/translations'; // Import translations
+import style from './Filter.module.css'
 
 const Filter = ({ fields, filterState, onFilterChange }) => {
 	const { language } = useLanguage() // Get the current language

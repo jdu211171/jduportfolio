@@ -1,12 +1,12 @@
+import { Box } from '@mui/material'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box } from '@mui/material'
-import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
+import Table from '../../components/Table/Table'
 
+import { useLanguage } from '../../contexts/LanguageContext'; // Подключение контекста языка
+import translations from '../../locales/translations'; // Подключение переводов
 import axios from '../../utils/axiosUtils'
-import { useLanguage } from '../../contexts/LanguageContext' // Подключение контекста языка
-import translations from '../../locales/translations' // Подключение переводов
 
 const Student = ({ OnlyBookmarked = false }) => {
 	const { language } = useLanguage() // Получение текущего языка из контекста
@@ -164,8 +164,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-			{' '}
-			{/* Перерендеринг при смене языка */}
 			<Box sx={{ width: '100%', height: '100px' }}>
 				<Filter
 					fields={filterProps}

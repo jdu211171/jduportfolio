@@ -20,17 +20,15 @@
 }
 
 .open {
-  position: absolute;
-  top: 40px;
-  left: 40px;
-  width: calc(100% - 80px); /* Ensure it takes the full width */
+  width: 100%; 
+  position: relative;
   border-radius: 10px;
   box-shadow: 1px 1px 10px 1px;
   z-index: 100000;
   background-color: white;
   box-sizing: border-box;
   padding: 16px 8px;
-  overflow: auto; /* Enable scrolling if the content overflows */
+  overflow: auto;
   transition: width 2s ease-in-out;
 }
 
