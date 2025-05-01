@@ -1,18 +1,23 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import Photo1 from '../../assets/Photo1.jpg'
-import Photo2 from '../../assets/Photo2.jpg'
+import { Box, Button } from '@mui/material'
+import 'swiper/css'
+import 'swiper/css/pagination'
+import { Autoplay, Pagination } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import jduPhoto1 from '../../assets/jduPhoto1.jpg'
+import jduPhoto2 from '../../assets/jduPhoto2.jpg'
+import jduPhoto3 from '../../assets/jduPhoto3.jpg'
+import jduPhoto4 from '../../assets/jduPhoto4.jpg'
+import jduPhoto5 from '../../assets/jduPhoto5.jpg'
+import jduPhoto6 from '../../assets/jduPhoto6.jpg'
+import RichTextEditor from '../../components/RichTextEditor/RichTextEditor'
 import { useAlert } from '../../contexts/AlertContext'
 import { useLanguage } from '../../contexts/LanguageContext'
-import axios from '../../utils/axiosUtils'
-
-import { Box, Button } from '@mui/material'
-import styles from './Home.module.css'
-
-import RichTextEditor from '../../components/RichTextEditor/RichTextEditor'
 import translations from '../../locales/translations'
-
+import axios from '../../utils/axiosUtils'
+import styles from './Home.module.css'
 const footerData = [
 	{
 		date:'April 25, 2025',
@@ -30,6 +35,36 @@ const footerData = [
 		discription:'Connect with Japanese companies offering career opportunities.'
 	}
 ]
+
+const carouselItems1 = [
+    {
+        alt: "Tabiat manzarasi",
+        imageUrl: jduPhoto1
+    },
+    {
+        alt: "Shahar ko‘rinishi",
+        imageUrl: jduPhoto3
+    },
+    {
+        alt: "Dengiz bo‘yi",
+        imageUrl:  jduPhoto2
+    }
+];
+const carouselItems2 = [
+    {
+        alt: "Tabiat manzarasi",
+        imageUrl: jduPhoto4
+    },
+    {
+        alt: "Shahar ko‘rinishi",
+        imageUrl: jduPhoto5
+    },
+    {
+        alt: "Dengiz bo‘yi",
+        imageUrl:jduPhoto6
+    }
+];
+
 
 
 const Home = () => {
@@ -150,7 +185,7 @@ const Home = () => {
 			</Box>
 			<div className={styles.container}>
 				<div className={styles.main}>
-					<img src="https://b4.3ddd.ru/media/cache/sky_gallery_big_resize/gallery_images/582249d33ca6a.jpeg" alt="universty photo"/>
+					<img src="https://b4.3ddd.ru/media/cache/sky_gallery_big_resize/gallery_images/582249d33ca6a.jpeg" alt="universty photo" style={{objectFit:'cover'}}/>
 					<div className={styles.gradientOverlay}>
 						{editMode && (
 							<RichTextEditor value={editData} onChange={handleContentChange}/>
@@ -166,25 +201,66 @@ const Home = () => {
 						</button>
 					</div>
 				</div>
+		
+				<div  className={styles.carousels}>
+
+					<div style={{maxWidth:'450px'}} className={styles.carousel1}>
+						<Swiper 
+							spaceBetween={20} 
+							slidesPerView={1}  
+							autoplay={{
+          						delay: 2500,
+								disableOnInteraction: false,
+							}}
+							pagination={{
+								dynamicBullets: true,
+							}}
+							modules={[Autoplay, Pagination, ]}
+							className="mySwiper">
+							{carouselItems1.map((item, ind) => (
+								<SwiperSlide key={ind}>
+									<img src={item.imageUrl} alt={item.alt}  height={300} style={{borderRadius:20}}/>
+								</SwiperSlide>
+							))}
+						</Swiper>
+					</div>
+
+					<div className={styles.carousel2}>
+						<Swiper 
+							style={{ width: '100%', maxWidth: '250px' }}
+							spaceBetween={20} 
+							slidesPerView={1}  
+							autoplay={{
+          						delay: 2500,
+								disableOnInteraction: false,
+							}}
+							pagination={{
+								dynamicBullets: true,
+							}}
+							modules={[Autoplay, Pagination,]}
+							className={`mySwiper' ${styles.mySwiper}`}>
+							{carouselItems2.map((item, ind) => (
+								<SwiperSlide key={ind} className={styles.swiperslide2}>
+									<img src={item.imageUrl} alt={item.alt}  height={300} style={{borderRadius:20}}/>
+								</SwiperSlide>
+							))}
+						</Swiper>
+					</div>
+				</div>
+		
 				<div className={styles.mainImages}>
 					<div className={styles.mainImage}>
-						<img src={Photo1} alt={t('large_class_photo_alt')} width={'100%'} height={300}/>
-						<div>
-							<div style={{fontWeight:600, fontSize:'22px'}}>私たちの大学</div>
-							<div>
-								ウズベキスタンに設立し運営している正式な私立大学です。ウズベキスタンにあるサテライトキャンパスをJDUと呼びます。ウズベキスタンの学生は、提携している日本の大学の授業にオンラインで参加し、日本の大学の試験を経て単位取得、卒業を目指します。（日本とウズベキスタン両国の学位を取得して卒業することが可能です）卒業時には日本企業への就職を目指し、毎年に数多くの学生が入学しています。
-							</div>
-						</div>
+						<div style={{fontWeight:600, fontSize:'22px',textAlign:'center'}}>私たちの大学</div>
+						<div style={{minWidth:'100%'}}>
+							ウズベキスタンに設立し運営している正式な私立大学です。ウズベキスタンにあるサテライトキャンパスをJDUと呼びます。ウズベキスタンの学生は、提携している日本の大学の授業にオンラインで参加し、日本の大学の試験を経て単位取得、卒業を目指します。（日本とウズベキスタン両国の学位を取得して卒業することが可能です）卒業時には日本企業への就職を目指し、毎年に数多くの学生が入学しています。
+						</div>					
 					</div>
-					<div className={styles.mainImage}>
-						<img src={Photo2} alt={t('group_photo_alt')} width={'100%'} height={300}/>
+					<div className={styles.mainImage}>				
+						<div style={{fontWeight:600, fontSize:'22px',textAlign:'center'}}>About Our University</div>
 						<div>
-							<div style={{fontWeight:600, fontSize:'22px'}}>About Our University</div>
-							<div>
-								Japan Digital University is an official private university established and operated in Uzbekistan. We call our satellite campus in Uzbekistan JDU.
-								Students in Uzbekistan participate in classes at affiliated Japanese universities online, take exams at Japanese universities, and aim to earn credits and graduate. (It is possible to graduate with degrees from both Japan and Uzbekistan.) Upon graduation, students aim to find employment at Japanese companies, and many students enroll every year.
-							</div>
-						</div>
+							Japan Digital University is an official private university established and operated in Uzbekistan. We call our satellite campus in Uzbekistan JDU.
+							Students in Uzbekistan participate in classes at affiliated Japanese universities online, take exams at Japanese universities, and aim to earn credits and graduate. (It is possible to graduate with degrees from both Japan and Uzbekistan.) Upon graduation, students aim to find employment at Japanese companies, and many students enroll every year.
+						</div>					
 					</div>
 				</div>
 			</div>
