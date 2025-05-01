@@ -23,6 +23,12 @@ class AuthController {
 			res.status(500).json({ error: 'Failed to logout' })
 		}
 	}
+
+    static async googleCallback(req, res) {
+        const { userType, userData, token } = req.user
+        AuthService.setAuthCookies(res, token, userType)
+        res.json({ userType, userData })
+    }
 }
 
 module.exports = AuthController
