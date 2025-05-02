@@ -83,7 +83,9 @@ router.get(
 router.get('/google/callback', (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user, info) => {
         if (err || !user) {
-            return res.status(400).json({ error: 'Google autentifikatsiyasi muvaffaqiyatsiz yakunlandi' })
+            // return res.status(400).json({ error: 'Google autentifikatsiyasi muvaffaqiyatsiz yakunlandi' })
+            // Redirect to frontend login page with error if Google auth fails
+            return res.redirect('http://localhost:5173/login?error=notfound');
         }
         req.user = user
         AuthController.googleCallback(req, res)
