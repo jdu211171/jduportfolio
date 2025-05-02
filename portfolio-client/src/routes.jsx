@@ -28,6 +28,7 @@ import FAQ from './pages/FAQ/FAQ'
 import NotFound from './pages/NotFound/NotFound'
 import Unauthorized from './pages/Unauthorized/Unauthorized'
 import LogOut from './components/LogOut'
+import GoogleAuthCallback from './pages/GoogleAuthCallback'
 
 const AppRoutes = () => {
 	const { role, userId, updateUser, language } = useContext(UserContext)
@@ -149,6 +150,7 @@ const AppRoutes = () => {
 				<Route path='/login' element={<Login />} />
 				<Route path='/logout' element={<LogOut updateUser={updateUser} />} />
 				<Route path='/FirstloginPage' element={<FirstLoginPage />} />
+				<Route path='/google/callback' element={<GoogleAuthCallback />} />
 			</Routes>
 		</Router>
 	)
