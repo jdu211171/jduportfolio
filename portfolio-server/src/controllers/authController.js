@@ -29,7 +29,7 @@ class AuthController {
 			if (userType && userData && token) {
 				AuthService.setAuthCookies(res, token, userType);
 				// Redirect to frontend home page
-				return res.redirect('http://localhost:5173/');
+				return res.redirect('http://localhost:5173/google/callback');
 			} else {
 				// Redirect to login page with error
 				return res.redirect('http://localhost:5173/login?error=notfound');
