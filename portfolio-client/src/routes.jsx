@@ -28,8 +28,7 @@ import FAQ from './pages/FAQ/FAQ'
 import NotFound from './pages/NotFound/NotFound'
 import Unauthorized from './pages/Unauthorized/Unauthorized'
 import LogOut from './components/LogOut'
-import GoogleAuthCallback from './pages/GoogleAuthCallback'
-
+import GoogleAuthCallback from './pages/GoogleAuthCallback.jsx'
 const AppRoutes = () => {
 	const { role, userId, updateUser, language } = useContext(UserContext)
 

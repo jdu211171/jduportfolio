@@ -25,15 +25,15 @@ class AuthController {
 	}
 
     static async googleCallback(req, res) {
-        const { userType, userData, token } = req.user || {};
-        if (userType && userData && token) {
-            AuthService.setAuthCookies(res, token, userType);
-            // Redirect to frontend home page
-            return res.redirect('http://localhost:5173/');
-        } else {
-            // Redirect to login page with error
-            return res.redirect('http://localhost:5173/login?error=notfound');
-        }
+			const { userType, userData, token } = req.user || {};
+			if (userType && userData && token) {
+				AuthService.setAuthCookies(res, token, userType);
+				// Redirect to frontend home page
+				return res.redirect('http://localhost:5173/google/callback');
+			} else {
+				// Redirect to login page with error
+				return res.redirect('http://localhost:5173/login?error=notfound');
+			}
     }
 }
 
