@@ -155,6 +155,9 @@ const Login = () => {
 						<button
 							type='button'
 							className={`${styles['button-google-custom']}`}
+							onClick={() => {
+								window.location.href = '/api/auth/google';
+							}}
 						>
 							<img src="/google-icon.webp" alt="google-icon" width={23}/>
 							Googleでログイン
