@@ -26,7 +26,7 @@ const apps = {
 	certificate_ielts: {
 		appId: '197',
 		token: 'K6voeCUJhCSvNwVm2gsNNCLOEFIA8MTwkeiE5OET',
-	},  
+	},
 	credit_details: {
 		appId: '160',
 		token: '7xOoiYhgxne97O0TLnKVR1mLUwV5lpKfUuTRxOER',

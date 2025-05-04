@@ -196,9 +196,9 @@ class KintoneService {
 	// }
 	static async deleteRecord(appName, recordId) {
 		try {
-			const { appId, token } = this.getAppConfig(appName);
+			const { appId, token } = this.getAppConfig(appName)
 			// console.log(`Deleting record ${recordId} from app ${appId}`); // Debugging uchun
-	
+
 			const response = await axios.post(
 				`${this.baseUrl}/k/v1/records.json`,
 				{
@@ -210,13 +210,16 @@ class KintoneService {
 						'X-Cybozu-API-Token': token,
 					},
 				}
-			);
-	
-			return response.data;
+			)
+
+			return response.data
 		} catch (error) {
-			console.error('Error deleting record from Kintone:', error.message);
-			console.error('Error details:', error.response ? error.response.data : error);
-			throw error;
+			console.error('Error deleting record from Kintone:', error.message)
+			console.error(
+				'Error details:',
+				error.response ? error.response.data : error
+			)
+			throw error
 		}
 	}
 
@@ -260,7 +263,7 @@ class KintoneService {
 				studentId: record.studentId.value,
 				// studentName: record.studentName.value,
 				studentFirstName: record.studentFirstName.value, // To‘g‘ri nom
-    			studentLastName: record.studentLastName.value, // To‘g‘ri nom
+				studentLastName: record.studentLastName.value, // To‘g‘ri nom
 
 				mail: record.studentEmail.value,
 				jduDate: record.jduEnrollmentDate.value,

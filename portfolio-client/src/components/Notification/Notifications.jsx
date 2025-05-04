@@ -18,7 +18,7 @@ export default function Notifications() {
 	const [modalIsVisible, setModalIsVisible] = useState(false)
 	const [selectedMessage, setSelectedMessage] = useState(null)
 	const [messages, setMessages] = useState([])
-	const [userData,] = useState({
+	const [userData] = useState({
 		students: [],
 		staff: {},
 		admin: {},
@@ -59,7 +59,9 @@ export default function Notifications() {
 					.get('/api/notification/user')
 					.catch(() => ({ data: [] }))
 				fetchedMessages = Array.isArray(unreadRes.data) ? unreadRes.data : []
-				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+				fetchedMessages.sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+				)
 			} else if (statusFilter === 'read') {
 				const readRes = await axios
 					.get('/api/notification/history')
@@ -67,13 +69,15 @@ export default function Notifications() {
 				fetchedMessages = Array.isArray(readRes.data.notifications)
 					? readRes.data.notifications
 					: []
-				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+				fetchedMessages.sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+				)
 			}
 			setMessages(fetchedMessages)
 			setUnreadCount(
 				Array.isArray(fetchedMessages)
 					? fetchedMessages.filter(msg => msg.status === 'unread').length
-					: 0,
+					: 0
 			)
 		} catch (error) {
 			console.error('Xatolik yuz berdi:', error)
@@ -163,7 +167,10 @@ export default function Notifications() {
 
 	return (
 		<div className={styles.notificationContainer}>
-			<div onClick={() => setIsVisible(!isVisible)} className={styles.notificationsIconBox}>
+			<div
+				onClick={() => setIsVisible(!isVisible)}
+				className={styles.notificationsIconBox}
+			>
 				{unreadCount > 0 && (
 					<span className={styles.notificationBadge}>
 						{unreadCount > 99 ? '99+' : unreadCount}
@@ -195,7 +202,7 @@ export default function Notifications() {
 								) : (
 									<>
 										<CheckIcon
-											fontSize="small"
+											fontSize='small'
 											style={{ marginRight: '4px' }}
 										/>
 										{t('mark_all_read')}

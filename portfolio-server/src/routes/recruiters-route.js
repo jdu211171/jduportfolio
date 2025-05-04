@@ -146,4 +146,3 @@ router.put('/:id', RecruiterController.update)
 router.delete('/:id', RecruiterController.delete)
 
 module.exports = router
-

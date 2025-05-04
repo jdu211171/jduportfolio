@@ -159,7 +159,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 				sx={{
 					minHeight: visibleRows.length > 0 ? 'auto' : '200px',
 					maxHeight: 'calc(100vh - 280px)',
-					overflowY: 'auto'
+					overflowY: 'auto',
 				}}
 			>
 				<Table sx={{ minWidth: 750 }} size='medium' stickyHeader>
@@ -234,12 +234,12 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 															header.type === 'avatar' ? '4px' : undefined,
 														...(header.type === 'action'
 															? {
-																position: 'sticky',
-																right: 0,
-																background: '#fff',
-																zIndex: 10,
-																width: '20px',
-															}
+																	position: 'sticky',
+																	right: 0,
+																	background: '#fff',
+																	zIndex: 10,
+																	width: '20px',
+																}
 															: {}),
 													}}
 												>
@@ -315,15 +315,14 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 																row[header.id]
 																	? row[header.id][header.subkey]
 																	: ''
-																]
+															]
 														) : (
 															header.map[row[header.id] ? row[header.id] : '']
 														)
 													) : header.type === 'action' ? (
 														<div
 															style={{
-																borderLeft:
-																	'1px solid rgba(224, 224, 224, 1)',
+																borderLeft: '1px solid rgba(224, 224, 224, 1)',
 																display: 'flex',
 																justifyContent: 'flex-end',
 															}}
@@ -418,7 +417,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 							))
 						) : (
 							<TableRow>
-								<TableCell colSpan={tableProps.headers.length} align="center">
+								<TableCell colSpan={tableProps.headers.length} align='center'>
 									{t('no_data_found') || 'No data found'}
 								</TableCell>
 							</TableRow>

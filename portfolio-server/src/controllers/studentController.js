@@ -126,7 +126,7 @@ class StudentController {
 	// 	try {
 	// 		let filter
 	// 		const userType = req.user.userType
-	// 		console.log('Raw query filter:', req.query.filter); 
+	// 		console.log('Raw query filter:', req.query.filter);
 	// 		if (req.query.filter) {
 	// 			filter = req.query.filter
 	// 		} else {
@@ -148,41 +148,41 @@ class StudentController {
 	// 	}
 	// }
 
-
-
 	// test getAllStudents
 	static async getAllStudents(req, res, next) {
 		try {
-		  let filter = {};
-		  const userType = req.user.userType;
-		  // console.log('Raw query filter:', req.query.filter);
-		  if (req.query.filter) {
-			try {
-			  filter = typeof req.query.filter === 'string' ? JSON.parse(req.query.filter) : req.query.filter;
-			} catch (e) {
-			  console.error('Failed to parse filter:', e.message);
-			  return res.status(400).json({ error: 'Invalid filter format' });
+			let filter = {}
+			const userType = req.user.userType
+			// console.log('Raw query filter:', req.query.filter);
+			if (req.query.filter) {
+				try {
+					filter =
+						typeof req.query.filter === 'string'
+							? JSON.parse(req.query.filter)
+							: req.query.filter
+				} catch (e) {
+					console.error('Failed to parse filter:', e.message)
+					return res.status(400).json({ error: 'Invalid filter format' })
+				}
 			}
-		  }
-		  // console.log('Parsed filter:', filter);
-	  
-		  const recruiterId = req.query.recruiterId;
-		  const onlyBookmarked = req.query.onlyBookmarked;
-	  
-		  const students = await StudentService.getAllStudents(
-			filter,
-			recruiterId,
-			onlyBookmarked,
-			userType
-		  );
-		  res.status(200).json(students);
-		} catch (error) {
-		  console.error('Error in getAllStudents controller:', error.message);
-		  next(error);
-		}
-	  }
+			// console.log('Parsed filter:', filter);
 
-	  
+			const recruiterId = req.query.recruiterId
+			const onlyBookmarked = req.query.onlyBookmarked
+
+			const students = await StudentService.getAllStudents(
+				filter,
+				recruiterId,
+				onlyBookmarked,
+				userType
+			)
+			res.status(200).json(students)
+		} catch (error) {
+			console.error('Error in getAllStudents controller:', error.message)
+			next(error)
+		}
+	}
+
 	// Controller method to get a student by ID
 	static async getStudentById(req, res, next) {
 		try {
@@ -193,7 +193,7 @@ class StudentController {
 			next(error)
 		}
 	}
-	
+
 	static async updateStudent(req, res, next) {
 		try {
 			const { id } = req.params

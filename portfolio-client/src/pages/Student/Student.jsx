@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import Filter from '../../components/Filter/Filter'
 import Table from '../../components/Table/Table'
 
-import { useLanguage } from '../../contexts/LanguageContext'; // Подключение контекста языка
-import translations from '../../locales/translations'; // Подключение переводов
+import { useLanguage } from '../../contexts/LanguageContext' // Подключение контекста языка
+import translations from '../../locales/translations' // Подключение переводов
 import axios from '../../utils/axiosUtils'
 
 const Student = ({ OnlyBookmarked = false }) => {

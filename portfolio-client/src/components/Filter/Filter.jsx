@@ -19,8 +19,8 @@ import {
 } from '@mui/material'
 import { debounce } from 'lodash'
 import React, { useEffect, useMemo, useState } from 'react'
-import { useLanguage } from '../../contexts/LanguageContext'; // Import the language context
-import translations from '../../locales/translations'; // Import translations
+import { useLanguage } from '../../contexts/LanguageContext' // Import the language context
+import translations from '../../locales/translations' // Import translations
 import style from './Filter.module.css'
 
 const Filter = ({ fields, filterState, onFilterChange }) => {
@@ -42,7 +42,7 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 					options.push({
 						label: option,
 						field: field.key,
-						type: field.type
+						type: field.type,
 					})
 				})
 			}
@@ -143,8 +143,8 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 													localFilterState[field.key] || []
 												).includes(option)
 													? (localFilterState[field.key] || []).filter(
-														item => item !== option
-													)
+															item => item !== option
+														)
 													: [...(localFilterState[field.key] || []), option]
 												handleChange(field.key, newValue)
 											}}
@@ -233,7 +233,9 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 						<Autocomplete
 							freeSolo
 							options={suggestions}
-							getOptionLabel={(option) => typeof option === 'string' ? option : option.label}
+							getOptionLabel={option =>
+								typeof option === 'string' ? option : option.label
+							}
 							inputValue={inputValue}
 							onInputChange={(event, newInputValue) => {
 								debouncedSetInputValue(newInputValue)
@@ -244,17 +246,24 @@ const Filter = ({ fields, filterState, onFilterChange }) => {
 									setCollapse(true)
 									setOpen(true)
 
-									handleChange(newValue.field, newValue.type === 'checkbox' ? [newValue.label] : newValue.label)
+									handleChange(
+										newValue.field,
+										newValue.type === 'checkbox'
+											? [newValue.label]
+											: newValue.label
+									)
 								}
 							}}
-							noOptionsText={noMatches ? t('no_matches_found') : t('start_typing')}
-							renderInput={(params) => (
+							noOptionsText={
+								noMatches ? t('no_matches_found') : t('start_typing')
+							}
+							renderInput={params => (
 								<TextField
 									{...params}
 									className={style.textfield}
 									label={t('name_search')}
 									value={localFilterState.search || ''}
-									onChange={(e) => {
+									onChange={e => {
 										handleChange('search', e.target.value)
 										setInputValue(e.target.value)
 									}}

@@ -158,4 +158,3 @@ router.delete('/:id', StudentController.deleteStudent)
 // router.get('/pending-drafts', StudentController.getStudentsWithPendingDrafts);
 
 module.exports = router
-

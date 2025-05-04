@@ -89,16 +89,16 @@ class StaffService {
 	}
 	static async updateStaffByKintoneId(kintoneId, staffData) {
 		try {
-		  const staff = await Staff.findOne({ where: { kintone_id: kintoneId } });
-		  if (!staff) {
-			throw new Error('Staff not found');
-		  }
-		  await staff.update(staffData);
-		  return staff;
+			const staff = await Staff.findOne({ where: { kintone_id: kintoneId } })
+			if (!staff) {
+				throw new Error('Staff not found')
+			}
+			await staff.update(staffData)
+			return staff
 		} catch (error) {
-		  throw error;
+			throw error
 		}
-	  }
+	}
 }
 
 module.exports = StaffService

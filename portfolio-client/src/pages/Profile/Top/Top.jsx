@@ -168,7 +168,8 @@ const Top = () => {
 
 	const fetchDraft = async (studentData = null) => {
 		try {
-			const studentIdToUse = studentData?.student_id || student?.student_id || id
+			const studentIdToUse =
+				studentData?.student_id || student?.student_id || id
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data && response.data.draft) {

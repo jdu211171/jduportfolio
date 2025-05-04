@@ -40,7 +40,7 @@ const router = express.Router()
  *               type: array
  *               items:
  *                 type: object
- * 
+ *
  * /api/log/{id}:
  *   get:
  *     tags: [Log]
@@ -103,4 +103,3 @@ router.delete('/:id', LogController.deleteLog)
 router.get('/', LogController.getAllLogs)
 
 module.exports = router
-

@@ -102,4 +102,3 @@ router.get('/:id', StaffController.getStaffById)
 router.put('/:id', validateStaffUpdate, StaffController.updateStaff)
 
 module.exports = router
-

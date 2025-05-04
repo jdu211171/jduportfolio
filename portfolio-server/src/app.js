@@ -4,8 +4,8 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
 const multer = require('multer')
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc')
+const swaggerUi = require('swagger-ui-express')
 const cron = require('node-cron')
 
 const configureRoutes = require('./routes')
@@ -24,8 +24,8 @@ const options = {
 		servers: [
 			{
 				url: '/', // Use relative URL for same-origin requests
-				description: 'Current server'
-			}
+				description: 'Current server',
+			},
 		],
 		components: {
 			securitySchemes: {
@@ -33,33 +33,32 @@ const options = {
 					type: 'apiKey',
 					in: 'cookie',
 					name: 'token',
-					description: 'Authentication token stored in a cookie. Login first using the /api/auth/login endpoint.'
-				}
-			}
+					description:
+						'Authentication token stored in a cookie. Login first using the /api/auth/login endpoint.',
+				},
+			},
 		},
 		security: [
 			{
-				cookieAuth: []
-			}
-		]
+				cookieAuth: [],
+			},
+		],
 	},
-	apis: [
-		'./src/routes/*.js', 
-	],
-};
+	apis: ['./src/routes/*.js'],
+}
 
-const swaggerSpec = swaggerJSDoc(options);
+const swaggerSpec = swaggerJSDoc(options)
 
 // Enhanced Swagger UI configuration for cookie authentication
 const swaggerOptions = {
 	withCredentials: true,
 	persistAuthorization: true,
 	// Add request interceptor to ensure credentials are included
-	requestInterceptor: (req) => {
-		req.credentials = 'include';
-		return req;
-	}
-};
+	requestInterceptor: req => {
+		req.credentials = 'include'
+		return req
+	},
+}
 
 // Load environment variables from .env file
 dotenv.config()
@@ -76,10 +75,12 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
 // Configure CORS to allow credentials
-app.use(cors({ 
-	origin: '*',
-	credentials: true
-}))
+app.use(
+	cors({
+		origin: '*',
+		credentials: true,
+	})
+)
 
 // Configure routes
 configureRoutes(app)
@@ -89,26 +90,27 @@ cron.schedule('0 4 * * *', async () => {
 	await KintoneService.syncData()
 })
 
-
-
 CronService.scheduleJobs()
 
 // Updated Swagger UI setup with enhanced options
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
-	swaggerOptions,
-	customCss: '.swagger-ui .auth-wrapper .authorize {padding: 15px 20px; display: block;}',
-	customSiteTitle: "Portfolio API Documentation",
-	customfavIcon: "",
-	customCssUrl: "",
-}));
+app.use(
+	'/api-docs',
+	swaggerUi.serve,
+	swaggerUi.setup(swaggerSpec, {
+		swaggerOptions,
+		customCss:
+			'.swagger-ui .auth-wrapper .authorize {padding: 15px 20px; display: block;}',
+		customSiteTitle: 'Portfolio API Documentation',
+		customfavIcon: '',
+		customCssUrl: '',
+	})
+)
 
 app.get('*', (req, res) => {
 	res.sendFile(
 		path.resolve(__dirname, '../../portfolio-client/dist/index.html')
 	)
 })
-
-
 
 // Start the server
 app.listen(PORT, () => {

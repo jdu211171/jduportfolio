@@ -24,11 +24,11 @@ class AuthController {
 		}
 	}
 
-    static async googleCallback(req, res) {
-        const { userType, userData, token } = req.user
-        AuthService.setAuthCookies(res, token, userType)
-        res.json({ userType, userData })
-    }
+	static async googleCallback(req, res) {
+		const { userType, userData, token } = req.user
+		AuthService.setAuthCookies(res, token, userType)
+		res.json({ userType, userData })
+	}
 }
 
 module.exports = AuthController

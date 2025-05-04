@@ -143,7 +143,7 @@ router.patch(
  *       200:
  *         description: Notifications marked as read
  */
-router.patch('/read-all', NotificationController.markNotificationAsReadAll);
+router.patch('/read-all', NotificationController.markNotificationAsReadAll)
 
 /**
  * @swagger
@@ -155,7 +155,6 @@ router.patch('/read-all', NotificationController.markNotificationAsReadAll);
  *       200:
  *         description: Returns read notifications
  */
-router.get('/history', NotificationController.historyNotification);
-
+router.get('/history', NotificationController.historyNotification)
 
 module.exports = router

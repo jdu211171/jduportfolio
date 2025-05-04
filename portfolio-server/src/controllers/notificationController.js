@@ -2,7 +2,6 @@ const NotificationService = require('../services/notificationService')
 const { getStudentById } = require('../services/studentService')
 const { Op } = require('sequelize')
 
-
 class NotificationController {
 	static async createNotification(req, res) {
 		try {
@@ -19,7 +18,9 @@ class NotificationController {
 			// console.log(req.user)
 
 			if (!id || !userType) {
-				return res.status(400).json({ error: 'User ID and user type are required' })
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
 			}
 
 			let user_id = id
@@ -47,10 +48,15 @@ class NotificationController {
 			}
 			// For 'recruiter', we don't add user_role to the filter since it's not in the enum
 
-			const notifications = await NotificationService.getByUserId(user_id, filter)
+			const notifications = await NotificationService.getByUserId(
+				user_id,
+				filter
+			)
 
 			if (!notifications || notifications.length === 0) {
-				return res.status(404).json({ message: 'No notifications found for this user' })
+				return res
+					.status(404)
+					.json({ message: 'No notifications found for this user' })
 			}
 
 			return res.status(200).json(notifications)
@@ -85,8 +91,10 @@ class NotificationController {
 	static async getAllNotifications(req, res) {
 		try {
 			const { userType } = req.user
-			if(	userType !== 'Admin') {
-				return res.status(403).json({ error: 'Permission denied. Only admin can get all notifications.' })
+			if (userType !== 'Admin') {
+				return res.status(403).json({
+					error: 'Permission denied. Only admin can get all notifications.',
+				})
 			}
 			const notifications = await NotificationService.getAll()
 			return res.status(200).json(notifications)
@@ -106,7 +114,6 @@ class NotificationController {
 			}
 
 			let user_id = id
-			
 
 			if (userType === 'Student') {
 				const student = await getStudentById(id)
@@ -172,35 +179,38 @@ class NotificationController {
 	}
 
 	static async markNotificationAsReadAll(req, res) {
-        try {
-            const { id, userType } = req.user
+		try {
+			const { id, userType } = req.user
 
-            if (!id || !userType) {
-                return res
-                    .status(400)
-                    .json({ error: 'User ID and user type are required' })
-            }
+			if (!id || !userType) {
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
+			}
 
-            let user_id = id
+			let user_id = id
 
-            if (userType === 'Student') {
-                const student = await getStudentById(id)
-                if (!student) {
-                    return res.status(404).json({ error: 'Student not found' })
-                }
-                user_id = student.student_id
-            }
+			if (userType === 'Student') {
+				const student = await getStudentById(id)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				user_id = student.student_id
+			}
 
-            const updatedCount = await NotificationService.markAllAsRead(user_id, userType);
+			const updatedCount = await NotificationService.markAllAsRead(
+				user_id,
+				userType
+			)
 
-            return res.status(200).json({
-                message: `${updatedCount} notification(s) marked as read for this user.`,
-            });
-        } catch (error) {
-            console.error('Error marking all notifications as read:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
+			return res.status(200).json({
+				message: `${updatedCount} notification(s) marked as read for this user.`,
+			})
+		} catch (error) {
+			console.error('Error marking all notifications as read:', error)
+			return res.status(500).json({ error: 'Internal Server Error' })
+		}
+	}
 }
 
 module.exports = NotificationController

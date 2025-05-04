@@ -8,7 +8,7 @@ import {
 	Button,
 	Checkbox,
 	Divider,
-	Box
+	Box,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import translations from '../../locales/translations.js'
@@ -28,18 +28,20 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 			closeAfterTransition={false}
 		>
 			{/* Large Title */}
-			<DialogTitle sx={{ fontWeight: '100' }}>{t('profile_publish_request')}</DialogTitle>
+			<DialogTitle sx={{ fontWeight: '100' }}>
+				{t('profile_publish_request')}
+			</DialogTitle>
 
 			<DialogContent dividers>
 				<Divider sx={{ my: 1 }} />
-				
+
 				{/* Main content */}
 				<Typography variant='body2' sx={{ whiteSpace: 'pre-line', mt: 1 }}>
 					{t('profile_publish_explanation')}
 				</Typography>
-				
+
 				<Divider sx={{ my: 1 }} />
-				
+
 				{/* Prohibited actions section */}
 				<Typography variant='body2' sx={{ fontWeight: 'bold', mt: 1 }}>
 					{t('prohibited_actions')}
@@ -47,9 +49,9 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 				<Typography variant='body2' sx={{ whiteSpace: 'pre-line' }}>
 					{t('prohibited_actions_content')}
 				</Typography>
-				
+
 				<Divider sx={{ my: 1 }} />
-				
+
 				{/* Agreement checkbox */}
 				<Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
 					<Checkbox

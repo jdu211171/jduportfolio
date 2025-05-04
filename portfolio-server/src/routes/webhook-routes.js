@@ -78,4 +78,3 @@ router.post('/student', StudentController.webhookHandler)
 // router.post('/credits', StudentController.creditUpdater);
 
 module.exports = router
-

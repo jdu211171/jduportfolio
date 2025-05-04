@@ -31,7 +31,7 @@ const Layout = () => {
 	const [openLogoutModal, setOpenLogoutModal] = useState(false)
 	const { language, changeLanguage } = useLanguage()
 	const t = key => translations[language][key] || key
-	
+
 	const handleLogout = () => {
 		sessionStorage.clear()
 		window.location.href = '/login'
@@ -42,7 +42,7 @@ const Layout = () => {
 			items: [
 				{
 					to: '/',
-					icon: <HomeOutlinedIcon fontSize='small'/>,
+					icon: <HomeOutlinedIcon fontSize='small' />,
 					label: t('home'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
@@ -54,19 +54,19 @@ const Layout = () => {
 				},
 				{
 					to: '/student',
-					icon: <SearchSharpIcon fontSize='small'/>,
+					icon: <SearchSharpIcon fontSize='small' />,
 					label: t('student_search'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
 				{
 					to: '/checkprofile',
-					icon: <PersonSearchOutlinedIcon fontSize='small'/>,
+					icon: <PersonSearchOutlinedIcon fontSize='small' />,
 					label: t('student_check'),
 					roles: ['Admin', 'Staff'],
 				},
 				{
 					to: '/staff',
-					icon: <GroupsOutlinedIcon fontSize='small'/>,
+					icon: <GroupsOutlinedIcon fontSize='small' />,
 					label: t('staff'),
 					roles: ['Admin'],
 				},
@@ -78,7 +78,7 @@ const Layout = () => {
 				},
 				{
 					to: '/recruiter',
-					icon: <PersonAddOutlinedIcon fontSize='small'/>,
+					icon: <PersonAddOutlinedIcon fontSize='small' />,
 					label: t('recruiter'),
 					roles: ['Admin', 'Staff', 'Student'],
 				},
@@ -95,19 +95,19 @@ const Layout = () => {
 			items: [
 				{
 					to: '/settings',
-					icon: <SettingsOutlinedIcon  fontSize='small'/>,
+					icon: <SettingsOutlinedIcon fontSize='small' />,
 					label: t('settings'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/help',
-					icon: <InfoOutlinedIcon fontSize='small'/>,
+					icon: <InfoOutlinedIcon fontSize='small' />,
 					label: t('help'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/student-qa',
-					icon: <LiveHelpOutlinedIcon fontSize='small'/>,
+					icon: <LiveHelpOutlinedIcon fontSize='small' />,
 					label: t('student_qa'),
 					roles: ['Admin'],
 				},
@@ -119,7 +119,7 @@ const Layout = () => {
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
 	const [, setUserData] = useState({})
-	const [role, ] = useState(sessionStorage.getItem('role'))
+	const [role] = useState(sessionStorage.getItem('role'))
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
@@ -169,18 +169,17 @@ const Layout = () => {
 	return (
 		<div className={isMenuOpen ? style.menuOpen : style.menuClose}>
 			<div className={style.topBar}>
-
 				<div className={style.left}>
 					<div className={style.logo}>
-						<img src={logo} alt='Logo' width={40}/>
-						<div style={{fontWeight:700}}>JDU Portfolio</div>
+						<img src={logo} alt='Logo' width={40} />
+						<div style={{ fontWeight: 700 }}>JDU Portfolio</div>
 					</div>
 				</div>
 
 				<div className={style.right}>
 					{/* header button */}
 					<div className={style.navButton} onClick={handleNavButtonClick}>
-						<MenuOutlinedIcon fontSize='medium'/>
+						<MenuOutlinedIcon fontSize='medium' />
 					</div>
 					<div className={style.topBarBox}>
 						{/* language selector */}
@@ -198,18 +197,15 @@ const Layout = () => {
 						{/* TIME */}
 						<div className={style.timeBox}>
 							<div className={style.timeBoxCountry}>
-								<div>{t('japan')}</div>
-								/
-								<div>{t('uzbekistan')}</div>
+								<div>{t('japan')}</div>/<div>{t('uzbekistan')}</div>
 							</div>
 							<div className={style.timeBoxCountry}>
-								<div style={{fontWeight:600}}>{japanTime}</div>
-								/
-								<div style={{fontWeight:600}}>{uzbekistanTime}</div>
+								<div style={{ fontWeight: 600 }}>{japanTime}</div>/
+								<div style={{ fontWeight: 600 }}>{uzbekistanTime}</div>
 							</div>
 						</div>
 
-						{/* notifications */}	
+						{/* notifications */}
 						{role != 'Recruiter' && <Notifications />}
 
 						{/* USER IMAGE */}
@@ -220,7 +216,6 @@ const Layout = () => {
 								studentId={activeUser?.studentId}
 							/>
 						</div>
-
 					</div>
 				</div>
 			</div>
@@ -230,9 +225,7 @@ const Layout = () => {
 					<nav>
 						{navItems.map((item, index) => (
 							<ul key={'ul-' + index}>
-								<span className={style.navGroup}>
-									{item.section}
-								</span>
+								<span className={style.navGroup}>{item.section}</span>
 								{item.items
 									.filter(item => checkRole(role, item.roles))
 									.map((item, index) => (
@@ -253,7 +246,7 @@ const Layout = () => {
 
 						<ul onClick={() => setOpenLogoutModal(true)}>
 							<li className={style.NavbarBottom}>
-								<LogoutOutlinedIcon style={{ transform: 'rotate(180deg)'}}/>
+								<LogoutOutlinedIcon style={{ transform: 'rotate(180deg)' }} />
 								<div>{t('logout')}</div>
 							</li>
 						</ul>
@@ -277,8 +270,15 @@ const Layout = () => {
 					<h2>{t('logout')}</h2>
 					<p>{t('Are_you_sure')}</p>
 					<div className={style.modalButtons}>
-						<button onClick={handleLogout} className={style.yesbutton}>{t('yesModal')}</button>
-						<button onClick={() => setOpenLogoutModal(false)} className={style.nobutton}>{t('noModal')}</button>
+						<button onClick={handleLogout} className={style.yesbutton}>
+							{t('yesModal')}
+						</button>
+						<button
+							onClick={() => setOpenLogoutModal(false)}
+							className={style.nobutton}
+						>
+							{t('noModal')}
+						</button>
 					</div>
 				</div>
 			</Modal>
@@ -287,4 +287,3 @@ const Layout = () => {
 }
 
 export default Layout
-

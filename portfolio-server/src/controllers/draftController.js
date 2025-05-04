@@ -165,11 +165,9 @@ class DraftController {
 
 			// Agar studentning student_id si draftdagi student_id ga mos kelmasa
 			if (student.student_id !== draft.student_id) {
-				return res
-					.status(403)
-					.json({
-						error: 'Permission denied. You can only update your own draft.',
-					})
+				return res.status(403).json({
+					error: 'Permission denied. You can only update your own draft.',
+				})
 			}
 
 			// Faqat `profile_data` yangilanishi kerak
@@ -258,7 +256,9 @@ class DraftController {
 			const usertype = req.user.userType
 
 			if (usertype.toLowerCase() !== 'staff') {
-			  return res.status(403).json({ error: 'Permission denied. Only staff can update status.' });
+				return res
+					.status(403)
+					.json({ error: 'Permission denied. Only staff can update status.' })
 			}
 			if (!status) {
 				return res.status(400).json({ error: 'Status is required' })
@@ -284,13 +284,13 @@ class DraftController {
 			await Student.update({ visibility: false }, { where: { student_id } })
 
 			const staffMember = await StaffService.getStaffById(draft.reviewed_by) //// TODO
-			let staffName = '';
+			let staffName = ''
 			if (staffMember && staffMember.first_name && staffMember.last_name) {
-				staffName = `${staffMember.first_name} ${staffMember.last_name} によって`;
+				staffName = `${staffMember.first_name} ${staffMember.last_name} によって`
 			} else if (staffMember && staffMember.first_name) {
-				staffName = `${staffMember.first_name} によって`;
+				staffName = `${staffMember.first_name} によって`
 			} else {
-				staffName = `スタッフによって`; // Agar ismi topilmasa
+				staffName = `スタッフによって` // Agar ismi topilmasa
 			}
 
 			const notification = await NotificationService.create({
@@ -303,10 +303,10 @@ class DraftController {
 			})
 			// console.log(notification);
 
-			if (status.toLowerCase() === 'approved'){
-				const admins = await Admin.findAll();
+			if (status.toLowerCase() === 'approved') {
+				const admins = await Admin.findAll()
 				// console.log(admins);
-				
+
 				const adminNotifications = admins.map(admin => {
 					NotificationService.create({
 						message: `学生 (ID: ${student.student_id}) の情報は、スタッフ (ID: ${reviewed_by}) によって承認されました。`,
@@ -319,7 +319,7 @@ class DraftController {
 				})
 				// console.log(adminNotifications);
 			}
-			
+
 			return res.json({
 				message: 'Draft status updated successfully and notification sent',
 				draft,

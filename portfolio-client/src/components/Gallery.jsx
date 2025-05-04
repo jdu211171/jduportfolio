@@ -73,10 +73,13 @@ const Gallery = ({
 		<Box>
 			<Box className={styles.galleryContainer}>
 				{(parentKey
-						? galleryUrls[parentKey]?.[keyName].slice(0, 2)
-						: galleryUrls[keyName].slice(0, 2)
+					? galleryUrls[parentKey]?.[keyName].slice(0, 2)
+					: galleryUrls[keyName].slice(0, 2)
 				).map((url, index) => (
-					<div className={styles.galleryImageContainer} key={`gallery-${index}`}>
+					<div
+						className={styles.galleryImageContainer}
+						key={`gallery-${index}`}
+					>
 						<img
 							src={url}
 							alt={`ギャラリー ${index}`}

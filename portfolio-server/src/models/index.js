@@ -37,8 +37,7 @@ db.Setting = require('./Settings')(sequelize, Sequelize)
 db.Draft = require('./Draft')(sequelize, Sequelize)
 db.Log = require('./Log')(sequelize, Sequelize)
 db.Notification = require('./Notification')(sequelize, Sequelize)
-db.Image = require('./Image')(sequelize, Sequelize); // Image modelini qo'shish
-
+db.Image = require('./Image')(sequelize, Sequelize) // Image modelini qo'shish
 
 // Load other models here if needed
 // db.User = require('./User')(sequelize, Sequelize);

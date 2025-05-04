@@ -69,7 +69,6 @@ router.post('/upload', upload.any(), async (req, res) => {
 					`${role}/${imageType}/${id}/` + uniqueFilename
 				)
 				uploadedFiles.push(uploadedFile)
-
 			}
 		}
 
@@ -112,9 +111,6 @@ router.get('/download/:objectName', async (req, res) => {
 		res.status(500).send('Error downloading file')
 	}
 })
-
-
-
 
 // // Endpoint to upload images (Create)
 // router.post('/images/upload', upload.any(), async (req, res) => {
@@ -203,4 +199,3 @@ router.get('/download/:objectName', async (req, res) => {
 // })
 
 module.exports = router
-
