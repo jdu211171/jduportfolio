@@ -11,8 +11,8 @@
 		"clean": "rm -rf dist node_modules",
 		"clean:build": "rm -rf dist",
 		"clean:modules": "rm -rf node_modules",
-		"format": "prettier --write \"src/**/*.{js,jsx}\" --config ../.prettierrc",
-		"format:check": "prettier --check \"src/**/*.{js,jsx}\" --config ../.prettierrc"
+		"format": "prettier --write \"src/**/*.{js,jsx}\"",
+		"format:check": "prettier --check \"src/**/*.{js,jsx}\""
 	},
 	"gitignore": ".gitignore",
 	"dependencies": {

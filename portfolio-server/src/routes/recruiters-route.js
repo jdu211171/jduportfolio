@@ -1,9 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const RecruiterController = require('../controllers/recruiterController')
-const {
-	validateRecruiterCreation,
-} = require('../middlewares/recruiter-validation')
+const { validateRecruiterCreation } = require('../middlewares/recruiter-validation')
 
 /**
  * @swagger

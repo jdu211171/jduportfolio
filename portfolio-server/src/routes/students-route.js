@@ -1,8 +1,8 @@
 const express = require('express')
 const StudentController = require('../controllers/studentController')
 const {
-	validateStudentCreation,
-	validateStudentUpdate,
+  validateStudentCreation,
+  validateStudentUpdate,
 } = require('../middlewares/student-validation')
 
 const router = express.Router()

@@ -10,8 +10,8 @@
 		"seed": "npx sequelize-cli db:seed:all --config src/config/config.js",
 		"seed-admin": "npx sequelize-cli db:seed --seed 20240614205017-add-admin.js --config src/config/config.js",
 		"unseed": "npx sequelize-cli db:seed:undo:all --config src/config/config.js",
-		"format": "prettier --write \"src/**/*.js\" --config ../.prettierrc",
-		"format:check": "prettier --check \"src/**/*.js\" --config ../.prettierrc",
+		"format": "prettier --write \"src/**/*.{js,jsx}\"",
+		"format:check": "prettier --check \"src/**/*.{js,jsx}\"",
 		"clean": "rm -rf node_modules logs build",
 		"clean:logs": "rm -rf logs",
 		"clean:modules": "rm -rf node_modules"

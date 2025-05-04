@@ -1,10 +1,7 @@
 const express = require('express')
 const { param } = require('express-validator')
 const QAController = require('../controllers/qaController')
-const {
-	validateQACreation,
-	validateQAUpdate,
-} = require('../middlewares/qa-validation')
+const { validateQACreation, validateQAUpdate } = require('../middlewares/qa-validation')
 
 const router = express.Router()
 

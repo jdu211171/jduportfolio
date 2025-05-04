@@ -75,23 +75,21 @@ const router = express.Router()
  */
 
 router.get(
-	'/google',
-	passport.authenticate('google', {
-		scope: ['profile', 'email'],
-		session: false,
-	})
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false,
+  })
 )
 
 router.get('/google/callback', (req, res, next) => {
-	passport.authenticate('google', { session: false }, (err, user, info) => {
-		if (err || !user) {
-			return res
-				.status(400)
-				.json({ error: 'Google autentifikatsiyasi muvaffaqiyatsiz yakunlandi' })
-		}
-		req.user = user
-		AuthController.googleCallback(req, res)
-	})(req, res, next)
+  passport.authenticate('google', { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).json({ error: 'Google autentifikatsiyasi muvaffaqiyatsiz yakunlandi' })
+    }
+    req.user = user
+    AuthController.googleCallback(req, res)
+  })(req, res, next)
 })
 
 // Login route

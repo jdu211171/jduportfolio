@@ -1,13 +1,13 @@
 const { sendEmail } = require('./emailService')
 
 class EmailService {
-	static async EmailToStaff(email, password, firstName, lastName) {
-		const to = email
-		const subject = 'Welcome to JDU'
+  static async EmailToStaff(email, password, firstName, lastName) {
+    const to = email
+    const subject = 'Welcome to JDU'
 
-		const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nBest regards,\nJDU Team`
+    const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nBest regards,\nJDU Team`
 
-		const html = `
+    const html = `
       <!DOCTYPE html>
       <html lang="ja">
       <head>
@@ -85,10 +85,10 @@ class EmailService {
       </html>
     `
 
-		await sendEmail(to, subject, text, html)
+    await sendEmail(to, subject, text, html)
 
-		return 'Email sent successfully'
-	}
+    return 'Email sent successfully'
+  }
 }
 
 module.exports = EmailService

@@ -4,37 +4,37 @@ const emailService = require('../utils/emailService')
 const { Op } = require('sequelize')
 
 class CronService {
-	static async sendDraftEmails() {
-		try {
-			// console.log('submitted draft ...')
+  static async sendDraftEmails() {
+    try {
+      // console.log('submitted draft ...')
 
-			// const today = new Date().toISOString().split('T')[0];
-			const drafts = await sequelize.query(
-				`
+      // const today = new Date().toISOString().split('T')[0];
+      const drafts = await sequelize.query(
+        `
                 SELECT DISTINCT ON (student_id) * 
                 FROM "Drafts"
                 WHERE status = 'submitted'
                 ORDER BY student_id, updated_at DESC;
             `,
-				{
-					type: sequelize.QueryTypes.SELECT,
-				}
-			)
+        {
+          type: sequelize.QueryTypes.SELECT,
+        }
+      )
 
-			if (drafts.length === 0) {
-				// console.log('No drafts submitted today')
-				return
-			}
+      if (drafts.length === 0) {
+        // console.log('No drafts submitted today')
+        return
+      }
 
-			const staffMembers = await Staff.findAll({ attributes: ['email'] })
-			if (staffMembers.length === 0) {
-				// console.log('No staff found.')
-				return
-			}
+      const staffMembers = await Staff.findAll({ attributes: ['email'] })
+      if (staffMembers.length === 0) {
+        // console.log('No staff found.')
+        return
+      }
 
-			const staffEmails = staffMembers.map(staff => staff.email)
+      const staffEmails = staffMembers.map((staff) => staff.email)
 
-			let emailBody = `
+      let emailBody = `
             <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.5;">
                 <h2 style="color: #333;">📑 以下の学生たちがプロフィール情報を送信しました</h2>
                 <p style="color: #555;">本日提出された情報:</p>
@@ -48,16 +48,16 @@ class CronService {
                     <tbody>
             `
 
-			drafts.forEach(draft => {
-				emailBody += `
+      drafts.forEach((draft) => {
+        emailBody += `
                     <tr>
                         <td style="border: 1px solid #ddd; padding: 10px;">${draft.student_id || '不明'}</td>
                         <td style="border: 1px solid #ddd; padding: 10px;">${new Date(draft.updated_at).toLocaleString()}</td>
                     </tr>
                 `
-			})
+      })
 
-			emailBody += `
+      emailBody += `
                         </tbody>
                     </table>
                     <p style="margin-top: 20px; color: #777;">📧 ここで情報を確認できます: <a href="https://portfolio.jdu.uz">https://portfolio.jdu.uz</a></p>
@@ -66,33 +66,33 @@ class CronService {
                 </div>
             `
 
-			const today = new Date().toLocaleDateString('ja-JP', {
-				year: 'numeric',
-				month: '2-digit',
-				day: '2-digit',
-			}) // Format: YYYY/MM/DD (Japanese format)
+      const today = new Date().toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }) // Format: YYYY/MM/DD (Japanese format)
 
-			// Har bir staff xodimiga email jo‘natish
-			for (const email of staffEmails) {
-				await emailService.sendEmail(
-					email,
-					`📩 本日提出された学生の情報 (${today})`,
-					`本日提出された学生情報の一覧`,
-					emailBody
-				)
-				// console.log(`Email sent to ${email}`)
-			}
+      // Har bir staff xodimiga email jo‘natish
+      for (const email of staffEmails) {
+        await emailService.sendEmail(
+          email,
+          `📩 本日提出された学生の情報 (${today})`,
+          `本日提出された学生情報の一覧`,
+          emailBody
+        )
+        // console.log(`Email sent to ${email}`)
+      }
 
-			// console.log('✅ Cron job finished successfully')
-		} catch (error) {
-			console.error('Error in scheduled task:', error)
-		}
-	}
+      // console.log('✅ Cron job finished successfully')
+    } catch (error) {
+      console.error('Error in scheduled task:', error)
+    }
+  }
 
-	static scheduleJobs() {
-		console.log('📌 Cron job started at 13:14 (UTC+5)')
-		cron.schedule('00 06 * * *', CronService.sendDraftEmails)
-	}
+  static scheduleJobs() {
+    console.log('📌 Cron job started at 13:14 (UTC+5)')
+    cron.schedule('00 06 * * *', CronService.sendDraftEmails)
+  }
 }
 
 module.exports = CronService

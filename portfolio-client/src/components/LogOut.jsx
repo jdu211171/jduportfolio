@@ -4,25 +4,25 @@ import axios from '../utils/axiosUtils'
 import Cookies from 'js-cookie'
 
 const Logout = () => {
-	const navigate = useNavigate()
-	useEffect(() => {
-		const handleLogout = async () => {
-			try {
-				await axios.post('/api/auth/logout')
+  const navigate = useNavigate()
+  useEffect(() => {
+    const handleLogout = async () => {
+      try {
+        await axios.post('/api/auth/logout')
 
-				Cookies.remove('token')
-				Cookies.remove('userType')
+        Cookies.remove('token')
+        Cookies.remove('userType')
 
-				navigate('/login')
-			} catch (error) {
-				console.error('Logout error:', error)
-			}
-		}
+        navigate('/login')
+      } catch (error) {
+        console.error('Logout error:', error)
+      }
+    }
 
-		handleLogout()
-	}, [navigate])
+    handleLogout()
+  }, [navigate])
 
-	return <></>
+  return <></>
 }
 
 export default Logout

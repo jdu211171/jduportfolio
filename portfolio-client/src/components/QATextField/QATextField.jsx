@@ -4,91 +4,91 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import styles from './QATextField.module.css'
 
 const QATextField = ({
-	category,
-	question,
-	keyName,
-	editData,
-	updateEditData,
-	DeleteQA,
-	aEdit = false,
-	qEdit = false,
+  category,
+  question,
+  keyName,
+  editData,
+  updateEditData,
+  DeleteQA,
+  aEdit = false,
+  qEdit = false,
 }) => {
-	const [localEditData, setLocalEditData] = useState('')
-	const [localEditQuestion, setLocalQuestion] = useState('')
+  const [localEditData, setLocalEditData] = useState('')
+  const [localEditQuestion, setLocalQuestion] = useState('')
 
-	useEffect(() => {
-		if (category == false) {
-			setLocalEditData(editData[keyName]?.answer || '')
-			setLocalQuestion(editData[keyName]?.question || '')
-		} else {
-			setLocalEditData(editData[category]?.[keyName]?.answer || '')
-			setLocalQuestion(editData[category]?.[keyName]?.question || '')
-		}
-	}, [editData, category, keyName])
+  useEffect(() => {
+    if (category == false) {
+      setLocalEditData(editData[keyName]?.answer || '')
+      setLocalQuestion(editData[keyName]?.question || '')
+    } else {
+      setLocalEditData(editData[category]?.[keyName]?.answer || '')
+      setLocalQuestion(editData[category]?.[keyName]?.question || '')
+    }
+  }, [editData, category, keyName])
 
-	const handleChange = (e, fieldType) => {
-		const updatedValue = e.target.value
+  const handleChange = (e, fieldType) => {
+    const updatedValue = e.target.value
 
-		if (category == false) {
-			if (fieldType === 'question') {
-				setLocalQuestion(updatedValue)
-			} else if (fieldType === 'answer') {
-				setLocalEditData(updatedValue)
-			}
-			updateEditData(keyName, updatedValue, fieldType)
-		} else {
-			if (fieldType === 'question') {
-				setLocalQuestion(updatedValue)
-			} else if (fieldType === 'answer') {
-				setLocalEditData(updatedValue)
-			}
-			updateEditData(category, keyName, updatedValue, fieldType)
-		}
-	}
+    if (category == false) {
+      if (fieldType === 'question') {
+        setLocalQuestion(updatedValue)
+      } else if (fieldType === 'answer') {
+        setLocalEditData(updatedValue)
+      }
+      updateEditData(keyName, updatedValue, fieldType)
+    } else {
+      if (fieldType === 'question') {
+        setLocalQuestion(updatedValue)
+      } else if (fieldType === 'answer') {
+        setLocalEditData(updatedValue)
+      }
+      updateEditData(category, keyName, updatedValue, fieldType)
+    }
+  }
 
-	return (
-		<div className={styles.container}>
-			<div className={styles.title}>
-				{aEdit ? (
-					<Box display={'flex'}>
-						<MuiTextField
-							value={localEditQuestion}
-							onChange={e => handleChange(e, 'question')}
-							variant='outlined'
-							fullWidth
-							multiline
-						/>
-						{aEdit && (
-							<IconButton
-								aria-label='削除'
-								onClick={() => DeleteQA(keyName)}
-								sx={{
-									color: 'red',
-								}}
-							>
-								<DeleteIcon />
-							</IconButton>
-						)}
-					</Box>
-				) : (
-					<div>{localEditQuestion}</div>
-				)}
-			</div>
-			<div className={styles.data}>
-				{qEdit ? (
-					<MuiTextField
-						value={localEditData}
-						onChange={e => handleChange(e, 'answer')}
-						variant='outlined'
-						fullWidth
-						multiline
-					/>
-				) : (
-					<>{!aEdit && <div>{localEditData}</div>}</>
-				)}
-			</div>
-		</div>
-	)
+  return (
+    <div className={styles.container}>
+      <div className={styles.title}>
+        {aEdit ? (
+          <Box display={'flex'}>
+            <MuiTextField
+              value={localEditQuestion}
+              onChange={(e) => handleChange(e, 'question')}
+              variant="outlined"
+              fullWidth
+              multiline
+            />
+            {aEdit && (
+              <IconButton
+                aria-label="削除"
+                onClick={() => DeleteQA(keyName)}
+                sx={{
+                  color: 'red',
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            )}
+          </Box>
+        ) : (
+          <div>{localEditQuestion}</div>
+        )}
+      </div>
+      <div className={styles.data}>
+        {qEdit ? (
+          <MuiTextField
+            value={localEditData}
+            onChange={(e) => handleChange(e, 'answer')}
+            variant="outlined"
+            fullWidth
+            multiline
+          />
+        ) : (
+          <>{!aEdit && <div>{localEditData}</div>}</>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default QATextField

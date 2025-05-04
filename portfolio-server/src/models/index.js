@@ -9,19 +9,11 @@ const env = process.env.NODE_ENV || 'development'
 let sequelize
 
 if (config.use_env_variable) {
-	sequelize = new Sequelize(
-		process.env[config.use_env_variable],
-		config[config.use_env_variable]
-	)
+  sequelize = new Sequelize(process.env[config.use_env_variable], config[config.use_env_variable])
 } else {
-	sequelize = new Sequelize(
-		config[env].database,
-		config[env].username,
-		config[env].password,
-		{
-			...config[env],
-		}
-	)
+  sequelize = new Sequelize(config[env].database, config[env].username, config[env].password, {
+    ...config[env],
+  })
 }
 
 const db = {}
@@ -45,39 +37,39 @@ db.Image = require('./Image')(sequelize, Sequelize) // Image modelini qo'shish
 // Apply associations here if needed
 // Example:
 db.Recruiter.hasMany(db.Bookmark, {
-	foreignKey: 'recruiterId',
-	as: 'bookmarks',
+  foreignKey: 'recruiterId',
+  as: 'bookmarks',
 })
 db.Student.hasMany(db.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' })
 db.Student.hasOne(db.Draft, {
-	foreignKey: 'student_id', // Tells Sequelize Drafts should refer to Student.student_id
-	sourceKey: 'student_id', // Explicitly set source key on Student table
-	as: 'draft',
+  foreignKey: 'student_id', // Tells Sequelize Drafts should refer to Student.student_id
+  sourceKey: 'student_id', // Explicitly set source key on Student table
+  as: 'draft',
 })
 
 db.Bookmark.belongsTo(db.Recruiter, {
-	foreignKey: 'recruiterId',
-	as: 'recruiter',
+  foreignKey: 'recruiterId',
+  as: 'recruiter',
 })
 db.Bookmark.belongsTo(db.Student, { foreignKey: 'studentId', as: 'student' })
 db.Draft.belongsTo(db.Student, {
-	foreignKey: 'student_id', // This tells Drafts how to reference Student
-	targetKey: 'student_id', // Ensures it joins using Student.student_id, not Student.id
-	as: 'student',
+  foreignKey: 'student_id', // This tells Drafts how to reference Student
+  targetKey: 'student_id', // Ensures it joins using Student.student_id, not Student.id
+  as: 'student',
 })
 
 module.exports = {
-	sequelize,
-	Sequelize,
-	Admin: db.Admin,
-	Recruiter: db.Recruiter,
-	Staff: db.Staff,
-	Student: db.Student,
-	Bookmark: db.Bookmark,
-	QA: db.QA,
-	Setting: db.Setting,
-	Draft: db.Draft,
-	Log: db.Log,
-	Notification: db.Notification,
-	Image: db.Image, // Image modelini eksport qilish
+  sequelize,
+  Sequelize,
+  Admin: db.Admin,
+  Recruiter: db.Recruiter,
+  Staff: db.Staff,
+  Student: db.Student,
+  Bookmark: db.Bookmark,
+  QA: db.QA,
+  Setting: db.Setting,
+  Draft: db.Draft,
+  Log: db.Log,
+  Notification: db.Notification,
+  Image: db.Image, // Image modelini eksport qilish
 }

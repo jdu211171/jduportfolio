@@ -51,25 +51,25 @@ const webhookRoutes = require('./routes/webhook-routes')
  *     description: Notification endpoints
  */
 
-const configureRoutes = app => {
-	// Auth routes
-	app.use('/api/auth', authRoute)
+const configureRoutes = (app) => {
+  // Auth routes
+  app.use('/api/auth', authRoute)
 
-	// Protected routes
-	app.use('/api/admin', adminRoute)
-	app.use('/api/recruiters', authMiddleware, recruiterRoute)
-	app.use('/api/staff', authMiddleware, staffRoute)
-	app.use('/api/students', authMiddleware, studentRoute)
-	app.use('/api/bookmarks', authMiddleware, bookmarkRoute)
-	app.use('/api/qa', authMiddleware, qaRoute)
-	app.use('/api/files', fileRoutes)
-	app.use('/api/kintone', kintoneRoutes)
-	app.use('/api/webhook', webhookRoutes)
-	app.use('/api/settings', settingRoute)
-	app.use('/api/draft', authMiddleware, draftRoute)
-	app.use('/api/log', logRoute)
-	app.use('/api/images', imageRoutes)
-	app.use('/api/notification', authMiddleware, notificationRoute)
+  // Protected routes
+  app.use('/api/admin', adminRoute)
+  app.use('/api/recruiters', authMiddleware, recruiterRoute)
+  app.use('/api/staff', authMiddleware, staffRoute)
+  app.use('/api/students', authMiddleware, studentRoute)
+  app.use('/api/bookmarks', authMiddleware, bookmarkRoute)
+  app.use('/api/qa', authMiddleware, qaRoute)
+  app.use('/api/files', fileRoutes)
+  app.use('/api/kintone', kintoneRoutes)
+  app.use('/api/webhook', webhookRoutes)
+  app.use('/api/settings', settingRoute)
+  app.use('/api/draft', authMiddleware, draftRoute)
+  app.use('/api/log', logRoute)
+  app.use('/api/images', imageRoutes)
+  app.use('/api/notification', authMiddleware, notificationRoute)
 }
 
 module.exports = configureRoutes
