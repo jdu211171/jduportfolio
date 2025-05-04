@@ -86,6 +86,7 @@ const StudentProfile = ({ userId = 0 }) => {
 			</Grid>
 
 			<Box className={styles.topControlButtons}>
+				{role !== 'Student' && (
 				<Box
 					display='flex'
 					alignItems='center'
@@ -101,6 +102,7 @@ const StudentProfile = ({ userId = 0 }) => {
 					</IconButton>
 					| {t.back}
 				</Box>
+				)}
 				<Box id='saveButton'></Box>
 			</Box>
 			<Box className={styles.container}>

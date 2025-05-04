@@ -10,12 +10,12 @@
 	margin-bottom: 16px;
 }
 
-.topControlButtons {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 10px;
-}
+/*.topControlButtons {*/
+/*	display: flex;*/
+/*	align-items: center;*/
+/*	justify-content: space-between;*/
+/*	gap: 10px;*/
+/*}*/
 
 .infoContainer {
 	margin-top: 8px;
