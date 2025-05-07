@@ -4,7 +4,7 @@
 }
 
 .sideBar {
-  height: calc(100vh - 80px);
+  height: calc(100vh - 65px);
   display: flex;
   justify-content: space-between;
 }
@@ -67,13 +67,13 @@
   padding: 20px;
 }
 
-.left .navGroup {
+/* .left .navGroup {
   content: "GENERAL";
   font-weight: 800;
   font-size: 12px;
   color: #6B7280;
   padding: 20px;
-}
+} */
 
 .loginUser {
   display: flex;
@@ -102,6 +102,8 @@
 }
 
 .left nav {
+  padding-top: 13px;
+  padding-bottom: 10px;
   width: 100%;
   min-width: 250px;
   display: flex;
@@ -112,7 +114,6 @@
 }
 
 .left nav ul {
-  padding: 13px 0px;
   list-style-type: none;
 }
 
@@ -137,11 +138,11 @@
 
 .active {
   background-color: #F0E6F7;
-  border-left: 3px solid #6A0DAD;
+  border-left: 3px solid #5627DB;
 }
 
 .active * {
-  color: #6A0DAD;
+  color: #5627DB;
 }
 
 @media only screen and (max-width: 768px) {
@@ -174,7 +175,7 @@
   }
 }
 
-.languageSwitcher {
+/* .languageSwitcher {
   display: flex;
   align-items: center;
 }
@@ -184,8 +185,36 @@
   border-radius: 5px;
   padding: 5px 10px;
   font-size: 14px; 
+} */
+.langSelector {
+  min-width: 80px;
+  margin-right: 30px;
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #efeafc;
+  font-family: sans-serif;
 }
 
+.langSelector input[type="radio"] {
+  display: none;
+}
+
+.langSelector label {
+  padding: 5px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.langSelector input[type="radio"]:checked + label {
+  background-color: #5627db;
+  color: white;
+}
 
 .NavbarBottom {
   padding: 0px 25px 0px 25px;
