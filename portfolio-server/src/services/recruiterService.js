@@ -1,3 +1,4 @@
+const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const { Recruiter } = require('../models')
 
