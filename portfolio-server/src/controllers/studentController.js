@@ -28,7 +28,7 @@ class StudentController {
 					student_id: record.studentId.value,
 					phone: record.phoneNumber.value,
 					date_of_birth: record.birthDate.value,
-					active: record.semester.value >= 7 ? true : false,
+					active: record.semester.value > 0,
 					kintone_id: record['$id'].value,
 					partner_university: record.partnerUniversity.value,
 					enrollment_date: record.jduEnrollmentDate.value,
