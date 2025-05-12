@@ -545,7 +545,7 @@ class StudentService {
 							uppercase: true,
 							excludeSimilarCharacters: true,
 						})
-						if (formattedData.semester >= 7 && !existingStudent.active) {
+						if (formattedData.semester > 0 && !existingStudent.active) {
 							await EmailToStudent(
 								formattedData.email,
 								password,
