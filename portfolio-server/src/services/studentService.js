@@ -580,7 +580,7 @@ class StudentService {
 		const subject = 'Welcome to JDU'
 		const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nBest regards,\nJDU Team`
 		const html = `<p>Hi ${firstName},</p><p>Welcome to JDU. Your account has been created.</p><p>Best regards,<br>JDU Team</p>`
-		await sendEmail(to, subject, text, html)
+		await addToQueue(to, subject, text, html)
 
 		return 'email send successfully'
 	}
