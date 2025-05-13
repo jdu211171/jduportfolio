@@ -74,7 +74,7 @@ class CronService {
 
 			// Har bir staff xodimiga email jo‘natish
 			for (const email of staffEmails) {
-				await emailService.sendEmail(
+				await emailService.addToQueue(
 					email,
 					`📩 本日提出された学生の情報 (${today})`,
 					`本日提出された学生情報の一覧`,

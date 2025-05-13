@@ -1,4 +1,4 @@
-const { sendEmail } = require('./emailService')
+const { addToQueue } = require('./emailService')
 
 class EmailService {
 	static async EmailToStudent(email, password, firstName, lastName) {
@@ -86,7 +86,7 @@ class EmailService {
       </html>
     `
 
-		await sendEmail(to, subject, text, html)
+		await addToQueue(to, subject, text, html)
 
 		return 'Email sent successfully'
 	}
