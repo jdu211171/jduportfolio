@@ -221,7 +221,9 @@ router.get(
 router.get('/google/callback', (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user, info) => {
         if (err || !user) {
-            return res.redirect('http://localhost:5173/login?error=notfound');
+            return res.redirect(
+							'https://portfolio.jdu.uz/login?error=notfound'
+						)
         }
         req.user = user
         AuthController.googleCallback(req, res)

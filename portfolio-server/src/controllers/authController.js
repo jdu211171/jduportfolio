@@ -29,10 +29,10 @@ class AuthController {
 			if (userType && userData && token) {
 				AuthService.setAuthCookies(res, token, userType);
 				// Redirect to frontend home page
-				return res.redirect('http://localhost:5173/google/callback');
+				return res.redirect('https://portfolio.jdu.uz/google/callback')
 			} else {
 				// Redirect to login page with error
-				return res.redirect('http://localhost:5173/login?error=notfound');
+				return res.redirect('https://portfolio.jdu.uz/login?error=notfound')
 			}
     }
 }
