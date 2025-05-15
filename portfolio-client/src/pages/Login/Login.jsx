@@ -5,7 +5,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import Cookies from 'js-cookie';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logo from '../../assets/logo40.png';
+import logo from '../../assets/logo.png';
 import universityImage from '../../assets/university.png';
 import { LanguageSelect } from '../../components/languageSelector/LanguageSelect';
 import { UserContext } from '../../contexts/UserContext';
