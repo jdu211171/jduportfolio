@@ -1,0 +1,66 @@
+.profileExplanation {
+	color: rgba(0, 0, 0, 0.6);
+	line-height: 1.6;
+	font-size: 0.875rem;
+	white-space: pre-line;
+}
+
+.prohibitedActionsTitle {
+	font-weight: bold;
+	color: rgba(0, 0, 0, 0.87);
+	font-size: 1.5rem;
+	margin-bottom: 0.25rem;
+}
+
+.prohibitedActionsContent {
+	color: rgba(0, 0, 0, 0.6);
+	line-height: 1.6;
+	font-size: 0.875rem;
+	white-space: normal;
+	padding-left: 1rem;
+}
+
+.prohibitedActionsContent ol {
+	padding-left: 1.2rem;
+	margin: 0;
+}
+
+.prohibitedActionsContent li {
+	margin-bottom: 0.5rem;
+}
+
+/* Responsive: planshet va katta ekranlar uchun */
+@media (max-width: 600px) {
+	.profileExplanation {
+		font-size: 1rem;
+	}
+
+	.prohibitedActionsTitle {
+		font-size: 1.125rem;
+	}
+
+	.prohibitedActionsContent {
+		font-size: 1rem;
+	}
+}
+
+/* 👇 Extra responsiveness for small screens like iPhone SE/X */
+@media (max-width: 360px) {
+	.profileExplanation,
+	.prohibitedActionsContent {
+		font-size: 0.5rem;
+		line-height: 1;
+	}
+
+	.prohibitedActionsTitle {
+		font-size: 12px;
+	}
+
+	.prohibitedActionsContent ol {
+		padding-left: 1rem;
+	}
+
+	.prohibitedActionsContent li {
+		margin-bottom: 0.4rem;
+	}
+}
