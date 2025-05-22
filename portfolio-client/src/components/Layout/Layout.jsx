@@ -11,13 +11,13 @@ import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import LiveHelpOutlinedIcon from '@mui/icons-material/LiveHelpOutlined'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
-import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined'
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
 import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined'
 import SearchSharpIcon from '@mui/icons-material/SearchSharp'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
+import { ReactComponent as MenuIcon } from '../../assets/icons/menuIcon.svg'
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
 import logo from '/src/assets/logo40.png'
@@ -38,7 +38,6 @@ const Layout = () => {
 	}
 	const navItems = [
 		{
-			section: 'GENERAL',
 			items: [
 				{
 					to: '/',
@@ -88,11 +87,6 @@ const Layout = () => {
 					label: t('bookmarked'),
 					roles: ['Recruiter'],
 				},
-			],
-		},
-		{
-			section: 'GENERAL',
-			items: [
 				{
 					to: '/settings',
 					icon: <SettingsOutlinedIcon  fontSize='small'/>,
@@ -180,11 +174,11 @@ const Layout = () => {
 				<div className={style.right}>
 					{/* header button */}
 					<div className={style.navButton} onClick={handleNavButtonClick}>
-						<MenuOutlinedIcon fontSize='medium'/>
+						<MenuIcon />
 					</div>
 					<div className={style.topBarBox}>
 						{/* language selector */}
-						<div className={style.languageSwitcher}>
+						{/* <div className={style.languageSwitcher}>
 							<select
 								onChange={e => handleChangeLanguage(e.target.value)}
 								defaultValue={language}
@@ -193,8 +187,9 @@ const Layout = () => {
 								<option value='en'>English</option>
 								<option value='uz'>O‘zbek</option>
 							</select>
-						</div>
-
+						</div> */}
+						
+						
 						{/* TIME */}
 						<div className={style.timeBox}>
 							<div className={style.timeBoxCountry}>
@@ -207,6 +202,17 @@ const Layout = () => {
 								/
 								<div style={{fontWeight:600}}>{uzbekistanTime}</div>
 							</div>
+						</div>
+						{/* language selector */}
+						<div className={style.langSelector} onChange={(e) => handleChangeLanguage(e.target.value)}>
+							<input type="radio" id="jp" name="lang" value="ja" defaultChecked={language === 'ja'} />
+							<label htmlFor="jp">JP</label>
+
+							<input type="radio" id="uz" name="lang" value="uz" defaultChecked={language === 'uz'}  />
+							<label htmlFor="uz">UZ</label>
+
+							<input type="radio" id="en" name="lang" value="en" defaultChecked={language === 'en'} />
+							<label htmlFor="en">EN</label>
 						</div>
 
 						{/* notifications */}	
@@ -230,9 +236,9 @@ const Layout = () => {
 					<nav>
 						{navItems.map((item, index) => (
 							<ul key={'ul-' + index}>
-								<span className={style.navGroup}>
+								{/* <span className={style.navGroup}>
 									{item.section}
-								</span>
+								</span> */}
 								{item.items
 									.filter(item => checkRole(role, item.roles))
 									.map((item, index) => (
