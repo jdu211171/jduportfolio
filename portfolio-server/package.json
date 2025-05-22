@@ -14,7 +14,8 @@
 		"format:check": "npx prettier --check \"src/**/*.js\" --config ../.prettierrc",
 		"clean": "rm -rf node_modules logs build",
 		"clean:logs": "rm -rf logs",
-		"clean:modules": "rm -rf node_modules"
+		"clean:modules": "rm -rf node_modules",
+		"refresh": "npm run migratedown && npm run migrate && npm run seed"
 	},
 	"gitignore": ".gitignore",
 	"keywords": [],
