@@ -79,9 +79,11 @@ const router = express.Router()
  *         description: Bad request
  */
 
+router.put('/reset-student-password/:studentId', AdminController.resetStudentPassword);
 router.post('/', AdminController.create)
 router.get('/:id', AdminController.getById)
 router.put('/:id', AdminController.update)
 router.delete('/:id', AdminController.delete)
+
 
 module.exports = router

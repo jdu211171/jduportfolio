@@ -102,7 +102,7 @@
 // module.exports = router
 
 const express = require('express')
-const passport = require('../passport/google-strategy')
+//const passport = require('../passport/google-strategy')
 const AuthController = require('../controllers/authController')
 
 const { Admin, Staff, Recruiter, Student } = require('../models')
@@ -180,6 +180,13 @@ const router = express.Router()
  *         description: Failed to logout
  */
 
+// router.get(
+//   '/google',
+//   passport.authenticate('google', {
+//     scope: ['profile', 'email'],
+//     session: false,
+//   })
+// )
 /**
  * @swagger
  * /api/auth/me:
@@ -218,6 +225,15 @@ router.get(
   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
 )
 
+// router.get('/google/callback', (req, res, next) => {
+//   passport.authenticate('google', { session: false }, (err, user, info) => {
+//     if (err || !user) {
+//       return res.status(400).json({ error: 'Google autentifikatsiyasi muvaffaqiyatsiz yakunlandi' })
+//     }
+//     req.user = user
+//     AuthController.googleCallback(req, res)
+//   })(req, res, next)
+// })
 router.get('/google/callback', (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user, info) => {
         if (err || !user) {
