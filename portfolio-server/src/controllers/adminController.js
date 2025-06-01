@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt')
 const AdminService = require('../services/adminService')
 const SettingsService = require('../services/settingService')
+const { Student } = require('../models');
 
 class AdminController {
   static async create(req, res) {
@@ -35,6 +36,32 @@ class AdminController {
       res.status(200).json(response)
     } catch (error) {
       res.status(400).json({ error: error.message })
+    }
+  }
+
+  // reset password new metod
+
+  static async resetStudentPassword(req, res) {
+    try {
+      const { studentId } = req.params;
+      const { newPassword } = req.body;
+  
+      if (!newPassword) {
+        return res.status(400).json({ error: 'Требуется новый пароль' });
+      }
+  
+      const student = await Student.findByPk(studentId);
+      if (!student) {
+        return res.status(404).json({ error: 'Студент не найден' });
+      }
+  
+      // Пароль будет хешироваться автоматически хуком в модели Student
+      student.password = newPassword;
+      await student.save();
+  
+      res.status(200).json({ message: 'Пароль успешно изменён' });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   }
 
