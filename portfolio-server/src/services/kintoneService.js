@@ -224,7 +224,7 @@ class KintoneService {
 	static async syncData() {
 		try {
 			let students = (await this.getAllRecords('students')).records
-
+			console.log('Syncing student data...', students)
 			let certificate_jlpt = (await this.getAllRecords('certificate_jlpt'))
 				.records
 			let certificate_jdu_jlpt = (
@@ -257,7 +257,7 @@ class KintoneService {
 			)
 
 			const formattedStudentData = students.map(record => ({
-				studentId: record.studentId.value,
+				studentId: record.studentId?.value,
 				// studentName: record.studentName.value,
 				studentFirstName: record.studentFirstName.value, // To‘g‘ri nom
     			studentLastName: record.studentLastName.value, // To‘g‘ri nom
@@ -267,7 +267,9 @@ class KintoneService {
 				birthday: record.birthDate.value,
 				semester: record.semester.value,
 				univer: record.partnerUniversity.value,
-				レコード番号: record['レコード番号'],
+				// レコード番号: record['amallarniレコード番号'],
+				kintone_id_value: record['レコード番号']?.value || record.$id?.value,
+
 				jlpt: JSON.stringify(
 					jlptData[record.studentId.value]
 						? jlptData[record.studentId.value]
@@ -293,6 +295,10 @@ class KintoneService {
 						? itContestData[record.studentId.value]
 						: ''
 				),
+				// New Fields 
+				graduation_year: record.graduation_year?.value || null, 
+                graduation_season: record.graduation_season?.value || null, 
+                language_skills: record.language_skills?.value || null,  
 			}))
 
 			let result = await StudentService.syncStudentData(formattedStudentData)

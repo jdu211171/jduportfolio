@@ -3,6 +3,7 @@ const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const generatePassword = require('generate-password')
 const { Student, Draft, Bookmark, sequelize } = require('../models')
+const DraftService = require('./draftServie')
 const { EmailToStudent } = require('../utils/emailToStudent')
 
 class StudentService {
@@ -205,6 +206,9 @@ class StudentService {
 			'it_skills',
 			'jlpt',
 			'student_id',
+			'graduation_year',    // New Field
+            'graduation_season',  // New Field
+            'language_skills',    // New Field
 		  ];
 	  
 		  if (!filter || typeof filter !== 'object') {
@@ -253,6 +257,13 @@ class StudentService {
 				queryOther[Op.and].push({
 				  [Op.or]: filter[key].map(level => ({ [key]: { [Op.iLike]: `%${level}"%` } })),
 				});
+			  } else if (key === 'graduation_year' || key === 'graduation_season') {
+                    const values = Array.isArray(filter[key]) ? filter[key] : [filter[key]];
+                    queryOther[Op.and].push({
+                    	[Op.or]: values.map(value => ({ [key]: { [Op.iLike]: `%${String(value)}%` } })),
+                    });
+              } else if (key === 'language_skills') {
+                    queryOther[key] = { [Op.iLike]: `%${String(filter[key])}%` };
 			  } else if (Array.isArray(filter[key])) {
 				queryOther[key] = { [Op.in]: filter[key] };
 			  } else if (typeof filter[key] === 'string') {
@@ -507,7 +518,7 @@ class StudentService {
 
 					// Prepare data for upsert
 					const formattedData = {
-						email: data.mail,
+						email: data.mail.trim(),
 						student_id: data.studentId,
 						// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
 						// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
@@ -518,45 +529,103 @@ class StudentService {
 						// Include other fields as needed
 						semester: data.semester,
 						partner_university: data.univer,
-						kintone_id: data.レコード番号.value,
+						// kintone_id: data.レコード番号.value,
+						kintone_id: data.kintone_id_value,
 						jlpt: data.jlpt,
 						jdu_japanese_certification: data.jdu_japanese_certification,
 						ielts: data.ielts,
 						japanese_speech_contest: data.japanese_speech_contest,
 						it_contest: data.it_contest,
-					}
+						graduation_year: data.graduation_year,
+                        graduation_season: data.graduation_season,
+                        language_skills: data.language_skills,
 
+					}
+					// Xato logika ekan
+					// if (!existingStudent) {
+					// 	// If the student does not exist, set a default password
+					// 	const password = generatePassword.generate({
+					// 		length: 12,
+					// 		numbers: true,
+					// 		symbols: false,
+					// 		uppercase: true,
+					// 		excludeSimilarCharacters: true,
+					// 	})
+					// 	const salt = await bcrypt.genSalt(10)
+					// 	formattedData.password = await bcrypt.hash(password, salt)
+					// } else {
+					// 	const password = generatePassword.generate({
+					// 		length: 12,
+					// 		numbers: true,
+					// 		symbols: false,
+					// 		uppercase: true,
+					// 		excludeSimilarCharacters: true,
+					// 	})
+					// 	if (formattedData.semester > 0 && !existingStudent.active) {
+					// 		await EmailToStudent(
+					// 			formattedData.email,
+					// 			password,
+					// 			formattedData.first_name,
+					// 			formattedData.last_name
+					// 		)
+					// 		const salt = await bcrypt.genSalt(10)
+					// 		formattedData.password = await bcrypt.hash(password, salt)
+					// 		formattedData.active = true
+					// 	} else {
+					// 		formattedData.password = existingStudent.password
+					// 	}
+					// }
 					if (!existingStudent) {
-						// If the student does not exist, set a default password
 						const password = generatePassword.generate({
 							length: 12,
 							numbers: true,
 							symbols: false,
 							uppercase: true,
 							excludeSimilarCharacters: true,
-						})
-						const salt = await bcrypt.genSalt(10)
-						formattedData.password = await bcrypt.hash(password, salt)
+						});
+						const salt = await bcrypt.genSalt(10);
+						formattedData.password = await bcrypt.hash(password, salt);
+						formattedData.active = true;
+						await EmailToStudent(
+							formattedData.email,
+							password,
+							formattedData.first_name,
+							formattedData.last_name,
+							(error) => {
+								if (error) {
+									console.error(`Error sending email to ${formattedData.email}:`, error);
+								} else {
+									console.log(`Email sent to ${formattedData.email}`);
+								}
+							}
+						);
 					} else {
-						const password = generatePassword.generate({
-							length: 12,
-							numbers: true,
-							symbols: false,
-							uppercase: true,
-							excludeSimilarCharacters: true,
-						})
 						if (formattedData.semester > 0 && !existingStudent.active) {
+							const password = generatePassword.generate({
+								length: 12,
+								numbers: true,
+								symbols: false,
+								uppercase: true,
+								excludeSimilarCharacters: true,
+							});
+							const salt = await bcrypt.genSalt(10);
+							formattedData.password = await bcrypt.hash(password, salt);
+							formattedData.active = true;
 							await EmailToStudent(
 								formattedData.email,
 								password,
 								formattedData.first_name,
-								formattedData.last_name
-							)
-							const salt = await bcrypt.genSalt(10)
-							formattedData.password = await bcrypt.hash(password, salt)
-							formattedData.active = true
+								formattedData.last_name,
+								(error) => {
+									if (error) {
+										console.error(`Error sending email to ${formattedData.email}:`, error);
+									} else {
+										console.log(`Email sent to ${formattedData.email}`);
+									}
+								}
+							);
 						} else {
-							formattedData.password = existingStudent.password
+							formattedData.password = existingStudent.password;
 						}
 					}
 
@@ -574,16 +643,16 @@ class StudentService {
 	}
 
 	//this is sample to send email
-	static async EmailToStudent(email, password, firstName, lastName) {
-		// Send a welcome email to the new admin
-		const to = email
-		const subject = 'Welcome to JDU'
-		const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nBest regards,\nJDU Team`
-		const html = `<p>Hi ${firstName},</p><p>Welcome to JDU. Your account has been created.</p><p>Best regards,<br>JDU Team</p>`
-		await addToQueue(to, subject, text, html)
+	// static async EmailToStudent(email, password, firstName, lastName) {
+	// 	// Send a welcome email to the new admin
+	// 	const to = email
+	// 	const subject = 'Welcome to JDU'
+	// 	const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nBest regards,\nJDU Team`
+	// 	const html = `<p>Hi ${firstName},</p><p>Welcome to JDU. Your account has been created.</p><p>Best regards,<br>JDU Team</p>`
+	// 	await addToQueue(to, subject, text, html)
 
-		return 'email send successfully'
-	}
+	// 	return 'email send successfully'
+	// }
 
 	static async getStudentsWithPendingDrafts() {
 		try {

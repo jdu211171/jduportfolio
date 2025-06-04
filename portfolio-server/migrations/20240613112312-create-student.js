@@ -137,6 +137,18 @@ module.exports = {
         allowNull: true,
         defaultValue: false,
       },
+      graduation_year: { 
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      graduation_season: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      language_skills: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       kintone_id: {
         type: Sequelize.INTEGER,
         allowNull: false,

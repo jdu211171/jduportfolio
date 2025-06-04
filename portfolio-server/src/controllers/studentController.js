@@ -34,6 +34,10 @@ class StudentController {
 					enrollment_date: record.jduEnrollmentDate.value,
 					semester: record.semester.value,
 					student_status: record.studentStatus.value,
+					// New fields
+					graduation_year: record.graduation_year?.value || null,
+                    graduation_season: record.graduation_season?.value || null,
+                    language_skills: record.language_skills?.value || null,
 				}
 
 				const newStudent = await StudentService.createStudent(studentData)
@@ -60,6 +64,10 @@ class StudentController {
 					enrollment_date: record.jduEnrollmentDate.value,
 					semester: record.semester.value,
 					student_status: record.studentStatus.value,
+					// 
+					graduation_year: record.graduationYearFieldCode?.value || null,
+                    graduation_season: record.graduationSeasonFieldCode?.value || null,
+                    language_skills: record.languageSkillsFieldCode?.value || null,
 				}
 
 				const updatedStudent = await StudentService.updateStudentWithKintoneID(

@@ -131,6 +131,18 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.TEXT,
 				allowNull: true,
 			},
+			graduation_year: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			graduation_season: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			language_skills: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
 			active: {
 				type: DataTypes.BOOLEAN,
 				allowNull: true,

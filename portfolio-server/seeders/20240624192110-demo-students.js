@@ -79,6 +79,11 @@ module.exports = {
       // Generate an array of image links for the gallery
       const gallery = Array.from({ length: 5 }, () => `https://picsum.photos/300/200?random=${Math.floor(Math.random() * 101)}`);
 
+      const gradYear = `202${faker.datatype.number({ min: 5, max: 8 })}年`;
+      const gradSeason = faker.random.arrayElement(['春', '秋', null]);
+      const langSkills = faker.random.arrayElement(['English (TOEIC 800), Korean (TOPIK 4)', 'German (B1)', null]);
+
+
       studentsData.push({
         email: faker.internet.email(),
         password: hashedPassword,
@@ -104,6 +109,9 @@ module.exports = {
         it_contest: faker.random.word(),
         active: true,
         kintone_id: faker.datatype.number(),
+        graduation_year: gradYear,
+        graduation_season: gradSeason,
+        language_skills: langSkills,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
