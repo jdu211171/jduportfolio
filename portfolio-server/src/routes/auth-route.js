@@ -213,10 +213,10 @@ const router = express.Router()
  *         description: Server error
  */
 
-router.get(
-  '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
-)
+// router.get(
+//   '/google',
+//   passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+// )
 
 router.get('/google/callback', (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user, info) => {
