@@ -154,20 +154,20 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			sequelize,
 			modelName: 'Student',
-			hooks: {
-				beforeCreate: async student => {
-					if (student.password) {
-						const salt = await bcrypt.genSalt(10)
-						student.password = await bcrypt.hash(student.password, salt)
-					}
-				},
-				beforeUpdate: async student => {
-					if (student.changed('password')) {
-						const salt = await bcrypt.genSalt(10)
-						student.password = await bcrypt.hash(student.password, salt)
-					}
-				},
-			},
+			// hooks: {
+			// 	beforeCreate: async student => {
+			// 		if (student.password) {
+			// 			const salt = await bcrypt.genSalt(10)
+			// 			student.password = await bcrypt.hash(student.password, salt)
+			// 		}
+			// 	},
+			// 	beforeUpdate: async student => {
+			// 		if (student.changed('password')) {
+			// 			const salt = await bcrypt.genSalt(10)
+			// 			student.password = await bcrypt.hash(student.password, salt)
+			// 		}
+			// 	},
+			// },
 		}
 	)
 
