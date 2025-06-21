@@ -4,7 +4,9 @@ const bcrypt = require('bcrypt')
 const generatePassword = require('generate-password')
 const { Student, Draft, Bookmark, sequelize } = require('../models')
 const DraftService = require('./draftServie')
-const { EmailToStudent } = require('../utils/emailToStudent')
+
+const { formatStudentWelcomeEmail } = require('../utils/emailToStudent');
+const { sendBulkEmails } = require('../utils/emailService');
 
 class StudentService {
 	// Service method to create a new student
@@ -507,140 +509,192 @@ class StudentService {
 	}
 
 	// Service method to upsert student data
-	static async syncStudentData(studentData) {
-		try {
-			const results = await Promise.all(
-				studentData.map(async data => {
-					// Check if the student already exists
-					const existingStudent = await Student.findOne({
-						where: { student_id: data.studentId },
-					})
+	// static async syncStudentData(studentData) {
+	// 	try {
+	// 		const results = await Promise.all(
+	// 			studentData.map(async data => {
+	// 				// Check if the student already exists
+	// 				const existingStudent = await Student.findOne({
+	// 					where: { student_id: data.studentId },
+	// 				})
 
-					// Prepare data for upsert
-					const formattedData = {
-						email: data.mail.trim(),
-						student_id: data.studentId,
-						// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
-						// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
-						first_name: data.studentFirstName, // "studenFirstName" emas
-				        last_name: data.studentLastName,
+	// 				// Prepare data for upsert
+	// 				const formattedData = {
+	// 					email: data.mail.trim(),
+	// 					student_id: data.studentId,
+	// 					// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
+	// 					// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
+	// 					first_name: data.studentFirstName, // "studenFirstName" emas
+	// 			        last_name: data.studentLastName,
 
-						date_of_birth: data.birthday,
-						// Include other fields as needed
-						semester: data.semester,
-						partner_university: data.univer,
-						// kintone_id: data.レコード番号.value,
-						kintone_id: data.kintone_id_value,
-						jlpt: data.jlpt,
-						jdu_japanese_certification: data.jdu_japanese_certification,
-						ielts: data.ielts,
-						japanese_speech_contest: data.japanese_speech_contest,
-						it_contest: data.it_contest,
-						graduation_year: data.graduation_year,
-                        graduation_season: data.graduation_season,
-                        language_skills: data.language_skills,
+	// 					date_of_birth: data.birthday,
+	// 					// Include other fields as needed
+	// 					semester: data.semester,
+	// 					partner_university: data.univer,
+	// 					// kintone_id: data.レコード番号.value,
+	// 					kintone_id: data.kintone_id_value,
+	// 					jlpt: data.jlpt,
+	// 					jdu_japanese_certification: data.jdu_japanese_certification,
+	// 					ielts: data.ielts,
+	// 					japanese_speech_contest: data.japanese_speech_contest,
+	// 					it_contest: data.it_contest,
+	// 					graduation_year: data.graduation_year,
+    //                     graduation_season: data.graduation_season,
+    //                     language_skills: data.language_skills,
 
-					}
-					// Xato logika ekan
-					// if (!existingStudent) {
-					// 	// If the student does not exist, set a default password
-					// 	const password = generatePassword.generate({
-					// 		length: 12,
-					// 		numbers: true,
-					// 		symbols: false,
-					// 		uppercase: true,
-					// 		excludeSimilarCharacters: true,
-					// 	})
-					// 	const salt = await bcrypt.genSalt(10)
-					// 	formattedData.password = await bcrypt.hash(password, salt)
-					// } else {
-					// 	const password = generatePassword.generate({
-					// 		length: 12,
-					// 		numbers: true,
-					// 		symbols: false,
-					// 		uppercase: true,
-					// 		excludeSimilarCharacters: true,
-					// 	})
-					// 	if (formattedData.semester > 0 && !existingStudent.active) {
-					// 		await EmailToStudent(
-					// 			formattedData.email,
-					// 			password,
-					// 			formattedData.first_name,
-					// 			formattedData.last_name
-					// 		)
-					// 		const salt = await bcrypt.genSalt(10)
-					// 		formattedData.password = await bcrypt.hash(password, salt)
-					// 		formattedData.active = true
-					// 	} else {
-					// 		formattedData.password = existingStudent.password
-					// 	}
-					// }
-					if (!existingStudent) {
-						const password = generatePassword.generate({
-							length: 12,
-							numbers: true,
-							symbols: false,
-							uppercase: true,
-							excludeSimilarCharacters: true,
-						});
-						const salt = await bcrypt.genSalt(10);
-						formattedData.password = await bcrypt.hash(password, salt);
-						formattedData.active = true;
-						await EmailToStudent(
-							formattedData.email,
-							password,
-							formattedData.first_name,
-							formattedData.last_name,
-							(error) => {
-								if (error) {
-									console.error(`Error sending email to ${formattedData.email}:`, error);
-								} else {
-									console.log(`Email sent to ${formattedData.email}`);
-								}
-							}
-						);
-					} else {
-						if (formattedData.semester > 0 && !existingStudent.active) {
-							const password = generatePassword.generate({
-								length: 12,
-								numbers: true,
-								symbols: false,
-								uppercase: true,
-								excludeSimilarCharacters: true,
-							});
-							const salt = await bcrypt.genSalt(10);
-							formattedData.password = await bcrypt.hash(password, salt);
-							formattedData.active = true;
-							await EmailToStudent(
-								formattedData.email,
-								password,
-								formattedData.first_name,
-								formattedData.last_name,
-								(error) => {
-									if (error) {
-										console.error(`Error sending email to ${formattedData.email}:`, error);
-									} else {
-										console.log(`Email sent to ${formattedData.email}`);
-									}
-								}
-							);
-						} else {
-							formattedData.password = existingStudent.password;
-						}
-					}
+	// 				}
+	// 				if (!existingStudent) {
+	// 					const password = generatePassword.generate({
+	// 						length: 12,
+	// 						numbers: true,
+	// 						symbols: false,
+	// 						uppercase: true,
+	// 						excludeSimilarCharacters: true,
+	// 					});
+	// 					const salt = await bcrypt.genSalt(10);
+	// 					formattedData.password = await bcrypt.hash(password, salt);
+	// 					formattedData.active = true;
+	// 					await EmailToStudent(
+	// 						formattedData.email,
+	// 						password,
+	// 						formattedData.first_name,
+	// 						formattedData.last_name,
+	// 						(error) => {
+	// 							if (error) {
+	// 								console.error(`Error sending email to ${formattedData.email}:`, error);
+	// 							} else {
+	// 								console.log(`Email sent to ${formattedData.email}`);
+	// 							}
+	// 						}
+	// 					);
+	// 				} else {
+	// 					if (formattedData.semester > 0 && !existingStudent.active) {
+	// 						const password = generatePassword.generate({
+	// 							length: 12,
+	// 							numbers: true,
+	// 							symbols: false,
+	// 							uppercase: true,
+	// 							excludeSimilarCharacters: true,
+	// 						});
+	// 						const salt = await bcrypt.genSalt(10);
+	// 						formattedData.password = await bcrypt.hash(password, salt);
+	// 						formattedData.active = true;
+	// 						await EmailToStudent(
+	// 							formattedData.email,
+	// 							password,
+	// 							formattedData.first_name,
+	// 							formattedData.last_name,
+	// 							(error) => {
+	// 								if (error) {
+	// 									console.error(`Error sending email to ${formattedData.email}:`, error);
+	// 								} else {
+	// 									console.log(`Email sent to ${formattedData.email}`);
+	// 								}
+	// 							}
+	// 						);
+	// 					} else {
+	// 						formattedData.password = existingStudent.password;
+	// 					}
+	// 				}
 
-					// Perform upsert
-					return await Student.upsert(formattedData, {
-						returning: true, // Optionally return the created or updated instance
-					})
-				})
-			)
+	// 				// Perform upsert
+	// 				return await Student.upsert(formattedData, {
+	// 					returning: true, // Optionally return the created or updated instance
+	// 				})
+	// 			})
+	// 		)
 
-			return results
-		} catch (error) {
-			throw error
-		}
-	}
+	// 		return results
+	// 	} catch (error) {
+	// 		throw error
+	// 	}
+	// }
+	    static async syncStudentData(studentData) {
+        try {
+            const emailTasks = []; // Jo'natiladigan email vazifalari uchun massiv
+            const upsertPromises = []; // DBga yozish uchun promise'lar massivi
+
+            for (const data of studentData) {
+                const existingStudent = await Student.findOne({
+                    where: { student_id: data.studentId },
+                });
+
+				const formattedData = {
+					email: data.mail.trim(),
+					student_id: data.studentId,
+					// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
+					// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
+					first_name: data.studentFirstName, // "studenFirstName" emas
+					last_name: data.studentLastName,
+
+					date_of_birth: data.birthday,
+					// Include other fields as needed
+					semester: data.semester,
+					partner_university: data.univer,
+					// kintone_id: data.レコード番号.value,
+					kintone_id: data.kintone_id_value,
+					jlpt: data.jlpt,
+					jdu_japanese_certification: data.jdu_japanese_certification,
+					ielts: data.ielts,
+					japanese_speech_contest: data.japanese_speech_contest,
+					it_contest: data.it_contest,
+					graduation_year: data.graduation_year,
+					graduation_season: data.graduation_season,
+					language_skills: data.language_skills,
+
+				}
+
+                // Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
+                if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
+                    const password = generatePassword.generate({
+                        length: 12,
+                        numbers: true,
+                        symbols: false,
+                        uppercase: true,
+                    });
+                    const salt = await bcrypt.genSalt(10);
+                    formattedData.password = await bcrypt.hash(password, salt);
+                    formattedData.active = true;
+
+                    // MUHIM: Emailni darhol jo'natmaymiz! Ro'yxatga qo'shamiz xolos.
+                    emailTasks.push(formatStudentWelcomeEmail(
+                        formattedData.email,
+                        password, // Ochiq parolni jo'natish uchun
+                        formattedData.first_name,
+                        formattedData.last_name
+                    ));
+                } else {
+                    formattedData.password = existingStudent.password;
+                }
+
+                upsertPromises.push(Student.upsert(formattedData));
+            }
+
+            // 1. Avval barcha talaba ma'lumotlarini DB'ga yozib olamiz
+            await Promise.all(upsertPromises);
+            console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
+
+            // 2. Keyin, yig'ilgan barcha emaillarni bitta komanda bilan ommaviy jo'natamiz
+            if (emailTasks.length > 0) {
+                console.log(`Boshlanmoqda: ${emailTasks.length} ta yangi talabaga email jo'natish...`);
+                const emailReport = await sendBulkEmails(emailTasks);
+                console.log('--- Ommaviy Email Jo\'natish Hisoboti ---');
+                console.log(`Muvaffaqiyatli: ${emailReport.successful} / ${emailReport.total}`);
+                console.log(`Xato: ${emailReport.failed}`);
+                if (emailReport.failed > 0) {
+                    console.error('Xato bo\'lgan emaillar:', emailReport.failedEmails);
+                }
+                console.log('--- Hisobot tugadi ---');
+            } else {
+                console.log('Jo\'natish uchun yangi aktiv talabalar topilmadi.');
+            }
+
+            return { message: "Sinxronizatsiya muvaffaqiyatli yakunlandi." };
+        } catch (error) {
+            console.error("syncStudentData jarayonida jiddiy xatolik:", error);
+            throw error;
+        }
+    }
 
 	//this is sample to send email
 	// static async EmailToStudent(email, password, firstName, lastName) {

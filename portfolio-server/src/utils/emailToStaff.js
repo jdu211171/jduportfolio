@@ -85,9 +85,14 @@ class EmailService {
       </html>
     `
 
-		await addToQueue(to, subject, text, html)
-
-		return 'Email sent successfully'
+        try {
+            await sendEmail({ to, subject, text, html });
+            return 'Email sent successfully';
+        } catch (error) {
+            console.error(`Failed to send email to staff ${to}:`, error);
+            // Bu yerda xatolikni qanday qaytarishni o'zingiz hal qilishingiz mumkin
+            throw new Error(`Failed to send email to staff ${to}`);
+        }
 	}
 }
 

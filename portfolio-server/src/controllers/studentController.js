@@ -4,7 +4,7 @@ const DraftService = require('../services/draftServie')
 const QAService = require('../services/qaService')
 
 const generatePassword = require('generate-password')
-const { EmailToStudent } = require('../utils/emailToStudent')
+const { sendStudentWelcomeEmail } = require('../utils/emailToStudent');
 const { Student } = require('../models')
 
 class StudentController {
@@ -42,7 +42,7 @@ class StudentController {
 
 				const newStudent = await StudentService.createStudent(studentData)
 				if (newStudent?.active) {
-					await EmailToStudent(
+					await sendStudentWelcomeEmail(
 						newStudent.email,
 						password,
 						newStudent.first_name,
@@ -286,16 +286,6 @@ class StudentController {
 			next(error)
 		}
 	}
-
-	// // Draft controller
-	// static async getStudentsWithPendingDrafts(req, res, next) {
-	//   try {
-	//     const students = await StudentService.getStudentsWithPendingDrafts();
-	//     return res.status(200).json(students);
-	//   } catch (error) {
-	//     next(error);
-	//   }
-	// }
 }
 
 module.exports = StudentController
