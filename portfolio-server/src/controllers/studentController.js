@@ -2,92 +2,91 @@ const bcrypt = require('bcrypt')
 const StudentService = require('../services/studentService')
 const DraftService = require('../services/draftServie')
 const QAService = require('../services/qaService')
-
 const generatePassword = require('generate-password')
-const { sendStudentWelcomeEmail } = require('../utils/emailToStudent');
+const { sendStudentWelcomeEmail } = require('../utils/emailToStudent'); // To'g'ri email funksiyasini import qilamiz
 const { Student } = require('../models')
 
 class StudentController {
-	static async webhookHandler(req, res) {
-		try {
-			const { type, record, recordId } = req.body
-			if (type === 'ADD_RECORD') {
-				const password = generatePassword.generate({
-					length: 12,
-					numbers: true,
-					symbols: false,
-					uppercase: true,
-					excludeSimilarCharacters: true,
-				})
+	// static async webhookHandler(req, res) {
+	// 	try {
+	// 		const { type, record, recordId } = req.body
+	// 		if (type === 'ADD_RECORD') {
+	// 			const password = generatePassword.generate({
+	// 				length: 12,
+	// 				numbers: true,
+	// 				symbols: false,
+	// 				uppercase: true,
+	// 				excludeSimilarCharacters: true,
+	// 			})
 
-				const studentData = {
-					email: record.studentEmail.value,
-					password: password, // This will be hashed in the Student model
-					first_name: record.studentName.value.split(' ')[0],
-					last_name: record.studentName.value.split(' ')[1],
-					student_id: record.studentId.value,
-					phone: record.phoneNumber.value,
-					date_of_birth: record.birthDate.value,
-					active: record.semester.value > 0,
-					kintone_id: record['$id'].value,
-					partner_university: record.partnerUniversity.value,
-					enrollment_date: record.jduEnrollmentDate.value,
-					semester: record.semester.value,
-					student_status: record.studentStatus.value,
-					// New fields
-					graduation_year: record.graduation_year?.value || null,
-                    graduation_season: record.graduation_season?.value || null,
-                    language_skills: record.language_skills?.value || null,
-				}
+	// 			const studentData = {
+	// 				email: record.studentEmail.value,
+	// 				password: password, // This will be hashed in the Student model
+	// 				first_name: record.studentName.value.split(' ')[0],
+	// 				last_name: record.studentName.value.split(' ')[1],
+	// 				student_id: record.studentId.value,
+	// 				phone: record.phoneNumber.value,
+	// 				date_of_birth: record.birthDate.value,
+	// 				active: record.semester.value > 0,
+	// 				kintone_id: record['$id'].value,
+	// 				partner_university: record.partnerUniversity.value,
+	// 				enrollment_date: record.jduEnrollmentDate.value,
+	// 				semester: record.semester.value,
+	// 				student_status: record.studentStatus.value,
+	// 				// New fields
+	// 				graduation_year: record.graduation_year?.value || null,
+    //                 graduation_season: record.graduation_season?.value || null,
+    //                 language_skills: record.language_skills?.value || null,
+	// 			}
 
-				const newStudent = await StudentService.createStudent(studentData)
-				if (newStudent?.active) {
-					await sendStudentWelcomeEmail(
-						newStudent.email,
-						password,
-						newStudent.first_name,
-						newStudent.last_name
-					)
-				}
+	// 			const newStudent = await StudentService.createStudent(studentData)
+	// 			if (newStudent?.active) {
+	// 				await sendStudentWelcomeEmail(
+	// 					newStudent.email,
+	// 					password,
+	// 					newStudent.first_name,
+	// 					newStudent.last_name
+	// 				)
+	// 			}
 
-				res.status(201).json({ message: 'Student added successfully' })
-			} else if (type === 'UPDATE_RECORD') {
-				const studentData = {
-					email: record.studentEmail.value,
-					first_name: record.studentName.value.split(' ')[0],
-					last_name: record.studentName.value.split(' ')[1],
-					student_id: record.studentId.value,
-					phone: record.phoneNumber.value,
-					date_of_birth: record.birthDate.value,
-					kintone_id: record['$id'].value,
-					partner_university: record.partnerUniversity.value,
-					enrollment_date: record.jduEnrollmentDate.value,
-					semester: record.semester.value,
-					student_status: record.studentStatus.value,
-					// 
-					graduation_year: record.graduationYearFieldCode?.value || null,
-                    graduation_season: record.graduationSeasonFieldCode?.value || null,
-                    language_skills: record.languageSkillsFieldCode?.value || null,
-				}
+	// 			res.status(201).json({ message: 'Student added successfully' })
+	// 		} else if (type === 'UPDATE_RECORD') {
+	// 			const studentData = {
+	// 				email: record.studentEmail.value,
+	// 				first_name: record.studentName.value.split(' ')[0],
+	// 				last_name: record.studentName.value.split(' ')[1],
+	// 				student_id: record.studentId.value,
+	// 				phone: record.phoneNumber.value,
+	// 				date_of_birth: record.birthDate.value,
+	// 				kintone_id: record['$id'].value,
+	// 				partner_university: record.partnerUniversity.value,
+	// 				enrollment_date: record.jduEnrollmentDate.value,
+	// 				semester: record.semester.value,
+	// 				student_status: record.studentStatus.value,
+	// 				// 
+	// 				graduation_year: record.graduationYearFieldCode?.value || null,
+    //                 graduation_season: record.graduationSeasonFieldCode?.value || null,
+    //                 language_skills: record.languageSkillsFieldCode?.value || null,
+	// 			}
 
-				const updatedStudent = await StudentService.updateStudentWithKintoneID(
-					record['$id'].value,
-					studentData
-				)
-				res
-					.status(200)
-					.json({ message: 'Student updated successfully', updatedStudent })
-			} else if (type === 'DELETE_RECORD') {
-				await StudentService.deleteStudent(recordId)
-				res.status(204).json({ message: 'Student deleted successfully' })
-			} else {
-				res.status(400).json({ message: 'Invalid request type' })
-			}
-		} catch (error) {
-			console.error('Error in webhook handler:', error)
-			res.status(500).json({ error: error.message })
-		}
-	}
+	// 			const updatedStudent = await StudentService.updateStudentWithKintoneID(
+	// 				record['$id'].value,
+	// 				studentData
+	// 			)
+	// 			res
+	// 				.status(200)
+	// 				.json({ message: 'Student updated successfully', updatedStudent })
+	// 		} else if (type === 'DELETE_RECORD') {
+	// 			await StudentService.deleteStudent(recordId)
+	// 			res.status(204).json({ message: 'Student deleted successfully' })
+	// 		} else {
+	// 			res.status(400).json({ message: 'Invalid request type' })
+	// 		}
+	// 	} catch (error) {
+	// 		console.error('Error in webhook handler:', error)
+	// 		res.status(500).json({ error: error.message })
+	// 	}
+	// }
 
 	//due to kintone misconfiguration below function is commented out
 	// static async creditUpdater(req, res) {
@@ -119,6 +118,113 @@ class StudentController {
 	// }
 
 	// Controller method to create a new student
+	
+	static async webhookHandler(req, res) {
+        try {
+            const { type, record, recordId } = req.body;
+
+            // Hodisa turiga qarab ish bajaramiz
+            switch (type) {
+                // YANGI YOZUV QO'SHILGANDA
+                case 'ADD_RECORD': {
+                    const password = generatePassword.generate({
+                        length: 12,
+                        numbers: true,
+                        symbols: false,
+                        uppercase: true,
+                        excludeSimilarCharacters: true,
+                    });
+
+                    // Kintone'dan kelgan ma'lumotlarni DB modeliga moslashtiramiz
+                    const studentData = {
+                        email: record.mail?.value,
+                        password: password, // Parol model ichida avtomatik xeshlanadi
+                        first_name: record.studentFirstName?.value,
+                        last_name: record.studentLastName?.value,
+                        student_id: record.studentId?.value,
+                        phone: record.phoneNumber?.value,
+                        date_of_birth: record.birthday?.value,
+                        gender: record.gender?.value,
+                        address: record.address?.value,
+                        parents_phone_number: record.parentsPhoneNumber?.value,
+                        enrollment_date: record.jduDate?.value,
+                        partner_university: record.partnerUniversity?.value,
+                        partner_university_enrollment_date: record.partnerUniversityEnrollmentDate?.value,
+                        semester: record.semester?.value,
+                        student_status: record.studentStatus?.value,
+                        kintone_id: record['$id']?.value,
+                        active: record.semester?.value > 0, // Semestri bo'lsa, aktiv deb hisoblaymiz
+                    };
+                    
+                    // Servis orqali yangi talaba yaratamiz
+                    const newStudent = await StudentService.createStudent(studentData);
+
+                    // Agar talaba aktiv bo'lsa, unga xush kelibsiz xabarini jo'natamiz
+                    if (newStudent?.active) {
+                        await sendStudentWelcomeEmail(
+                            newStudent.email,
+                            password, // Xeshlanmagan parolni yuboramiz
+                            newStudent.first_name,
+                            newStudent.last_name
+                        );
+                    }
+                    
+                    // Muvaffaqiyatli javob qaytaramiz
+                    return res.status(201).json({ message: 'Student created via webhook', student: newStudent });
+                }
+
+                // YOZUV YANGILANGANDA
+                case 'UPDATE_RECORD': {
+                    const kintoneId = record['$id']?.value;
+                    // Kintone'dan kelgan ma'lumotlarni DB modeliga moslashtiramiz
+                    const studentData = {
+                        email: record.mail?.value,
+                        first_name: record.studentFirstName?.value,
+                        last_name: record.studentLastName?.value,
+                        student_id: record.studentId?.value,
+                        phone: record.phoneNumber?.value,
+                        date_of_birth: record.birthday?.value,
+                        gender: record.gender?.value,
+                        address: record.address?.value,
+                        parents_phone_number: record.parentsPhoneNumber?.value,
+                        enrollment_date: record.jduDate?.value,
+                        partner_university: record.partnerUniversity?.value,
+                        partner_university_enrollment_date: record.partnerUniversityEnrollmentDate?.value,
+                        semester: record.semester?.value,
+                        student_status: record.studentStatus?.value,
+                        active: record.semester?.value > 0,
+                    };
+                    
+                    // Servis orqali kintone_id bo'yicha yangilaymiz
+                    const updatedStudent = await StudentService.updateStudentByKintoneID(kintoneId, studentData);
+
+                    if (!updatedStudent) {
+                        return res.status(404).json({ message: 'Student not found with this Kintone ID' });
+                    }
+
+                    return res.status(200).json({ message: 'Student updated successfully', student: updatedStudent });
+                }
+
+                // YOZUV O'CHIRILGANDA
+                case 'DELETE_RECORD': {
+                    const deletedCount = await StudentService.deleteStudentByKintoneId(recordId);
+                    
+                    if (deletedCount === 0) {
+                        return res.status(404).json({ message: 'Student not found with this Kintone ID' });
+                    }
+
+                    return res.status(204).send(); // Muvaffaqiyatli o'chirish uchun javob
+                }
+
+                default:
+                    return res.status(400).json({ message: 'Invalid webhook event type' });
+            }
+        } catch (error) {
+            console.error('Error in Student webhook handler:', error);
+            return res.status(500).json({ error: 'Internal Server Error', message: error.message });
+        }
+    }
+
 	static async createStudent(req, res, next) {
 		try {
 			const studentData = req.body

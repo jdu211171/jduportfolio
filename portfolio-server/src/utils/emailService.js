@@ -1,29 +1,28 @@
 // src/utils/emailService.js
 
-const { SESClient } = require("@aws-sdk/client-ses");
+// O'ZGARISH: SESClient bilan birga `SendRawEmailCommand` ham import qilinadi
+const { SESClient, SendRawEmailCommand } = require("@aws-sdk/client-ses"); 
 const nodemailer = require("nodemailer");
 
-// 1. AWS SES Klientini .env fayldagi ma'lumotlar asosida sozlash
-//    Bu klient bir marta yaratilib, butun ilova davomida qayta ishlatiladi.
+// 1. AWS SES Klientini sozlash (bu qism o'zgarishsiz qoladi)
 const sesClient = new SESClient({
-    region: process.env.AWS_SES_REGION, // .env faylidan olinadi
+    region: process.env.AWS_SES_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_SES_ACCESS_KEY, // .env faylidan olinadi
-        secretAccessKey: process.env.AWS_SES_SECRET_KEY, // .env faylidan olinadi
+        accessKeyId: process.env.AWS_SES_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SES_SECRET_KEY,
     }
 });
 
 // 2. Nodemailer transportini AWS SES bilan bog'lash
-//    Bu bizga Nodemailer'ning qulay sintaksisini AWS'ning kuchi bilan birlashtirish imkonini beradi.
 const transporter = nodemailer.createTransport({
-    SES: { ses: sesClient, aws: {} },
+    // O'ZGARISH: `aws` obyekti ichiga `SendRawEmailCommand` ni qo'shamiz
+    SES: { ses: sesClient, aws: { SendRawEmailCommand } },
     sendingRate: 14 // AWS limitiga mos ravishda sekundiga 14 ta email
 });
 
 /**
  * Bitta email jo'natish uchun asosiy funksiya.
- * @param {object} mailData - {to, subject, text, html}
- * @returns {Promise<{success: boolean, to: string, info?: object, error?: Error}>}
+ * (Bu funksiya o'zgarishsiz qoladi)
  */
 const sendEmail = async (mailData) => {
     const mailOptions = {
@@ -40,21 +39,22 @@ const sendEmail = async (mailData) => {
         return { success: true, to: mailData.to, messageId: info.messageId };
     } catch (error) {
         console.error(`Email jo'natishda xatolik (${mailData.to}):`, error);
+        // Xatolikni to'liqroq log qilish
+        console.error(error.stack);
         return { success: false, to: mailData.to, error: error.message };
     }
 };
 
 /**
  * Ko'p sonli emaillarni parallel ravishda, samarali jo'natadi.
- * Promise.allSettled yordamida bitta emaildagi xatolik boshqalariga ta'sir qilmaydi.
- * @param {Array<object>} emailTasks - Har birida {to, subject, text, html} bo'lgan massiv
- * @returns {Promise<object>} - Muvaffaqiyatli va xato bo'lgan jo'natmalar haqida to'liq hisobot.
+ * (Bu funksiya o'zgarishsiz qoladi)
  */
 const sendBulkEmails = async (emailTasks) => {
-    // Har bir email uchun jo'natish so'rovini (promise) yaratamiz
-    const promises = emailTasks.map(task => sendEmail(task));
+    if (!Array.isArray(emailTasks) || emailTasks.length === 0) {
+        return { total: 0, successful: 0, failed: 0, successfulEmails: [], failedEmails: [] };
+    }
 
-    // Barcha so'rovlarni parallel ravishda ishga tushiramiz va natijasini kutamiz
+    const promises = emailTasks.map(task => sendEmail(task));
     const results = await Promise.allSettled(promises);
 
     const report = {
@@ -65,22 +65,32 @@ const sendBulkEmails = async (emailTasks) => {
         failedEmails: [],
     };
 
-    results.forEach(result => {
-        if (result.status === 'fulfilled' && result.value.success) {
+    // forEach o'rniga for...of tsiklini ishlatamiz. Bu yanada xavfsizroq.
+    for (const result of results) {
+        // Muvaffaqiyatli holatni tekshirish
+        if (result.status === 'fulfilled' && result.value && result.value.success === true) {
             report.successful++;
             report.successfulEmails.push(result.value);
-        } else {
+        } 
+        // Xatolik holatini tekshirish
+        else {
             report.failed++;
-            // Agar promise o'zi xato qaytarsa (fulfilled bo'lib ichida error bo'lsa) yoki butunlay reject bo'lsa
-            const failedInfo = result.status === 'rejected' ? result.reason : result.value;
-            report.failedEmails.push(failedInfo);
+            let errorInfo;
+            if (result.status === 'rejected') {
+                // Agar promise'ning o'zi xato qaytarsa
+                errorInfo = { success: false, reason: result.reason?.message || result.reason };
+            } else {
+                // Agar sendEmail funksiyasi { success: false } qaytarsa
+                errorInfo = result.value || { success: false, reason: 'Noma\'lum xatolik' };
+            }
+            report.failedEmails.push(errorInfo);
         }
-    });
+    }
 
     return report;
 };
 
 module.exports = {
-    sendEmail,       // Bitta email jo'natish uchun (masalan, Staff uchun)
-    sendBulkEmails,  // Ommaviy jo'natish uchun (masalan, Students uchun)
+    sendEmail,
+    sendBulkEmails,
 };

@@ -1,36 +1,49 @@
+// config/kintoneConfig.js
 const apps = {
-  students: {
-    appId: '230',
-    token: 'h7TGZkpG2pqhu8bLOoef5UsKPs0YdUMSxcgC9pWg',
-  },
-  student_credits: {
-    appId: '233',
-    token: 'NY1haG1Bqkpru7fBNWdbZHZKwyg98nNwqum9fgfd',
-  },
-  certificate_it_contest: {
-    appId: '240',
-    token: '11V3wlYJ76SMjWFoKWekWpjpRKyCEbWe0FUeeYTB',
-  },
-  certificate_jdu_jlpt: {
-    appId: '236',
-    token: 'XWRNOhTrzqoeY1IvJKThkxEBHZIEW1UcOZ45dRlr',
-  },
-  certificate_benron: {
-    appId: '242',
-    token: 'hrICQk2kVlWemIJQjxwJAKFxcowisXj0kQCdEVyJ',
-  },
-  certificate_jlpt: {
-    appId: '243',
-    token: '2KkNdpgetR0FFMrcEr45K0CWPyp8VhxpontXt0GI',
-  },
-  certificate_ielts: {
-    appId: '248',
-    token: '0kcb5eQ1m2m71lepCc8KTqzo5toj53bgPSXFFg6j',
-  },  
-  credit_details: {
-    appId: '232',
-    token: 'ZnRIKEZFrj8afRqu0uEFMZZrkkhQSu9WCHxMtBFX',
-  },
-}
+    // ASOSIY ILOVALAR
+    students: {
+        appId: '230', // O'zgarmagan
+        token: process.env.KINTONE_API_TOKEN,
+    },
+    staff: { // "jduStaff" o'rniga
+        appId: '246',
+        token: process.env.KINTONE_STAFF_TOKEN,
+    },
+    recruiters: { // "recruiter" o'rniga
+        appId: '245',
+        token: process.env.KINTONE_RECRUITER_TOKEN,
+    },
+    
+    // STUDENTGA BOG'LIQ ILOVALAR
+    student_credits: {
+        appId: '233',
+        token: process.env.KINTONE_STUDENT_CREDITS_TOKEN,
+    },
+    student_ielts: { // Nom o'zgardi
+        appId: '248',
+        token: process.env.KINTONE_IELTS_TOKEN,
+    },
+    student_it_contest: { // Nom o'zgardi
+        appId: '240',
+        token: process.env.KINTONE_IT_CONTEST_TOKEN,
+    },
+    student_jlpt: { // Nom o'zgardi
+        appId: '243',
+        token: process.env.KINTONE_JLPT_TOKEN,
+    },
+    student_benron_taikai: { // Nom o'zgardi
+        appId: '242',
+        token: process.env.KINTONE_BENRON_TOKEN,
+    },
+    student_jdu_ninteishiken: { // Nom o'zgardi
+        appId: '236',
+        token: process.env.KINTONE_JDU_NINTEI_TOKEN,
+    },
+    // Eski ilovalar
+    credit_details: {
+        appId: '232',
+        token: process.env.KINTONE_CREDIT_DETAILS_TOKEN,
+    },
+};
 
-module.exports = apps
+module.exports = apps;

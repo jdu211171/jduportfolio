@@ -508,193 +508,99 @@ class StudentService {
 		}
 	}
 
-	// Service method to upsert student data
 	// static async syncStudentData(studentData) {
-	// 	try {
-	// 		const results = await Promise.all(
-	// 			studentData.map(async data => {
-	// 				// Check if the student already exists
-	// 				const existingStudent = await Student.findOne({
-	// 					where: { student_id: data.studentId },
-	// 				})
+    //     try {
+    //         const emailTasks = []; // Jo'natiladigan email vazifalari uchun massiv
+    //         const upsertPromises = []; // DBga yozish uchun promise'lar massivi
 
-	// 				// Prepare data for upsert
-	// 				const formattedData = {
-	// 					email: data.mail.trim(),
-	// 					student_id: data.studentId,
-	// 					// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
-	// 					// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
-	// 					first_name: data.studentFirstName, // "studenFirstName" emas
-	// 			        last_name: data.studentLastName,
+    //         for (const data of studentData) {
+    //             const existingStudent = await Student.findOne({
+    //                 where: { student_id: data.studentId },
+    //             });
 
-	// 					date_of_birth: data.birthday,
-	// 					// Include other fields as needed
-	// 					semester: data.semester,
-	// 					partner_university: data.univer,
-	// 					// kintone_id: data.レコード番号.value,
-	// 					kintone_id: data.kintone_id_value,
-	// 					jlpt: data.jlpt,
-	// 					jdu_japanese_certification: data.jdu_japanese_certification,
-	// 					ielts: data.ielts,
-	// 					japanese_speech_contest: data.japanese_speech_contest,
-	// 					it_contest: data.it_contest,
-	// 					graduation_year: data.graduation_year,
-    //                     graduation_season: data.graduation_season,
-    //                     language_skills: data.language_skills,
+	// 			const formattedData = {
+    //                 email: data.mail?.trim(),
+    //                 student_id: data.studentId,
+    //                 first_name: data.studentFirstName,
+    //                 last_name: data.studentLastName,
+    //                 date_of_birth: data.birthday,
+    //                 gender: data.gender,
+    //                 address: data.address,
+    //                 parents_phone_number: data.parentsPhoneNumber,
+    //                 phone: data.phoneNumber,
+    //                 partner_university_enrollment_date: data.partnerUniversityEnrollmentDate,
+    //                 semester: data.semester,
+    //                 student_status: data.studentStatus,
+    //                 partner_university: data.partnerUniversity,
+    //                 kintone_id: data.kintone_id_value,
+                    
+    //                 world_language_university_credits: Number(data.worldLanguageUniversityCredits) || 0,
+    //                 business_skills_credits: Number(data.businessSkillsCredits) || 0,
+    //                 japanese_employment_credits: Number(data.japaneseEmploymentCredits) || 0,
+    //                 liberal_arts_education_credits: Number(data.liberalArtsEducationCredits) || 0,
+    //                 total_credits: Number(data.totalCredits) || 0,
+    //                 specialized_education_credits: Number(data.specializedEducationCredits) || 0,
+    //                 partner_university_credits: Number(data.partnerUniversityCredits) || 0,
 
-	// 				}
-	// 				if (!existingStudent) {
-	// 					const password = generatePassword.generate({
-	// 						length: 12,
-	// 						numbers: true,
-	// 						symbols: false,
-	// 						uppercase: true,
-	// 						excludeSimilarCharacters: true,
-	// 					});
-	// 					const salt = await bcrypt.genSalt(10);
-	// 					formattedData.password = await bcrypt.hash(password, salt);
-	// 					formattedData.active = true;
-	// 					await EmailToStudent(
-	// 						formattedData.email,
-	// 						password,
-	// 						formattedData.first_name,
-	// 						formattedData.last_name,
-	// 						(error) => {
-	// 							if (error) {
-	// 								console.error(`Error sending email to ${formattedData.email}:`, error);
-	// 							} else {
-	// 								console.log(`Email sent to ${formattedData.email}`);
-	// 							}
-	// 						}
-	// 					);
-	// 				} else {
-	// 					if (formattedData.semester > 0 && !existingStudent.active) {
-	// 						const password = generatePassword.generate({
-	// 							length: 12,
-	// 							numbers: true,
-	// 							symbols: false,
-	// 							uppercase: true,
-	// 							excludeSimilarCharacters: true,
-	// 						});
-	// 						const salt = await bcrypt.genSalt(10);
-	// 						formattedData.password = await bcrypt.hash(password, salt);
-	// 						formattedData.active = true;
-	// 						await EmailToStudent(
-	// 							formattedData.email,
-	// 							password,
-	// 							formattedData.first_name,
-	// 							formattedData.last_name,
-	// 							(error) => {
-	// 								if (error) {
-	// 									console.error(`Error sending email to ${formattedData.email}:`, error);
-	// 								} else {
-	// 									console.log(`Email sent to ${formattedData.email}`);
-	// 								}
-	// 							}
-	// 						);
-	// 					} else {
-	// 						formattedData.password = existingStudent.password;
-	// 					}
-	// 				}
+    //                 jlpt: data.jlpt,
+    //                 jdu_japanese_certification: data.jdu_japanese_certification,
+    //                 ielts: data.ielts,
+    //                 japanese_speech_contest: data.japanese_speech_contest,
+    //                 it_contest: data.it_contest,
+    //             };
+    //             // Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
+    //             if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
+    //                 const password = generatePassword.generate({
+    //                     length: 12,
+    //                     numbers: true,
+    //                     symbols: false,
+    //                     uppercase: true,
+    //                 });
+    //                 const salt = await bcrypt.genSalt(10);
+    //                 formattedData.password = await bcrypt.hash(password, salt);
+    //                 formattedData.active = true;
 
-	// 				// Perform upsert
-	// 				return await Student.upsert(formattedData, {
-	// 					returning: true, // Optionally return the created or updated instance
-	// 				})
-	// 			})
-	// 		)
+    //                 // MUHIM: Emailni darhol jo'natmaymiz! Ro'yxatga qo'shamiz xolos.
+    //                 emailTasks.push(formatStudentWelcomeEmail(
+    //                     formattedData.email,
+    //                     password, // Ochiq parolni jo'natish uchun
+    //                     formattedData.first_name,
+    //                     formattedData.last_name
+    //                 ));
+    //             } else {
+    //                 formattedData.password = existingStudent.password;
+    //             }
 
-	// 		return results
-	// 	} catch (error) {
-	// 		throw error
-	// 	}
-	// }
-	    static async syncStudentData(studentData) {
-        try {
-            const emailTasks = []; // Jo'natiladigan email vazifalari uchun massiv
-            const upsertPromises = []; // DBga yozish uchun promise'lar massivi
+    //             upsertPromises.push(Student.upsert(formattedData));
+    //         }
 
-            for (const data of studentData) {
-                const existingStudent = await Student.findOne({
-                    where: { student_id: data.studentId },
-                });
+    //         // 1. Avval barcha talaba ma'lumotlarini DB'ga yozib olamiz
+    //         await Promise.all(upsertPromises);
+    //         console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
 
-				const formattedData = {
-					email: data.mail.trim(),
-					student_id: data.studentId,
-					// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
-					// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
-					first_name: data.studentFirstName, // "studenFirstName" emas
-					last_name: data.studentLastName,
+    //         // 2. Keyin, yig'ilgan barcha emaillarni bitta komanda bilan ommaviy jo'natamiz
+    //         if (emailTasks.length > 0) {
+    //             console.log(`Boshlanmoqda: ${emailTasks.length} ta yangi talabaga email jo'natish...`);
+    //             const emailReport = await sendBulkEmails(emailTasks);
+    //             console.log('--- Ommaviy Email Jo\'natish Hisoboti ---');
+    //             console.log(`Muvaffaqiyatli: ${emailReport.successful} / ${emailReport.total}`);
+    //             console.log(`Xato: ${emailReport.failed}`);
+    //             if (emailReport.failed > 0) {
+    //                 console.error('Xato bo\'lgan emaillar:', emailReport.failedEmails);
+    //             }
+    //             console.log('--- Hisobot tugadi ---');
+    //         } else {
+    //             console.log('Jo\'natish uchun yangi aktiv talabalar topilmadi.');
+    //         }
 
-					date_of_birth: data.birthday,
-					// Include other fields as needed
-					semester: data.semester,
-					partner_university: data.univer,
-					// kintone_id: data.レコード番号.value,
-					kintone_id: data.kintone_id_value,
-					jlpt: data.jlpt,
-					jdu_japanese_certification: data.jdu_japanese_certification,
-					ielts: data.ielts,
-					japanese_speech_contest: data.japanese_speech_contest,
-					it_contest: data.it_contest,
-					graduation_year: data.graduation_year,
-					graduation_season: data.graduation_season,
-					language_skills: data.language_skills,
+    //         return { message: "Sinxronizatsiya muvaffaqiyatli yakunlandi." };
+    //     } catch (error) {
+    //         console.error("syncStudentData jarayonida jiddiy xatolik:", error);
+    //         throw error;
+    //     }
+    // }
 
-				}
 
-                // Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
-                if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
-                    const password = generatePassword.generate({
-                        length: 12,
-                        numbers: true,
-                        symbols: false,
-                        uppercase: true,
-                    });
-                    const salt = await bcrypt.genSalt(10);
-                    formattedData.password = await bcrypt.hash(password, salt);
-                    formattedData.active = true;
-
-                    // MUHIM: Emailni darhol jo'natmaymiz! Ro'yxatga qo'shamiz xolos.
-                    emailTasks.push(formatStudentWelcomeEmail(
-                        formattedData.email,
-                        password, // Ochiq parolni jo'natish uchun
-                        formattedData.first_name,
-                        formattedData.last_name
-                    ));
-                } else {
-                    formattedData.password = existingStudent.password;
-                }
-
-                upsertPromises.push(Student.upsert(formattedData));
-            }
-
-            // 1. Avval barcha talaba ma'lumotlarini DB'ga yozib olamiz
-            await Promise.all(upsertPromises);
-            console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
-
-            // 2. Keyin, yig'ilgan barcha emaillarni bitta komanda bilan ommaviy jo'natamiz
-            if (emailTasks.length > 0) {
-                console.log(`Boshlanmoqda: ${emailTasks.length} ta yangi talabaga email jo'natish...`);
-                const emailReport = await sendBulkEmails(emailTasks);
-                console.log('--- Ommaviy Email Jo\'natish Hisoboti ---');
-                console.log(`Muvaffaqiyatli: ${emailReport.successful} / ${emailReport.total}`);
-                console.log(`Xato: ${emailReport.failed}`);
-                if (emailReport.failed > 0) {
-                    console.error('Xato bo\'lgan emaillar:', emailReport.failedEmails);
-                }
-                console.log('--- Hisobot tugadi ---');
-            } else {
-                console.log('Jo\'natish uchun yangi aktiv talabalar topilmadi.');
-            }
-
-            return { message: "Sinxronizatsiya muvaffaqiyatli yakunlandi." };
-        } catch (error) {
-            console.error("syncStudentData jarayonida jiddiy xatolik:", error);
-            throw error;
-        }
-    }
 
 	//this is sample to send email
 	// static async EmailToStudent(email, password, firstName, lastName) {
@@ -707,6 +613,77 @@ class StudentService {
 
 	// 	return 'email send successfully'
 	// }
+	 static async syncStudentData(studentData) {
+        try {
+            const emailTasks = [];
+            const upsertPromises = [];
+
+            for (const data of studentData) {
+                if (!data.studentId || !data.mail) continue; // Agar asosiy maydonlar bo'lmasa, keyingisiga o'tish
+
+                const existingStudent = await Student.findOne({ where: { student_id: data.studentId } });
+
+                const formattedData = {
+                    email: data.mail.trim(),
+                    student_id: data.studentId,
+                    first_name: data.studentFirstName,
+                    last_name: data.studentLastName,
+                    date_of_birth: data.birthday,
+                    gender: data.gender,
+                    address: data.address,
+                    parents_phone_number: data.parentsPhoneNumber,
+                    phone: data.phoneNumber,
+                    enrollment_date: data.jduDate,
+                    partner_university_enrollment_date: data.partnerUniversityEnrollmentDate,
+                    semester: data.semester,
+                    student_status: data.studentStatus,
+                    partner_university: data.partnerUniversity,
+                    kintone_id: data.kintone_id_value,
+                    world_language_university_credits: Number(data.worldLanguageUniversityCredits) || 0,
+                    business_skills_credits: Number(data.businessSkillsCredits) || 0,
+                    japanese_employment_credits: Number(data.japaneseEmploymentCredits) || 0,
+                    liberal_arts_education_credits: Number(data.liberalArtsEducationCredits) || 0,
+                    total_credits: Number(data.totalCredits) || 0,
+                    specialized_education_credits: Number(data.specializedEducationCredits) || 0,
+                    partner_university_credits: Number(data.partnerUniversityCredits) || 0,
+                    jlpt: data.jlpt,
+                    jdu_japanese_certification: data.jdu_japanese_certification,
+                    ielts: data.ielts,
+                    japanese_speech_contest: data.japanese_speech_contest,
+                    it_contest: data.it_contest,
+                };
+
+                if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
+                    const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true, });
+                    formattedData.password = await bcrypt.hash(password, 10);
+                    formattedData.active = true;
+                    emailTasks.push(formatStudentWelcomeEmail(formattedData.email, password, formattedData.first_name, formattedData.last_name));
+                } else {
+                    formattedData.password = existingStudent.password;
+                }
+
+                upsertPromises.push(Student.upsert(formattedData));
+            }
+            
+            await Promise.all(upsertPromises);
+            console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
+
+            if (emailTasks.length > 0) {
+                console.log(`${emailTasks.length} ta yangi talabaga email jo'natish boshlandi...`);
+                const emailReport = await sendBulkEmails(emailTasks);
+                console.log('--- Ommaviy Email Jo\'natish Hisoboti ---', emailReport);
+            } else {
+                console.log('Jo\'natish uchun yangi aktiv talabalar topilmadi.');
+            }
+
+            return { message: "Sinxronizatsiya muvaffaqiyatli yakunlandi." };
+
+        } catch (error) {
+            console.error("syncStudentData xatolik:", error);
+            throw error;
+        }
+    }
+	
 
 	static async getStudentsWithPendingDrafts() {
 		try {

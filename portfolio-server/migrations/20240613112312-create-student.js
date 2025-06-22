@@ -1,7 +1,7 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Students', {
       id: {
         allowNull: false,
@@ -9,150 +9,139 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      // ASOSIY MA'LUMOTLAR
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
+        unique: true
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       student_id: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        unique: true
       },
       first_name: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       last_name: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       date_of_birth: {
-        type: Sequelize.DATE,
-        allowNull: true,
+        type: Sequelize.DATEONLY,
+        allowNull: true
       },
       phone: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       photo: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
-      self_introduction: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      hobbies: {
+      gender: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
-      gallery: {
-        type: Sequelize.JSONB,
-        allowNull: true,
-        defaultValue: []
-      },
-      skills: {
-        type: Sequelize.JSONB,
-        allowNull: true,
-        defaultValue: {
-          "上級": [
-          ],
-          "中級": [
-          ],
-          "初級": [
-          ]
-        }
-      },
-      it_skills: {
-        type: Sequelize.JSONB,
-        allowNull: true,
-        defaultValue: {
-          "上級": [
-          ],
-          "中級": [
-          ],
-          "初級": [
-          ]
-        }
-      },
-      other_information: {
+      address: {
         type: Sequelize.TEXT,
-        allowNull: true,
+        allowNull: true
       },
+      parents_phone_number: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      enrollment_date: { // Kintone'dagi "jduDate"
+        type: Sequelize.DATEONLY,
+        allowNull: true
+      },
+      partner_university_enrollment_date: {
+        type: Sequelize.DATEONLY,
+        allowNull: true
+      },
+      
+      // O'QISHGA OID MA'LUMOTLAR
       semester: {
-        type: Sequelize.ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', "卒業"),
-        defaultValue: '1',
+        type: Sequelize.ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '卒業'),
+        defaultValue: '1'
       },
       partner_university: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
+      student_status: {
+          type: Sequelize.STRING,
+          allowNull: true
+      },
+      
+      // KREDITLAR
       partner_university_credits: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
-      deliverables: {
-        type: Sequelize.JSONB,
         allowNull: true,
-        defaultValue: [{
-          title: "",
-          link: "",
-          role: [],
-          codeLink: "",
-          imageLink: "",
-          description: "",
-        }]
+        defaultValue: 0
       },
-      jlpt: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      world_language_university_credits: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: 0
       },
-      ielts: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      business_skills_credits: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: 0
       },
-      jdu_japanese_certification: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      japanese_employment_credits: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: 0
       },
-      japanese_speech_contest: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      liberal_arts_education_credits: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: 0
       },
-      it_contest: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      total_credits: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: 0
       },
-      active: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false,
+      specialized_education_credits: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          defaultValue: 0
       },
-      graduation_year: { 
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      graduation_season: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      language_skills: {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      },
-      kintone_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
+
+      // PROFIL MA'LUMOTLARI
+      self_introduction: { type: Sequelize.TEXT, allowNull: true },
+      hobbies: { type: Sequelize.STRING, allowNull: true },
+      gallery: { type: Sequelize.JSONB, allowNull: true },
+      skills: { type: Sequelize.JSONB, allowNull: true },
+      it_skills: { type: Sequelize.JSONB, allowNull: true },
+      other_information: { type: Sequelize.TEXT, allowNull: true },
+      deliverables: { type: Sequelize.JSONB, allowNull: true },
+      language_skills: { type: Sequelize.TEXT, allowNull: true },
+      graduation_year: { type: Sequelize.TEXT, allowNull: true },
+      graduation_season: { type: Sequelize.TEXT, allowNull: true },
+
+      // SERTIFIKATLAR
+      jlpt: { type: Sequelize.TEXT, allowNull: true },
+      ielts: { type: Sequelize.TEXT, allowNull: true },
+      jdu_japanese_certification: { type: Sequelize.TEXT, allowNull: true },
+      japanese_speech_contest: { type: Sequelize.TEXT, allowNull: true },
+      it_contest: { type: Sequelize.TEXT, allowNull: true },
+
+      // TIZIM MAYDONLARI
+      active: { type: Sequelize.BOOLEAN, defaultValue: false },
+      visibility: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
+      has_pending: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
+      kintone_id: { type: Sequelize.INTEGER, allowNull: false },
+      
+      // VAQT SHTAMPLARI
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -164,7 +153,7 @@ module.exports = {
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
+  async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('Students');
   }
 };
