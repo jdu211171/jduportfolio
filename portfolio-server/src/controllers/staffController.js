@@ -5,63 +5,7 @@ const generatePassword = require('generate-password')
 
 class StaffController {
 
-	// static async webhookHandler(req, res) {
-	// 	try {
-	// 	  const { type, record, recordId } = req.body;
-	  
-	// 	  if (type === 'ADD_RECORD') {
-	// 		const password = generatePassword.generate({
-	// 		  length: 12,
-	// 		  numbers: true,
-	// 		  symbols: false,
-	// 		  uppercase: true,
-	// 		  excludeSimilarCharacters: true,
-	// 		});
-	  
-	// 		const data = {
-    //             // Kintone'dagi yangi maydon nomlariga moslashtiramiz
-    //             email: record.staffEmail.value,
-    //             password: password,
-    //             first_name: record.staffFirstName.value,
-    //             last_name: record.staffLastName.value,
-    //             department: record.staffDepartment.value,
-    //             position: record.staffPosition.value,
-    //             kintone_id: record['$id'].value,
-    //         };
-
-	// 		const newStaff = await StaffService.createStaff(data);
-	// 		let email;
-	// 		if (newStaff) {
-	// 		  email = await EmailToStaff(
-	// 			newStaff.email,
-	// 			password,
-	// 			newStaff.first_name,
-	// 			newStaff.last_name
-	// 		  );
-	// 		}
-	// 		res.status(201).json(email);
-	// 	  } else if (type === 'UPDATE_RECORD') {
-	// 		const staffData = {
-	// 		  email: record.staffEmail.value,
-	// 		  first_name: record.staffFirstName.value,
-	// 		  last_name: record.staffLastName.value,
-	// 		  department: record.staffDepartment.value,
-	// 		  position: record.staffPosition.value,
-	// 		  kintone_id: record['$id'].value,
-	// 		};
-	// 		const updatedStaff = await StaffService.updateStaffByKintoneId(record['$id'].value, staffData);
-	// 		res.status(200).json({ message: 'Staff updated successfully', updatedStaff });
-	// 	  } else if (type === 'DELETE_RECORD') {
-	// 		await StaffService.deleteStaff(recordId);
-	// 		res.status(204).end();
-	// 	  } else {
-	// 		res.status(400).json({ message: 'Invalid request type' });
-	// 	  }
-	// 	} catch (error) {
-	// 	  console.error('Error in webhook handler:', error);
-	// 	  res.status(400).json({ error: error.message });
-	// 	}
-	// }
+	// Webhook handler for Kintone events
 	static async webhookHandler(req, res) {
         try {
             const { type, record, recordId } = req.body;

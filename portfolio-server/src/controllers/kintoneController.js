@@ -69,22 +69,7 @@ class KintoneController {
     .json({ message: 'Error updating record', error: error.message })
   }
  }
- // Controller method to delete a record
-//  static async delete(req, res) {
-//   try {
-//    const appId = req.query.app || kintoneConfig.students.appId // Default: students app
-//    const appName = appIdToName[appId]
-//    if (!appName) {
-//     throw new Error(`No app name found for appId: ${appId}`)
-//    }
-//    await KintoneService.deleteRecord(appName, req.params.id)
-//    res.status(204).json()
-//   } catch (error) {
-//    res
-//     .status(500)
-//     .json({ message: 'Error deleting record', error: error.message })
-//   }
-//  }
+// Controller method to delete a record
 static async delete(req, res) {
     try {
         const appId = req.query.app || kintoneConfig.students.appId; // Default: students app

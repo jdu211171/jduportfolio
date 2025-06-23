@@ -1,200 +1,92 @@
+// controllers/imageController.js
+
 const { uploadFile, deleteFile } = require('../utils/storageService');
 const generateUniqueFilename = require('../utils/uniqueFilename');
-const { Image } = require('../models'); // Agar rasm ma'lumotlarini bazada saqlasangiz
-const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage() });
+const { Image } = require('../models');
 
-// Rasmni yuklash va yaratish (Create)
-exports.createImage = [
-    upload.single('image'),
-    async (req, res) => {
-        // console.log('req.file:', req.file);
-        // console.log('req.body:', req.body);
-        try {
-            if (!req.file) {
-                return res.status(400).json({ message: 'Rasm fayli yuklanmadi' });
-            }
-
-            const { role = 'images', imageType = 'general', id = 'default' } = req.body;
-            const uniqueFilename = generateUniqueFilename(req.file.originalname);
-            const result = await uploadFile(req.file.buffer, `${role}/${imageType}/${id}/` + uniqueFilename);
-            const imageUrl = result.Location;
-            // console.log('imageUrl:', imageUrl);
-            // Ma'lumotlar bazasiga rasm haqida yozuv qo'shish (agar kerak bo'lsa)
-            const newImage = await Image.create({ imageUrl });
-            res.status(201).json(newImage);
-        } catch (error) {
-            console.error('Rasm yuklashda xatolik:', error);
-            res.status(500).json({ message: 'Rasm yuklashda xatolik yuz berdi', error: error.message });
-        }
-    },
-];
-
-// Barcha rasmlarni olish (Read)
-exports.getAllImages = async (req, res) => {
+/**
+ * Bir yoki bir nechta rasmni yuklash va ma'lumotlar bazasiga saqlash
+ */
+exports.createImages = async (req, res) => {
     try {
-        const images = await Image.findAll();
+        // req.files multer.array() orqali keladi
+        const files = req.files;
+        if (!files || files.length === 0) {
+            return res.status(400).json({ message: 'Yuklash uchun rasm fayllari topilmadi.' });
+        }
+
+        const { type = 'general' } = req.body;
+        const uploadedImages = [];
+
+        for (const file of files) {
+            const uniqueFilename = generateUniqueFilename(file.originalname);
+            // Faylni S3 omboriga 'images/{type}/...' papkasiga saqlaymiz
+            const result = await uploadFile(file.buffer, `images/${type}/${uniqueFilename}`);
+            
+            // Har bir rasm uchun ma'lumotlar bazasida yangi yozuv yaratamiz
+            const newImage = await Image.create({
+                type: type,
+                image_url: result.Location,
+            });
+            uploadedImages.push(newImage);
+        }
+
+        res.status(201).json({ 
+            message: `${uploadedImages.length} ta rasm muvaffaqiyatli yuklandi.`,
+            images: uploadedImages 
+        });
+
+    } catch (error) {
+        console.error('Rasmlarni yuklashda xatolik:', error);
+        res.status(500).json({ message: 'Server xatoligi: rasmlarni yuklab bo‘lmadi.' });
+    }
+};
+
+/**
+ * Berilgan turdagi barcha rasmlarni olish
+ */
+exports.getImagesByType = async (req, res) => {
+    try {
+        const { type } = req.params;
+        const images = await Image.findAll({ 
+            where: { type },
+            order: [['createdAt', 'ASC']] 
+        });
+        
+        if (!images || images.length === 0) {
+            return res.status(404).json({ message: `'${type}' turidagi rasmlar topilmadi.` });
+        }
+
         res.status(200).json(images);
+
     } catch (error) {
         console.error('Rasmlarni olishda xatolik:', error);
-        res.status(500).json({ message: 'Rasmlarni olishda xatolik yuz berdi', error: error.message });
+        res.status(500).json({ message: 'Server xatoligi: rasmlarni olib bo‘lmadi.' });
     }
 };
 
-// ID bo'yicha rasmni olish (Read)
-exports.getImageById = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const image = await Image.findByPk(id);
-        if (!image) {
-            return res.status(404).json({ message: 'Rasm topilmadi' });
-        }
-        res.status(200).json(image);
-    } catch (error) {
-        console.error(`ID ${id} bo'yicha rasmni olishda xatolik:`, error);
-        res.status(500).json({ message: 'Rasmni olishda xatolik yuz berdi', error: error.message });
-    }
-};
-
-// Rasmni yangilash (Update)
-// exports.updateImage = [
-//     upload.single('image'),
-//     async (req, res) => {
-//         const { id } = req.params;
-//         const { role = 'images', imageType = 'general', newId = 'default', oldImageUrl } = req.body;
-
-//         try {
-//             const image = await Image.findByPk(id);
-//             if (!image) {
-//                 return res.status(404).json({ message: 'Rasm topilmadi' });
-//             }
-
-//             let imageUrl = image.imageUrl;
-
-//             // Agar yangi rasm yuklangan bo'lsa
-//             if (req.file) {
-//                 // Avvalgi rasmni o'chirish
-//                 if (oldImageUrl && oldImageUrl !== 'none') {
-//                     try {
-//                         await deleteFile(oldImageUrl);
-//                     } catch (deleteError) {
-//                         console.error('Avvalgi rasmni o\'chirishda xatolik:', deleteError);
-//                         // O'chirishda xatolik bo'lsa ham, yangi rasmni yuklashga harakat qilish
-//                     }
-//                 }
-
-//                 const uniqueFilename = generateUniqueFilename(req.file.originalname);
-//                 imageUrl = await uploadFile(req.file.buffer, `${role}/${imageType}/${newId}/` + uniqueFilename);
-//             } else if (req.body.imageUrl) {
-//                 // Agar faqat rasm URL manzili yangilangan bo'lsa
-//                 imageUrl = req.body.imageUrl;
-//             }
-
-//             const [updatedRows] = await Image.update({ imageUrl }, { where: { id } });
-
-//             if (updatedRows > 0) {
-//                 const updatedImage = await Image.findByPk(id);
-//                 res.status(200).json(updatedImage);
-//             } else {
-//                 res.status(404).json({ message: 'Rasm topilmadi' });
-//             }
-//         } catch (error) {
-//             console.error(`ID ${id} bo'yicha rasmni yangilashda xatolik:`, error);
-//             res.status(500).json({ message: 'Rasmni yangilashda xatolik yuz berdi', error: error.message });
-//         }
-//     },
-// ];
-
-exports.updateImage = [
-    upload.single('image'),
-    async (req, res) => {
-        const { id } = req.params;
-        const { role = 'images', imageType = 'general', newId = 'default', oldImageUrl } = req.body;
-
-        try {
-            const image = await Image.findByPk(id);
-            if (!image) {
-                return res.status(404).json({ message: 'Rasm topilmadi' });
-            }
-
-            let imageUrl = image.imageUrl;
-
-            // Agar yangi rasm yuklangan bo'lsa
-            if (req.file) {
-                // Avvalgi rasmni o'chirish
-                if (oldImageUrl && oldImageUrl !== 'none') {
-                    try {
-                        await deleteFile(oldImageUrl);
-                    } catch (deleteError) {
-                        console.error('Avvalgi rasmni o\'chirishda xatolik:', deleteError);
-                    }
-                }
-
-                const uniqueFilename = generateUniqueFilename(req.file.originalname);
-                const result = await uploadFile(req.file.buffer, `${role}/${imageType}/${newId}/` + uniqueFilename);
-                imageUrl = result.Location; // Faqat Location qiymatini oling
-            } else if (req.body.imageUrl) {
-                // Agar faqat rasm URL manzili yangilangan bo'lsa
-                imageUrl = req.body.imageUrl;
-            }
-
-            // console.log('Yangilangan imageUrl:', imageUrl); // Konsolda chop eting
-
-            const [updatedRows] = await Image.update({ imageUrl }, { where: { id } });
-
-            if (updatedRows > 0) {
-                const updatedImage = await Image.findByPk(id);
-                res.status(200).json(updatedImage);
-            } else {
-                res.status(404).json({ message: 'Rasm topilmadi' });
-            }
-        } catch (error) {
-            console.error(`ID ${id} bo'yicha rasmni yangilashda xatolik:`, error);
-            res.status(500).json({ message: 'Rasmni yangilashda xatolik yuz berdi', error: error.message });
-        }
-    },
-];
-
-// Rasmni o'chirish (Delete)
+/**
+ * Berilgan ID bo'yicha rasmni o'chirish (S3 va bazadan)
+ */
 exports.deleteImage = async (req, res) => {
-    const { id } = req.params;
-
     try {
+        const { id } = req.params;
         const image = await Image.findByPk(id);
+
         if (!image) {
-            return res.status(404).json({ message: 'Rasm topilmadi' });
+            return res.status(404).json({ message: 'Bu IDga ega rasm topilmadi.' });
         }
 
-        const imageUrl = image.imageUrl;
+        // 1. Faylni S3 omboridan o'chirish
+        await deleteFile(image.image_url);
 
-        // Faylni Minio dan o'chirish
-        if (imageUrl) {
-            try {
-                await deleteFile(imageUrl);
-            } catch (deleteError) {
-                console.error('Rasmni Minio dan o\'chirishda xatolik:', deleteError);
-                // O'chirishda xatolik bo'lsa ham, ma'lumotlar bazasidan yozuvni o'chirishga harakat qilish
-            }
-        }
+        // 2. Yozuvni ma'lumotlar bazasidan o'chirish
+        await image.destroy();
 
-        const deletedRows = await Image.destroy({ where: { id } });
+        res.status(200).json({ message: `ID:${id} bo'lgan rasm muvaffaqiyatli o'chirildi.` });
 
-        if (deletedRows > 0) {
-            // return res.status(204).send();
-            return res.status(200).json({
-                message: 'Rasm muvaffaqiyatli o\'chirildi',
-                deletedImage: {
-                    id: image.id,
-                    imageUrl: image.imageUrl,
-                    createdAt: image.createdAt,
-                    updatedAt: image.updatedAt,
-                },
-            });
-        } else {
-            res.status(404).json({ message: 'Rasm topilmadi' });
-        }
     } catch (error) {
-        console.error(`ID ${id} bo'yicha rasmni o'chirishda xatolik:`, error);
-        res.status(500).json({ message: 'Rasmni o\'chirishda xatolik yuz berdi', error: error.message });
+        console.error('Rasmni o\'chirishda xatolik:', error);
+        res.status(500).json({ message: 'Server xatoligi: rasmni o\'chirib bo‘lmadi.' });
     }
 };
