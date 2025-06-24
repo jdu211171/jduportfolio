@@ -125,6 +125,19 @@ class RecruiterService {
 			throw error
 		}
 	}
+
+	static async updateRecruiterByKintoneId(kintoneId, data) {
+        const [affectedRows, updatedRecruiters] = await Recruiter.update(data, {
+            where: { kintone_id: kintoneId },
+            returning: true,
+        });
+        return updatedRecruiters ? updatedRecruiters[0] : null;
+    }
+
+	static async deleteRecruiterByKintoneId(kintoneId) {
+        return await Recruiter.destroy({ where: { kintone_id: kintoneId } });
+    }
+
 }
 
 module.exports = RecruiterService

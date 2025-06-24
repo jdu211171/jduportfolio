@@ -87,6 +87,7 @@ class StaffService {
 			throw error
 		}
 	}
+
 	static async updateStaffByKintoneId(kintoneId, staffData) {
 		try {
 		  const staff = await Staff.findOne({ where: { kintone_id: kintoneId } });
@@ -98,7 +99,13 @@ class StaffService {
 		} catch (error) {
 		  throw error;
 		}
-	  }
+	}
+
+	static async deleteStaffByKintoneId(kintoneId) {
+        return await Staff.destroy({ where: { kintone_id: kintoneId } });
+    }
+
+
 }
 
 module.exports = StaffService

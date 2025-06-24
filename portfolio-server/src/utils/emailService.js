@@ -1,181 +1,96 @@
-// // src/utils/emailService.js
+// src/utils/emailService.js
 
-// const nodemailer = require('nodemailer')
+// O'ZGARISH: SESClient bilan birga `SendRawEmailCommand` ham import qilinadi
+const { SESClient, SendRawEmailCommand } = require("@aws-sdk/client-ses"); 
+const nodemailer = require("nodemailer");
 
-// const transporter = nodemailer.createTransport({
-// 	host: process.env.EMAIL_HOST,
-// 	port: process.env.EMAIL_PORT,
-// 	secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-// 	auth: {
-// 		user: process.env.EMAIL_USER,
-// 		pass: process.env.EMAIL_PASS,
-// 	},
-// 	debug: true,
-// 	tls: {
-// 		rejectUnauthorized: false,
-// 	},
-// })
-
-// const sendEmail = async (to, subject, text, html) => {
-// 	const mailOptions = {
-// 		from: process.env.EMAIL_FROM,
-// 		to,
-// 		subject,
-// 		text,
-// 		html,
-// 	}
-
-// 	try {
-// 		const info = await transporter.sendMail(mailOptions)
-// 		// console.log('Email sent: ' + info.response)
-// 	} catch (error) {
-// 		console.error('Error sending email: ' + error)
-// 	}
-// }
-
-// module.exports = {
-// 	sendEmail,
-// }
-
-
-
-
-
-
-    // ------ variant ------
- 
-const nodemailer = require('nodemailer');
-const async = require('async');
-
-// Nodemailer transporter sozlamalari
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  debug: true,
-  tls: {
-    rejectUnauthorized: false,
-  },
+// 1. AWS SES Klientini sozlash (bu qism o'zgarishsiz qoladi)
+const sesClient = new SESClient({
+    region: process.env.AWS_SES_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_SES_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SES_SECRET_KEY,
+    }
 });
 
-// Queue yaratish
-const emailQueue = async.queue(async (task, callback) => {
-  const { to, subject, text, html, retries = 0, maxRetries = 3 } = task;
-  const mailOptions = {
-    from: process.env.EMAIL_FROM,
-    to,
-    subject,
-    text,
-    html,
-  };
+// 2. Nodemailer transportini AWS SES bilan bog'lash
+const transporter = nodemailer.createTransport({
+    // O'ZGARISH: `aws` obyekti ichiga `SendRawEmailCommand` ni qo'shamiz
+    SES: { ses: sesClient, aws: { SendRawEmailCommand } },
+    sendingRate: 14 // AWS limitiga mos ravishda sekundiga 14 ta email
+});
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${to}`);
-    callback(); // Vazifa muvaffaqiyatli bajarildi
-  } catch (error) {
-    console.error(`Error sending email to ${to}:`, error);
-    if (retries < maxRetries) {
-      // Qayta urinishlar sonini oshirish va kechikish qo'shish
-      setTimeout(() => {
-        emailQueue.push({ ...task, retries: retries + 1 });
-        callback();
-      }, 5000); // 5 soniya kechikish
-    } else {
-      console.error(`Max retries reached for ${to}`);
-      callback(error); // Maksimal qayta urinishlar soniga yetdi
-    }
-  }
-}, 1); // Concurrency = 1
+/**
+ * Bitta email jo'natish uchun asosiy funksiya.
+ * (Bu funksiya o'zgarishsiz qoladi)
+ */
+const sendEmail = async (mailData) => {
+    const mailOptions = {
+        from: process.env.EMAIL_FROM,
+        to: mailData.to,
+        subject: mailData.subject,
+        text: mailData.text,
+        html: mailData.html,
+    };
 
-// Queue ga email qo‘shish funksiyasi
-const addToQueue = (to, subject, text, html, maxRetries = 3) => {
-  emailQueue.push({ to, subject, text, html, retries: 0, maxRetries }, (err) => {
-    if (err) {
-      console.error('Queue error:', err);
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Email muvaffaqiyatli jo'natildi: ${mailData.to}`);
+        return { success: true, to: mailData.to, messageId: info.messageId };
+    } catch (error) {
+        console.error(`Email jo'natishda xatolik (${mailData.to}):`, error);
+        // Xatolikni to'liqroq log qilish
+        console.error(error.stack);
+        return { success: false, to: mailData.to, error: error.message };
     }
-  });
+};
+
+/**
+ * Ko'p sonli emaillarni parallel ravishda, samarali jo'natadi.
+ * (Bu funksiya o'zgarishsiz qoladi)
+ */
+const sendBulkEmails = async (emailTasks) => {
+    if (!Array.isArray(emailTasks) || emailTasks.length === 0) {
+        return { total: 0, successful: 0, failed: 0, successfulEmails: [], failedEmails: [] };
+    }
+
+    const promises = emailTasks.map(task => sendEmail(task));
+    const results = await Promise.allSettled(promises);
+
+    const report = {
+        total: emailTasks.length,
+        successful: 0,
+        failed: 0,
+        successfulEmails: [],
+        failedEmails: [],
+    };
+
+    // forEach o'rniga for...of tsiklini ishlatamiz. Bu yanada xavfsizroq.
+    for (const result of results) {
+        // Muvaffaqiyatli holatni tekshirish
+        if (result.status === 'fulfilled' && result.value && result.value.success === true) {
+            report.successful++;
+            report.successfulEmails.push(result.value);
+        } 
+        // Xatolik holatini tekshirish
+        else {
+            report.failed++;
+            let errorInfo;
+            if (result.status === 'rejected') {
+                // Agar promise'ning o'zi xato qaytarsa
+                errorInfo = { success: false, reason: result.reason?.message || result.reason };
+            } else {
+                // Agar sendEmail funksiyasi { success: false } qaytarsa
+                errorInfo = result.value || { success: false, reason: 'Noma\'lum xatolik' };
+            }
+            report.failedEmails.push(errorInfo);
+        }
+    }
+
+    return report;
 };
 
 module.exports = {
-  addToQueue,
+    sendEmail,
+    sendBulkEmails,
 };
-
-
-
-
-
-
-
-// --- variant ----
-
-// const nodemailer = require('nodemailer');
-// const async = require('async');
-// const fs = require('fs').promises; // Xatolarni faylga yozish uchun
-
-// // Nodemailer transporter sozlamalari
-// const transporter = nodemailer.createTransport({
-//   host: process.env.EMAIL_HOST,
-//   port: process.env.EMAIL_PORT,
-//   secure: process.env.EMAIL_SECURE === 'true',
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASS,
-//   },
-//   debug: true,
-//   tls: {
-//     rejectUnauthorized: false,
-//   },
-// });
-
-// // Queue yaratish
-// const emailQueue = async.queue(async (task, callback) => {
-//   const { to, subject, text, html, retries = 0, maxRetries = 5 } = task;
-//   const mailOptions = {
-//     from: process.env.EMAIL_FROM,
-//     to,
-//     subject,
-//     text,
-//     html,
-//   };
-
-//   try {
-//     await transporter.sendMail(mailOptions);
-//     console.log(`Email sent to ${to}`);
-//     setTimeout(callback, 15000); // 15 soniya kechikish
-//   } catch (error) {
-//     console.error(`Error sending email to ${to}:`, error);
-//     if (retries < maxRetries) {
-//       // Qayta urinishlar sonini oshirish va kechikish qo'shish
-//       setTimeout(() => {
-//         emailQueue.push({ ...task, retries: retries + 1 });
-//         callback();
-//       }, 15000); // 15 soniya kechikish
-//     } else {
-//       console.error(`Max retries reached for ${to}`);
-//       // Xatolikni faylga yozish
-//       await fs.appendFile(
-//         'failed_emails.log',
-//         `${new Date().toISOString()} - Failed to send email to ${to}: ${error.message}\n`
-//       );
-//       callback(error);
-//     }
-//   }
-// }, 1); // Concurrency = 1
-
-// // Queue ga email qo‘shish funksiyasi
-// const addToQueue = (to, subject, text, html, maxRetries = 5) => {
-//   emailQueue.push({ to, subject, text, html, retries: 0, maxRetries }, (err) => {
-//     if (err) {
-//       console.error('Queue error:', err);
-//     }
-//   });
-// };
-
-// module.exports = {
-//   addToQueue,
-// };

@@ -1,16 +1,16 @@
-// utils/emailToStaff.js (yoki shunga o'xshash fayl nomi)
+// utils/emailToRecruiter.js
 const { sendEmail } = require('./emailService');
 
-const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
+const formatRecruiterWelcomeEmail = (email, password, firstName, lastName) => {
     const to = email;
     
-    // Yangi Subject
-    const subject = 'Welcome to JDU';
+    // Yangi, professional Subject (Yapon tilida)
+    const subject = 'JDUポートフォリオのアカウント開設のお知らせ'; // JDU Portfolio akkaunti ochilganligi haqida bildirishnoma
 
     // Yangi oddiy matn (text)
-    const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nBest regards,\nJDU Team`;
+    const text = `Hi ${firstName},\n\nAn account for your company has been created on the JDU Portfolio system.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure.\n\nBest regards,\nJDU Team`;
 
-    // Yangi, stillangan HTML andoza
+    // Yangi, stillangan HTML andoza (Rekruter uchun moslashtirilgan)
     const html = `
      <!DOCTYPE html>
      <html lang="ja">
@@ -36,7 +36,7 @@ const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
              .header {
                  text-align: center;
                  padding: 10px 0;
-                 background-color: #4CAF50;
+                 background-color: #0056b3; /* Rekruter uchun boshqacharoq rang */
                  color: #ffffff;
                  border-radius: 10px 10px 0 0;
              }
@@ -48,7 +48,7 @@ const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
                  margin: 0 0 10px;
              }
              .content a {
-                 color: #4CAF50;
+                 color: #0056b3;
                  text-decoration: none;
              }
              .content a:hover {
@@ -66,19 +66,19 @@ const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
      <body>
          <div class="email-container">
              <div class="header">
-                 <h1>JDUへようこそ</h1>
+                 <h1>JDUポートフォリオへようこそ</h1>
              </div>
              <div class="content">
-                 <p>${firstName} ${lastName} 様,</p>
-                 <p>私たちのチームに加わっていただき、ありがとうございます！以下があなたのアカウント情報です。</p>
+                 <p>${lastName} ${firstName} 様,</p>
+                 <p>JDUポートフォリオに、貴社のアカウントが開設されました。下記が貴社のアカウント情報です。</p>
                  <p><strong>メールアドレス:</strong> ${email}</p>
                  <p><strong>パスワード:</strong> ${password}</p>
                  <p>この情報は安全に保管し、他の人と共有しないでください。</p>
                  <p>下記のリンクをクリックしてアカウントにログインできます：</p>
                  <p><a href="https://portfolio.jdu.uz/login">アカウントにログインする</a></p>
-                 <p>ご質問がある場合やサポートが必要な場合は、いつでもサポートチームまでご連絡ください。</p>
-                 <p>よろしくお願いいたします。</p>
-                 <p>JDUチーム</p>
+                 <p>ご質問がある場合やサポートが必要な場合は、いつでもご連絡ください。</p>
+                 <p>敬具</p>
+                 <p>JDU管理者</p>
              </div>
              <div class="footer">
                  <p>&copy; ${new Date().getFullYear()} JDU. All rights reserved.</p>
@@ -92,9 +92,9 @@ const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
     return { to, subject, text, html };
 };
 
-const sendStaffWelcomeEmail = async (email, password, firstName, lastName) => {
-    const mailData = formatStaffWelcomeEmail(email, password, firstName, lastName);
+const sendRecruiterWelcomeEmail = async (email, password, firstName, lastName) => {
+    const mailData = formatRecruiterWelcomeEmail(email, password, firstName, lastName);
     await sendEmail(mailData);
 };
 
-module.exports = { formatStaffWelcomeEmail, sendStaffWelcomeEmail };
+module.exports = { formatRecruiterWelcomeEmail, sendRecruiterWelcomeEmail };

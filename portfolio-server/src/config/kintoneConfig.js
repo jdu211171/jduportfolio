@@ -1,36 +1,49 @@
+// config/kintoneConfig.js
 const apps = {
-	students: {
-		appId: '105',
-		token: 'IpVLEiqLaP1u9H8dyQjYCpHalE0dI7MDfqqDASQP',
-	},
-	student_credits: {
-		appId: '159',
-		token: 'Gg1TIV35o5MH3dZlT3CVTJRSbxKMMpxvIZgWtRCP',
-	},
-	certificate_it_contest: {
-		appId: '139',
-		token: '1yrlbBDGfuTvzqV2Yp2wFz9qQNLmvisf5sRcwh58',
-	},
-	certificate_jdu_jlpt: {
-		appId: '165',
-		token: 'p3ULdr7hIroHXHgDU89Ki1IoWgwlLXmOGmswM3LC',
-	},
-	certificate_benron: {
-		appId: '154',
-		token: 'ZcJVm1Nde6RCikiMufp4jEJmpeva4FhpedmgrI0T',
-	},
-	certificate_jlpt: {
-		appId: '153',
-		token: 'TdTKkIbmcZiQ4nWUpZXvJraEB3UnkWBJehShvs2q',
-	},
-	certificate_ielts: {
-		appId: '197',
-		token: 'K6voeCUJhCSvNwVm2gsNNCLOEFIA8MTwkeiE5OET',
-	},  
-	credit_details: {
-		appId: '160',
-		token: '7xOoiYhgxne97O0TLnKVR1mLUwV5lpKfUuTRxOER',
-	},
-}
+    // ASOSIY ILOVALAR
+    students: {
+        appId: '230',
+        token: process.env.KINTONE_API_TOKEN,
+    },
+    staff: { 
+        appId: '246',
+        token: process.env.KINTONE_STAFF_TOKEN,
+    },
+    recruiters: {
+        appId: '245',
+        token: process.env.KINTONE_RECRUITER_TOKEN,
+    },
+    
+    // STUDENTGA BOG'LIQ ILOVALAR
+    student_credits: {
+        appId: '233',
+        token: process.env.KINTONE_STUDENT_CREDITS_TOKEN,
+    },
+    student_ielts: { 
+        appId: '248',
+        token: process.env.KINTONE_IELTS_TOKEN,
+    },
+    student_it_contest: { 
+        appId: '240',
+        token: process.env.KINTONE_IT_CONTEST_TOKEN,
+    },
+    student_jlpt: { 
+        appId: '243',
+        token: process.env.KINTONE_JLPT_TOKEN,
+    },
+    student_benron_taikai: { 
+        appId: '242',
+        token: process.env.KINTONE_BENRON_TOKEN,
+    },
+    student_jdu_ninteishiken: {
+        appId: '236',
+        token: process.env.KINTONE_JDU_NINTEI_TOKEN,
+    },
+    // Eski ilovalar
+    credit_details: {
+        appId: '232',
+        token: process.env.KINTONE_CREDIT_DETAILS_TOKEN,
+    },
+};
 
-module.exports = apps
+module.exports = apps;
