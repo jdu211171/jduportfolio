@@ -49,7 +49,7 @@ class AdminController {
   static async getStudentPassword(req, res) {
     try {
       const { studentId } = req.params;
-      if ((req.user.role || req.user.userType) !== 'Admin') {
+      if (!(req.user.role === 'Admin' || req.user.userType === 'Admin')) {
         return res.status(403).json({ error: 'Access denied' });
       }
       const student = await Student.findByPk(studentId);
