@@ -79,33 +79,93 @@ module.exports = {
       // Generate an array of image links for the gallery
       const gallery = Array.from({ length: 5 }, () => `https://picsum.photos/300/200?random=${Math.floor(Math.random() * 101)}`);
 
+      const gradYear = `202${faker.datatype.number({ min: 5, max: 8 })}年`;
+      const gradSeason = faker.random.arrayElement(['春', '秋', null]);
+      const langSkills = faker.random.arrayElement(['English (TOEIC 800), Korean (TOPIK 4)', 'German (B1)', null]);
+
+
+      // studentsData.push({
+
+      //   email: faker.internet.email(),
+      //   password: hashedPassword,
+      //   student_id: faker.datatype.number({ min: 10000000, max: 99999999 }).toString(),
+      //   first_name: faker.name.firstName(),
+      //   last_name: faker.name.lastName(),
+      //   date_of_birth: faker.date.past(),
+      //   photo: "https://randomuser.me/api/portraits/med/men/" + parseInt(Math.random() * 100) + ".jpg",
+      //   self_introduction: faker.lorem.paragraph(),
+      //   hobbies: faker.random.words(),
+      //   gallery: JSON.stringify(gallery), // Store as JSON string in seed
+      //   skills: JSON.stringify(skills), // Store as JSON string in seed
+      //   it_skills: JSON.stringify(itSkills), // Store as JSON string in seed
+      //   other_information: faker.lorem.paragraph(),
+      //   semester: faker.datatype.number({ min: 1, max: 9 }).toString(),
+      //   partner_university: faker.company.companyName(),
+      //   partner_university_credits: faker.datatype.number({ min: 0, max: 124 }),
+      //   deliverables: JSON.stringify(deliverables),
+      //   jlpt: JSON.stringify(jlptString),
+      //   ielts: JSON.stringify(ieltsString),
+      //   jdu_japanese_certification: JSON.stringify(jlptString),
+      //   japanese_speech_contest: faker.random.word(),
+      //   it_contest: faker.random.word(),
+      //   active: true,
+      //   kintone_id: faker.datatype.number(),
+      //   graduation_year: gradYear,
+      //   graduation_season: gradSeason,
+      //   language_skills: langSkills,
+      //   createdAt: new Date(),
+      //   updatedAt: new Date(),
+      // });
       studentsData.push({
-        email: faker.internet.email(),
-        password: hashedPassword,
-        student_id: faker.datatype.number({ min: 10000000, max: 99999999 }).toString(),
-        first_name: faker.name.firstName(),
-        last_name: faker.name.lastName(),
-        date_of_birth: faker.date.past(),
-        photo: "https://randomuser.me/api/portraits/med/men/" + parseInt(Math.random() * 100) + ".jpg",
-        self_introduction: faker.lorem.paragraph(),
-        hobbies: faker.random.words(),
-        gallery: JSON.stringify(gallery), // Store as JSON string in seed
-        skills: JSON.stringify(skills), // Store as JSON string in seed
-        it_skills: JSON.stringify(itSkills), // Store as JSON string in seed
-        other_information: faker.lorem.paragraph(),
-        semester: faker.datatype.number({ min: 1, max: 9 }).toString(),
-        partner_university: faker.company.companyName(),
-        partner_university_credits: faker.datatype.number({ min: 0, max: 124 }),
-        deliverables: JSON.stringify(deliverables),
-        jlpt: JSON.stringify(jlptString),
-        ielts: JSON.stringify(ieltsString),
-        jdu_japanese_certification: JSON.stringify(jlptString),
-        japanese_speech_contest: faker.random.word(),
-        it_contest: faker.random.word(),
-        active: true,
-        kintone_id: faker.datatype.number(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+          email: faker.internet.email(),
+          password: hashedPassword,
+          student_id: faker.datatype.number({ min: 10000000, max: 99999999 }).toString(),
+          first_name: faker.name.firstName(),
+          last_name: faker.name.lastName(),
+          date_of_birth: faker.date.past(20, '2005-01-01'), // 20 yoshgacha bo'lgan talabalar
+          photo: "https://randomuser.me/api/portraits/med/men/" + parseInt(Math.random() * 100) + ".jpg",
+          
+          // YANGI QO'SHILGAN MAYDONLAR UCHUN MA'LUMOTLAR
+          gender: faker.random.arrayElement(['Male', 'Female', 'Other']),
+          address: faker.address.streetAddress(),
+          phone: faker.phone.phoneNumber('##-###-##-##'),
+          parents_phone_number: faker.phone.phoneNumber('##-###-##-##'),
+          partner_university_enrollment_date: faker.date.past(2),
+
+          // Kreditlar
+          total_credits: faker.datatype.number({ min: 80, max: 124 }),
+          partner_university_credits: faker.datatype.number({ min: 10, max: 30 }),
+          world_language_university_credits: faker.datatype.number({ min: 10, max: 20 }),
+          business_skills_credits: faker.datatype.number({ min: 5, max: 15 }),
+          japanese_employment_credits: faker.datatype.number({ min: 5, max: 15 }),
+          liberal_arts_education_credits: faker.datatype.number({ min: 10, max: 20 }),
+          specialized_education_credits: faker.datatype.number({ min: 20, max: 40 }),
+
+          // Mavjud maydonlar
+          self_introduction: faker.lorem.paragraph(),
+          hobbies: faker.random.words(),
+          gallery: JSON.stringify(gallery),
+          skills: JSON.stringify(skills),
+          it_skills: JSON.stringify(itSkills),
+          other_information: faker.lorem.paragraph(),
+          semester: faker.datatype.number({ min: 1, max: 8 }).toString(), // "卒業" ni olib tashladim, chunki aktiv talabalar
+          student_status: 'Active',
+          partner_university: faker.company.companyName(),
+          deliverables: JSON.stringify(deliverables),
+          jlpt: JSON.stringify(jlptString),
+          ielts: JSON.stringify(ieltsString),
+          jdu_japanese_certification: JSON.stringify(jlptString),
+          japanese_speech_contest: faker.random.word(),
+          it_contest: faker.random.word(),
+          active: true,
+          visibility: faker.datatype.boolean(),
+          has_pending: faker.datatype.boolean(),
+          kintone_id: faker.datatype.number(),
+          graduation_year: gradYear,
+          graduation_season: gradSeason,
+          language_skills: langSkills,
+          createdAt: new Date(),
+          updatedAt: new Date(),
       });
     }
 

@@ -1,23 +1,15 @@
-'use strict'
-const bcrypt = require('bcrypt')
-const { Model } = require('sequelize')
+'use strict';
+const bcrypt = require('bcrypt');
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-	class Student extends Model {
-		/**
-		 * Helper method for defining associations.
-		 * This method is not a part of Sequelize lifecycle.
-		 * The `models/index` file will call this method automatically.
-		 */
-		static associate(models) {
-			Student.hasMany(models.Bookmark, {
-				foreignKey: 'studentId',
-				as: 'bookmarks',
-			})
-			// Student.hasMany(models.Draft, { foreignKey: 'student_id', as: 'drafts' });
-			Student.hasOne(models.Draft, { foreignKey: 'student_id', as: 'draft' })
-		}
-	}
+    class Student extends Model {
+        static associate(models) {
+            Student.hasMany(models.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' });
+            Student.hasOne(models.Draft, { foreignKey: 'student_id', sourceKey: 'student_id', as: 'draft' });
+            Student.hasMany(models.QA, { foreignKey: 'studentId', as: 'qas' });
+        }
+    }
 
 	Student.init(
 		{
@@ -173,3 +165,4 @@ module.exports = (sequelize, DataTypes) => {
 
 	return Student
 }
+

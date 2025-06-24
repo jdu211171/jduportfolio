@@ -221,112 +221,250 @@ class KintoneService {
 	}
 
 	// Service method to delete a record
-	static async syncData() {
-		try {
-			let students = (await this.getAllRecords('students')).records
+	// static async syncData() {
+	// 	try {
+	// 		 const students = (await this.getAllRecords('students')).records;
+    //         const credits = (await this.getAllRecords('student_credits')).records; // Yangi credits app
+            
+    //         // Sertifikatlar
+    //         const ieltsCerts = (await this.getAllRecords('student_ielts')).records;
+    //         const itContestCerts = (await this.getAllRecords('student_it_contest')).records;
+    //         const jlptCerts = (await this.getAllRecords('student_jlpt')).records;
+    //         const benronCerts = (await this.getAllRecords('student_benron_taikai')).records;
+    //         const jduNinteiCerts = (await this.getAllRecords('student_jdu_ninteishiken')).records;
 
-			let certificate_jlpt = (await this.getAllRecords('certificate_jlpt'))
-				.records
-			let certificate_jdu_jlpt = (
-				await this.getAllRecords('certificate_jdu_jlpt')
-			).records
-			let certificate_ielts = (await this.getAllRecords('certificate_ielts'))
-				.records
-			let certificate_benron = (await this.getAllRecords('certificate_benron'))
-				.records
-			let certificate_it_contest = (
-				await this.getAllRecords('certificate_it_contest')
-			).records
+	// 		const creditsMap = new Map();
+    //         credits.forEach(rec => {
+    //             creditsMap.set(rec.studentId.value, {
+    //                 worldLanguageUniversityCredits: rec.worldLanguageUniversityCredits.value,
+    //                 businessSkillsCredits: rec.businessSkillsCredits.value,
+    //                 japaneseEmploymentCredits: rec.japaneseEmploymentCredits.value,
+    //                 liberalArtsEducationCredits: rec.liberalArtsEducationCredits.value,
+    //                 totalCredits: rec.totalCredits.value,
+    //                 specializedEducationCredits: rec.specializedEducationCredits.value,
+    //                 partnerUniversityCredits: rec.partnerUniversityCredits.value,
+    //             });
+    //         });
 
-			let jlptData = this.formatCertificateData(certificate_jlpt, 'level', true)
-			let jduJlptData = this.formatCertificateData(
-				certificate_jdu_jlpt,
-				'level',
-				true
-			)
-			let ieltsData = this.formatCertificateData(certificate_ielts, 'score')
-			let benronData = this.formatCertificateData(
-				certificate_benron,
-				'rank',
-				true
-			)
-			let itContestData = this.formatCertificateData(
-				certificate_it_contest,
-				'award',
-				true
-			)
+	// 		const ieltsData = this.formatCertificateData(ieltsCerts, 'ielts');
+    //         const itContestData = this.formatCertificateData(itContestCerts, 'it_contest', true);
+    //         const jlptData = this.formatCertificateData(jlptCerts, 'jlptCertificate', true);
+    //         const benronData = this.formatCertificateData(benronCerts, 'japanese_speech_contest', true);
+    //         const jduNinteiData = this.formatCertificateData(jduNinteiCerts, 'jdu_japanese_certification', true);
 
-			const formattedStudentData = students.map(record => ({
-				studentId: record.studentId.value,
-				// studentName: record.studentName.value,
-				studentFirstName: record.studentFirstName.value, // To‘g‘ri nom
-    			studentLastName: record.studentLastName.value, // To‘g‘ri nom
+	// 		// const formattedStudentData = students.map(record => ({
+	// 		// 	studentId: record.studentId?.value,
+	// 		// 	// studentName: record.studentName.value,
+	// 		// 	studentFirstName: record.studentFirstName.value, // To‘g‘ri nom
+    // 		// 	studentLastName: record.studentLastName.value, // To‘g‘ri nom
 
-				mail: record.studentEmail.value,
-				jduDate: record.jduEnrollmentDate.value,
-				birthday: record.birthDate.value,
-				semester: record.semester.value,
-				univer: record.partnerUniversity.value,
-				レコード番号: record['レコード番号'],
-				jlpt: JSON.stringify(
-					jlptData[record.studentId.value]
-						? jlptData[record.studentId.value]
-						: ''
-				),
-				jdu_japanese_certification: JSON.stringify(
-					jduJlptData[record.studentId.value]
-						? jduJlptData[record.studentId.value]
-						: ''
-				),
-				ielts: JSON.stringify(
-					ieltsData[record.studentId.value]
-						? ieltsData[record.studentId.value]
-						: ''
-				),
-				japanese_speech_contest: JSON.stringify(
-					benronData[record.studentId.value]
-						? benronData[record.studentId.value]
-						: ''
-				),
-				it_contest: JSON.stringify(
-					itContestData[record.studentId.value]
-						? itContestData[record.studentId.value]
-						: ''
-				),
-			}))
+	// 		// 	mail: record.studentEmail.value,
+	// 		// 	jduDate: record.jduEnrollmentDate.value,
+	// 		// 	birthday: record.birthDate.value,
+	// 		// 	semester: record.semester.value,
+	// 		// 	univer: record.partnerUniversity.value,
+	// 		// 	// レコード番号: record['amallarniレコード番号'],
+	// 		// 	kintone_id_value: record['レコード番号']?.value || record.$id?.value,
 
-			let result = await StudentService.syncStudentData(formattedStudentData)
-		} catch (error) {
-			console.log(error)
-			throw error
-		}
-	}
+	// 		// 	jlpt: JSON.stringify(
+	// 		// 		jlptData[record.studentId.value]
+	// 		// 			? jlptData[record.studentId.value]
+	// 		// 			: ''
+	// 		// 	),
+	// 		// 	jdu_japanese_certification: JSON.stringify(
+	// 		// 		jduJlptData[record.studentId.value]
+	// 		// 			? jduJlptData[record.studentId.value]
+	// 		// 			: ''
+	// 		// 	),
+	// 		// 	ielts: JSON.stringify(
+	// 		// 		ieltsData[record.studentId.value]
+	// 		// 			? ieltsData[record.studentId.value]
+	// 		// 			: ''
+	// 		// 	),
+	// 		// 	japanese_speech_contest: JSON.stringify(
+	// 		// 		benronData[record.studentId.value]
+	// 		// 			? benronData[record.studentId.value]
+	// 		// 			: ''
+	// 		// 	),
+	// 		// 	it_contest: JSON.stringify(
+	// 		// 		itContestData[record.studentId.value]
+	// 		// 			? itContestData[record.studentId.value]
+	// 		// 			: ''
+	// 		// 	),
+	// 		// 	// New Fields 
+	// 		// 	graduation_year: record.graduation_year?.value || null, 
+    //         //     graduation_season: record.graduation_season?.value || null, 
+    //         //     language_skills: record.language_skills?.value || null,  
+	// 		// }))
+	// 		 const formattedStudentData = students.map(record => {
+    //             const studentId = record.studentId?.value;
+    //             const studentCredits = creditsMap.get(studentId) || {}; // Agar kredit topilmasa, bo'sh obyekt
 
-	static formatCertificateData(certificateJlpt, level, isReverse) {
-		const data = {}
-		// console.log(certificateJlpt, level, isReverse)
-		certificateJlpt.forEach(record => {
-			const studentId = record.studentId.value
-			const nLevel = record[level].value
-			const date = record.date.value
+    //             return {
+    //                 // Yangi asosiy maydonlar
+    //                 studentId: studentId,
+    //                 studentFirstName: record.studentFirstName?.value,
+    //                 studentLastName: record.studentLastName?.value,
+    //                 birthday: record.birthday?.value,
+    //                 gender: record.gender?.value,
+    //                 address: record.address?.value,
+    //                 mail: record.mail?.value,
+    //                 phoneNumber: record.phoneNumber?.value,
+    //                 parentsPhoneNumber: record.parentsPhoneNumber?.value,
+    //                 jduDate: record.jduDate?.value,
+    //                 partnerUniversity: record.partnerUniversity?.value,
+    //                 partnerUniversityEnrollmentDate: record.partnerUniversityEnrollmentDate?.value,
+    //                 semester: record.semester?.value,
+    //                 studentStatus: record.studentStatus?.value,
+    //                 kintone_id_value: record['レコード番号']?.value || record.$id?.value,
 
-			if (!data[studentId]) {
-				data[studentId] = {
-					highest: nLevel,
-					list: [{ level: nLevel, date: date }],
-				}
-			} else {
-				data[studentId].list.push({ level: nLevel, date: date })
+    //                 // Kreditlar
+    //                 ...studentCredits,
 
-				// Update the highest level if the current level is higher
-				if (this.isHigherLevel(nLevel, data[studentId].highest, isReverse)) {
-					data[studentId].highest = nLevel
-				}
-			}
-		})
+    //                 // Sertifikatlar (JSON string ko'rinishida)
+    //                 ielts: JSON.stringify(ieltsData[studentId] || ''),
+    //                 it_contest: JSON.stringify(itContestData[studentId] || ''),
+    //                 jlpt: JSON.stringify(jlptData[studentId] || ''),
+    //                 japanese_speech_contest: JSON.stringify(benronData[studentId] || ''),
+    //                 jdu_japanese_certification: JSON.stringify(jduNinteiData[studentId] || ''),
+    //             };
+    //         });
+	// 		await StudentService.syncStudentData(formattedStudentData);
+	// 	} catch (error) {
+	// 		console.log(error)
+	// 		throw error
+	// 	}
+	// }
+    
+	    static async syncData() {
+        try {
+            console.log("Sinxronizatsiya boshlandi...");
+            const [
+                students, credits, ieltsCerts, itContestCerts, 
+                jlptCerts, benronCerts, jduNinteiCerts
+            ] = await Promise.all([
+                this.getAllRecords('students').then(res => res.records),
+                this.getAllRecords('student_credits').then(res => res.records),
+                this.getAllRecords('student_ielts').then(res => res.records),
+                this.getAllRecords('student_it_contest').then(res => res.records),
+                this.getAllRecords('student_jlpt').then(res => res.records),
+                this.getAllRecords('student_benron_taikai').then(res => res.records),
+                this.getAllRecords('student_jdu_ninteishiken').then(res => res.records),
+            ]);
+            console.log(`${students.length} ta talaba ma'lumoti topildi.`);
 
-		return data
-	}
+            const creditsMap = new Map();
+            credits.forEach(rec => {
+                creditsMap.set(rec.studentId?.value, {
+                    worldLanguageUniversityCredits: rec.worldLanguageUniversityCredits?.value,
+                    businessSkillsCredits: rec.businessSkillsCredits?.value,
+                    japaneseEmploymentCredits: rec.japaneseEmploymentCredits?.value,
+                    liberalArtsEducationCredits: rec.liberalArtsEducationCredits?.value,
+                    totalCredits: rec.totalCredits?.value,
+                    specializedEducationCredits: rec.specializedEducationCredits?.value,
+                    partnerUniversityCredits: rec.partnerUniversityCredits?.value,
+                });
+            });
+
+            const ieltsData = this.formatCertificateData(ieltsCerts, 'ielts', 'date');
+            const itContestData = this.formatCertificateData(itContestCerts, 'it_contest', 'date', true);
+            const jlptData = this.formatCertificateData(jlptCerts, 'jlptCertificate', 'jlpt_date', true);
+            const benronData = this.formatCertificateData(benronCerts, 'japanese_speech_contest', 'campusDate', true);
+            const jduNinteiData = this.formatCertificateData(jduNinteiCerts, 'jdu_japanese_certification', 'date', true);
+
+            const formattedStudentData = students.map(record => {
+                const studentId = record.studentId?.value;
+                if (!studentId) return null;
+
+                const studentCredits = creditsMap.get(studentId) || {};
+
+                return {
+                    studentId,
+                    studentFirstName: record.studentFirstName?.value,
+                    studentLastName: record.studentLastName?.value,
+                    birthday: record.birthday?.value,
+                    gender: record.gender?.value,
+                    address: record.address?.value,
+                    mail: record.mail?.value,
+                    phoneNumber: record.phoneNumber?.value,
+                    parentsPhoneNumber: record.parentsPhoneNumber?.value,
+                    jduDate: record.jduDate?.value,
+                    partnerUniversity: record.partnerUniversity?.value,
+                    partnerUniversityEnrollmentDate: record.partnerUniversityEnrollmentDate?.value,
+                    semester: record.semester?.value,
+                    studentStatus: record.studentStatus?.value,
+                    kintone_id_value: record['レコード番号']?.value || record.$id?.value,
+                    ...studentCredits,
+                    ielts: JSON.stringify(ieltsData[studentId] || null),
+                    it_contest: JSON.stringify(itContestData[studentId] || null),
+                    jlpt: JSON.stringify(jlptData[studentId] || null),
+                    japanese_speech_contest: JSON.stringify(benronData[studentId] || null),
+                    jdu_japanese_certification: JSON.stringify(jduNinteiData[studentId] || null),
+                };
+            }).filter(Boolean);
+
+            await StudentService.syncStudentData(formattedStudentData);
+            console.log("Sinxronizatsiya muvaffaqiyatli yakunlandi.");
+
+        } catch (error) {
+            console.log("KintoneService syncData xatosi:", error);
+            throw error;
+        }
+    }
+
+
+	// static formatCertificateData(certificateJlpt, level, isReverse) {
+	// 	const data = {}
+	// 	// console.log(certificateJlpt, level, isReverse)
+	// 	certificateJlpt.forEach(record => {
+	// 		const studentId = record.studentId.value
+	// 		const nLevel = record[level].value
+	// 		const date = record.date.value
+
+	// 		if (!data[studentId]) {
+	// 			data[studentId] = {
+	// 				highest: nLevel,
+	// 				list: [{ level: nLevel, date: date }],
+	// 			}
+	// 		} else {
+	// 			data[studentId].list.push({ level: nLevel, date: date })
+
+	// 			// Update the highest level if the current level is higher
+	// 			if (this.isHigherLevel(nLevel, data[studentId].highest, isReverse)) {
+	// 				data[studentId].highest = nLevel
+	// 			}
+	// 		}
+	// 	})
+
+	// 	return data
+	// }
+	static formatCertificateData(certificateRecords, levelField, dateField, isReverse) {
+        const data = {};
+        certificateRecords.forEach(record => {
+            const studentId = record.studentId?.value;
+            if (!studentId) return; // studentId bo'lmasa, o'tkazib yuborish
+
+            const nLevel = record[levelField]?.value;
+            const date = record[dateField]?.value;
+
+            if (!nLevel) return; // level bo'lmasa, o'tkazib yuborish
+
+            const newEntry = { level: nLevel, date: date };
+            
+            if (!data[studentId]) {
+                data[studentId] = {
+                    highest: nLevel,
+                    list: [newEntry],
+                };
+            } else {
+                data[studentId].list.push(newEntry);
+                if (this.isHigherLevel(nLevel, data[studentId].highest, isReverse)) {
+                    data[studentId].highest = nLevel;
+                }
+            }
+        });
+        return data;
+    }
 
 	static extractLevelNumber(level) {
 		const match = level.match(/\d+/) // Extract digits from the string

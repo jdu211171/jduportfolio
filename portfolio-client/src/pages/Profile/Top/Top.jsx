@@ -91,6 +91,7 @@ const Top = () => {
 			setEditData(mappedData)
 			setHasDraft(true)
 			SetUpdateQA(!updateQA)
+			setCurrentDraft(statedata.draft)
 		}
 	}
 

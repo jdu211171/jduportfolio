@@ -1,14 +1,18 @@
-const { addToQueue } = require('./emailService')
+// utils/emailToStudent.js
 
-class EmailService {
-	static async EmailToStudent(email, password, firstName, lastName) {
-		const to = email
-		const subject = 'Welcome to JDU'
+const { sendEmail } = require('./emailService'); // Asosiy jo'natuvchi servisni import qilamiz
 
-		const text = `Dear ${firstName} ${lastName},\n\nWelcome to JDU Portfolio System! Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nAdditionally, please log into the portfolio and fill in your information on the "自己PR" and "Q&A" pages.\n\nBest regards,\nJDU Team`
-
-		const html = `
-      <!DOCTYPE html>
+/**
+ * 1. Email KONTENTINI FORMATLASH uchun funksiya.
+ * Bu funksiya faqat email ma'lumotlarini tayyorlab, ob'ekt sifatida qaytaradi.
+ * Ommaviy jo'natish uchun ishlatiladi.
+ */
+const formatStudentWelcomeEmail = (email, password, firstName, lastName) => {
+    const to = email;
+    const subject = 'Welcome to JDU';
+    const text = `Dear ${firstName} ${lastName},\n\nWelcome to JDU Portfolio System! Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nAdditionally, please log into the portfolio and fill in your information on the "自己PR" and "Q&A" pages.\n\nBest regards,\nJDU Team`;
+    const html = `
+         <!DOCTYPE html>
       <html lang="ja">
       <head>
           <meta charset="UTF-8">
@@ -85,11 +89,29 @@ class EmailService {
       </body>
       </html>
     `
+    return { to, subject, text, html };
+};
 
-		await addToQueue(to, subject, text, html)
+/**
+ * 2. Tayyor shablonni YAKKA TARTIBDA JO'NATISH uchun funksiya.
+ * Bu funksiya formatlash funksiyasini chaqiradi va darhol jo'natadi.
+ * Webhook kabi yakka hodisalar uchun ishlatiladi.
+ */
+const sendStudentWelcomeEmail = async (email, password, firstName, lastName) => {
+    // Yuqoridagi formatlash funksiyasidan foydalanamiz
+    const mailData = formatStudentWelcomeEmail(email, password, firstName, lastName);
 
-		return 'Email sent successfully'
-	}
-}
+    try {
+        await sendEmail(mailData); // Asosiy servis orqali jo'natamiz
+        return 'Email sent successfully';
+    } catch (error) {
+        console.error(`Talabaga yakka tartibda email jo'natishda xatolik (${email}): `, error);
+        throw error;
+    }
+};
 
-module.exports = EmailService
+// Endi biz ikkita alohida funksiyani export qilamiz
+module.exports = {
+    formatStudentWelcomeEmail,
+    sendStudentWelcomeEmail,
+};
