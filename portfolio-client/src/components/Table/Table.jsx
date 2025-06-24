@@ -51,7 +51,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 	const handleClick = (event, rowId) => {
 		setAnchorEls(prev => ({
 			...prev,
-			[rowId]: event.currentTarget,
+			[rowId]: event.currentTarget,	
 		}))
 	}
 	const handleClose = async (id, action) => {
@@ -242,8 +242,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark }) => {
 															}
 															: {}),
 													}}
+													
 												>
-													{header.type === 'bookmark' ? (
+													{header.renderCell ? (
+														header.renderCell(row)
+													) : header.type === 'bookmark' ? (
 														<>
 															{row.isBookmarked ? (
 																<svg
