@@ -33,7 +33,7 @@ class AuthService {
     }
 
     static async loginWithGoogle(profile) {
-        const email = profile.emails[0].value // Google profilidan emailni olish
+        const email = profile.emails[0].value 
         const userTypes = [Admin, Staff, Recruiter, Student]
 
         for (const UserType of userTypes) {

@@ -75,11 +75,24 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
-// Configure CORS to allow credentials
+
+
+const allowedOrigins = [
+    process.env.FRONTEND_URL, // http://localhost:5173
+    process.env.FRONTEND_URL_PROD // https://portfolio.jdu.uz
+];
+
+
 app.use(cors({ 
-	origin: '*',
-	credentials: true
-}))
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
 
 // Configure routes
 configureRoutes(app)

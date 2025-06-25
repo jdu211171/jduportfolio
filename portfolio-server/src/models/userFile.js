@@ -3,13 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class UserFile extends Model {
-    /**
-     * Helper method for defining associations.
-     * Bu metod avtomatik chaqirilmaydi. Buni models/index.js da qo'lda sozlash kerak.
-     */
     static associate(models) {
-      // Bu yerda polimorfik bog'lanishlarni sozlash mumkin,
-      // lekin ko'pincha bu to'g'ridan-to'g'ri so'rovlar orqali amalga oshiriladi.
     }
   }
   UserFile.init({

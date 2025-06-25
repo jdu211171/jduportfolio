@@ -3,9 +3,7 @@ const { deleteFile } = require('../utils/storageService'); // S3 dan o'chirish l
 
 class FileRecordController {
 
-    /**
-     * Fayl URLini va metadatasini ma'lumotlar bazasiga saqlaydi
-     */
+
     static async createFileRecord(req, res) {
         const { file_url, object_name, original_filename, purpose } = req.body;
         const { id: owner_id, userType: owner_type } = req.user;
@@ -30,9 +28,6 @@ class FileRecordController {
         }
     }
 
-    /**
-     * Tizimga kirgan foydalanuvchining o'z fayllarini qaytaradi
-     */
     static async getMyFiles(req, res) {
         const { id: owner_id, userType: owner_type } = req.user;
         const { purpose } = req.query; // Query orqali filterlash (masalan: ?purpose=gallery)
@@ -55,9 +50,6 @@ class FileRecordController {
         }
     }
 
-    /**
-     * Faylni S3 dan va ma'lumotlar bazasidan o'chiradi
-     */
     static async deleteFileRecord(req, res) {
     const { fileId } = req.params;
     // Token'dan olingan user ma'lumotlari
@@ -89,7 +81,6 @@ class FileRecordController {
             return res.status(500).json({ error: 'Failed to delete file' });
         }
     }
-    // Bu yerga adminlar uchun boshqa foydalanuvchilar fayllarini olish logikasini qo'shishingiz mumkin
 }
 
 module.exports = FileRecordController;

@@ -16,16 +16,14 @@ class NotificationController {
 	static async getNotificationsByUserId(req, res) {
 		try {
 			const { id, userType } = req.user
-			// console.log(req.user)
 
 			if (!id || !userType) {
 				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let user_id = id
-			let user_role = userType.toLowerCase() // Case insensitive tekshirish
+			let user_role = userType.toLowerCase() 
 
-			// **Agar Student bo'lsa, student_id ni olish**
 			if (user_role === 'student') {
 				const student = await getStudentById(id)
 				if (!student) {
@@ -34,10 +32,10 @@ class NotificationController {
 				user_id = student.student_id
 			}
 
-			// **Foydalanuvchining user_type bo'yicha filter**
+		
 			let filter = { user_id, status: { [Op.ne]: 'read' } }
 
-			// Handle different user roles
+			
 			if (user_role === 'admin') {
 				filter = { user_role: 'admin', status: { [Op.ne]: 'read' } }
 			} else if (user_role === 'student') {
@@ -45,13 +43,8 @@ class NotificationController {
 			} else if (user_role === 'staff') {
 				filter.user_role = 'staff'
 			}
-			// For 'recruiter', we don't add user_role to the filter since it's not in the enum
 
 			const notifications = await NotificationService.getByUserId(user_id, filter)
-
-			// if (!notifications || notifications.length === 0) {
-			// 	return res.status(404).json({ message: 'No notifications found for this user' })
-			// }
 
 			return res.status(200).json(notifications)
 		} catch (error) {

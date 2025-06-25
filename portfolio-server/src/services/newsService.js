@@ -5,11 +5,7 @@ const generateUniqueFilename = require('../utils/uniqueFilename');
 
 class NewsService {
 
-    // createNews, updateNews, deleteNews metodlari o'zgarishsiz qoladi...
 
-    /**
-     * Yangilik yaratish. Ruxsatlarni tekshiradi va statusni avtomatik belgilaydi.
-     */
     static async createNews(newsData, file, user) {
         if (!file) {
             throw { status: 400, message: 'Yangilik uchun rasm majburiy.' };
@@ -40,9 +36,7 @@ class NewsService {
         return await News.create(dataToCreate);
     }
 
-    /**
-     * Yangilikni tahrirlash. Faqat muallif yoki Admin/Staff tahrirlay oladi.
-     */
+  
     static async updateNews(newsId, updateData, file, user) {
         const news = await News.findByPk(newsId);
         if (!news) throw { status: 404, message: 'Yangilik topilmadi.' };
@@ -71,9 +65,7 @@ class NewsService {
         return news;
     }
 
-    /**
-     * Yangilikni o'chirish. Faqat muallif yoki Admin/Staff o'chira oladi.
-     */
+  
     static async deleteNews(newsId, user) {
         const news = await News.findByPk(newsId);
         if (!news) throw { status: 404, message: 'Yangilik topilmadi.' };
@@ -87,15 +79,13 @@ class NewsService {
         return { message: 'Yangilik muvaffaqiyatli o\'chirildi.' };
     }
     
-    /**
-     * Yangiliklarni olish (QIDIRUV FUNKSIYASI BILAN).
-     */
+
     static async getNews(filters, user) {
         const { type, status, search } = filters;
         
         const finalConditions = [];
 
-        // 1. ROLGA QARAB ASOSIY KO'RISH HUQUQLARINI O'RNATAMIZ
+        
         if (user.userType === 'Admin' || user.userType === 'Staff') {
             if (status) finalConditions.push({ status: status });
         } else if (user.userType === 'Recruiter') {
@@ -109,11 +99,10 @@ class NewsService {
                     }
                 ]
             });
-        } else { // Student va boshqa barcha holatlar
+        } else { 
             finalConditions.push({ status: 'approved' });
         }
 
-        // 2. QO'SHIMCHA FILTRLARNI `finalConditions`ga QO'SHAMIZ
         if (type) {
             finalConditions.push({ type: type });
         }
@@ -130,7 +119,7 @@ class NewsService {
             finalConditions.push({ [Op.or]: searchOrConditions });
         }
         
-        // 3. YAKUNIY SO'ROVNI YUBORAMIZ
+       
         const newsListWithIncludes = await News.findAll({
             where: {
                 [Op.and]: finalConditions
@@ -145,7 +134,7 @@ class NewsService {
             ]
         });
         
-        // 4. JAVOBNI TOZALAB QAYTARAMIZ
+        
         const cleanNewsList = newsListWithIncludes.map(newsItem => {
             const newsJson = newsItem.toJSON();
             let author = null;
@@ -169,9 +158,7 @@ class NewsService {
     }
 
 
-    /**
-     * Yangilikni tasdiqlash yoki rad etish (faqat Admin/Staff uchun).
-     */
+
     static async moderateNews(newsId, action, reason, moderator) {
         if (moderator.userType !== 'Admin' && moderator.userType !== 'Staff') {
             throw { status: 403, message: 'Sizda bu amalni bajarish uchun ruxsat yo‘q.' };

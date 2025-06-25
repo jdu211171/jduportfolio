@@ -4,7 +4,6 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class News extends Model {
     static associate(models) {
-      // Polimorfik bog'lanishlar har bir foydalanuvchi modelida e'lon qilinadi
     }
   }
   News.init({
@@ -23,23 +22,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'News',
-    // >>> YAXSHILASH: Getter'lar qo'shildi <<<
-    // getterMethods: {
-    //   // "author" nomli virtual maydon yaratamiz
-    //   author() {
-    //     // authorAdmin, authorStaff, authorRecruiter maydonlaridan qaysi biri mavjud bo'lsa, o'shani qaytaradi
-    //     if (this.authorAdmin) return this.authorAdmin;
-    //     if (this.authorStaff) return this.authorStaff;
-    //     if (this.authorRecruiter) return this.authorRecruiter;
-    //     return null;
-    //   },
-    //   // "moderator" nomli virtual maydon yaratamiz
-    //   moderator() {
-    //     if (this.moderatorAdmin) return this.moderatorAdmin;
-    //     if (this.moderatorStaff) return this.moderatorStaff;
-    //     return null;
-    //   }
-    // }
   });
   return News;
 };

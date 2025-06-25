@@ -10,7 +10,6 @@ class NewsController {
             next(err);
         }
     }
-
     static async getAll(req, res, next) {
         try {
             const newsList = await NewsService.getNews(req.query, req.user);
@@ -19,7 +18,6 @@ class NewsController {
             next(err);
         }
     }
-
     static async update(req, res, next) {
         try {
             const updatedNews = await NewsService.updateNews(req.params.id, req.body, req.file, req.user);
@@ -28,7 +26,6 @@ class NewsController {
             next(err);
         }
     }
-
     static async delete(req, res, next) {
         try {
             const result = await NewsService.deleteNews(req.params.id, req.user);

@@ -8,7 +8,7 @@ const appIdToName = Object.keys(kintoneConfig).reduce((acc, key) => {
 }, {})
 
 class KintoneController {
- // Controller method to retrieve all students
+ 
  static async getAll(req, res, next) {
   try {
    const students = await KintoneService.getAllRecords('students')
@@ -19,7 +19,6 @@ class KintoneController {
     .json({ message: 'Error fetching students', error: error.message })
   }
  }
- // Controller method to retrieve records by column name and value
  static async getBy(req, res, next) {
   try {
    const { table, col, val } = req.body
@@ -31,7 +30,6 @@ class KintoneController {
     .json({ message: 'Error fetching records', error: error.message })
   }
  }
- // Controller method to create a new record
  static async create(req, res) {
   try {
    const appId = req.query.app // "105" keladi
@@ -49,7 +47,6 @@ class KintoneController {
     .json({ message: 'Error creating record', error: error.message })
   }
  }
- // Controller method to update a record
  static async update(req, res) {
   try {
    const appId = req.query.app || kintoneConfig.students.appId // Default: students app
@@ -69,7 +66,6 @@ class KintoneController {
     .json({ message: 'Error updating record', error: error.message })
   }
  }
-// Controller method to delete a record
 static async delete(req, res) {
     try {
         const appId = req.query.app || kintoneConfig.students.appId; // Default: students app
@@ -90,7 +86,6 @@ static async delete(req, res) {
         res.status(500).json({ message: 'Error deleting record', error: error.message });
     }
 }
- // Controller method to sync data
  static async sync(req, res) {
   try {
    await KintoneService.syncData()
