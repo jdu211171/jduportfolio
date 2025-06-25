@@ -5,10 +5,11 @@ import {
 	AccordionDetails,
 	Typography,
 } from '@mui/material'
-import { ArrowDropDown, Margin } from '@mui/icons-material'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { styled } from '@mui/material/styles'
 import styles from './QAAccordion.module.css'
-
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
 	'.MuiAccordionSummary-expandIcon': {
 		order: -1,
@@ -20,12 +21,26 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 	return (
 		<div>
 			<Accordion
+				TransitionProps={{ timeout: 500 }}
 				className={styles.accordion}
 				expanded={expandable}
-				style={notExpand ? { marginBottom: '10px' } : {}}
+				style={notExpand ? {} : { marginBottom: '10px' }}
+				sx={{
+					transition: 'all 0.3s ease',
+					boxShadow: 'none',
+					'&:hover': {
+						boxShadow: '0px 3px 3px 0px rgb(187, 187, 187)',
+					},
+				}}
 			>
 				<StyledAccordionSummary
-					expandIcon={!notExpand && <ArrowDropDown />}
+					style={{
+						borderRadius: 20,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'left',
+					}}
+					expandIcon={!notExpand && <KeyboardArrowDownIcon />}
 					aria-controls='panel2-content'
 					id='panel2-header'
 					onClick={e => {
@@ -35,11 +50,14 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 						}
 					}}
 				>
-					<div className={styles.qPart}>Q</div>
-					<Typography className={styles.question}>{question}</Typography>
+					<div className={styles.qPart}>
+						<HelpOutlineIcon sx={{ color: '#2563eb' }} />
+					</div>
+					<Typography sx={{ pl: '10px', fontSize: 18 }}>{question}</Typography>
 				</StyledAccordionSummary>
 				{!notExpand && (
 					<AccordionDetails className={styles.answer}>
+						<ChatBubbleOutlineIcon />
 						<pre>{answer}</pre>
 					</AccordionDetails>
 				)}

@@ -27,6 +27,7 @@ const SkillSelector = ({
 	keyName,
 	showAutocomplete,
 	showHeaders,
+	icon,
 }) => {
 	const [jsonData, setJsonData] = useState(data[keyName])
 	const [editJsonData, setEditJsonData] = useState(editData[keyName])
@@ -87,7 +88,13 @@ const SkillSelector = ({
 
 	return (
 		<div className={styles.container}>
-			<div className={styles.title}>{title}</div>
+			<div
+				className={styles.title}
+				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
+			>
+				{icon ? icon : ''}
+				{title}
+			</div>
 			<div className={styles.description}>
 				{showHeaders &&
 					Object.entries(headers).map(([level, description]) => (
@@ -97,7 +104,6 @@ const SkillSelector = ({
 						</div>
 					))}
 			</div>
-			<hr />
 			{editMode && (
 				<Box display='flex' alignItems='center' mb={2} mt={2}>
 					{showAutocomplete ? (
@@ -148,7 +154,7 @@ const SkillSelector = ({
 						{Object.entries(editMode ? editJsonData : jsonData).map(
 							([level, skills]) => (
 								<tr key={level}>
-									<td style={{ textAlign: 'right' }}>{t('levels')[level]}:</td>
+									<td style={{ fontSize: 14 }}>{t('levels')[level]}</td>
 									<td>
 										{skills.map((skill, index) => (
 											<Chip
@@ -156,11 +162,10 @@ const SkillSelector = ({
 												label={
 													skill.name + '\n' + (skill.date ? skill.date : '')
 												}
-												variant='outlined'
+												variant='filled'
 												style={
 													skill.date
 														? {
-																borderColor: skill.color,
 																color: skill.color,
 																margin: '0 4px 4px 0',
 																backgroundColor: skill.color + '16',
@@ -168,13 +173,26 @@ const SkillSelector = ({
 																height: 'auto',
 															}
 														: {
-																borderColor: skill.color,
-																color: skill.color,
+																color:
+																	level === '上級'
+																		? '#ffffff'
+																		: level === '中級'
+																			? '#FFFFFF'
+																			: '#5627db',
 																margin: '0 4px 4px 0',
-																backgroundColor: skill.color + '16',
+																padding: '2px 10px',
+																fontWeight: 500,
+																fontSize: 14,
+																backgroundColor:
+																	level === '上級'
+																		? '#5627DB'
+																		: level === '中級'
+																			? '#7852e2'
+																			: '#efeafc',
 															}
 												}
 												sx={{
+													borderRadius: '4px',
 													'& .MuiChip-label': {
 														display: 'block',
 														whiteSpace: 'pre-wrap',

@@ -10,6 +10,10 @@ const TextField = ({
 	updateEditData,
 	keyName,
 	parentKey,
+	icon: Icon,
+	iconColor = '#7049e1',
+	imageUrl,
+	details = null,
 }) => {
 	const handleChange = e => {
 		updateEditData(keyName, e.target.value)
@@ -17,24 +21,51 @@ const TextField = ({
 
 	return (
 		<div className={styles.container}>
-			<div className={styles.title}>{title}</div>
-			<div className={styles.data}>
-				{editMode ? (
-					<MuiTextField
-						value={
-							(parentKey
-								? editData[parentKey]?.[keyName]
-								: editData[keyName]) || ''
-						}
-						onChange={handleChange}
-						variant='filled'
-						fullWidth
-						multiline
+			<div className={styles.title}>
+				{Icon && <Icon sx={{ color: iconColor }} />}
+				{title}
+			</div>
+			<div style={{ display: 'flex', gap: 15 }}>
+				{imageUrl ? (
+					<img
+						src={imageUrl}
+						alt={imageUrl}
+						height={200}
+						width={200}
+						style={{ borderRadius: 12 }}
 					/>
 				) : (
-					<div>{data ? data : '未入力'}</div>
+					''
 				)}
+				<div className={styles.data}>
+					{editMode ? (
+						<MuiTextField
+							value={
+								(parentKey
+									? editData[parentKey]?.[keyName]
+									: editData[keyName]) || ''
+							}
+							onChange={handleChange}
+							variant='outlined'
+							sx={{ width: '100%' }}
+							multiline
+						/>
+					) : (
+						<div>{data ? data : '未入力'}</div>
+					)}
+				</div>
 			</div>
+			{details ? (
+				<div style={{ display: 'flex', gap: 8 }}>
+					{details.map((item, ind) => (
+						<div key={ind} className={styles.detail}>
+							{item}
+						</div>
+					))}
+				</div>
+			) : (
+				''
+			)}
 		</div>
 	)
 }
