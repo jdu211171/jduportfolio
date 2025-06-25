@@ -138,6 +138,50 @@ class RecruiterService {
         return await Recruiter.destroy({ where: { kintone_id: kintoneId } });
     }
 
+	/**
+     * Kintone'dan kelgan rekruterlar ro'yxatini sinxronizatsiya qiladi.
+     * @param {Array} recruiterRecords - Kintone'dan olingan rekruterlar ro'yxati.
+     * @returns {Array} Yangi rekruterlar uchun email vazifalari massivi.
+     */
+    static async syncRecruiterData(recruiterRecords) {
+        console.log(`Rekruter sinxronizatsiyasi boshlandi: ${recruiterRecords.length} ta yozuv topildi.`);
+        const emailTasks = [];
+
+        for (const record of recruiterRecords) {
+            const kintoneId = record['$id']?.value;
+            if (!kintoneId) continue;
+
+            const existingRecruiter = await Recruiter.findOne({ where: { kintone_id: kintoneId } });
+
+            if (!existingRecruiter) {
+                console.log(`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`);
+                const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
+                
+                const recruiterData = {
+                    email: record.recruiterEmail?.value,
+                    password: password,
+                    first_name: record.recruiterFirstName?.value,
+                    last_name: record.recruiterLastName?.value,
+                    company_name: record.recruiterCompany?.value,
+                    phone: record.recruiterPhone?.value,
+                    kintone_id: kintoneId,
+                    active: true,
+                };
+
+                const newRecruiter = await this.createRecruiter(recruiterData);
+
+                if (newRecruiter) {
+                    // >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
+                    emailTasks.push(formatRecruiterWelcomeEmail(newRecruiter.email, password, newRecruiter.first_name, newRecruiter.last_name));
+                }
+            }
+        }
+
+        console.log("Rekruter sinxronizatsiyasi yakunlandi.");
+        // >>> O'ZGARISH: Email vazifalari ro'yxatini qaytaramiz <<<
+        return emailTasks;
+    }
+
 }
 
 module.exports = RecruiterService

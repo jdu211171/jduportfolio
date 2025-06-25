@@ -105,6 +105,50 @@ class StaffService {
         return await Staff.destroy({ where: { kintone_id: kintoneId } });
     }
 
+	 /**
+     * Kintone'dan kelgan xodimlar ro'yxatini sinxronizatsiya qiladi.
+     * @param {Array} staffRecords - Kintone'dan olingan xodimlar ro'yxati.
+     * @returns {Array} Yangi xodimlar uchun email vazifalari massivi.
+     */
+    static async syncStaffData(staffRecords) {
+        console.log(`Staff sinxronizatsiyasi boshlandi: ${staffRecords.length} ta yozuv topildi.`);
+        const emailTasks = [];
+
+        for (const record of staffRecords) {
+            const kintoneId = record['$id']?.value;
+            if (!kintoneId) continue;
+
+            const existingStaff = await Staff.findOne({ where: { kintone_id: kintoneId } });
+            
+            if (!existingStaff) {
+                console.log(`Yangi xodim topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`);
+                const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
+                
+                const staffData = {
+                    email: record.staffEmail?.value,
+                    password: password,
+                    first_name: record.staffFirstName?.value,
+                    last_name: record.staffLastName?.value,
+                    department: record.staffDepartment?.value,
+                    position: record.staffPosition?.value,
+                    kintone_id: kintoneId,
+                    active: true,
+                };
+
+                const newStaff = await this.createStaff(staffData);
+
+                if (newStaff) {
+                    // >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
+                    emailTasks.push(formatStaffWelcomeEmail(newStaff.email, password, newStaff.first_name, newStaff.last_name));
+                }
+            }
+        }
+        
+        console.log("Staff sinxronizatsiyasi yakunlandi.");
+        // >>> O'ZGARISH: Email vazifalari ro'yxatini qaytaramiz <<<
+        return emailTasks;
+    }
+
 
 }
 
