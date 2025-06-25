@@ -10,7 +10,19 @@ module.exports = (sequelize, DataTypes) => {
 		 * The `models/index` file will call this method automatically.
 		 */
 		static associate(models) {
-			// define association here
+			Admin.hasMany(models.News, {
+			foreignKey: 'authorId',
+			constraints: false,
+			scope: { authorType: 'Admin' },
+			as: 'authorAdmin'
+    		});
+			// Admin bir nechta yangilikni moderatsiya qila oladi
+			Admin.hasMany(models.News, {
+				foreignKey: 'moderatorId',
+				constraints: false,
+				scope: { moderatorType: 'Admin' },
+				as: 'moderatorAdmin'
+			});
 		}
 	}
 	Admin.init(

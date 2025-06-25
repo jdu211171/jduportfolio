@@ -9,6 +9,9 @@ const upload = multer({ storage: multer.memoryStorage() })
 const fs = require('fs')
 const axios = require('axios')
 
+const authMiddleware = require('../middlewares/auth-middleware');
+const { UserFile } = require('../models');
+
 /**
  * @swagger
  * /api/files/upload:
@@ -42,45 +45,62 @@ const axios = require('axios')
  *         description: Error uploading file(s)
  */
 // Endpoint to upload one or more files
-router.post('/upload', upload.any(), async (req, res) => {
-	const files = req.files // This will be an array of files
-	const { role, imageType, id, oldFilePath } = req.body
+router.post('/upload', authMiddleware, upload.any(), async (req, res) => {
+    
+    // 3. O'ZGARISH: Barcha logikani yangilash
+    const files = req.files;
+    const { imageType, oldFilePath } = req.body; // `role` va `id` endi form-data'dan olinmaydi
+    const { id: owner_id, userType: owner_type } = req.user; // Ma'lumot xavfsiz tarzda token'dan olinadi
 
-	try {
-		if (oldFilePath && oldFilePath !== 'none') {
-			const oldFilePaths = Array.isArray(oldFilePath)
-				? oldFilePath
-				: [oldFilePath]
-			for (const fileUrl of oldFilePaths) {
-				try {
-					await deleteFile(fileUrl)
-				} catch (err) {
-					console.error(`Failed to delete file at ${fileUrl}: ${err}`)
-				}
-			}
-		}
-		const uploadedFiles = []
-		if (files && files.length !== 0) {
-			for (const file of files) {
-				const fileBuffer = file.buffer
-				const uniqueFilename = generateUniqueFilename(file.originalname)
-				const uploadedFile = await uploadFile(
-					fileBuffer,
-					`${role}/${imageType}/${id}/` + uniqueFilename
-				)
-				uploadedFiles.push(uploadedFile)
+    if (!imageType) {
+        return res.status(400).json({ error: "imageType field is required." });
+    }
+    
+    try {
+        if (oldFilePath && oldFilePath !== 'none') {
+            const oldFilePaths = Array.isArray(oldFilePath) ? oldFilePath : [oldFilePath];
+            for (const fileUrl of oldFilePaths) {
+                try {
+                    await deleteFile(fileUrl);
+                } catch (err) {
+                    console.error(`Failed to delete file at ${fileUrl}: ${err}`);
+                }
+            }
+        }
 
-			}
-		}
+        const createdRecords = [];
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const fileBuffer = file.buffer;
+                const uniqueFilename = generateUniqueFilename(file.originalname);
+                
+                const objectName = `${owner_type.toLowerCase()}/${imageType}/${owner_id}/${uniqueFilename}`;
 
-		res
-			.status(200)
-			.send(uploadedFiles.length === 1 ? uploadedFiles[0] : uploadedFiles)
-	} catch (error) {
-		console.log(error)
-		res.status(500).send('Error uploading file(s)')
-	}
-})
+                // 1-qadam: Faylni S3'ga yuklash
+                const { Location } = await uploadFile(fileBuffer, objectName);
+
+                // 2-qadam: Ma'lumotni to'g'ridan-to'g'ri bazaga yozish
+                const newRecord = await UserFile.create({
+                    file_url: Location,
+                    object_name: objectName,
+                    original_filename: file.originalname,
+                    purpose: imageType,
+                    owner_id: owner_id,
+                    owner_type: owner_type,
+                });
+                
+                createdRecords.push(newRecord);
+            }
+        }
+
+        // Javob sifatida bazaga yozilgan yozuvlarni qaytaramiz
+        res.status(201).send(createdRecords.length === 1 ? createdRecords[0] : createdRecords);
+
+    } catch (error) {
+        console.error('Error during file upload and record creation:', error);
+        res.status(500).send('Error processing file upload');
+    }
+});
 
 /**
  * @swagger

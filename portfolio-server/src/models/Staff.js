@@ -10,7 +10,20 @@ module.exports = sequelize => {
 		 * The `models/index` file will call this method automatically.
 		 */
 		static associate(models) {
-			// define association here
+			// Staff bir nechta yangilik yarata oladi
+			Staff.hasMany(models.News, {
+				foreignKey: 'authorId',
+				constraints: false,
+				scope: { authorType: 'Staff' },
+				as: 'authorStaff'
+			});
+			// Staff bir nechta yangilikni moderatsiya qila oladi
+			Staff.hasMany(models.News, {
+				foreignKey: 'moderatorId',
+				constraints: false,
+				scope: { moderatorType: 'Staff' },
+				as: 'moderatorStaff'
+			});
 		}
 	}
 

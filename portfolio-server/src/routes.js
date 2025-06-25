@@ -12,6 +12,8 @@ const settingRoute = require('./routes/settings-route')
 const draftRoute = require('./routes/drafts-route')
 const logRoute = require('./routes/log-route')
 const notificationRoute = require('./routes/notification-route')
+const newsRoute = require('./routes/newsRoutes')
+const fileRecordRoute = require('./routes/fileRecordRoute')
 
 const fileRoutes = require('./routes/file-routes')
 const imageRoutes = require('./routes/image-routes')
@@ -70,6 +72,8 @@ const configureRoutes = app => {
 	app.use('/api/log', logRoute)
 	app.use('/api/images', imageRoutes)
 	app.use('/api/notification', authMiddleware, notificationRoute)
+	app.use('/api/news' , newsRoute)
+	app.use('/api/file-records', authMiddleware, fileRecordRoute)
 }
 
 module.exports = configureRoutes

@@ -49,9 +49,9 @@ class NotificationController {
 
 			const notifications = await NotificationService.getByUserId(user_id, filter)
 
-			if (!notifications || notifications.length === 0) {
-				return res.status(404).json({ message: 'No notifications found for this user' })
-			}
+			// if (!notifications || notifications.length === 0) {
+			// 	return res.status(404).json({ message: 'No notifications found for this user' })
+			// }
 
 			return res.status(200).json(notifications)
 		} catch (error) {
