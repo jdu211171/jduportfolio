@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const generatePassword = require('generate-password')
 const { Student, Draft, Bookmark, sequelize } = require('../models')
 const { EmailToStudent } = require('../utils/emailToStudent')
+const DraftService = require('./draftService')
 
 class StudentService {
 	// Service method to create a new student
@@ -139,11 +140,11 @@ class StudentService {
 	// 		if (onlyBookmarked === 'true') {
 	// 			query[Op.and].push(
 	// 				sequelize.literal(`EXISTS (
-    //         SELECT 1
-    //         FROM "Bookmarks" AS "Bookmark"
-    //         WHERE "Bookmark"."studentId" = "Student"."id"
-    //           AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
-    //       )`)
+	//         SELECT 1
+	//         FROM "Bookmarks" AS "Bookmark"
+	//         WHERE "Bookmark"."studentId" = "Student"."id"
+	//           AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
+	//       )`)
 	// 			)
 	// 		}
 
@@ -155,11 +156,11 @@ class StudentService {
 	// 					? [
 	// 							[
 	// 								sequelize.literal(`EXISTS (
-    //           SELECT 1
-    //           FROM "Bookmarks" AS "Bookmark"
-    //           WHERE "Bookmark"."studentId" = "Student"."id"
-    //             AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
-    //         )`),
+	//           SELECT 1
+	//           FROM "Bookmarks" AS "Bookmark"
+	//           WHERE "Bookmark"."studentId" = "Student"."id"
+	//             AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
+	//         )`),
 	// 								'isBookmarked',
 	// 							],
 	// 						]
@@ -173,143 +174,162 @@ class StudentService {
 	// 	}
 	// }
 
-
 	/// test getAllStudents
 	static async getAllStudents(filter, recruiterId, onlyBookmarked, userType) {
 		try {
-		  // console.log('Received filter:', filter);
-	  
-		  const semesterMapping = {
-			'1年生': ['1', '2'],
-			'2年生': ['3', '4'],
-			'3年生': ['5', '6'],
-			'4年生': ['7', '8', '9'],
-		  };
-		  const getSemesterNumbers = term => semesterMapping[term] || [];
-		  if (filter.semester) {
-			filter.semester = filter.semester.flatMap(term => getSemesterNumbers(term));
-		  }
-	  
-		  let query = {};
-		  let querySearch = {};
-		  let queryOther = {};
-		  queryOther[Op.and] = [];
-	  
-		  const searchableColumns = [
-			'email',
-			'first_name',
-			'last_name',
-			'self_introduction',
-			'hobbies',
-			'skills',
-			'it_skills',
-			'jlpt',
-			'student_id',
-		  ];
-	  
-		  if (!filter || typeof filter !== 'object') {
-			filter = {};
-		  }
-	  
-		  Object.keys(filter).forEach(key => {
-			if (filter[key]) {
-			  // console.log(`Processing key: ${key}, value: ${filter[key]}`);
-			  if (key === 'search') {
-				const searchValue = String(filter[key]);
-				// console.log('Search value:', searchValue);
-				querySearch[Op.or] = searchableColumns.map(column => {
-				  // console.log(`Building condition for column: ${column}`);
-				  if (['skills', 'it_skills'].includes(column)) {
-					return {
-					  [Op.or]: [
-						{ [column]: { '上級::text': { [Op.iLike]: `%${searchValue}%` } } },
-						{ [column]: { '中級::text': { [Op.iLike]: `%${searchValue}%` } } },
-						{ [column]: { '初級::text': { [Op.iLike]: `%${searchValue}%` } } },
-					  ],
-					};
-				  } else if (column === 'student_id') {
-					return { [column]: { [Op.eq]: searchValue } }; // INTEGER uchun aniq moslik
-				  } else {
-					return { [column]: { [Op.iLike]: `%${searchValue}%` } };
-				  }
-				});
-			  } else if (key === 'skills' || key === 'it_skills') {
-				queryOther[Op.and].push({
-				  [Op.or]: [
-					{ [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-					{ [key]: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-					{ [key]: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-				  ],
-				});
-			  } else if (key === 'partner_university_credits') {
-				queryOther[key] = { [Op.lt]: Number(filter[key]) };
-			  } else if (key === 'other_information') {
-				if (filter[key] === '有り') {
-				  queryOther['other_information'] = { [Op.ne]: null };
-				} else if (filter[key] === '無し') {
-				  queryOther['other_information'] = { [Op.is]: null };
-				}
-			  } else if (key === 'jlpt' || key === 'ielts' || key === 'jdu_japanese_certification') {
-				queryOther[Op.and].push({
-				  [Op.or]: filter[key].map(level => ({ [key]: { [Op.iLike]: `%${level}"%` } })),
-				});
-			  } else if (Array.isArray(filter[key])) {
-				queryOther[key] = { [Op.in]: filter[key] };
-			  } else if (typeof filter[key] === 'string') {
-				queryOther[key] = { [Op.iLike]: `%${filter[key]}%` };
-			  } else {
-				queryOther[key] = filter[key];
-			  }
+			// console.log('Received filter:', filter);
+
+			const semesterMapping = {
+				'1年生': ['1', '2'],
+				'2年生': ['3', '4'],
+				'3年生': ['5', '6'],
+				'4年生': ['7', '8', '9'],
 			}
-		  });
-	  
-		  if (!query[Op.and]) {
-			query[Op.and] = [];
-		  }
-	  
-		  query[Op.and].push(querySearch, queryOther, { active: true });
-	  
-		  if (userType === 'Recruiter') {
-			query[Op.and].push({ visibility: true });
-		  }
-	  
-		  if (onlyBookmarked === 'true') {
-			query[Op.and].push(
-			  sequelize.literal(`EXISTS (
+			const getSemesterNumbers = term => semesterMapping[term] || []
+			if (filter.semester) {
+				filter.semester = filter.semester.flatMap(term =>
+					getSemesterNumbers(term)
+				)
+			}
+
+			let query = {}
+			let querySearch = {}
+			let queryOther = {}
+			queryOther[Op.and] = []
+
+			const searchableColumns = [
+				'email',
+				'first_name',
+				'last_name',
+				'self_introduction',
+				'hobbies',
+				'skills',
+				'it_skills',
+				'jlpt',
+				'student_id',
+			]
+
+			if (!filter || typeof filter !== 'object') {
+				filter = {}
+			}
+
+			Object.keys(filter).forEach(key => {
+				if (filter[key]) {
+					// console.log(`Processing key: ${key}, value: ${filter[key]}`);
+					if (key === 'search') {
+						const searchValue = String(filter[key])
+						// console.log('Search value:', searchValue);
+						querySearch[Op.or] = searchableColumns.map(column => {
+							// console.log(`Building condition for column: ${column}`);
+							if (['skills', 'it_skills'].includes(column)) {
+								return {
+									[Op.or]: [
+										{
+											[column]: {
+												'上級::text': { [Op.iLike]: `%${searchValue}%` },
+											},
+										},
+										{
+											[column]: {
+												'中級::text': { [Op.iLike]: `%${searchValue}%` },
+											},
+										},
+										{
+											[column]: {
+												'初級::text': { [Op.iLike]: `%${searchValue}%` },
+											},
+										},
+									],
+								}
+							} else if (column === 'student_id') {
+								return { [column]: { [Op.eq]: searchValue } } // INTEGER uchun aniq moslik
+							} else {
+								return { [column]: { [Op.iLike]: `%${searchValue}%` } }
+							}
+						})
+					} else if (key === 'skills' || key === 'it_skills') {
+						queryOther[Op.and].push({
+							[Op.or]: [
+								{ [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+								{ [key]: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+								{ [key]: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+							],
+						})
+					} else if (key === 'partner_university_credits') {
+						queryOther[key] = { [Op.lt]: Number(filter[key]) }
+					} else if (key === 'other_information') {
+						if (filter[key] === '有り') {
+							queryOther['other_information'] = { [Op.ne]: null }
+						} else if (filter[key] === '無し') {
+							queryOther['other_information'] = { [Op.is]: null }
+						}
+					} else if (
+						key === 'jlpt' ||
+						key === 'ielts' ||
+						key === 'jdu_japanese_certification'
+					) {
+						queryOther[Op.and].push({
+							[Op.or]: filter[key].map(level => ({
+								[key]: { [Op.iLike]: `%${level}"%` },
+							})),
+						})
+					} else if (Array.isArray(filter[key])) {
+						queryOther[key] = { [Op.in]: filter[key] }
+					} else if (typeof filter[key] === 'string') {
+						queryOther[key] = { [Op.iLike]: `%${filter[key]}%` }
+					} else {
+						queryOther[key] = filter[key]
+					}
+				}
+			})
+
+			if (!query[Op.and]) {
+				query[Op.and] = []
+			}
+
+			query[Op.and].push(querySearch, queryOther, { active: true })
+
+			if (userType === 'Recruiter') {
+				query[Op.and].push({ visibility: true })
+			}
+
+			if (onlyBookmarked === 'true') {
+				query[Op.and].push(
+					sequelize.literal(`EXISTS (
 				SELECT 1
 				FROM "Bookmarks" AS "Bookmark"
 				WHERE "Bookmark"."studentId" = "Student"."id"
 				  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
 			  )`)
-			);
-		  }
-	  
-		  // console.log('Generated Query:', JSON.stringify(query, null, 2));
-		  const students = await Student.findAll({
-			where: query,
-			attributes: {
-			  include: recruiterId
-				? [
-					[
-					  sequelize.literal(`EXISTS (
+				)
+			}
+
+			// console.log('Generated Query:', JSON.stringify(query, null, 2));
+			const students = await Student.findAll({
+				where: query,
+				attributes: {
+					include: recruiterId
+						? [
+								[
+									sequelize.literal(`EXISTS (
 						SELECT 1
 						FROM "Bookmarks" AS "Bookmark"
 						WHERE "Bookmark"."studentId" = "Student"."id"
 						  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
 					  )`),
-					  'isBookmarked',
-					],
-				  ]
-				: [],
-			},
-		  });
-	  
-		  return students;
+									'isBookmarked',
+								],
+						  ]
+						: [],
+				},
+			})
+
+			return students
 		} catch (error) {
-		  console.error('Error in getAllStudents:', error.message);
-		  throw error;
+			console.error('Error in getAllStudents:', error.message)
+			throw error
 		}
-	  }
+	}
 
 	// Service method to retrieve a student by ID
 	static async getStudentById(studentId, password = false) {
@@ -512,7 +532,7 @@ class StudentService {
 						// first_name: data.studentName.split(' ')[0], // Asseuming first name is the first part
 						// last_name: data.studentName.split(' ')[1], // Assuming last name is the second part
 						first_name: data.studentFirstName, // "studenFirstName" emas
-				        last_name: data.studentLastName,
+						last_name: data.studentLastName,
 
 						date_of_birth: data.birthday,
 						// Include other fields as needed

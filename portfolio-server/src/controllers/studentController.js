@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt')
 const StudentService = require('../services/studentService')
-const DraftService = require('../services/draftServie')
+const DraftService = require('../services/draftService')
 const QAService = require('../services/qaService')
 
 const generatePassword = require('generate-password')
@@ -126,7 +126,7 @@ class StudentController {
 	// 	try {
 	// 		let filter
 	// 		const userType = req.user.userType
-	// 		console.log('Raw query filter:', req.query.filter); 
+	// 		console.log('Raw query filter:', req.query.filter);
 	// 		if (req.query.filter) {
 	// 			filter = req.query.filter
 	// 		} else {
@@ -148,41 +148,41 @@ class StudentController {
 	// 	}
 	// }
 
-
-
 	// test getAllStudents
 	static async getAllStudents(req, res, next) {
 		try {
-		  let filter = {};
-		  const userType = req.user.userType;
-		  // console.log('Raw query filter:', req.query.filter);
-		  if (req.query.filter) {
-			try {
-			  filter = typeof req.query.filter === 'string' ? JSON.parse(req.query.filter) : req.query.filter;
-			} catch (e) {
-			  console.error('Failed to parse filter:', e.message);
-			  return res.status(400).json({ error: 'Invalid filter format' });
+			let filter = {}
+			const userType = req.user.userType
+			// console.log('Raw query filter:', req.query.filter);
+			if (req.query.filter) {
+				try {
+					filter =
+						typeof req.query.filter === 'string'
+							? JSON.parse(req.query.filter)
+							: req.query.filter
+				} catch (e) {
+					console.error('Failed to parse filter:', e.message)
+					return res.status(400).json({ error: 'Invalid filter format' })
+				}
 			}
-		  }
-		  // console.log('Parsed filter:', filter);
-	  
-		  const recruiterId = req.query.recruiterId;
-		  const onlyBookmarked = req.query.onlyBookmarked;
-	  
-		  const students = await StudentService.getAllStudents(
-			filter,
-			recruiterId,
-			onlyBookmarked,
-			userType
-		  );
-		  res.status(200).json(students);
-		} catch (error) {
-		  console.error('Error in getAllStudents controller:', error.message);
-		  next(error);
-		}
-	  }
+			// console.log('Parsed filter:', filter);
 
-	  
+			const recruiterId = req.query.recruiterId
+			const onlyBookmarked = req.query.onlyBookmarked
+
+			const students = await StudentService.getAllStudents(
+				filter,
+				recruiterId,
+				onlyBookmarked,
+				userType
+			)
+			res.status(200).json(students)
+		} catch (error) {
+			console.error('Error in getAllStudents controller:', error.message)
+			next(error)
+		}
+	}
+
 	// Controller method to get a student by ID
 	static async getStudentById(req, res, next) {
 		try {
@@ -193,12 +193,11 @@ class StudentController {
 			next(error)
 		}
 	}
-	
+
 	static async updateStudent(req, res, next) {
 		try {
 			const { id } = req.params
-			const studentData = req.body
-			const { currentPassword, password, ...updateData } = req.body
+			const { currentPassword, password, ...studentData } = req.body
 
 			const student = await Student.findByPk(id)
 
@@ -206,30 +205,28 @@ class StudentController {
 				return res.status(404).json({ error: 'Student not found' })
 			}
 
-			// visibility true bo‘lsa, draft borligini va u 'approved' statusida ekanligini tekshirish
-			if (studentData.visibility) {
+			let updatePayload = { ...studentData }
+
+			// visibility true bo'lsa, draft borligini va u 'approved' statusida ekanligini tekshirish
+			if (studentData.visibility === true) {
 				const studentDraft = await DraftService.getDraftByStudentId(
 					student.student_id
 				)
 
 				if (studentDraft && studentDraft.status === 'approved') {
-					// console.log('Applying approved draft to student profile...')
-
-					// Draftdan profile_data ni olish va studentni yangilash
+					// Draftdan profile_data ni olish va uni yangilash payload'ga qo'shish
 					const profileData = studentDraft.profile_data || {}
-					await StudentService.updateStudent(id, {
+					updatePayload = {
 						...profileData, // Draftdan kelgan profil ma'lumotlari
 						visibility: true, // Tasdiqlanganidan keyin faollashtiramiz
-					})
+					}
+				} else {
+					// Agar draft yo'q yoki approved emas bo'lsa, faqat visibility'ni yangilash
+					updatePayload = { visibility: true }
 				}
 			}
 
-			// Agar visibility false bo‘lsa, uni false qilib yangilash
-			if (studentData.visibility === false) {
-				await StudentService.updateStudent(id, { visibility: false })
-			}
-
-			// Agar parol o‘zgartirilayotgan bo‘lsa, eski parolni tekshirish
+			// Agar parol o'zgartirilayotgan bo'lsa, eski parolni tekshirish
 			if (password) {
 				const studentWithPassword = await StudentService.getStudentById(
 					req.params.id,
@@ -243,17 +240,19 @@ class StudentController {
 						.status(400)
 						.json({ error: '現在のパスワードを入力してください' })
 				}
+				updatePayload.password = password
 			}
 
-			// Studentni yangilash
-			const updatedStudent = await StudentService.updateStudent(id, {
-				...studentData,
-				password: password || undefined, // Parol kiritilgan bo‘lsa yangilanadi, bo‘lmasa o‘zgarmaydi
-			})
+			// Studentni bir marta yangilash
+			const updatedStudent = await StudentService.updateStudent(
+				id,
+				updatePayload
+			)
 
 			res.status(200).json(updatedStudent)
 		} catch (error) {
-			next(error)
+			console.error('Error updating student:', error)
+			res.status(500).json({ error: error.message })
 		}
 	}
 

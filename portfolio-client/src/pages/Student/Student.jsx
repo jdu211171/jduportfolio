@@ -126,23 +126,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}
 
-	const setStudentVisibility = async (studentId, visibility) => {
-		try {
-			const response = await axios.put(`/api/students/${studentId}`, {
-				visibility: visibility,
-			})
-			if (response.status === 200) {
-				setUpdatedBookmark({
-					studentId: studentId,
-					timestamp: new Date().getTime(),
-				})
-				console.log(`Student ${studentId} visibility updated to:`, visibility)
-			}
-		} catch (error) {
-			console.error('Error updating student visibility:', error)
-		}
-	}
-
 	const headers = [
 		{
 			id: 'first_name',
@@ -160,15 +143,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: '年齢',
 			minWidth: '80px',
 			suffix: ' 歳',
-		},
-		{
-			id: 'email',
-			numeric: false,
-			disablePadding: false,
-			label: t('email'),
-			type: 'email',
-			minWidth: '160px',
-			visibleTo: ['Admin', 'Staff'],
 		},
 		{
 			id: 'jlpt',
@@ -191,24 +165,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: '卒業予定年（月）',
 			minWidth: '160px',
-		},
-		{
-			id: 'visibility',
-			numeric: false,
-			type: 'confirmation_status',
-			disablePadding: false,
-			label: '確認状況',
-			minWidth: '100px',
-		},
-		{
-			id: 'visibility',
-			keyIdentifier: 'visibility_toggle',
-			numeric: false,
-			type: 'visibility_toggle',
-			disablePadding: false,
-			label: '公開状況',
-			minWidth: '120px',
-			onToggle: setStudentVisibility,
 		},
 		{
 			id: 'bookmark',
