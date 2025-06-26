@@ -3,6 +3,7 @@ const router = express.Router()
 const RecruiterController = require('../controllers/recruiterController')
 const {
 	validateRecruiterCreation,
+	validateRecruiterUpdate,
 } = require('../middlewares/recruiter-validation')
 
 /**
@@ -113,16 +114,56 @@ router.get('/:id', RecruiterController.getById)
  *                 type: string
  *               company_name:
  *                 type: string
+ *               company_description:
+ *                 type: string
+ *               gallery:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *               photo:
+ *                 type: string
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
  *               date_of_birth:
  *                 type: string
  *                 format: date
+ *               active:
+ *                 type: boolean
+ *               kintone_id:
+ *                 type: string
+ *               company_Address:
+ *                 type: string
+ *               established_Date:
+ *                 type: string
+ *               employee_Count:
+ *                 type: string
+ *               business_overview:
+ *                 type: string
+ *               target_audience:
+ *                 type: string
+ *               required_skills:
+ *                 type: string
+ *               welcome_skills:
+ *                 type: string
+ *               work_location:
+ *                 type: string
+ *               work_hours:
+ *                 type: string
+ *               salary:
+ *                 type: string
+ *               benefits:
+ *                 type: string
+ *               selection_process:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Recruiter updated
  *       400:
  *         description: Bad request
  */
-router.put('/:id', RecruiterController.update)
+router.put('/:id', validateRecruiterUpdate, RecruiterController.update)
 
 /**
  * @swagger
@@ -146,4 +187,3 @@ router.put('/:id', RecruiterController.update)
 router.delete('/:id', RecruiterController.delete)
 
 module.exports = router
-

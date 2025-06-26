@@ -36,6 +36,51 @@ exports.validateRecruiterUpdate = [
 		.toDate()
 		.optional()
 		.withMessage('Date of birth must be a valid date'),
+	body('company_Address')
+		.optional()
+		.isString()
+		.withMessage('Company address must be a string'),
+	body('established_Date')
+		.optional()
+		.isString()
+		.withMessage('Established date must be a string'),
+	body('employee_Count')
+		.optional()
+		.isString()
+		.withMessage('Employee count must be a string'),
+	body('business_overview')
+		.optional()
+		.isString()
+		.withMessage('Business overview must be a string'),
+	body('target_audience')
+		.optional()
+		.isString()
+		.withMessage('Target audience must be a string'),
+	body('required_skills')
+		.optional()
+		.isString()
+		.withMessage('Required skills must be a string'),
+	body('welcome_skills')
+		.optional()
+		.isString()
+		.withMessage('Welcome skills must be a string'),
+	body('work_location')
+		.optional()
+		.isString()
+		.withMessage('Work location must be a string'),
+	body('work_hours')
+		.optional()
+		.isString()
+		.withMessage('Work hours must be a string'),
+	body('salary').optional().isString().withMessage('Salary must be a string'),
+	body('benefits')
+		.optional()
+		.isString()
+		.withMessage('Benefits must be a string'),
+	body('selection_process')
+		.optional()
+		.isString()
+		.withMessage('Selection process must be a string'),
 	(req, res, next) => {
 		const errors = validationResult(req)
 		if (!errors.isEmpty()) {

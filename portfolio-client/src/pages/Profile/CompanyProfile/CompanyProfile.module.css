@@ -1,42 +1,124 @@
-.container {
-	padding: 16px;
-	display: flex;
-	align-items: start;
+/* Page Container */
+.pageContainer {
+	min-height: 100vh;
+	position: relative;
+	z-index: 1;
 }
 
+.loadingContainer {
+	padding: 24px;
+	text-align: center;
+	overflow-y: auto;
+	max-height: 100vh;
+}
+
+/* Content Box */
+.contentBox {
+	width: 100%;
+	padding: 32px;
+	margin-bottom: 32px;
+	background-color: #fff;
+	border-radius: 12px;
+	position: relative;
+	z-index: 100;
+	transition: box-shadow 0.3s ease;
+}
+
+.contentBox:hover {
+	box-shadow:
+		0 0 1px 0 rgba(0, 0, 0, 0.08),
+		0 2px 2px 0 rgba(0, 0, 0, 0.07),
+		0 4px 2px 0 rgba(0, 0, 0, 0.06),
+		0 6px 2px 0 rgba(0, 0, 0, 0.05),
+		0 10px 3px 0 rgba(0, 0, 0, 0.02);
+}
+
+.contentBox:last-child {}
+
+/* MUI Autocomplete va dropdown elementlar uchun */
+.MuiAutocomplete-popper {
+	z-index: 1500 !important;
+}
+
+.MuiPopover-root {
+	z-index: 1500 !important;
+}
+
+.MuiModal-root {
+	z-index: 1500 !important;
+}
+
+/* Header Container - Main Flex Layout */
+.headerContentBox {
+	width: 100%;
+	margin-bottom: 24px;
+	background-color: #fff;
+	border-radius: 12px;
+	position: relative;
+	z-index: 100;
+	box-shadow:
+		0 0 1px 0 rgba(0, 0, 0, 0.05),
+		0 2px 2px 0 rgba(0, 0, 0, 0.04),
+		0 4px 2px 0 rgba(0, 0, 0, 0.03),
+		0 6px 2px 0 rgba(0, 0, 0, 0.01),
+		0 10px 3px 0 rgba(0, 0, 0, 0);
+}
+
+.headerContainer {
+	display: flex;
+	align-items: center;
+	gap: 32px;
+	height: 169px;
+	padding: 16px 32px 16px 32px;
+	background: rgba(255, 255, 255, 1);
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+}
+
+/* Avatar Section - Optimized Sizes */
 .avatarContainer {
+	width: 137px;
+	height: 137px;
 	display: flex;
 	align-items: center;
-	margin-bottom: 16px;
+	justify-content: center;
+	flex-shrink: 0;
 }
 
-.topControlButtons {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 10px;
+.avatar {
+	width: 100% !important;
+	height: 100% !important;
+	border-radius: 50%;
+	object-fit: cover;
 }
 
+/* Override MUI Avatar defaults */
+.avatar.MuiAvatar-root {
+	width: 100% !important;
+	height: 100% !important;
+	font-size: 3rem !important;
+}
+
+/* Info Section (Name and Company) */
 .infoContainer {
-	margin-top: 8px;
-	margin-left: 16px;
+	flex: 1;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	width: 100%;
+	gap: 16px;
 }
 
 .nameEmailContainer {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	width: 100%;
-	flex-wrap: wrap;
 }
 
 .mainTitle {
 	display: flex;
 	align-items: center;
+	font-size: 2rem;
+	font-weight: bold;
 }
 
 .email {
@@ -53,18 +135,196 @@
 	font-size: 16px;
 }
 
+/* Chip Section */
 .chipContainer {
 	display: flex;
 	gap: 8px;
-	margin-top: 8px;
 	flex-wrap: wrap;
 }
 
+.primaryChip {
+	font-size: 16px;
+	padding: 2px 6px;
+	height: auto;
+}
+
+/* Control Buttons */
+.topControlButtons {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.buttonsContainer {
+	display: flex;
+	gap: 8px;
+	margin-top: 6.0625rem;
+}
+
+.editButton {
+	padding: 20px 10px;
+}
+
+.editIcon {
+	width: 15px;
+	height: 15px;
+}
+
+/* Company Info Table-like Layout */
+.companyInfoContainer {
+	width: 100%;
+	background-color: #f8f9fa;
+	border-top: 1px solid #e0e0e0;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+	overflow: hidden;
+}
+
+.infoRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	min-height: 60px;
+}
+
+.infoRowOdd {
+	background: rgba(249, 250, 251, 1);
+}
+
+.infoRowEven {
+	background: rgba(255, 255, 255, 1);
+}
+
+.infoRow:last-child {
+	border-bottom: none;
+}
+
+.label {
+	width: 30%;
+	padding: 16px 32px;
+	font-weight: 500;
+	color: #333;
+	margin: 0 !important;
+	background-color: inherit;
+}
+
+.value {
+	width: 300px;
+	margin-right: 26.875rem;
+	color: #555;
+	display: flex;
+	align-items: center;
+	background-color: inherit;
+}
+
+/* Section Headers */
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	border-radius: 8px;
+	margin-bottom: 16px;
+}
+
+.sectionIcon {
+	margin-right: 16px;
+	width: 20px;
+	height: 20px;
+	background-color: rgba(86, 39, 220, 0.1);
+	padding: 8px;
+	box-sizing: content-box;
+	border-radius: 4px;
+	fill: #5627DB;
+}
+
+.sectionTitle {
+	color: #000;
+}
+
+/* Display Text Components */
+.displayText {
+	background-color: #fff;
+	color: #000;
+	line-height: 1.6;
+}
+
+.displayTextContent {
+	color: rgba(30, 30, 30, 0.7) !important;
+	margin-bottom: 4px;
+}
+
+/* Field Labels */
+.businessOverviewLabel {
+	font-weight: bold;
+	margin-bottom: 8px;
+	color: #000;
+}
+
+.targetAudienceLabel {
+	margin-bottom: 8px;
+	color: #000;
+	font-weight: 500;
+	font-size: 18px;
+}
+
+/* FIXED: Custom TextField Styles - Removed problematic scroll properties */
+.customTextField {
+	position: relative;
+	z-index: 1000;
+}
+
+.customTextField .MuiOutlinedInput-root {
+	background-color: #fff;
+	border-radius: 8px;
+	position: relative;
+	z-index: 1000;
+}
+
+.customTextField .MuiOutlinedInput-root fieldset {
+	border-color: #e0e0e0;
+}
+
+.customTextField .MuiOutlinedInput-root:hover fieldset {
+	border-color: #5627dc;
+}
+
+.customTextField .MuiOutlinedInput-root.Mui-focused fieldset {
+	border-color: #5627dc;
+	z-index: 1001;
+}
+
+.customTextField .MuiInputBase-input {
+	z-index: 1000;
+}
+
+/* FIXED: Removed problematic focus styles that were causing scroll issues */
+.customTextField .MuiInputBase-input:focus {
+	outline: none;
+}
+
+/* Edit Input Styles */
+.editInput {
+	background-color: white;
+	position: relative;
+	z-index: 1000;
+}
+
+.editInput .MuiOutlinedInput-root {
+	height: 40px;
+	z-index: 1000;
+}
+
+.editInput .MuiOutlinedInput-input {
+	padding: 10px 14px;
+	z-index: 1000;
+}
+
+/* Navigation Styles */
 .navbar {
 	display: flex;
 	background-color: #e8e8e8;
 	border-radius: 4px;
 	justify-content: space-between;
+	z-index: 100;
 }
 
 .navbar a {
@@ -83,13 +343,6 @@
 	width: 33%;
 }
 
-.buttonsContainer {
-	display: flex;
-	flex-direction: row-reverse;
-	top: -32px;
-	gap: 8px;
-}
-
 .navbar a:hover {
 	background-color: #ccc;
 	transform: translateY(-1px);
@@ -100,15 +353,556 @@
 	color: #ffffff !important;
 }
 
-@media only screen and (max-width: 460px) {
-	.container {
-		flex-direction: column;
-		justify-content: center;
+/* Icon Container Styles */
+.iconContainerCheck {
+	border-radius: 50%;
+	display: flex;
+	width: 20px;
+	justify-content: center;
+	align-items: center;
+}
+
+.iconContainerFullPurple {
+	border-radius: 50%;
+	min-width: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 16px;
+}
+
+.iconContainerPurple {
+	border-radius: 50%;
+	min-width: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 16px;
+}
+
+.iconContainer {
+	border-radius: 50%;
+	min-width: 5px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 16px;
+}
+
+/* Business Overview Item with Icon */
+.businessOverviewItemWithIcon {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.businessOverviewContent {
+	flex: 1;
+}
+
+/* Recruitment Requirements with Icon */
+.requirementItemWithIcon {
+	display: flex;
+	gap: 8px;
+}
+
+.requirementContent {
+	flex: 1;
+}
+
+/* Text color override for content */
+.contentTextMuted {
+	color: rgba(30, 30, 30, 0.7) !important;
+}
+
+.contentTextMuted .MuiTypography-root {
+	color: rgba(30, 30, 30, 0.7) !important;
+}
+
+/* NEW: Target Audience Modern Design Styles */
+.targetAudienceContainer {
+	width: 100%;
+}
+
+.targetAudienceDescription {
+	margin-bottom: 24px;
+	color: #333;
+	font-weight: 500;
+}
+
+.targetAudienceGrid {
+	margin-bottom: 24px;
+}
+
+/* Target Audience Cards - Edit Mode */
+.targetAudienceCard {
+	position: relative;
+	background-color: #f8f9fc;
+	border: 1px solid #e1e5f2;
+	border-radius: 12px;
+	padding: 20px;
+	transition: all 0.2s ease;
+	min-height: 160px;
+}
+
+.targetAudienceCard:hover {
+	border-color: #5627dc;
+	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.1);
+}
+
+/* Target Audience Cards - View Mode */
+.targetAudienceViewCard {
+	background-color: #f8f9fc;
+	border: 1px solid #e1e5f2;
+	border-radius: 12px;
+	padding: 24px;
+	min-height: 140px;
+	display: flex;
+	align-items: center;
+	transition: all 0.2s ease;
+}
+
+.targetAudienceViewCard:hover {
+	border-color: #5627dc;
+	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.1);
+}
+
+.targetAudienceText {
+	color: rgba(30, 30, 30, 0.8);
+	line-height: 1.6;
+	font-size: 16px;
+}
+
+.targetAudienceDeleteButton {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	padding: 8px;
+	cursor: pointer;
+	background: rgba(255, 255, 255, 0.9);
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	z-index: 10;
+}
+
+.targetAudienceDeleteButton:hover {
+	background: #fff;
+	border-color: #ff4757;
+	box-shadow: 0 2px 4px rgba(255, 71, 87, 0.2);
+}
+
+.targetAudienceDeleteButton .deleteIcon {
+	width: 16px;
+	height: 16px;
+	filter: grayscale(1);
+	transition: filter 0.2s ease;
+}
+
+.targetAudienceDeleteButton:hover .deleteIcon {
+	filter: none;
+}
+
+.addTargetAudienceButton {
+	margin-top: 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border-color: #5627dc;
+	color: #5627dc;
+	padding: 12px 24px;
+	border-radius: 8px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+}
+
+.addTargetAudienceButton:hover {
+	background-color: #5627dc;
+	color: white;
+	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.3);
+}
+
+/* Target Audience Edit Mode Styles - DEPRECATED (keeping for backward compatibility) */
+.targetAudienceEditContainer {
+	position: relative;
+	margin-bottom: 16px;
+}
+
+.deleteIcon {
+	width: 20px;
+	height: 20px;
+}
+
+/* Business Overview Edit Mode Styles */
+.businessOverviewEditContainer {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.businessOverviewInputContainer {
+	display: flex;
+	gap: 8px;
+}
+
+.businessOverviewSaveButton {
+	padding: 8px 16px;
+	background-color: #5627dc;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	white-space: nowrap;
+	transition: background-color 0.2s;
+}
+
+.businessOverviewSaveButton:hover {
+	background-color: #4520b8;
+}
+
+.businessOverviewSavedItem {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	background-color: #f5f5f5;
+	border-radius: 4px;
+	margin-bottom: 8px;
+}
+
+.businessOverviewSavedContent {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.businessOverviewDeleteButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity 0.2s;
+}
+
+.businessOverviewDeleteButton:hover {
+	opacity: 0.7;
+}
+
+/* Recruitment Requirements View Mode Styles */
+.recruitmentViewContainer {
+	margin-top: 16px;
+}
+
+.recruitmentViewColumn {
+	position: relative;
+}
+
+.recruitmentViewColumn .requirementItemWithIcon {
+	margin-bottom: 8px;
+}
+
+.recruitmentViewColumn .iconContainer,
+.recruitmentViewColumn .iconContainerPurple {
+	min-width: 5px;
+	margin-top: 0;
+	align-items: center;
+}
+
+/* NEW: Recruitment Requirements Edit Mode Styles with Different Colors */
+.recruitmentEditColumn {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* Base styles for saved items */
+.recruitmentSavedItem {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	border-radius: 4px;
+}
+
+/* Required Skills (First Column) - Purple Color (#5627DB with 70% opacity) */
+.requiredSkillsItem {
+	background-color: rgba(86, 39, 219, 0.7) !important;
+	color: white !important;
+}
+
+.requiredSkillsItem .MuiTypography-root {
+	color: white !important;
+}
+
+/* Welcome Skills (Second Column) - Dark Color (#1E1E1E with 70% opacity) */
+.welcomeSkillsItem {
+	background-color: rgba(30, 30, 30, 0.7) !important;
+	color: white !important;
+}
+
+.welcomeSkillsItem .MuiTypography-root {
+	color: white !important;
+}
+
+.recruitmentSavedContent {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.recruitmentSavedContent .iconContainerFullPurple,
+.recruitmentSavedContent .iconContainerPurple {
+	margin-top: 0;
+	min-width: 20px;
+	height: 20px;
+}
+
+.recruitmentInputContainer {
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+}
+
+.recruitmentSaveButton {
+	padding: 8px 16px;
+	background-color: #5627dc;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	white-space: nowrap;
+	transition: background-color 0.2s;
+}
+
+.recruitmentSaveButton:hover {
+	background-color: #4520b8;
+}
+
+.recruitmentDeleteButton {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity 0.2s;
+}
+
+.recruitmentDeleteButton:hover {
+	opacity: 0.7;
+}
+
+.addRecruitmentButton {
+	margin-top: 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Responsive Design */
+
+/* Large Desktop (1440px+) */
+@media only screen and (min-width: 1440px) {
+	/* Avatar sizes can be adjusted here if needed */
+}
+
+/* Tablet (768px - 1024px) */
+@media only screen and (max-width: 1024px) {
+	.headerContainer {
+		gap: 24px;
 	}
 }
+
+/* Small Tablet / Large Mobile (768px) */
+@media only screen and (max-width: 768px) {
+	.headerContainer {
+		flex-direction: column;
+		text-align: center;
+		gap: 20px;
+		padding: 24px;
+	}
+
+	.topControlButtons {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.nameEmailContainer {
+		justify-content: center;
+	}
+
+	.chipContainer {
+		justify-content: center;
+	}
+
+	.mainTitle {
+		font-size: 1.75rem;
+	}
+
+	/* Icon adjustments */
+	.checkboxIcon {
+		width: 14px;
+		height: 14px;
+	}
+
+	/* Task responsive adjustments */
+	.businessOverviewInputContainer {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.businessOverviewSaveButton {
+		width: 100%;
+	}
+
+	.targetAudienceDeleteButton,
+	.recruitmentDeleteButton {
+		top: -8px;
+		right: -8px;
+	}
+
+	/* Recruitment Requirements responsive */
+	.recruitmentInputContainer {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.recruitmentSaveButton {
+		width: 100%;
+	}
+
+	.recruitmentViewColumn:first-child {
+		border-right: none;
+		border-bottom: 1px solid #e0e0e0;
+		padding-bottom: 16px;
+		margin-bottom: 16px;
+	}
+
+	/* NEW: Target Audience responsive */
+	.targetAudienceCard {
+		min-height: 120px;
+		padding: 16px;
+	}
+
+	.targetAudienceViewCard {
+		min-height: 100px;
+		padding: 20px;
+	}
+}
+
+/* Mobile (460px) */
+@media only screen and (max-width: 460px) {
+	.headerContainer {
+		flex-direction: column;
+		justify-content: center;
+		padding: 16px;
+		gap: 16px;
+	}
+
+	.avatar.MuiAvatar-root {
+		font-size: 2rem !important;
+	}
+
+	.mainTitle {
+		font-size: 1.5rem;
+	}
+
+	.label,
+	.value {
+		padding: 12px 16px;
+	}
+
+	/* Icon adjustments */
+	.checkboxIcon {
+		width: 12px;
+		height: 12px;
+	}
+
+	.businessOverviewItemWithIcon,
+	.requirementItemWithIcon {
+		gap: 6px;
+	}
+
+	/* Task responsive adjustments */
+	.businessOverviewSavedItem {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+	}
+
+	.businessOverviewDeleteButton {
+		align-self: flex-end;
+	}
+
+	.recruitmentSavedItem {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 4px;
+	}
+
+	/* NEW: Target Audience mobile responsive */
+	.targetAudienceCard {
+		min-height: 100px;
+		padding: 12px;
+	}
+
+	.targetAudienceViewCard {
+		min-height: 80px;
+		padding: 16px;
+	}
+
+	.targetAudienceText {
+		font-size: 14px;
+	}
+
+	.targetAudienceDeleteButton {
+		top: 8px;
+		right: 8px;
+		padding: 6px;
+	}
+}
+
+/* Small Mobile (440px) */
 @media only screen and (max-width: 440px) {
 	.topControlButtons {
-		display: block;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
 		align-items: center;
+	}
+
+	.buttonsContainer {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.buttonsContainer button {
+		width: 100%;
+	}
+}
+
+/* Extra Small Mobile (360px) */
+@media only screen and (max-width: 360px) {
+	.avatar.MuiAvatar-root {
+		font-size: 1.75rem !important;
+	}
+
+	.mainTitle {
+		font-size: 1.25rem;
+	}
+
+	.primaryChip {
+		font-size: 14px;
 	}
 }

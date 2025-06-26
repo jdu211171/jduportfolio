@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import ReactDOM from 'react-dom'
+import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import axios from '../../../utils/axiosUtils'
 import { Box, Tabs, Tab, Button, Chip } from '@mui/material'
 import Gallery from '../../../components/Gallery'
@@ -87,6 +87,24 @@ const Top = () => {
 	const [hasDraft, setHasDraft] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 	const [confirmMode, setConfirmMode] = useState(false)
+
+	// ✅ Portal container state
+	const [portalContainer, setPortalContainer] = useState(null)
+
+	// ✅ Portal container check effect
+	useEffect(() => {
+		const checkPortalContainer = () => {
+			const container = document.getElementById('saveButton')
+			if (container) {
+				setPortalContainer(container)
+			} else {
+				// Agar container topilmasa, setTimeout bilan qayta urinish
+				setTimeout(checkPortalContainer, 100)
+			}
+		}
+
+		checkPortalContainer()
+	}, [])
 
 	useEffect(() => {
 		const loadData = async () => {
@@ -607,13 +625,11 @@ const Top = () => {
 
 	return (
 		<Box my={2}>
-			<>
-				{subTabIndex !== 2 &&
-					ReactDOM.createPortal(
-						portalContent,
-						document.getElementById('saveButton')
-					)}
-			</>
+			{/* ✅ Portal container mavjudligini tekshirish */}
+			{subTabIndex !== 2 &&
+				portalContainer &&
+				createPortal(portalContent, portalContainer)}
+
 			<div
 				style={{
 					display: 'flex',
@@ -644,49 +660,6 @@ const Top = () => {
 					)
 				)}
 			</div>
-			{/* <Box className={styles.TabsContainer}>
-				<Tabs
-					className={styles.Tabs}
-					value={subTabIndex}
-					onChange={handleSubTabChange}
-				>
-					<Tab label={t('selfIntroduction')} />
-					<Tab label={t('skill')} />
-					<Tab label={t('deliverables')} />
-					<Tab label={t('qa')} />
-				</Tabs>
-
-				{role === 'Student' && hasDraft && currentDraft && (
-					<Box sx={{ display: 'flex', gap: 1 }}>
-						<Chip
-							label={
-								currentDraft.status === 'submitted'
-									? t('submitted_draft')
-									: currentDraft.status === 'approved'
-										? t('approved_draft')
-										: currentDraft.status === 'disapproved'
-											? t('disapproved_draft')
-											: currentDraft.status === 'resubmission_required'
-												? t('resubmission_required_draft')
-												: t('draft')
-							}
-							size='small'
-							color={
-								currentDraft.status === 'submitted'
-									? 'primary'
-									: currentDraft.status === 'approved'
-										? 'success'
-										: currentDraft.status === 'disapproved'
-											? 'error'
-											: currentDraft.status === 'resubmission_required'
-												? 'warning'
-												: 'default'
-							}
-							variant='outlined'
-						/>
-					</Box>
-				)}
-			</Box> */}
 
 			{role === 'Staff' && !isChecking && currentDraft && currentDraft.id && (
 				<Box
@@ -721,15 +694,6 @@ const Top = () => {
 						icon={BadgeOutlinedIcon}
 						imageUrl={student.photo}
 					/>
-					{/* <Gallery
-						galleryUrls={editData}
-						newImages={newImages}
-						deletedUrls={deletedUrls}
-						editMode={editMode}
-						updateEditData={handleGalleryUpdate}
-						keyName='gallery'
-						parentKey='draft'
-					/> */}
 					<div style={{ display: 'flex', gap: 25 }}>
 						<TextField
 							title={t('hobbies')}
@@ -804,7 +768,6 @@ const Top = () => {
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
 							showAutocomplete={true}
-							// showHeaders={true}
 							keyName='it_skills'
 							parentKey='draft'
 							icon={<CodeIcon sx={{ color: '#5627DB' }} />}

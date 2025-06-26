@@ -24,6 +24,16 @@ class RecruiterService {
 				'company_name',
 				'company_description',
 				'phone',
+				'company_Address',
+				'business_overview',
+				'target_audience',
+				'required_skills',
+				'welcome_skills',
+				'work_location',
+				'work_hours',
+				'salary',
+				'benefits',
+				'selection_process',
 			] // Example list of searchable columns
 
 			// Iterate through filter keys
@@ -104,6 +114,18 @@ class RecruiterService {
 				date_of_birth: data.date_of_birth,
 				active: data.active,
 				kintone_id: data.kintone_id,
+				company_Address: data.company_Address,
+				established_Date: data.established_Date,
+				employee_Count: data.employee_Count,
+				business_overview: data.business_overview,
+				target_audience: data.target_audience,
+				required_skills: data.required_skills,
+				welcome_skills: data.welcome_skills,
+				work_location: data.work_location,
+				work_hours: data.work_hours,
+				salary: data.salary,
+				benefits: data.benefits,
+				selection_process: data.selection_process,
 			}
 
 			if (data.password) {
