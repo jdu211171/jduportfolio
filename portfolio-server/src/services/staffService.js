@@ -1,6 +1,9 @@
 const { Staff } = require('../models') // Assuming your model file is properly exported
+const generatePassword = require('generate-password'); 
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
+const { formatStaffWelcomeEmail } = require('../utils/emailToStaff');
+
 
 class StaffService {
 	static async createStaff(data) {
@@ -119,9 +122,9 @@ class StaffService {
             if (!kintoneId) continue;
 
             const existingStaff = await Staff.findOne({ where: { kintone_id: kintoneId } });
-            
+            // console.log(`Kintone ID: ${kintoneId}, Mavjud xodim: ${!!existingStaff}`);
             if (!existingStaff) {
-                console.log(`Yangi xodim topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`);
+                // console.log(`Yangi xodim topildi: Kintone ID ${ typeof(kintoneId)}. Bazaga qo'shilmoqda...`);
                 const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
                 
                 const staffData = {
@@ -145,7 +148,6 @@ class StaffService {
         }
         
         console.log("Staff sinxronizatsiyasi yakunlandi.");
-        // >>> O'ZGARISH: Email vazifalari ro'yxatini qaytaramiz <<<
         return emailTasks;
     }
 

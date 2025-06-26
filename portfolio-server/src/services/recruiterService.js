@@ -1,6 +1,8 @@
 const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const { Recruiter } = require('../models')
+const { formatRecruiterWelcomeEmail } = require('../utils/emailToRecruiter');
+const generatePassword = require('generate-password'); 
 
 class RecruiterService {
 	// Service method to create a new recruiter
@@ -146,13 +148,12 @@ class RecruiterService {
     static async syncRecruiterData(recruiterRecords) {
         console.log(`Rekruter sinxronizatsiyasi boshlandi: ${recruiterRecords.length} ta yozuv topildi.`);
         const emailTasks = [];
-
         for (const record of recruiterRecords) {
             const kintoneId = record['$id']?.value;
             if (!kintoneId) continue;
 
             const existingRecruiter = await Recruiter.findOne({ where: { kintone_id: kintoneId } });
-
+			// console.log(`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`);
             if (!existingRecruiter) {
                 console.log(`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`);
                 const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
@@ -176,9 +177,7 @@ class RecruiterService {
                 }
             }
         }
-
         console.log("Rekruter sinxronizatsiyasi yakunlandi.");
-        // >>> O'ZGARISH: Email vazifalari ro'yxatini qaytaramiz <<<
         return emailTasks;
     }
 
