@@ -19,9 +19,13 @@ import {
 	IconButton,
 	Grid,
 	Typography,
+	Switch,
 } from '@mui/material'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import CancelIcon from '@mui/icons-material/Cancel'
+import PendingIcon from '@mui/icons-material/Pending'
 
 // Icons import
 import AwardIcon from '../../assets/icons/award-line.svg'
@@ -415,10 +419,10 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 				<Box
 					sx={{
 						border: '1px solid #e0e0e0',
-						borderTopLeftRadius: '10px',
-						borderTopRightRadius: '10px',
+						borderRadius: '12px',
 						overflow: 'hidden',
 						backgroundColor: '#ffffff',
+						boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
 					}}
 				>
 					<TableContainer
@@ -615,6 +619,236 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														) : (
 															'N/A'
 														)
+													) : header.type === 'status_icon' ? (
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center',
+																gap: '6px',
+																padding: '4px 8px',
+																borderRadius: '8px',
+																minWidth: '80px',
+															}}
+														>
+															{(() => {
+																const status = header.subkey
+																	? row[header.id]
+																		? row[header.id][header.subkey]
+																		: ''
+																	: row[header.id]
+																const statusConfig = header.statusMap[status]
+
+																if (!statusConfig) return 'N/A'
+
+																return (
+																	<div
+																		style={{
+																			display: 'flex',
+																			alignItems: 'center',
+																			gap: '4px',
+																			backgroundColor: `${statusConfig.color}15`,
+																			padding: '4px 8px',
+																			borderRadius: '12px',
+																		}}
+																	>
+																		{statusConfig.icon === 'approved' && (
+																			<CheckCircleIcon
+																				sx={{
+																					color: statusConfig.color,
+																					fontSize: '16px',
+																				}}
+																			/>
+																		)}
+																		{statusConfig.icon === 'rejected' && (
+																			<CancelIcon
+																				sx={{
+																					color: statusConfig.color,
+																					fontSize: '16px',
+																				}}
+																			/>
+																		)}
+																		{statusConfig.icon === 'pending' && (
+																			<PendingIcon
+																				sx={{
+																					color: statusConfig.color,
+																					fontSize: '16px',
+																				}}
+																			/>
+																		)}
+																		<span
+																			style={{
+																				color: statusConfig.color,
+																				fontSize: '12px',
+																				fontWeight: '500',
+																			}}
+																		>
+																			{statusConfig.text}
+																		</span>
+																	</div>
+																)
+															})()}
+														</div>
+													) : header.type === 'confirmation_status' ? (
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center',
+																gap: '6px',
+																padding: '4px 8px',
+																borderRadius: '8px',
+																minWidth: '80px',
+															}}
+														>
+															{row[header.id] ? (
+																<div
+																	style={{
+																		display: 'flex',
+																		alignItems: 'center',
+																		gap: '4px',
+																		backgroundColor: '#4caf5015',
+																		padding: '4px 8px',
+																		borderRadius: '12px',
+																	}}
+																>
+																	<CheckCircleIcon
+																		sx={{
+																			color: '#4caf50',
+																			fontSize: '16px',
+																		}}
+																	/>
+																	<span
+																		style={{
+																			color: '#4caf50',
+																			fontSize: '12px',
+																			fontWeight: '500',
+																		}}
+																	>
+																		承認済
+																	</span>
+																</div>
+															) : (
+																<div
+																	style={{
+																		display: 'flex',
+																		alignItems: 'center',
+																		gap: '4px',
+																		backgroundColor: '#f4433615',
+																		padding: '4px 8px',
+																		borderRadius: '12px',
+																	}}
+																>
+																	<CancelIcon
+																		sx={{
+																			color: '#f44336',
+																			fontSize: '16px',
+																		}}
+																	/>
+																	<span
+																		style={{
+																			color: '#f44336',
+																			fontSize: '12px',
+																			fontWeight: '500',
+																		}}
+																	>
+																		差し戻し
+																	</span>
+																</div>
+															)}
+														</div>
+													) : header.type === 'visibility_toggle' ? (
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center',
+																gap: '8px',
+															}}
+														>
+															<Switch
+																checked={row[header.id] || false}
+																onChange={e => {
+																	if (header.onToggle) {
+																		header.onToggle(row.id, e.target.checked)
+																	}
+																}}
+																size='small'
+																sx={{
+																	'& .MuiSwitch-switchBase': {
+																		color: '#fff',
+																		'&.Mui-checked': {
+																			color: '#fff',
+																			'& + .MuiSwitch-track': {
+																				backgroundColor: '#4caf50',
+																				opacity: 1,
+																			},
+																		},
+																	},
+																	'& .MuiSwitch-track': {
+																		backgroundColor: '#ccc',
+																		opacity: 1,
+																		borderRadius: '20px',
+																	},
+																	'& .MuiSwitch-thumb': {
+																		backgroundColor: '#fff',
+																		width: '16px',
+																		height: '16px',
+																		boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+																	},
+																}}
+															/>
+															<span
+																style={{
+																	fontSize: '12px',
+																	fontWeight: '500',
+																	color: row[header.id] ? '#4caf50' : '#666',
+																}}
+															>
+																{row[header.id] ? '公開' : '非公開'}
+															</span>
+														</div>
+													) : header.type === 'toggle_switch' ? (
+														<div
+															style={{
+																display: 'flex',
+																alignItems: 'center',
+																justifyContent: 'center',
+															}}
+														>
+															<Switch
+																checked={row[header.id] || false}
+																onChange={e => {
+																	if (header.onToggle) {
+																		header.onToggle(row.id, e.target.checked)
+																	}
+																}}
+																size='small'
+																sx={{
+																	'& .MuiSwitch-switchBase': {
+																		color: '#fff',
+																		'&.Mui-checked': {
+																			color: '#fff',
+																			'& + .MuiSwitch-track': {
+																				backgroundColor: '#4caf50',
+																				opacity: 1,
+																			},
+																		},
+																	},
+																	'& .MuiSwitch-track': {
+																		backgroundColor: '#ccc',
+																		opacity: 1,
+																		borderRadius: '20px',
+																	},
+																	'& .MuiSwitch-thumb': {
+																		backgroundColor: '#fff',
+																		width: '16px',
+																		height: '16px',
+																		boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+																	},
+																}}
+															/>
+														</div>
 													) : header.type === 'mapped' ? (
 														header.subkey ? (
 															header.map[

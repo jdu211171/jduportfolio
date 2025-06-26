@@ -1,5 +1,5 @@
 import { Box } from '@mui/material'
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Filter from '../../components/Filter/Filter'
 import Table from '../../components/Table/Table'
@@ -7,6 +7,17 @@ import Table from '../../components/Table/Table'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
+
+// localStorage dan viewMode ni o'qish yoki default qiymat
+const getInitialViewMode = () => {
+	try {
+		const saved = localStorage.getItem('studentTableViewMode')
+		return saved || 'table'
+	} catch (error) {
+		console.error('Error reading viewMode from localStorage:', error)
+		return 'table'
+	}
+}
 
 const Student = ({ OnlyBookmarked = false }) => {
 	const { language } = useLanguage()
@@ -24,12 +35,21 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const [filterState, setFilterState] = useState(initialFilterState)
 	const [students, setStudents] = useState([])
-	const [viewMode, setViewMode] = useState('table') // ✅ Default table qiling
+	const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
 	const [updatedBookmark, setUpdatedBookmark] = useState({
 		studentId: null,
 		timestamp: new Date().getTime(),
 	})
 	const recruiterId = JSON.parse(sessionStorage.getItem('loginUser')).id
+
+	// localStorage ga viewMode ni saqlash
+	useEffect(() => {
+		try {
+			localStorage.setItem('studentTableViewMode', viewMode)
+		} catch (error) {
+			console.error('Error saving viewMode to localStorage:', error)
+		}
+	}, [viewMode])
 
 	const filterFields = [
 		{
@@ -106,16 +126,24 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}
 
+	const setStudentVisibility = async (studentId, visibility) => {
+		try {
+			const response = await axios.put(`/api/students/${studentId}`, {
+				visibility: visibility,
+			})
+			if (response.status === 200) {
+				setUpdatedBookmark({
+					studentId: studentId,
+					timestamp: new Date().getTime(),
+				})
+				console.log(`Student ${studentId} visibility updated to:`, visibility)
+			}
+		} catch (error) {
+			console.error('Error updating student visibility:', error)
+		}
+	}
+
 	const headers = [
-		{
-			id: 'bookmark',
-			numeric: false,
-			disablePadding: true,
-			label: '',
-			type: 'bookmark',
-			role: 'Recruiter',
-			onClickAction: addToBookmark,
-		},
 		{
 			id: 'first_name',
 			numeric: false,
@@ -124,6 +152,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'avatar',
 			minWidth: '220px',
 			onClickAction: navigateToProfile,
+		},
+		{
+			id: 'age',
+			numeric: true,
+			disablePadding: false,
+			label: '年齢',
+			minWidth: '80px',
+			suffix: ' 歳',
 		},
 		{
 			id: 'email',
@@ -148,6 +184,40 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: t('partner_university'),
 			isJSON: false,
+		},
+		{
+			id: 'expected_graduation_year',
+			numeric: true,
+			disablePadding: false,
+			label: '卒業予定年（月）',
+			minWidth: '160px',
+		},
+		{
+			id: 'visibility',
+			numeric: false,
+			type: 'confirmation_status',
+			disablePadding: false,
+			label: '確認状況',
+			minWidth: '100px',
+		},
+		{
+			id: 'visibility',
+			keyIdentifier: 'visibility_toggle',
+			numeric: false,
+			type: 'visibility_toggle',
+			disablePadding: false,
+			label: '公開状況',
+			minWidth: '120px',
+			onToggle: setStudentVisibility,
+		},
+		{
+			id: 'bookmark',
+			numeric: false,
+			disablePadding: true,
+			label: '',
+			type: 'bookmark',
+			role: 'Recruiter',
+			onClickAction: addToBookmark,
 		},
 	]
 

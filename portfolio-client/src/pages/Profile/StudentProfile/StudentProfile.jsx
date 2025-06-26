@@ -8,8 +8,8 @@ import {
 } from 'react-router-dom'
 import axios from '../../../utils/axiosUtils'
 import { Box, Typography, IconButton, Chip, Avatar, Grid } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EmailIcon from '@mui/icons-material/Email'
+import ArrowGoBackIcon from '../../../assets/icons/arrow-go-back-line.svg'
 import styles from './StudentProfile.module.css'
 import translations from '../../../locales/translations'
 import { useContext } from 'react'
@@ -87,21 +87,32 @@ const StudentProfile = ({ userId = 0 }) => {
 		>
 			<Box className={styles.topControlButtons}>
 				{role !== 'Student' && (
-					<Box
-						display='flex'
-						alignItems='center'
+					<IconButton
+						onClick={handleBackClick}
 						sx={{
-							border: 1,
-							borderRadius: 1,
-							borderColor: 'grey.300',
-							flexGrow: 1,
+							'&:hover': {
+								backgroundColor: 'transparent',
+							},
+							'&:focus': {
+								backgroundColor: 'transparent',
+							},
+							padding: '12px',
+							backgroundColor: 'rgba(86, 39, 219, 0.1)',
+							borderRadius: '50%',
+							margin: '32px 0 32px 0',
 						}}
 					>
-						<IconButton onClick={handleBackClick}>
-							<ArrowBackIcon />
-						</IconButton>
-						| {t.back}
-					</Box>
+						<img
+							src={ArrowGoBackIcon}
+							alt='戻る'
+							style={{
+								width: '24px',
+								height: '24px',
+								filter:
+									'brightness(0) saturate(100%) invert(24%) sepia(84%) saturate(2270%) hue-rotate(249deg) brightness(95%) contrast(96%)',
+							}}
+						/>
+					</IconButton>
 				)}
 			</Box>
 			<Box className={styles.container}>
