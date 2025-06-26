@@ -87,7 +87,7 @@ const Home = () => {
 	return (
 		<div key={language}>
 			<Box className={styles.header}>
-				<Box display={'flex'} gap={'10px'}>
+				<Box display={'flex'} gap={'10px'} justifyContent={'flex-end'}>
 					{role === 'Admin' && (
 						<>
 							{editMode ? (
