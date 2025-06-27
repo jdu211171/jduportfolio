@@ -24,7 +24,7 @@
 .mainBanner {
   position: relative;
   width: 100%;
-  min-height: 500px;
+  min-height: 400px;
   display: flex;
   align-items: center;
   padding: 60px 40px;
@@ -137,7 +137,7 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .mainBanner {
-    min-height: 400px;
+    min-height: 320px;
     padding: 40px 20px;
   }
 
@@ -159,7 +159,7 @@
 
 @media (max-width: 768px) {
   .mainBanner {
-    min-height: 350px;
+    min-height: 280px;
     padding: 30px 15px;
   }
 
@@ -191,7 +191,7 @@
   }
 
   .mainBanner {
-    min-height: 300px;
+    min-height: 250px;
     padding: 20px 10px;
   }
 

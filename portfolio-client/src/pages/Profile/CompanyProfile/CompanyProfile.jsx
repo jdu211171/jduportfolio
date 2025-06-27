@@ -9,6 +9,8 @@ import React, {
 import PropTypes from 'prop-types'
 import { useNavigate, useLocation } from 'react-router-dom'
 import axios from '../../../utils/axiosUtils'
+import { useAlert } from '../../../contexts/AlertContext'
+import { useLanguage } from '../../../contexts/LanguageContext'
 import {
 	Box,
 	Typography,
@@ -201,7 +203,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 	const location = useLocation()
 	const { recruiterId } = location.state || {}
 	const { language } = useContext(UserContext)
-	const t = translations[language] || translations.en
+	const { language: langContext } = useLanguage()
+	const showAlert = useAlert()
+	const currentLanguage = language || langContext || 'en'
+	const t = translations[currentLanguage] || translations.en
 
 	const id = userId !== 0 ? userId : recruiterId
 
@@ -302,7 +307,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 		setLoading(true)
 		try {
-			const dataToSave = {
+			// Clean and validate data before sending
+			const cleanedData = {
 				...editData,
 				business_overview: JSON.stringify(
 					safeArrayRender(editData.business_overview)
@@ -318,15 +324,76 @@ const CompanyProfile = ({ userId = 0 }) => {
 				),
 			}
 
-			delete dataToSave.newBusinessOverview
-			delete dataToSave.newRequiredSkill
-			delete dataToSave.newWelcomeSkill
+			// Remove new item fields and invalid fields
+			delete cleanedData.newBusinessOverview
+			delete cleanedData.newRequiredSkill
+			delete cleanedData.newWelcomeSkill
+			delete cleanedData.newTargetAudience
+
+			// Prepare data for backend validation
+			const dataToSave = {}
+
+			// Only include non-empty fields to avoid validation errors
+			Object.keys(cleanedData).forEach(key => {
+				const value = cleanedData[key]
+				if (value !== null && value !== undefined && value !== '') {
+					// Handle phone_number validation (must be numeric string)
+					if (key === 'phone_number') {
+						const phoneStr = String(value).replace(/\D/g, '') // Remove non-digits
+						if (phoneStr) {
+							dataToSave[key] = phoneStr
+						}
+					}
+					// Handle date_of_birth validation (must be ISO8601 format)
+					else if (key === 'date_of_birth') {
+						if (value instanceof Date || typeof value === 'string') {
+							try {
+								const date = new Date(value)
+								if (!isNaN(date.getTime())) {
+									dataToSave[key] = date.toISOString().split('T')[0] // YYYY-MM-DD format
+								}
+							} catch (e) {
+								console.warn('Invalid date_of_birth:', value)
+							}
+						}
+					}
+					// Handle email validation
+					else if (key === 'email') {
+						const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+						if (emailRegex.test(value)) {
+							dataToSave[key] = value
+						}
+					}
+					// Include other fields as strings
+					else {
+						dataToSave[key] = String(value)
+					}
+				}
+			})
+
+			// Debug: Log the data being sent
+			console.log('Data being sent to server:', dataToSave)
+			console.log('Recruiter ID:', id)
 
 			await axios.put(`/api/recruiters/${id}`, dataToSave)
 			setCompany({ ...editData })
 			setEditMode(false)
+
+			// Show success notification
+			showAlert(t.changes_saved || 'Changes saved successfully!', 'success')
 		} catch (error) {
 			console.error('Error saving company data:', error)
+			if (error.response) {
+				console.error('Error response data:', error.response.data)
+				console.error('Error response status:', error.response.status)
+				console.error('Error response headers:', error.response.headers)
+			}
+
+			// Show error notification
+			showAlert(
+				t.errorSavingChanges || 'Error saving changes. Please try again.',
+				'error'
+			)
 		} finally {
 			setLoading(false)
 		}
@@ -937,21 +1004,22 @@ const CompanyProfile = ({ userId = 0 }) => {
 				/>
 				{editMode ? (
 					<Box>
+						{/* Single label for the entire Target Audience section */}
+						<Typography
+							variant='subtitle2'
+							className={styles.sectionSubLabel}
+							sx={{
+								fontWeight: '600',
+								marginBottom: '16px',
+								color: 'text.primary',
+							}}
+						>
+							{t.target_person || 'Target Person'}
+						</Typography>
 						<Grid container spacing={2}>
 							{safeArrayRender(editData.target_audience).map((item, index) => (
 								<Grid item xs={12} md={6} key={`target-${index}`}>
 									<Box className={styles.targetAudienceEditContainer}>
-										<Typography
-											variant='subtitle2'
-											className={styles.targetAudienceLabel}
-											sx={{
-												fontWeight: '600',
-												marginTop: '16px',
-												marginBottom: '16px',
-											}}
-										>
-											{t.target_person || 'Target Person'}
-										</Typography>
 										<button
 											type='button'
 											className={styles.targetAudienceDeleteButton}
@@ -1008,19 +1076,27 @@ const CompanyProfile = ({ userId = 0 }) => {
 					</Box>
 				) : (
 					// View mode
-					<Grid container spacing={2}>
-						{safeArrayRender(company.target_audience).map((item, index) => (
-							<Grid item xs={12} md={6} key={`target-view-${index}`}>
-								<Typography
-									variant='subtitle2'
-									className={styles.targetAudienceLabel}
-								>
-									{t.target_person || 'Target Person'}
-								</Typography>
-								<DisplayText>{safeStringValue(item)}</DisplayText>
-							</Grid>
-						))}
-					</Grid>
+					<Box>
+						{/* Single label for the entire Target Audience section */}
+						<Typography
+							variant='subtitle2'
+							className={styles.sectionSubLabel}
+							sx={{
+								fontWeight: '600',
+								marginBottom: '16px',
+								color: 'text.primary',
+							}}
+						>
+							{t.target_person || 'Target Person'}
+						</Typography>
+						<Grid container spacing={2}>
+							{safeArrayRender(company.target_audience).map((item, index) => (
+								<Grid item xs={12} md={6} key={`target-view-${index}`}>
+									<DisplayText>{safeStringValue(item)}</DisplayText>
+								</Grid>
+							))}
+						</Grid>
+					</Box>
 				)}
 			</ContentBox>
 

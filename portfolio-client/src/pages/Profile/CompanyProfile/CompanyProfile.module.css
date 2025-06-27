@@ -33,8 +33,6 @@
 		0 10px 3px 0 rgba(0, 0, 0, 0.02);
 }
 
-.contentBox:last-child {}
-
 /* MUI Autocomplete va dropdown elementlar uchun */
 .MuiAutocomplete-popper {
 	z-index: 1500 !important;
@@ -168,6 +166,7 @@
 .editIcon {
 	width: 15px;
 	height: 15px;
+	filter: brightness(0) invert(1);
 }
 
 /* Company Info Table-like Layout */
@@ -264,6 +263,13 @@
 	color: #000;
 	font-weight: 500;
 	font-size: 18px;
+}
+
+.sectionSubLabel {
+	margin-bottom: 16px;
+	color: #000;
+	font-weight: 600;
+	font-size: 16px;
 }
 
 /* FIXED: Custom TextField Styles - Removed problematic scroll properties */
@@ -431,7 +437,8 @@
 }
 
 .targetAudienceGrid {
-	margin-bottom: 24px;
+	margin-bottom: 20px;
+	margin-top: 8px;
 }
 
 /* Target Audience Cards - Edit Mode */
@@ -475,39 +482,35 @@
 
 .targetAudienceDeleteButton {
 	position: absolute;
-	top: 12px;
-	right: 12px;
-	padding: 8px;
+	top: -40px;
+	right: 8px;
+	padding: 6px;
 	cursor: pointer;
-	background: rgba(255, 255, 255, 0.9);
-	border: 1px solid #e0e0e0;
-	border-radius: 6px;
+	background: transparent;
+	border: none;
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	transition: all 0.2s ease;
-	z-index: 10;
-}
-
-.targetAudienceDeleteButton:hover {
-	background: #fff;
-	border-color: #ff4757;
-	box-shadow: 0 2px 4px rgba(255, 71, 87, 0.2);
+	z-index: 1100;
+	/* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
 }
 
 .targetAudienceDeleteButton .deleteIcon {
-	width: 16px;
-	height: 16px;
+	width: 20px;
+	height: 20px;
 	filter: grayscale(1);
 	transition: filter 0.2s ease;
 }
 
 .targetAudienceDeleteButton:hover .deleteIcon {
-	filter: none;
+	filter: sepia(1) saturate(5) hue-rotate(330deg) brightness(0.8);
 }
 
 .addTargetAudienceButton {
-	margin-top: 16px;
+	margin-top: 24px;
+	margin-bottom: 8px;
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -528,7 +531,8 @@
 /* Target Audience Edit Mode Styles - DEPRECATED (keeping for backward compatibility) */
 .targetAudienceEditContainer {
 	position: relative;
-	margin-bottom: 16px;
+	margin-bottom: 20px;
+	margin-top: 4px;
 }
 
 .deleteIcon {
@@ -766,10 +770,43 @@
 		width: 100%;
 	}
 
+	/* Enhanced edit mode responsiveness */
+	.MuiTextField-root {
+		width: 100% !important;
+		margin-bottom: 8px !important;
+	}
+
+	.MuiAutocomplete-root {
+		width: 100% !important;
+		margin-bottom: 8px !important;
+	}
+
+	.MuiFormControl-root {
+		width: 100% !important;
+		margin-bottom: 8px !important;
+	}
+
+	/* Input field adjustments for mobile */
+	.MuiInputBase-input {
+		font-size: 14px !important;
+		padding: 8px 12px !important;
+	}
+
+	.MuiInputLabel-root {
+		font-size: 14px !important;
+	}
+
+	/* Fix .value class for mobile */
+	.value {
+		width: 100% !important;
+		margin-right: 0 !important;
+	}
+
 	.targetAudienceDeleteButton,
 	.recruitmentDeleteButton {
-		top: -8px;
-		right: -8px;
+		top: -40px;
+		right: 4px;
+		z-index: 1100;
 	}
 
 	/* Recruitment Requirements responsive */
@@ -823,6 +860,11 @@
 		padding: 12px 16px;
 	}
 
+	.value {
+		width: 100% !important;
+		margin-right: 0 !important;
+	}
+
 	/* Icon adjustments */
 	.checkboxIcon {
 		width: 12px;
@@ -851,6 +893,33 @@
 		gap: 4px;
 	}
 
+	/* Enhanced mobile edit mode */
+	.MuiTextField-root {
+		width: 100% !important;
+		margin-bottom: 6px !important;
+	}
+
+	.MuiAutocomplete-root {
+		width: 100% !important;
+		margin-bottom: 6px !important;
+	}
+
+	.MuiInputBase-input {
+		font-size: 13px !important;
+		padding: 6px 10px !important;
+	}
+
+	.MuiInputLabel-root {
+		font-size: 13px !important;
+	}
+
+	/* Button adjustments */
+	.businessOverviewSaveButton,
+	.recruitmentSaveButton {
+		font-size: 13px !important;
+		padding: 6px 12px !important;
+	}
+
 	/* NEW: Target Audience mobile responsive */
 	.targetAudienceCard {
 		min-height: 100px;
@@ -867,9 +936,10 @@
 	}
 
 	.targetAudienceDeleteButton {
-		top: 8px;
-		right: 8px;
-		padding: 6px;
+		top: -6px;
+		right: 4px;
+		padding: 4px;
+		z-index: 1100;
 	}
 }
 
@@ -890,6 +960,28 @@
 	.buttonsContainer button {
 		width: 100%;
 	}
+
+	/* Edit mode improvements for small screens */
+	.MuiTextField-root,
+	.MuiAutocomplete-root,
+	.MuiFormControl-root {
+		width: 100% !important;
+		margin-bottom: 4px !important;
+	}
+
+	.MuiInputBase-input {
+		font-size: 12px !important;
+		padding: 4px 8px !important;
+	}
+
+	.MuiInputLabel-root {
+		font-size: 12px !important;
+	}
+
+	.value {
+		width: 100% !important;
+		margin-right: 0 !important;
+	}
 }
 
 /* Extra Small Mobile (360px) */
@@ -904,5 +996,26 @@
 
 	.primaryChip {
 		font-size: 14px;
+	}
+
+	/* Ultra-compact edit mode for very small screens */
+	.MuiInputBase-input {
+		font-size: 11px !important;
+		padding: 3px 6px !important;
+	}
+
+	.MuiInputLabel-root {
+		font-size: 11px !important;
+	}
+
+	.businessOverviewSaveButton,
+	.recruitmentSaveButton {
+		font-size: 11px !important;
+		padding: 4px 8px !important;
+	}
+
+	.value {
+		width: 100% !important;
+		margin-right: 0 !important;
 	}
 }
