@@ -8,8 +8,8 @@ import {
 } from 'react-router-dom'
 import axios from '../../../utils/axiosUtils'
 import { Box, Typography, IconButton, Chip, Avatar, Grid } from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import EmailIcon from '@mui/icons-material/Email'
+import ArrowGoBackIcon from '../../../assets/icons/arrow-go-back-line.svg'
 import styles from './StudentProfile.module.css'
 import translations from '../../../locales/translations'
 import { useContext } from 'react'
@@ -80,49 +80,78 @@ const StudentProfile = ({ userId = 0 }) => {
 	}
 
 	return (
-		<Box>
-			<Grid container>
-				<Grid></Grid>
-			</Grid>
-
+		<Box
+			sx={{
+				borderRadius: '10px',
+			}}
+		>
 			<Box className={styles.topControlButtons}>
 				{role !== 'Student' && (
-				<Box
-					display='flex'
-					alignItems='center'
-					sx={{
-						border: 1,
-						borderRadius: 1,
-						borderColor: 'grey.300',
-						flexGrow: 1,
-					}}
-				>
-					<IconButton onClick={handleBackClick}>
-						<ArrowBackIcon />
+					<IconButton
+						onClick={handleBackClick}
+						sx={{
+							'&:hover': {
+								backgroundColor: 'transparent',
+							},
+							'&:focus': {
+								backgroundColor: 'transparent',
+							},
+							padding: '12px',
+							backgroundColor: 'rgba(86, 39, 219, 0.1)',
+							borderRadius: '50%',
+							margin: '32px 0 32px 0',
+						}}
+					>
+						<img
+							src={ArrowGoBackIcon}
+							alt='戻る'
+							style={{
+								width: '24px',
+								height: '24px',
+								filter:
+									'brightness(0) saturate(100%) invert(24%) sepia(84%) saturate(2270%) hue-rotate(249deg) brightness(95%) contrast(96%)',
+							}}
+						/>
 					</IconButton>
-					| {t.back}
-				</Box>
 				)}
-				<Box id='saveButton'></Box>
 			</Box>
 			<Box className={styles.container}>
 				<Box className={styles.avatarContainer}>
 					<Avatar
 						src={student.photo}
 						alt={student.first_name}
-						sx={{ width: 130, height: 130 }}
+						sx={{ width: 120, height: 120 }}
 					/>
 				</Box>
 				<Box className={styles.infoContainer}>
 					<Box className={styles.nameEmailContainer}>
-						<Box>
-							<Typography
-								variant='h4'
-								component='div'
-								className={styles.mainTitle}
-							>
+						<Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+							{/* name and lastname */}
+							<div style={{ fontSize: 20, fontWeight: 500 }}>
 								{student.first_name} {student.last_name}
-							</Typography>
+							</div>
+							{/* student id and birthday */}
+							<div style={{ display: 'flex', gap: 10 }}>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>{t.student_id}:</div>
+									<div>{student.student_id}</div>
+								</div>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>{t.age}:</div>
+									<div>{calculateAge(student.date_of_birth)}</div>
+								</div>
+							</div>
+							{/* JLPT and sotsugyou */}
+							<div style={{ display: 'flex', gap: 10 }}>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>jlpt tarjima:</div>
+									<div>{JSON.parse(student.jlpt).highest}</div>
+								</div>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>卒業見込み:</div>
+									<div>{calculateAge(student.date_of_birth)}</div>
+								</div>
+							</div>
 						</Box>
 						{['Admin', 'Staff', 'Student'].includes(role) && (
 							<Box>
@@ -131,73 +160,21 @@ const StudentProfile = ({ userId = 0 }) => {
 									{student.email}
 								</a>
 								<Box className={styles.statusChipContainer}>
-									<Chip
-										label={`${t.published}`}
-										variant='outlined'
-										sx={{
-											fontSize: '12px',
-											padding: '2px 6px',
-											height: 'auto',
-											lineHeight: 1,
-											width: '80px',
-											color: student.visibility ? '#4CAF50' : '#9e9e9e',
-											borderColor: student.visibility ? '#4CAF50' : '#9e9e9e',
-											'&.MuiChip-outlined': {
-												backgroundColor: student.visibility
-													? 'rgba(76, 175, 80, 0.08)'
-													: 'transparent',
-											},
-										}}
-									/>
-									<Chip
-										label={`${t.private}`}
-										variant='outlined'
-										sx={{
-											fontSize: '12px',
-											padding: '2px 6px',
-											height: 'auto',
-											lineHeight: 1,
-											width: '80px',
-											color: !student.visibility ? '#4CAF50' : '#9e9e9e',
-											borderColor: !student.visibility ? '#4CAF50' : '#9e9e9e',
-											'&.MuiChip-outlined': {
-												backgroundColor: !student.visibility
-													? 'rgba(76, 175, 80, 0.08)'
-													: 'transparent',
-											},
-										}}
-									/>
+									<div>
+										{student.visibility ? (
+											<div style={{ color: '#7ED6A7' }}>{t.published}</div>
+										) : (
+											<div style={{ color: '#812958' }}>{t.private}</div>
+										)}
+									</div>
+									<Box id='saveButton'></Box>
 								</Box>
 							</Box>
 						)}
 					</Box>
-					<Box className={styles.chipContainer}>
-						<Chip
-							label={`${t.student_id}: ${student.student_id}`}
-							variant='outlined'
-							sx={{
-								fontSize: '12px',
-								padding: '2px 6px',
-								height: 'auto',
-								lineHeight: 1,
-								width: '160px',
-							}}
-						/>
-						<Chip
-							label={`${t.age}: ${calculateAge(student.date_of_birth)}`}
-							variant='outlined'
-							sx={{
-								fontSize: '12px',
-								padding: '2px 6px',
-								height: 'auto',
-								lineHeight: 1,
-								width: '160px',
-							}}
-						/>
-					</Box>
 				</Box>
 			</Box>
-			<Box className={styles.navbar}>
+			{/* <Box className={styles.navbar}>
 				<NavLink
 					to={`top`}
 					state={{ userId: userId }}
@@ -205,13 +182,13 @@ const StudentProfile = ({ userId = 0 }) => {
 				>
 					{t.top}
 				</NavLink>
-				{/* <NavLink
-          to={`qa`}
-          state={{ userId: userId }}
-          className={({ isActive }) => (isActive ? styles.active : "")}
-        >
-          {t.qa}
-        </NavLink> */}
+				<NavLink
+					to={`qa`}
+					state={{ userId: userId }}
+					className={({ isActive }) => (isActive ? styles.active : '')}
+				>
+					{t.qa}
+				</NavLink>
 				<NavLink
 					to={`stats`}
 					state={{ userId: userId }}
@@ -220,7 +197,7 @@ const StudentProfile = ({ userId = 0 }) => {
 				>
 					{t.stats}
 				</NavLink>
-			</Box>
+			</Box> */}
 			<Outlet />
 		</Box>
 	)

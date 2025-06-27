@@ -3,14 +3,19 @@ import {
 	Container,
 	Typography,
 	Box,
-	Button, Grid,
+	Button,
+	Grid,
+	Card,
+	CardContent,
 } from '@mui/material'
-import EmailIcon from '@mui/icons-material/Email'
-import PhoneIcon from '@mui/icons-material/Phone'
-import AccessTimeIcon from '@mui/icons-material/AccessTime'
-import LocationOnIcon from '@mui/icons-material/LocationOn'
-import FAQstyle from './FAQ.module.css'
 
+// Custom icons import
+import MailIcon from '../../assets/icons/mail-line.svg'
+import LocationIcon from '../../assets/icons/map-pin-line.svg'
+import TimeIcon from '../../assets/icons/time-line.svg'
+import PhoneIcon from '../../assets/icons/phone-line.svg'
+
+import FAQstyle from './FAQ.module.css'
 import QATextField from '../../components/QATextField/QATextField'
 import QAAccordion from '../../components/QAAccordion/QAAccordion'
 
@@ -24,6 +29,7 @@ const FAQ = () => {
 	const [role, setRole] = useState(null)
 
 	const showAlert = useAlert()
+
 	const fetchFAQ = async () => {
 		const userRole = sessionStorage.getItem('role')
 		await setRole(userRole)
@@ -105,11 +111,6 @@ const FAQ = () => {
 			...prevEditData,
 			{ question: '', answer: '' },
 		])
-		// console.log(
-		// 	document
-		// 		.querySelectorAll('textarea[aria-invalid="false"]')
-		// 		[editData.length * 2].focus()
-		// )
 	}
 
 	const handleDelete = indexToDelete => {
@@ -121,25 +122,20 @@ const FAQ = () => {
 	}
 
 	return (
-		<Container>
-			<Box display={'flex'} justifyContent={'space-between'}>
-				<Typography variant='h5' gutterBottom className={FAQstyle['faq-title']}>
+		<Container className={FAQstyle.container}>
+			{/* Header Section */}
+			<Box className={FAQstyle.header}>
+				<Typography variant='h4' className={FAQstyle.title}>
 					FAQ
 				</Typography>
-				<Box display={'flex'} gap={'10px'}>
+				<Box className={FAQstyle.buttonGroup}>
 					{role == 'Admin' && (
 						<>
 							{editMode ? (
 								<>
-									<Button
-										onClick={handleSave}
-										variant='contained'
-										color='primary'
-										size='small'
-									>
+									<Button onClick={handleSave} variant='contained' size='small'>
 										保存
 									</Button>
-
 									<Button
 										onClick={handleCancel}
 										variant='outlined'
@@ -171,10 +167,13 @@ const FAQ = () => {
 					)}
 				</Box>
 			</Box>
-			<Box className={FAQstyle['faq-content']}>
-				<Box my={2}>
-					{editMode &&
-						Object.entries(editData).map(([key, { question, answer }]) => (
+
+			{/* FAQ Content */}
+			<Box className={FAQstyle.content}>
+				{/* Edit Mode */}
+				{editMode && (
+					<Box className={FAQstyle.editSection}>
+						{Object.entries(editData).map(([key, { question, answer }]) => (
 							<Box key={key}>
 								<QATextField
 									data={editData}
@@ -189,48 +188,79 @@ const FAQ = () => {
 								/>
 							</Box>
 						))}
-				</Box>
+					</Box>
+				)}
 
-				<Box my={2}>
-					{!editMode &&
-						Object.entries(editData).map(([key, { question, answer }]) => (
+				{/* View Mode */}
+				{!editMode && (
+					<Box className={FAQstyle.faqList}>
+						{Object.entries(editData).map(([key, { question, answer }]) => (
 							<QAAccordion
 								key={key}
 								question={question}
 								answer={answer ? answer : '回答なし'}
 							/>
 						))}
-				</Box>
+					</Box>
+				)}
 			</Box>
 
-			<Box bottom={'8px'}>
-				<Grid container spacing={2}>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<EmailIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>{settings.contactEmail}</Typography>
-						</Box>
+			{/* Contact Information */}
+			<Card className={FAQstyle.contactCard}>
+				<CardContent className={FAQstyle.contactContent}>
+					<Grid container spacing={3}>
+						<Grid item xs={12} sm={6} md={6}>
+							<Box className={FAQstyle.contactItem}>
+								<img
+									src={MailIcon}
+									alt='Email'
+									className={FAQstyle.contactIcon}
+								/>
+								<Typography className={FAQstyle.contactText}>
+									{settings.contactEmail || 'test@jdu.uz'}
+								</Typography>
+							</Box>
+						</Grid>
+						<Grid item xs={12} sm={6} md={6}>
+							<Box className={FAQstyle.contactItem}>
+								<img
+									src={PhoneIcon}
+									alt='Phone'
+									className={FAQstyle.contactIcon}
+								/>
+								<Typography className={FAQstyle.contactText}>
+									{settings.contactPhone || '+998 90 234 56 78'}
+								</Typography>
+							</Box>
+						</Grid>
+						<Grid item xs={12} sm={6} md={6}>
+							<Box className={FAQstyle.contactItem}>
+								<img
+									src={TimeIcon}
+									alt='Working Hours'
+									className={FAQstyle.contactIcon}
+								/>
+								<Typography className={FAQstyle.contactText}>
+									{settings.workingHours || '9:00 - 18:00'}
+								</Typography>
+							</Box>
+						</Grid>
+						<Grid item xs={12} sm={6} md={6}>
+							<Box className={FAQstyle.contactItem}>
+								<img
+									src={LocationIcon}
+									alt='Location'
+									className={FAQstyle.contactIcon}
+								/>
+								<Typography className={FAQstyle.contactText}>
+									{settings.location ||
+										'Tashkent, Shayhontohur district, Sebzor, 21'}
+								</Typography>
+							</Box>
+						</Grid>
 					</Grid>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<PhoneIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>{settings.contactPhone}</Typography>
-						</Box>
-					</Grid>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<AccessTimeIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>{settings.workingHours}</Typography>
-						</Box>
-					</Grid>
-					<Grid item xs={12} sm={6} md={6}>
-						<Box display='flex'>
-							<LocationOnIcon className={FAQstyle['faq-icons']} />
-							<Typography sx={{ ml: 1 }}>{settings.location}</Typography>
-						</Box>
-					</Grid>
-				</Grid>
-			</Box>
+				</CardContent>
+			</Card>
 		</Container>
 	)
 }

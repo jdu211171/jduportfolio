@@ -1,67 +1,75 @@
 import { Box } from '@mui/material'
-import React, { useState } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Filter from '../../components/Filter/Filter'
 import Table from '../../components/Table/Table'
 
-import { useLanguage } from '../../contexts/LanguageContext'; // Подключение контекста языка
-import translations from '../../locales/translations'; // Подключение переводов
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 
+// localStorage dan viewMode ni o'qish yoki default qiymat
+const getInitialViewMode = () => {
+	try {
+		const saved = localStorage.getItem('studentTableViewMode')
+		return saved || 'table'
+	} catch (error) {
+		console.error('Error reading viewMode from localStorage:', error)
+		return 'table'
+	}
+}
+
 const Student = ({ OnlyBookmarked = false }) => {
-	const { language } = useLanguage() // Получение текущего языка из контекста
-	const t = key => translations[language][key] || key // Функция перевода
-	const [filterState, setFilterState] = useState({})
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
+
+	// Initial filter state
+	const initialFilterState = {
+		search: '',
+		it_skills: [],
+		jlpt: [],
+		jdu_japanese_certification: [],
+		partner_university: [],
+		other_information: '',
+	}
+
+	const [filterState, setFilterState] = useState(initialFilterState)
+	const [students, setStudents] = useState([])
+	const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
 	const [updatedBookmark, setUpdatedBookmark] = useState({
 		studentId: null,
 		timestamp: new Date().getTime(),
 	})
 	const recruiterId = JSON.parse(sessionStorage.getItem('loginUser')).id
 
-	const filterProps = [
-		//{
-		//  key: "semester",
-		//  label: t("grade"), // Переводится
-		//  type: "checkbox",
-		//  options: [t("grade1"), t("grade2"), t("grade3"), t("grade4")],
-		//  minWidth: "120px",
-		//},
+	// localStorage ga viewMode ni saqlash
+	useEffect(() => {
+		try {
+			localStorage.setItem('studentTableViewMode', viewMode)
+		} catch (error) {
+			console.error('Error saving viewMode to localStorage:', error)
+		}
+	}, [viewMode])
+
+	const filterFields = [
 		{
 			key: 'it_skills',
 			label: t('programming_languages'),
 			type: 'checkbox',
 			options: ['JS', 'Python', 'Java', 'SQL'],
-			minWidth: '160px',
 		},
 		{
 			key: 'jlpt',
 			label: t('jlpt'),
 			type: 'checkbox',
 			options: ['N1', 'N2', 'N3', 'N4', 'N5'],
-			minWidth: '160px',
 		},
-		// {  //deleted from table // todo, disscuss, whether it is managed by student?
-		//   key: "ielts",
-		//   label: t("ielts"),
-		//   type: "checkbox",
-		//   options: ["6.0", "6.5", "7.0", "7.5", "8.0"],
-		//   minWidth: "160px",
-		// },
 		{
 			key: 'jdu_japanese_certification',
 			label: t('jdu_certification'),
 			type: 'checkbox',
 			options: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'],
-			minWidth: '160px',
 		},
-		//{
-		//  key: "partner_university_credits",
-		//  label: t("credits"),
-		//  type: "radio",
-		//  options: ["20", "40", "60", "80", "100"],
-		//  unit: t("credits_unit"),
-		//  minWidth: "160px",
-		//},
 		{
 			key: 'partner_university',
 			label: t('partner_university'),
@@ -73,20 +81,29 @@ const Student = ({ OnlyBookmarked = false }) => {
 				t('otemae_university'),
 				t('niigata_university'),
 			],
-			minWidth: '160px',
 		},
 		{
 			key: 'other_information',
 			label: t('special_skills'),
 			type: 'radio',
 			options: [t('yes'), t('no')],
-			minWidth: '160px',
 		},
 	]
 
-	const handleFilterChange = newFilterState => {
+	const handleFilterChange = useCallback(newFilterState => {
 		setFilterState(newFilterState)
-	}
+		console.log('Filter changed:', newFilterState)
+	}, [])
+
+	// ✅ Debug logging qo'shish
+	const handleViewModeChange = useCallback(
+		newMode => {
+			console.log('Current viewMode:', viewMode)
+			console.log('Switching to:', newMode)
+			setViewMode(newMode)
+		},
+		[viewMode]
+	)
 
 	const navigate = useNavigate()
 
@@ -111,15 +128,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const headers = [
 		{
-			id: 'bookmark',
-			numeric: false,
-			disablePadding: true,
-			label: '',
-			type: 'bookmark',
-			role: 'Recruiter',
-			onClickAction: addToBookmark,
-		},
-		{
 			id: 'first_name',
 			numeric: false,
 			disablePadding: true,
@@ -129,13 +137,12 @@ const Student = ({ OnlyBookmarked = false }) => {
 			onClickAction: navigateToProfile,
 		},
 		{
-			id: 'email',
-			numeric: false,
+			id: 'age',
+			numeric: true,
 			disablePadding: false,
-			label: t('email'),
-			type: 'email',
-			minWidth: '160px',
-			visibleTo: ['Admin', 'Staff'],
+			label: '年齢',
+			minWidth: '80px',
+			suffix: ' 歳',
 		},
 		{
 			id: 'jlpt',
@@ -152,6 +159,22 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: t('partner_university'),
 			isJSON: false,
 		},
+		{
+			id: 'expected_graduation_year',
+			numeric: true,
+			disablePadding: false,
+			label: '卒業予定年（月）',
+			minWidth: '160px',
+		},
+		{
+			id: 'bookmark',
+			numeric: false,
+			disablePadding: true,
+			label: '',
+			type: 'bookmark',
+			role: 'Recruiter',
+			onClickAction: addToBookmark,
+		},
 	]
 
 	const tableProps = {
@@ -162,16 +185,27 @@ const Student = ({ OnlyBookmarked = false }) => {
 		OnlyBookmarked: OnlyBookmarked,
 	}
 
+	// ✅ Debug logging
+	console.log('Current viewMode in Parent:', viewMode)
+
 	return (
 		<div key={language}>
 			<Box sx={{ width: '100%', height: '100px' }}>
 				<Filter
-					fields={filterProps}
+					fields={filterFields}
 					filterState={filterState}
 					onFilterChange={handleFilterChange}
+					viewMode={viewMode}
+					onViewModeChange={handleViewModeChange}
+					persistKey='students-filter-v1'
 				/>
 			</Box>
-			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
+			{/* ✅ viewMode prop qo'shildi */}
+			<Table
+				tableProps={tableProps}
+				updatedBookmark={updatedBookmark}
+				viewMode={viewMode}
+			/>
 		</div>
 	)
 }

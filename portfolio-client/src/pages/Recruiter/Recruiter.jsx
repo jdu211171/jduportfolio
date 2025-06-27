@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Box } from '@mui/material'
@@ -7,16 +7,32 @@ import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
+import axios from '../../utils/axiosUtils'
 
 const Recruiter = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const navigate = useNavigate()
+
 	const navigateToCompanyProfile = recruiter => {
 		navigate(`/companyprofile`, {
 			state: { recruiterId: recruiter.id }, // passing state
 		})
 	}
+
+	const deleteRecruiter = async recruiterId => {
+		try {
+			await axios.delete(`/api/recruiters/${recruiterId}`)
+
+			// Refresh the table by updating a state that triggers re-fetch
+			setRefreshTrigger(prev => prev + 1)
+		} catch (error) {
+			console.error('Error deleting recruiter:', error)
+			alert('リクルーターの削除に失敗しました。')
+		}
+	}
+
+	const [refreshTrigger, setRefreshTrigger] = useState(0)
 
 	const headers = [
 		{
@@ -51,6 +67,16 @@ const Recruiter = () => {
 			minWidth: '220px',
 			visibleTo: ['Admin', 'Staff'],
 		},
+		{
+			id: 'delete',
+			numeric: false,
+			disablePadding: true,
+			label: '削除',
+			type: 'delete_icon',
+			minWidth: '80px',
+			visibleTo: ['Admin'],
+			onClickAction: deleteRecruiter,
+		},
 	]
 
 	const [filterState, setFilterState] = useState({})
@@ -63,6 +89,7 @@ const Recruiter = () => {
 		headers: headers,
 		dataLink: '/api/recruiters',
 		filter: filterState,
+		refreshTrigger: refreshTrigger,
 	}
 
 	const handleFilterChange = value => {

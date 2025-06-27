@@ -27,7 +27,38 @@ import {
 
 import translations from '../../../locales/translations'
 import { UserContext } from '../../../contexts/UserContext'
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined'
+import PermIdentityIcon from '@mui/icons-material/PermIdentity'
+import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined'
 
+const qaQuestions = [
+	{
+		icon: SchoolOutlinedIcon,
+		label: '学生成績',
+		iconColor: '#3275f2',
+	},
+	{
+		icon: AutoStoriesOutlinedIcon,
+		label: '専門知識',
+		iconColor: '#a551f5',
+	},
+	{
+		icon: PermIdentityIcon,
+		label: '個性',
+		iconColor: '#0dae7a',
+	},
+	{
+		icon: WorkOutlineOutlinedIcon,
+		label: '実務経験',
+		iconColor: '#5b59ec',
+	},
+	{
+		icon: TrendingUp,
+		label: 'キャリア目標',
+		iconColor: '#e63c8c',
+	},
+]
 const QA = ({
 	data = {},
 	handleQAUpdate,
@@ -347,6 +378,7 @@ const QA = ({
 		const category = labels[index]
 		return editData[category] || {}
 	}
+	console.log(studentQA)
 
 	if (!studentQA) {
 		return <div>Loading...</div>
@@ -443,30 +475,64 @@ const QA = ({
 				</Box>
 			)}
 
-			<>
+			{/* <>
 				{id &&
 					ReactDOM.createPortal(
 						portalContent,
 						document.getElementById('saveButton')
 					)}
-			</>
+			</> */}
 
-			<Tabs
+			<div
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					gap: 36,
+				}}
+			>
+				{qaQuestions.map((item, ind) => (
+					<div
+						key={ind}
+						className={styles.qaBox}
+						style={{
+							backgroundColor: subTabIndex === ind && '#d8e1f0',
+						}}
+						onClick={() => {
+							setSubTabIndex(ind)
+						}}
+					>
+						<div
+							className={styles.iconBox}
+							style={{
+								backgroundColor: item.iconColor,
+							}}
+						>
+							<item.icon style={{ color: '#FFFFFF', fontSize: 25 }} />
+						</div>
+						<div
+							style={{
+								fontSize: 14,
+								color: subTabIndex === ind && item.iconColor,
+							}}
+						>
+							{item.label}
+						</div>
+					</div>
+				))}
+			</div>
+
+			{/* <Tabs
 				className={styles.Tabs}
 				value={subTabIndex}
 				onChange={handleSubTabChange}
-				sx={{
-					'& .MuiTabs-indicator': {
-						display: 'none',
-					},
-				}}
 			>
-				<Tab icon={<School />} iconPosition='bottom' label='学生成績' />
-				<Tab icon={<AutoStories />} iconPosition='bottom' label='専門知識' />
-				<Tab icon={<Face />} iconPosition='bottom' label='個性' />
-				<Tab icon={<WorkHistory />} iconPosition='bottom' label='実務経験' />
-				<Tab icon={<TrendingUp />} iconPosition='bottom' label='キャリア目標' />
-			</Tabs>
+				<Tab icon={<School />} iconPosition='top' label='学生成績' />
+				<Tab icon={<AutoStories />} iconPosition='top' label='専門知識' />
+				<Tab icon={<Face />} iconPosition='top' label='個性' />
+				<Tab icon={<WorkHistory />} iconPosition='top' label='実務経験' />
+				<Tab icon={<TrendingUp />} iconPosition='top' label='キャリア目標' />
+			</Tabs> */}
 
 			<Box my={2}>
 				{editMode &&
@@ -492,10 +558,10 @@ const QA = ({
 				{!editMode &&
 					Object.entries(getCategoryData(subTabIndex)).map(
 						([key, { question, answer }]) =>
-							!(question.split(']')[0] == '[任意' && !answer) && (
+							!(question.split(']')[0] == '[任意]' && !answer) && (
 								<QAAccordion
 									key={key}
-									question={question.split(']')[1]}
+									question={question}
 									answer={answer ? answer : '回答なし'}
 									notExpand={id ? false : true}
 								/>
@@ -604,4 +670,3 @@ const QA = ({
 }
 
 export default QA
-

@@ -6,30 +6,34 @@
 
 .notificationBadge {
 	position: absolute;
-	top: -8px;
-	right: -8px;
-	background-color: #7825B5;
-	color: white;
+	top: -2px;
+	right: -4px;
+	color: #fff;
+	background-color: #5627dc;
 	border-radius: 50%;
 	padding: 2px 6px;
+	width: 10px;
 	font-size: 12px;
-	min-width: 18px;
 	text-align: center;
 }
 
-.notificationsIconBox{
+.notificationsIconBox {
 	width: 30px;
 	height: 30px;
 	border-radius: 50%;
-	background-color: #F0E6F7;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	padding: 8px;
+	gap: 10px;
+	box-sizing: content-box;
+	background: rgba(86, 39, 219, 0.2);
 }
 
 .notificationIcon {
-	color:#6A0DAD;
+	color: rgba(86, 39, 219, 1);
 	cursor: pointer;
+
 }
 
 .dropdown {
@@ -219,7 +223,8 @@
 	cursor: pointer;
 }
 
-.okButton, .markAllButton {
+.okButton,
+.markAllButton {
 	background-color: #5627dc;
 	color: white;
 	border: none;
@@ -233,7 +238,8 @@
 	transition: background-color 0.2s;
 }
 
-.okButton:hover, .markAllButton:hover {
+.okButton:hover,
+.markAllButton:hover {
 	background-color: #4720b5;
 }
 
@@ -271,6 +277,7 @@
 	color: #666;
 	transition: background-color 0.3s ease;
 }
+
 .closeButton:hover {
 	background-color: #e0e0e0;
 	color: #333;
