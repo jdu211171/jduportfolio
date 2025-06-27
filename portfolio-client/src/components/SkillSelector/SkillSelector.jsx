@@ -18,37 +18,74 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
 const SkillSelector = ({
-	title,
-	data,
-	editData,
-	editMode,
-	headers,
-	updateEditData,
-	keyName,
-	showAutocomplete,
-	showHeaders,
-}) => {
-	const [jsonData, setJsonData] = useState(data[keyName])
-	const [editJsonData, setEditJsonData] = useState(editData[keyName])
+												 title,
+												 data,
+												 editData,
+												 editMode,
+												 headers,
+												 updateEditData,
+												 keyName,
+												 parentKey = 'draft', // ✅ parentKey qo'shildi
+												 showAutocomplete,
+												 showHeaders,
+											 }) => {
+	// ✅ TO'G'IRLANGAN: parentKey orqali to'g'ri ma'lumotlarga murojaat
+	const getDataSource = () => {
+		if (parentKey) {
+			return data[parentKey] ? data[parentKey][keyName] || {} : {}
+		}
+		return data[keyName] || {}
+	}
+
+	const getEditDataSource = () => {
+		if (parentKey) {
+			return editData[parentKey] ? editData[parentKey][keyName] || {} : {}
+		}
+		return editData[keyName] || {}
+	}
+
+	const [jsonData, setJsonData] = useState(getDataSource())
+	const [editJsonData, setEditJsonData] = useState(getEditDataSource())
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
 
 	const { language } = useLanguage()
-
 	const t = key => translations[language][key] || key
+
+	// ✅ TO'G'IRLANGAN useEffect: parentKey hisobga olish
 	useEffect(() => {
-		setJsonData(data[keyName])
-		setEditJsonData(editData[keyName])
-	}, [data])
+		console.log('🔄 SkillSelector data updated:', {
+			keyName,
+			parentKey,
+			dataSource: getDataSource(),
+			editDataSource: getEditDataSource(),
+			editMode
+		})
+
+		setJsonData(getDataSource())
+		setEditJsonData(getEditDataSource())
+	}, [data, editData, keyName, parentKey])
+
+	// ✅ TO'G'IRLANGAN updateEditData: parentKey bilan ishlash
+	const updateParentEditData = (updatedSkills) => {
+		if (parentKey) {
+			// Parent component'ga parentKey orqali yuborish
+			updateEditData(keyName, updatedSkills, parentKey)
+		} else {
+			// To'g'ridan-to'g'ri yuborish
+			updateEditData(keyName, updatedSkills)
+		}
+	}
+
 	const handleAddSkill = () => {
 		if (selectedSkill && selectedLevel) {
 			let skillExists = false
 			Object.keys(editJsonData).forEach(level => {
 				if (
+					editJsonData[level] &&
 					editJsonData[level].some(skill => skill.name === selectedSkill.name)
 				) {
 					skillExists = true
-
 					alert(
 						`Skill "${selectedSkill.name}" is already added for level "${level}"`
 					)
@@ -69,8 +106,19 @@ const SkillSelector = ({
 					},
 				],
 			}
+
+			console.log('➕ Adding skill:', {
+				skill: selectedSkill.name,
+				level: selectedLevel,
+				updatedSkills
+			})
+
 			setEditJsonData(updatedSkills)
-			updateEditData(keyName, updatedSkills)
+			updateParentEditData(updatedSkills) // ✅ TO'G'IRLANGAN
+
+			// Reset selection
+			setSelectedSkill(null)
+			setSelectedLevel('初級')
 		}
 	}
 
@@ -81,9 +129,27 @@ const SkillSelector = ({
 				skill => skill.name !== skillToDelete.name
 			),
 		}
+
+		console.log('🗑️ Deleting skill:', {
+			skill: skillToDelete.name,
+			level,
+			updatedSkills
+		})
+
 		setEditJsonData(updatedSkills)
-		updateEditData(keyName, updatedSkills)
+		updateParentEditData(updatedSkills) // ✅ TO'G'IRLANGAN
 	}
+
+	// ✅ TO'G'IRLANGAN: editMode'da editJsonData, aks holda jsonData
+	const displayData = editMode ? editJsonData : jsonData
+
+	console.log('🎯 SkillSelector render:', {
+		keyName,
+		editMode,
+		displayData,
+		jsonData,
+		editJsonData
+	})
 
 	return (
 		<div className={styles.container}>
@@ -104,6 +170,7 @@ const SkillSelector = ({
 						<Autocomplete
 							options={skills}
 							getOptionLabel={option => option.name}
+							value={selectedSkill}
 							onChange={(event, newValue) => setSelectedSkill(newValue)}
 							sx={{ width: 160 }}
 							renderInput={params => (
@@ -116,7 +183,11 @@ const SkillSelector = ({
 						/>
 					) : (
 						<TextField
-							onChange={event => setSelectedSkill({ name: event.target.value })}
+							value={selectedSkill?.name || ''}
+							onChange={event => setSelectedSkill({
+								name: event.target.value,
+								color: '#2196f3' // Default color
+							})}
 							label='Skill'
 							variant='outlined'
 							sx={{ width: 120 }}
@@ -145,52 +216,50 @@ const SkillSelector = ({
 			<div className={styles.data}>
 				<table>
 					<tbody>
-						{Object.entries(editMode ? editJsonData : jsonData).map(
-							([level, skills]) => (
-								<tr key={level}>
-									<td style={{ textAlign: 'right' }}>{t('levels')[level]}:</td>
-									<td>
-										{skills.map((skill, index) => (
-											<Chip
-												key={level + index}
-												label={
-													skill.name + '\n' + (skill.date ? skill.date : '')
+					{Object.entries(displayData || {}).map(([level, skillsArray]) => (
+						<tr key={level}>
+							<td style={{ textAlign: 'right' }}>{t('levels')[level]}:</td>
+							<td>
+								{(skillsArray || []).map((skill, index) => (
+									<Chip
+										key={`${level}-${index}-${skill.name}`}
+										label={
+											skill.name + '\n' + (skill.date ? skill.date : '')
+										}
+										variant='outlined'
+										style={
+											skill.date
+												? {
+													borderColor: skill.color,
+													color: skill.color,
+													margin: '0 4px 4px 0',
+													backgroundColor: skill.color + '16',
+													padding: '8px 4px',
+													height: 'auto',
 												}
-												variant='outlined'
-												style={
-													skill.date
-														? {
-																borderColor: skill.color,
-																color: skill.color,
-																margin: '0 4px 4px 0',
-																backgroundColor: skill.color + '16',
-																padding: '8px 4px',
-																height: 'auto',
-															}
-														: {
-																borderColor: skill.color,
-																color: skill.color,
-																margin: '0 4px 4px 0',
-																backgroundColor: skill.color + '16',
-															}
+												: {
+													borderColor: skill.color,
+													color: skill.color,
+													margin: '0 4px 4px 0',
+													backgroundColor: skill.color + '16',
 												}
-												sx={{
-													'& .MuiChip-label': {
-														display: 'block',
-														whiteSpace: 'pre-wrap',
-													},
-												}}
-												onDelete={
-													editMode
-														? () => handleDeleteSkill(skill, level)
-														: undefined
-												}
-											/>
-										))}
-									</td>
-								</tr>
-							)
-						)}
+										}
+										sx={{
+											'& .MuiChip-label': {
+												display: 'block',
+												whiteSpace: 'pre-wrap',
+											},
+										}}
+										onDelete={
+											editMode
+												? () => handleDeleteSkill(skill, level)
+												: undefined
+										}
+									/>
+								))}
+							</td>
+						</tr>
+					))}
 					</tbody>
 				</table>
 			</div>

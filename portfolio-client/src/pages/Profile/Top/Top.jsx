@@ -91,6 +91,7 @@ const Top = () => {
 			setEditData(mappedData)
 			setHasDraft(true)
 			SetUpdateQA(!updateQA)
+			setCurrentDraft(statedata.draft)
 		}
 	}
 
@@ -104,12 +105,15 @@ const Top = () => {
 				return
 			}
 
+			console.log('🔍 Fetching draft for student:', studentIdToUse)
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data) {
 				const studentData = { ...response.data }
 				const draftData = studentData.draft
 				delete studentData.draft
+
+				console.log('📄 Latest draft data received:', draftData)
 
 				if (draftData) {
 					setCurrentDraft(draftData)
@@ -128,6 +132,7 @@ const Top = () => {
 					draft: draftData ? draftData.profile_data : {},
 				}
 
+				console.log('✅ Setting student and editData with latest draft:', mappedData)
 				setStudent(mappedData)
 				setEditData(mappedData)
 				SetUpdateQA(!updateQA)
@@ -169,11 +174,14 @@ const Top = () => {
 	const fetchDraft = async (studentData = null) => {
 		try {
 			const studentIdToUse = studentData?.student_id || student?.student_id || id
+			console.log('🔍 Fetching draft for staff view:', studentIdToUse)
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data && response.data.draft) {
 				setHasDraft(true)
 				const draft = response.data.draft
+
+				console.log('📄 Draft data for staff:', draft)
 
 				if (draft.status === 'checking' || draft.status === 'approved') {
 					setIsChecking(true)
@@ -191,6 +199,7 @@ const Top = () => {
 							...(draft.profile_data || {}),
 						},
 					}
+					console.log('✅ Updated editData with latest draft:', updatedEditData)
 					return updatedEditData
 				})
 
@@ -222,6 +231,7 @@ const Top = () => {
 			}, {}),
 		}
 	}
+
 	const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
@@ -339,7 +349,42 @@ const Top = () => {
 		}))
 	}
 
-	const toggleEditMode = () => setEditMode(prev => !prev)
+	// ✅ TO'G'IRLANGAN toggleEditMode - eng so'ngi draft'ni oladi
+	const toggleEditMode = async () => {
+		if (!editMode) {
+			// Edit mode yoqilganda eng so'ngi draft'ni olish
+			console.log('🔄 Fetching latest draft for edit mode...')
+
+			try {
+				const studentIdToUse = role === 'Student' ? getStudentIdFromLoginUser() : id
+				const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
+
+				if (response.data && response.data.draft) {
+					console.log('📄 Latest draft loaded for edit mode:', response.data.draft)
+
+					const latestDraft = response.data.draft
+					setCurrentDraft(latestDraft)
+
+					// EditData'ni eng so'ngi draft bilan yangilash
+					const updatedEditData = {
+						...editData,
+						draft: latestDraft.profile_data || {}
+					}
+
+					setEditData(updatedEditData)
+					setStudent(updatedEditData) // Student'ni ham yangilash
+					SetUpdateQA(!updateQA)
+
+					console.log('✅ Edit data updated with latest draft:', updatedEditData)
+				}
+			} catch (error) {
+				console.error('❌ Error fetching latest draft for edit mode:', error)
+				showAlert('Error loading latest draft', 'error')
+			}
+		}
+
+		setEditMode(prev => !prev)
+	}
 
 	const handleSave = async () => {
 		try {
@@ -461,7 +506,10 @@ const Top = () => {
 				submit_count: currentDraft.submit_count || 0,
 			}
 
+			console.log('💾 Saving draft with data:', draftData)
 			const res = await axios.post(`/api/draft`, draftData)
+			console.log('✅ Draft saved successfully:', res.data)
+
 			setCurrentDraft(res.data.draft)
 			setHasDraft(true)
 
@@ -479,6 +527,7 @@ const Top = () => {
 	const toggleConfirmMode = () => {
 		setConfirmMode(prev => !prev)
 	}
+
 	const handleConfirmProfile = async () => {
 		try {
 			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
@@ -500,6 +549,15 @@ const Top = () => {
 	const handleSubTabChange = (event, newIndex) => {
 		setSubTabIndex(newIndex)
 	}
+
+	// ✅ Debug uchun ma'lumotlar o'zgarishini kuzatish
+	useEffect(() => {
+		console.log('🔍 Data state changed:')
+		console.log('📊 student.draft:', student?.draft)
+		console.log('📝 editData.draft:', editData?.draft)
+		console.log('📋 currentDraft:', currentDraft)
+		console.log('🎛️ editMode:', editMode)
+	}, [student, editData, currentDraft, editMode])
 
 	if (isLoading) {
 		return <div>{t('loading')}</div>
@@ -637,7 +695,7 @@ const Top = () => {
 				<Box my={2}>
 					<TextField
 						title={t('selfIntroduction')}
-						data={student.draft.self_introduction}
+						data={editData.draft.self_introduction || ''}
 						editData={editData}
 						editMode={editMode}
 						updateEditData={handleUpdateEditData}
@@ -655,7 +713,7 @@ const Top = () => {
 					/>
 					<TextField
 						title={t('hobbies')}
-						data={student.draft.hobbies}
+						data={editData.draft.hobbies || ''}
 						editData={editData}
 						editMode={editMode}
 						updateEditData={handleUpdateEditData}
@@ -664,7 +722,7 @@ const Top = () => {
 					/>
 					<TextField
 						title={t('specialSkills')}
-						data={student.draft.other_information}
+						data={editData.draft.other_information || ''}
 						editData={editData}
 						editMode={editMode}
 						updateEditData={handleUpdateEditData}
@@ -678,7 +736,7 @@ const Top = () => {
 							中級: t('threeYearsOrMore'),
 							初級: t('oneToOneAndHalfYears'),
 						}}
-						data={student.draft}
+						data={editData}
 						editData={editData}
 						editMode={editMode}
 						updateEditData={handleUpdateEditData}
@@ -694,7 +752,7 @@ const Top = () => {
 							中級: '1年間〜1年間半',
 							初級: '基礎',
 						}}
-						data={student.draft}
+						data={editData}
 						editMode={editMode}
 						editData={editData}
 						updateEditData={handleUpdateEditData}
@@ -709,9 +767,9 @@ const Top = () => {
 			{subTabIndex === 1 && (
 				<Box my={2}>
 					<Deliverables
-						data={student.draft.deliverables}
+						data={editData.draft.deliverables || []}
 						editMode={editMode}
-						editData={editData.draft.deliverables}
+						editData={editData.draft.deliverables || []}
 						updateEditData={handleUpdateEditData}
 						onImageUpload={handleImageUpload}
 						keyName='deliverables'
