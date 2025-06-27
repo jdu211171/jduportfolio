@@ -4,9 +4,7 @@ const { uploadFile, deleteFile } = require('../utils/storageService');
 const generateUniqueFilename = require('../utils/uniqueFilename');
 const { Image } = require('../models');
 
-/**
- * Bir yoki bir nechta rasmni yuklash va ma'lumotlar bazasiga saqlash
- */
+
 exports.createImages = async (req, res) => {
     try {
         // req.files multer.array() orqali keladi
@@ -42,9 +40,6 @@ exports.createImages = async (req, res) => {
     }
 };
 
-/**
- * Berilgan turdagi barcha rasmlarni olish
- */
 exports.getImagesByType = async (req, res) => {
     try {
         const { type } = req.params;
@@ -65,9 +60,6 @@ exports.getImagesByType = async (req, res) => {
     }
 };
 
-/**
- * Berilgan ID bo'yicha rasmni o'chirish (S3 va bazadan)
- */
 exports.deleteImage = async (req, res) => {
     try {
         const { id } = req.params;
