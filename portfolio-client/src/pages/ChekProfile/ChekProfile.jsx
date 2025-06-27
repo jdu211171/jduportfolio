@@ -132,13 +132,19 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const setProfileVisibility = async (id, visibility) => {
 		try {
+			console.log('Setting profile visibility:', { id, visibility })
+
 			if (visibility) {
 				const student = await axios.get(`/api/students/${id}`)
 				const studentId = student.data.student_id
 
+				console.log('Student data:', student.data)
+
 				const draftsResponse = await axios.get(
 					`/api/draft/student/${studentId}`
 				)
+
+				console.log('Drafts response:', draftsResponse.data)
 
 				if (
 					draftsResponse.data &&
@@ -146,40 +152,66 @@ const Student = ({ OnlyBookmarked = false }) => {
 					draftsResponse.data.draft.status === 'approved'
 				) {
 					const profileData = draftsResponse.data.draft.profile_data || {}
+					console.log('Updating with profile data:', {
+						...profileData,
+						visibility: true,
+					})
+
 					const res = await axios.put(`/api/students/${id}`, {
 						...profileData,
 						visibility: true,
 					})
 
+					console.log('Update response:', res.data)
+
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
 						return true
+					} else {
+						console.error('Update failed with status:', res.status)
+						return false
 					}
 				} else {
+					console.log('Updating visibility only:', { visibility: true })
+
 					const res = await axios.put(`/api/students/${id}`, {
 						visibility: true,
 					})
 
+					console.log('Visibility update response:', res.data)
+
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
 						return true
+					} else {
+						console.error('Visibility update failed with status:', res.status)
+						return false
 					}
 				}
 			} else {
+				console.log('Setting visibility to false:', { visibility: false })
+
 				const res = await axios.put(`/api/students/${id}`, {
 					visibility: false,
 				})
 
+				console.log('Visibility false response:', res.data)
+
 				if (res.status === 200) {
 					showAlert(t['profileHidden'], 'success')
 					return true
+				} else {
+					console.error('Visibility false failed with status:', res.status)
+					return false
 				}
 			}
-
-			return false
 		} catch (error) {
 			console.error('Error setting profile visibility:', error)
-			showAlert(t['errorSettingVisibility'], 'error')
+			console.error('Error details:', error.response?.data)
+			showAlert(
+				t['errorSettingVisibility'] || 'Error setting visibility',
+				'error'
+			)
 			return false
 		}
 	}

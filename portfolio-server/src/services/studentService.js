@@ -392,6 +392,11 @@ class StudentService {
 
 	static async updateStudent(studentId, studentData) {
 		try {
+			console.log('StudentService.updateStudent called with:', {
+				studentId,
+				studentData,
+			})
+
 			let student
 			// If it's a numeric ID, use the primary key
 			if (!isNaN(parseInt(studentId))) {
@@ -405,6 +410,8 @@ class StudentService {
 				throw new Error('Student not found')
 			}
 
+			console.log('Found student:', student.dataValues)
+
 			// If we're setting visibility to true, ensure we have the latest approved draft
 			if (studentData.visibility === true) {
 				// Check if we already have draft data in the request
@@ -414,12 +421,16 @@ class StudentService {
 					studentData.hasOwnProperty('skills') ||
 					studentData.hasOwnProperty('it_skills')
 
+				console.log('Has draft data:', hasDraftData)
+
 				// If no draft data provided, try to find the latest approved draft
 				if (!hasDraftData) {
 					const latestApprovedDraft =
 						await DraftService.getLatestApprovedDraftByStudentId(
 							student.student_id
 						)
+
+					console.log('Latest approved draft:', latestApprovedDraft)
 
 					if (latestApprovedDraft) {
 						// console.log('Applying latest approved draft to student profile...')
@@ -433,12 +444,19 @@ class StudentService {
 							...studentData,
 							visibility: true,
 						}
+
+						console.log('Merged student data with draft:', studentData)
 					}
 				}
 			}
 
+			console.log('Final student data to update:', studentData)
+
 			// Update the student with the provided data
 			await student.update(studentData)
+
+			console.log('Student updated successfully, new data:', student.dataValues)
+
 			return student
 		} catch (error) {
 			console.error('Error updating student:', error)

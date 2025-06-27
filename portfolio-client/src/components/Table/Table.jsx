@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 import axios from '../../utils/axiosUtils'
 
@@ -91,11 +91,18 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		}))
 	}
 	const handleClose = async (id, action) => {
+		console.log('handleClose called with:', { id, action })
 		let res = false
 		res = await action(id)
+		console.log('Action result:', res)
+
 		if (res == undefined) {
-			setRefresher(refresher + 1)
+			console.log('Action returned undefined, triggering refresh')
+			setRefresher(prev => prev + 1)
+		} else {
+			console.log('Action returned result, not triggering refresh')
 		}
+
 		setAnchorEls(prev => ({
 			...prev,
 			[id]: null,
@@ -106,7 +113,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		return header.keyIdentifier || `${header.id}${header.subkey || ''}`
 	}
 
-	const fetchUserData = async () => {
+	const fetchUserData = useCallback(async () => {
+		console.log('fetchUserData called')
 		setLoading(true)
 		try {
 			const response = await axios.get(tableProps.dataLink, {
@@ -116,21 +124,28 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					onlyBookmarked: tableProps.OnlyBookmarked,
 				},
 			})
+			console.log('Fetched data:', response.data)
 			setRows(response.data)
 		} catch (error) {
 			console.error('Error fetching students:', error)
 		} finally {
 			setLoading(false)
 		}
-	}
-
-	useEffect(() => {
-		fetchUserData()
 	}, [
 		tableProps.dataLink,
 		tableProps.filter,
-		refresher,
+		tableProps.recruiterId,
+		tableProps.OnlyBookmarked,
+	])
+
+	useEffect(() => {
+		console.log('useEffect triggered, calling fetchUserData')
+		fetchUserData()
+	}, [
+		fetchUserData,
 		tableProps.refreshTrigger,
+		// Remove refresher from dependencies to prevent automatic refetch
+		// refresher should only be used for manual refresh operations
 	])
 
 	useEffect(() => {
@@ -540,7 +555,23 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														}
 													}}
 													sx={{
-														minWidth: header.minWidth,
+														minWidth: (() => {
+															// Set specific minWidth based on column label
+															switch (header.label) {
+																case '年齢':
+																	return '65px'
+																case '申請回数':
+																	return '90px'
+																case '承認状況':
+																	return '135px'
+																case '確認状況':
+																	return '135px'
+																case '公開状況':
+																	return '120px'
+																default:
+																	return header.minWidth
+															}
+														})(),
 														padding:
 															header.type === 'avatar' ? '4px' : '12px 16px',
 														borderRight: 'none',
@@ -656,7 +687,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																gap: '6px',
 																padding: '4px 8px',
 																borderRadius: '8px',
-																minWidth: '80px',
 															}}
 														>
 															{(() => {
@@ -726,7 +756,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																gap: '6px',
 																padding: '4px 8px',
 																borderRadius: '8px',
-																minWidth: '80px',
 															}}
 														>
 															{row.visibility ? (
@@ -797,9 +826,93 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
-																onChange={e => {
+																onChange={async e => {
+																	const newValue = e.target.checked
+																	const previousValue = row[header.id]
+
+																	console.log('Visibility toggle clicked:', {
+																		rowId: row.id,
+																		previousValue: previousValue,
+																		newValue: newValue,
+																		headerId: header.id,
+																	})
+
+																	// Optimistically update UI immediately
+																	setRows(prevRows => {
+																		const newRows = prevRows.map(prevRow =>
+																			prevRow.id === row.id
+																				? { ...prevRow, [header.id]: newValue }
+																				: prevRow
+																		)
+																		console.log(
+																			'Optimistically updated rows:',
+																			newRows.find(r => r.id === row.id)
+																		)
+																		return newRows
+																	})
+
+																	// Then call backend
 																	if (header.onToggle) {
-																		header.onToggle(row.id, e.target.checked)
+																		try {
+																			const success = await header.onToggle(
+																				row.id,
+																				newValue
+																			)
+																			console.log('Toggle result:', success)
+
+																			if (!success) {
+																				console.log(
+																					'Toggle failed, reverting to previous state'
+																				)
+																				// Revert to previous state if backend call failed
+																				setRows(prevRows => {
+																					const revertedRows = prevRows.map(
+																						prevRow =>
+																							prevRow.id === row.id
+																								? {
+																										...prevRow,
+																										[header.id]: previousValue,
+																									}
+																								: prevRow
+																					)
+																					console.log(
+																						'Reverted rows:',
+																						revertedRows.find(
+																							r => r.id === row.id
+																						)
+																					)
+																					return revertedRows
+																				})
+																			} else {
+																				console.log(
+																					'Toggle successful, keeping optimistic update'
+																				)
+																			}
+																		} catch (error) {
+																			console.error(
+																				'Toggle error, reverting to previous state:',
+																				error
+																			)
+																			// Revert to previous state on error
+																			setRows(prevRows => {
+																				const revertedRows = prevRows.map(
+																					prevRow =>
+																						prevRow.id === row.id
+																							? {
+																									...prevRow,
+																									[header.id]: previousValue,
+																								}
+																							: prevRow
+																				)
+																				console.log(
+																					'Error reverted rows:',
+																					revertedRows.find(
+																						r => r.id === row.id
+																					)
+																				)
+																				return revertedRows
+																			})
+																		}
 																	}
 																}}
 																size='small'
@@ -848,9 +961,96 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
-																onChange={e => {
+																onChange={async e => {
+																	const newValue = e.target.checked
+																	const previousValue = row[header.id]
+
+																	console.log('Toggle switch clicked:', {
+																		rowId: row.id,
+																		previousValue: previousValue,
+																		newValue: newValue,
+																		headerId: header.id,
+																	})
+
+																	// Optimistically update UI immediately
+																	setRows(prevRows => {
+																		const newRows = prevRows.map(prevRow =>
+																			prevRow.id === row.id
+																				? { ...prevRow, [header.id]: newValue }
+																				: prevRow
+																		)
+																		console.log(
+																			'Optimistically updated toggle switch rows:',
+																			newRows.find(r => r.id === row.id)
+																		)
+																		return newRows
+																	})
+
+																	// Then call backend
 																	if (header.onToggle) {
-																		header.onToggle(row.id, e.target.checked)
+																		try {
+																			const success = await header.onToggle(
+																				row.id,
+																				newValue
+																			)
+																			console.log(
+																				'Toggle switch result:',
+																				success
+																			)
+
+																			if (!success) {
+																				console.log(
+																					'Toggle switch failed, reverting to previous state'
+																				)
+																				// Revert to previous state if backend call failed
+																				setRows(prevRows => {
+																					const revertedRows = prevRows.map(
+																						prevRow =>
+																							prevRow.id === row.id
+																								? {
+																										...prevRow,
+																										[header.id]: previousValue,
+																									}
+																								: prevRow
+																					)
+																					console.log(
+																						'Reverted toggle switch rows:',
+																						revertedRows.find(
+																							r => r.id === row.id
+																						)
+																					)
+																					return revertedRows
+																				})
+																			} else {
+																				console.log(
+																					'Toggle switch successful, keeping optimistic update'
+																				)
+																			}
+																		} catch (error) {
+																			console.error(
+																				'Toggle switch error, reverting to previous state:',
+																				error
+																			)
+																			// Revert to previous state on error
+																			setRows(prevRows => {
+																				const revertedRows = prevRows.map(
+																					prevRow =>
+																						prevRow.id === row.id
+																							? {
+																									...prevRow,
+																									[header.id]: previousValue,
+																								}
+																							: prevRow
+																				)
+																				console.log(
+																					'Error reverted toggle switch rows:',
+																					revertedRows.find(
+																						r => r.id === row.id
+																					)
+																				)
+																				return revertedRows
+																			})
+																		}
 																	}
 																}}
 																size='small'
