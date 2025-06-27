@@ -91,6 +91,7 @@ class StaffService {
 		}
 	}
 
+
 	static async updateStaffByKintoneId(kintoneId, staffData) {
 		try {
 		  const staff = await Staff.findOne({ where: { kintone_id: kintoneId } });

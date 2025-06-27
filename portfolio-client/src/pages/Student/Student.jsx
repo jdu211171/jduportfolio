@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
+import PasswordCell from '../../components/Table/PasswordCell'
 
 import axios from '../../utils/axiosUtils'
 import { useLanguage } from '../../contexts/LanguageContext' // Подключение контекста языка
@@ -152,6 +153,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: t('partner_university'),
 			isJSON: false,
 		},
+		{
+			id: 'password',
+			label: t('password'),
+			type: 'custom',
+			minWidth: '120px',
+			visibleTo: ['Admin'],
+			renderCell: row => <PasswordCell studentId={row.id} />
+		  },
 	]
 
 	const tableProps = {

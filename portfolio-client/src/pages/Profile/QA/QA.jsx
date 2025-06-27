@@ -34,7 +34,7 @@ const QA = ({
 	isFromTopPage = false,
 	topEditMode = false,
 	updateQA = false,
-	currentDraft = {},
+	currentDraft,
 	isHonban = false,
 	handleDraftUpsert = () => {},
 	setTopEditMode = () => {},

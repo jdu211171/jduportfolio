@@ -73,7 +73,7 @@ app.use(express.json())
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }))
 
-app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
+// app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
 
 
@@ -114,6 +114,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 	customfavIcon: "",
 	customCssUrl: "",
 }));
+
+app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
 app.get('*', (req, res) => {
 	res.sendFile(
