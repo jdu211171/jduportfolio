@@ -199,11 +199,16 @@ class StudentController {
 			const { id } = req.params
 			const { currentPassword, password, ...studentData } = req.body
 
+			console.log('UpdateStudent called with:', { id, studentData })
+
 			const student = await Student.findByPk(id)
 
 			if (!student) {
+				console.log('Student not found:', id)
 				return res.status(404).json({ error: 'Student not found' })
 			}
+
+			console.log('Current student data:', student.dataValues)
 
 			let updatePayload = { ...studentData }
 
@@ -213,6 +218,8 @@ class StudentController {
 					student.student_id
 				)
 
+				console.log('Draft data for student:', studentDraft)
+
 				if (studentDraft && studentDraft.status === 'approved') {
 					// Draftdan profile_data ni olish va uni yangilash payload'ga qo'shish
 					const profileData = studentDraft.profile_data || {}
@@ -220,9 +227,11 @@ class StudentController {
 						...profileData, // Draftdan kelgan profil ma'lumotlari
 						visibility: true, // Tasdiqlanganidan keyin faollashtiramiz
 					}
+					console.log('Using draft profile data:', updatePayload)
 				} else {
 					// Agar draft yo'q yoki approved emas bo'lsa, faqat visibility'ni yangilash
 					updatePayload = { visibility: true }
+					console.log('Using visibility only:', updatePayload)
 				}
 			}
 
@@ -243,11 +252,15 @@ class StudentController {
 				updatePayload.password = password
 			}
 
+			console.log('Final update payload:', updatePayload)
+
 			// Studentni bir marta yangilash
 			const updatedStudent = await StudentService.updateStudent(
 				id,
 				updatePayload
 			)
+
+			console.log('Updated student:', updatedStudent.dataValues)
 
 			res.status(200).json(updatedStudent)
 		} catch (error) {

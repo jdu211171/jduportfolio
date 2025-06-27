@@ -6,18 +6,19 @@ import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
 import UserAvatar from '../Table/Avatar/UserAvatar'
 // icons
-import GroupsOutlinedIcon from '@mui/icons-material/GroupsOutlined'
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import LiveHelpOutlinedIcon from '@mui/icons-material/LiveHelpOutlined'
-import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined'
-import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined'
-import SearchSharpIcon from '@mui/icons-material/SearchSharp'
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
 import { ReactComponent as MenuIcon } from '../../assets/icons/menuIcon.svg'
+import { ReactComponent as HomeIcon } from '../../assets/icons/home-8-line.svg'
+import { ReactComponent as GroupIcon } from '../../assets/icons/group-line.svg'
+import { ReactComponent as HelpIcon } from '../../assets/icons/question-line.svg'
+import { ReactComponent as QuestionIcon } from '../../assets/icons/question-answer-line.svg'
+import { ReactComponent as LogoutIcon } from '../../assets/icons/login-circle-line.svg'
+import { ReactComponent as UserPlusIcon } from '../../assets/icons/user-add-line.svg'
+import { ReactComponent as StudentIcon } from '../../assets/icons/user-follow-line.svg'
+import { ReactComponent as SearchIcon } from '../../assets/icons/user-search-line.svg'
+import { ReactComponent as SettingsIcon } from '../../assets/icons/settings-3-line.svg'
+
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
 import logo from '/src/assets/logo40.png'
@@ -41,67 +42,67 @@ const Layout = () => {
 			items: [
 				{
 					to: '/',
-					icon: <HomeOutlinedIcon fontSize='small' />,
+					icon: <HomeIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('home'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
 				{
 					to: '/companyprofile',
-					icon: <ProfileIcon />,
+					icon: <ProfileIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('profile'),
 					roles: ['Recruiter'],
 				},
 				{
 					to: '/student',
-					icon: <SearchSharpIcon fontSize='small' />,
+					icon: <SearchIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_search'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
 				{
 					to: '/checkprofile',
-					icon: <PersonSearchOutlinedIcon fontSize='small' />,
+					icon: <StudentIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_check'),
 					roles: ['Admin', 'Staff'],
 				},
 				{
 					to: '/staff',
-					icon: <GroupsOutlinedIcon fontSize='small' />,
+					icon: <GroupIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('staff'),
 					roles: ['Admin'],
 				},
 				{
 					to: '/profile',
-					icon: <ProfileIcon />,
+					icon: <ProfileIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('profile'),
 					roles: ['Student'],
 				},
 				{
 					to: '/recruiter',
-					icon: <PersonAddOutlinedIcon fontSize='small' />,
+					icon: <UserPlusIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('recruiter'),
 					roles: ['Admin', 'Staff', 'Student'],
 				},
 				{
 					to: '/bookmarked',
-					icon: <BookmarkIcon />,
+					icon: <BookmarkIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('bookmarked'),
 					roles: ['Recruiter'],
 				},
 				{
 					to: '/settings',
-					icon: <SettingsOutlinedIcon fontSize='small' />,
+					icon: <SettingsIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('settings'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/help',
-					icon: <InfoOutlinedIcon fontSize='small' />,
+					icon: <HelpIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('help'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/student-qa',
-					icon: <LiveHelpOutlinedIcon fontSize='small' />,
+					icon: <QuestionIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_qa'),
 					roles: ['Admin'],
 				},
@@ -173,7 +174,7 @@ const Layout = () => {
 				<div className={style.right}>
 					{/* header button */}
 					<div className={style.navButton} onClick={handleNavButtonClick}>
-						<MenuIcon />
+						<MenuIcon style={{ width: '24px', height: '24px' }} />
 					</div>
 					<div className={style.topBarBox}>
 						{/* language selector */}
@@ -279,7 +280,13 @@ const Layout = () => {
 
 						<ul onClick={() => setOpenLogoutModal(true)}>
 							<li className={style.NavbarBottom}>
-								<LogoutOutlinedIcon style={{ transform: 'rotate(180deg)' }} />
+								<LogoutIcon
+									style={{
+										// transform: 'rotate(180deg)',
+										width: '24px',
+										height: '24px',
+									}}
+								/>
 								<div>{t('logout')}</div>
 							</li>
 						</ul>

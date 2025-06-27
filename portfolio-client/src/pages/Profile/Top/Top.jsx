@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import axios from '../../../utils/axiosUtils'
-import { Box, Tabs, Tab, Button, Chip } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import Gallery from '../../../components/Gallery'
 import TextField from '../../../components/TextField/TextField'
 import SkillSelector from '../../../components/SkillSelector/SkillSelector'
@@ -18,7 +18,6 @@ import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
-import { blue } from '@mui/material/colors'
 import { TrendingUp } from '@mui/icons-material'
 import PermIdentityIcon from '@mui/icons-material/PermIdentity'
 import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined'
@@ -68,6 +67,18 @@ const Top = () => {
 	const showAlert = useAlert()
 
 	const t = key => translations[language][key] || key
+
+	// Helper function to safely parse JLPT data
+	const getJLPTData = jlptString => {
+		try {
+			if (!jlptString) return { highest: 'なし' }
+			const parsed = JSON.parse(jlptString)
+			return parsed || { highest: 'なし' }
+		} catch (error) {
+			console.error('Error parsing JLPT data:', error)
+			return { highest: 'なし' }
+		}
+	}
 
 	if (userId !== 0 && userId) {
 		id = userId
@@ -571,53 +582,49 @@ const Top = () => {
 
 	const portalContent = (
 		<Box className={styles.buttonsContainer}>
-			{role === 'Student' && (
+			{editMode ? (
 				<>
-					{editMode ? (
-						<>
-							<Button
-								onClick={handleDraftUpsert}
-								variant='contained'
-								color='primary'
-								size='small'
-							>
-								{t('updateDraft')}
-							</Button>
-							<Button
-								onClick={handleCancel}
-								variant='outlined'
-								color='error'
-								size='small'
-							>
-								{t('cancel')}
-							</Button>
-						</>
-					) : (
-						<>
-							<Button
-								onClick={() => {
-									setEditMode(prev => !prev)
-								}}
-								variant='contained'
-								color='primary'
-								size='small'
-							>
-								{t('editProfile')}
-							</Button>
+					<Button
+						onClick={handleDraftUpsert}
+						variant='contained'
+						color='primary'
+						size='small'
+					>
+						{t('updateDraft')}
+					</Button>
+					<Button
+						onClick={handleCancel}
+						variant='outlined'
+						color='error'
+						size='small'
+					>
+						{t('cancel')}
+					</Button>
+				</>
+			) : (
+				<>
+					<Button
+						onClick={() => {
+							setEditMode(prev => !prev)
+						}}
+						variant='contained'
+						color='primary'
+						size='small'
+					>
+						{t('editProfile')}
+					</Button>
 
-							{hasDraft && currentDraft && currentDraft.status === 'draft' && (
-								<Button
-									onClick={toggleConfirmMode}
-									variant='contained'
-									color='success'
-									size='small'
-									sx={{ ml: 1 }}
-								>
-									{t('submitAgree')}
-								</Button>
-							)}
-						</>
-					)}
+					{hasDraft && currentDraft && currentDraft.status === 'draft' ? (
+						<Button
+							onClick={toggleConfirmMode}
+							variant='contained'
+							color='success'
+							size='small'
+							sx={{ ml: 1 }}
+						>
+							{t('submitAgree')}
+						</Button>
+					) : null}
 				</>
 			)}
 		</Box>
@@ -626,9 +633,9 @@ const Top = () => {
 	return (
 		<Box my={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{subTabIndex !== 2 &&
-				portalContainer &&
-				createPortal(portalContent, portalContainer)}
+			{subTabIndex !== 2 && portalContainer && role === 'Student'
+				? createPortal(portalContent, portalContainer)
+				: null}
 
 			<div
 				style={{
@@ -661,7 +668,7 @@ const Top = () => {
 				)}
 			</div>
 
-			{role === 'Staff' && !isChecking && currentDraft && currentDraft.id && (
+			{role === 'Staff' && !isChecking && currentDraft && currentDraft.id ? (
 				<Box
 					sx={{
 						my: 2,
@@ -679,7 +686,7 @@ const Top = () => {
 						{t('start_checking')}
 					</Button>
 				</Box>
-			)}
+			) : null}
 			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>
@@ -806,7 +813,7 @@ const Top = () => {
 									{editMode ? (
 										<input
 											type='text'
-											defaultValue={JSON.parse(student.jlpt).highest || ''}
+											defaultValue={getJLPTData(student.jlpt).highest || ''}
 											onChange={e =>
 												handleUpdateEditData('jlpt', e.target.value)
 											}
@@ -820,7 +827,7 @@ const Top = () => {
 											}}
 										/>
 									) : (
-										JSON.parse(student.jlpt).highest
+										getJLPTData(student.jlpt).highest
 									)}
 								</div>
 							</div>
@@ -920,7 +927,7 @@ const Top = () => {
 										N3: '60%',
 										N2: '80%',
 										N1: '100%',
-									}[JSON.parse(student.jlpt).highest] || '0%'}
+									}[getJLPTData(student.jlpt).highest] || '0%'}
 								</div>
 							</div>
 							<div
@@ -934,7 +941,6 @@ const Top = () => {
 							>
 								<div
 									style={{
-										width: '100%',
 										backgroundColor: '#5627db',
 										borderRadius: 10,
 										height: 10,
@@ -945,7 +951,7 @@ const Top = () => {
 												N3: '60%',
 												N2: '80%',
 												N1: '100%',
-											}[JSON.parse(student.jlpt).highest] || '0%',
+											}[getJLPTData(student.jlpt).highest] || '0%',
 									}}
 								></div>
 							</div>
