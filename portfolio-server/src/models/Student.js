@@ -1,18 +1,8 @@
 'use strict';
 const bcrypt = require('bcrypt');
 const { Model } = require('sequelize');
-'use strict';
-const bcrypt = require('bcrypt');
-const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Student extends Model {
-        static associate(models) {
-            Student.hasMany(models.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' });
-            Student.hasOne(models.Draft, { foreignKey: 'student_id', sourceKey: 'student_id', as: 'draft' });
-            Student.hasMany(models.QA, { foreignKey: 'studentId', as: 'qas' });
-        }
-    }
     class Student extends Model {
         static associate(models) {
             Student.hasMany(models.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' });
