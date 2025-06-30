@@ -498,7 +498,7 @@ const Filter = ({
 						}
 					>
 						<img
-							src={viewMode === 'grid' ? AppIcons : AppIconList}
+							src={viewMode === 'grid' ? AppIconList : AppIcons}
 							alt={viewMode === 'grid' ? 'Grid View' : 'List View'}
 						/>
 					</button>

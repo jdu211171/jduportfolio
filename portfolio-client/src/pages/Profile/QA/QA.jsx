@@ -185,7 +185,7 @@ const QA = ({
 		try {
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
-				comments: comment.comment,
+				comments: comment.comments,
 			})
 			showAlert(t['profileConfirmed'], 'success')
 		} catch (error) {
