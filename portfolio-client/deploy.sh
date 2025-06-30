@@ -29,7 +29,13 @@ validate_env_vars() {
     fi
     
     # Check key file permissions
-    KEY_PERMS=$(stat -c "%a" "$EC2_KEY")
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS
+        KEY_PERMS=$(stat -f "%Lp" "$EC2_KEY")
+    else
+        # Linux
+        KEY_PERMS=$(stat -c "%a" "$EC2_KEY")
+    fi
     if [[ "$KEY_PERMS" != "400" && "$KEY_PERMS" != "600" ]]; then
         echo_error "SSH key file has incorrect permissions: $KEY_PERMS (should be 400 or 600)"
     fi
@@ -61,10 +67,10 @@ validate_env_vars
 # Test SSH connection
 test_ssh_connection
 
-# Change to the portfolio-client directory
-echo_status "Changing to portfolio-client directory"
-if ! cd /home/user/Development/jduportfolio/portfolio-client; then
-    echo_error "Failed to change directory"
+# Change to the script's directory
+echo_status "Changing to the script's directory"
+if ! cd "$(dirname "$0")"; then
+    echo_error "Failed to change directory to script location"
 fi
 echo_success "Changed directory successfully"
 

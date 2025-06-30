@@ -73,7 +73,7 @@ const translations = {
 		phone: 'Phone',
 		email: 'Email',
 		change_password: 'Change Password',
-		current_password: 'Current Password',
+		current_password: 'Password',
 		new_password: 'New Password',
 		confirm_password: 'Confirm Password',
 		toggle_password_visibility: 'Toggle Password Visibility',
@@ -167,7 +167,7 @@ const translations = {
 		ok: 'OK',
 		delete: 'Delete',
 		loading: 'Loading...',
-		welcome: 'Welcome to JDU Portfolio',
+		welcome: 'JDU Portfolio',
 		forgotPassword: 'Forgot Password',
 		resetPassword2:
 			'Enter your email address to receive password reset instructions',
@@ -186,13 +186,16 @@ If there are no questions or concerns, your application will be approved and you
 
 Please make sure that your profile does not fall under any of the prohibited activities listed below, and submit your request for publication by clicking the "Submit" button.`,
 		prohibited_actions: 'Prohibited acts',
-		prohibited_actions_content: `JDU students shall not engage in any of the following acts when using the Service.
-(1) Providing false or inaccurate information
-(2) Slander, defame, or threaten any individual or group, or any action that may lead to such a slander, defamation, or threat.
-(3) Infringing or threatening to infringe the rights of others, including copyrights, trademarks, and other intellectual property rights. e.g.: Using pictures, works, characters, etc. of celebrities or others without permission.
-(5)Any action that interferes with the smooth operation of this service, or damages or may damage the reputation or credibility of the Company or the job seeker. e.g.: Direct contact or interview with the job seeker.
-(6)Criminal acts or acts that offend or may offend public order and morals, such as acts against laws and regulations.
-(7)Actions that belong to organizations related to antisocial forces, etc., or that have or may have inappropriate relationships with antisocial forces, such as providing benefits to or using antisocial forces, etc.`,
+		prohibited_actions_content: `
+		JDU students are prohibited from engaging in the following acts when using this service:
+<ol>
+<li>Providing false or inaccurate information</li>
+<li>Defaming, slandering, threatening individuals or organizations, or engaging in acts likely to lead to such outcomes</li>
+<li>Infringing or potentially infringing on the rights of others, including copyrights, trademarks, or other intellectual property rights. Example: Unauthorized use of photos, works, or characters of celebrities or others</li>
+<li>Interfering with the smooth operation of this service, or damaging or potentially damaging the reputation or honor of the company or job seekers. Example: Direct contact or interviews with job seekers</li>
+<li>Engaging in criminal acts, or acts that violate laws or public order and morals, or acts likely to lead to such outcomes</li>
+<li>Being involved with anti-social forces, providing benefits to or using such forces, or maintaining inappropriate relationships with them, or engaging in acts likely to lead to such outcomes</li>
+</ol>`,
 		confirm_no_prohibited_actions:
 			'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
 		no_button: 'No',
@@ -288,7 +291,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		visible_status: '公開状況',
 		action: 'アクション',
 		change_password: 'パスワードの変更',
-		current_password: '現在のパスワード',
+		current_password: 'パスワード',
 		new_password: '新しいパスワード',
 		confirm_password: 'パスワードを認証する',
 		toggle_password_visibility: 'パスワードの表示切り替え',
@@ -385,7 +388,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		new: '新着',
 		ok: 'OK',
 		delete: '削除',
-		welcome: 'JDUポートフォリオ',
+		welcome: 'JDU Portfolio',
 		forgotPassword: 'パスワードをお忘れですか',
 		resetPassword2:
 			'パスワードリセット手順を受け取るメールアドレスを入力してください',
@@ -395,29 +398,23 @@ Please make sure that your profile does not fall under any of the prohibited act
 		send: '送信',
 		loginLabel: 'ログイン',
 		profile_publish_request: '公開申請',
-		profile_publish_explanation: `就職活動を円滑にする目的のために、あなたのプロフィールを申請に基づき、JDUポー
-トフォリオサービス上に公開します。
+		profile_publish_explanation: `就職活動を円滑にする目的のために、あなたのプロフィールを申請に基づき、JDUポートフォリオサービス上に公開します。
+ 
 公開申請後はJDU日本就業部に送信され、職員による内容確認が行われます。
 記載内容について不明点や質問がある場合は、メールにてご連絡します。
-記載内容について不明点や質問がない場合は、申請内容が承認され、あなたのプロフ
-ィールが公開されます。
-あなたのプロフィールの内容等が以下の禁止行為に該当しないこと確認し、申請ボタ
-ンから公開申請をしてください。`,
-		prohibited_actions: '（禁止行為）',
-		prohibited_actions_content: `JDU学生は、本サービスの利用に際し、次の各号の行為を行ってはならないものとしま
-す。
-(1)虚偽または不正確な情報を提供する行為
-(2)個人や団体を誹謗、中傷、脅迫、またはそのおそれのある行為
-(3)著作権、商標権、その他の知的財産権を含む他人の権利を侵害し、またはそのおそ
-れのある行為　例：芸能人や他人の写真、作品、キャラクターなどを無断で利用す
-る行為
-(5)本サービスの円滑な運営を妨げる行為、または当社および求人者の信用または名誉
-を毀損する行為、もしくはそれらのおそれのある行為　例：求人者への直接連絡、
-面談等の行為
-(6)犯罪行為、または法令に反する行為等公序良俗に反する行為、もしくはそれらのお
-それのある行為
-(7)反社会的勢力等に関連する組織に属する行為、反社会的勢力に利益を与え、または
-利用する等不適切な関係を持つ行為、もしくはそれらのおそれのある行為`,
+記載内容について不明点や質問がない場合は、申請内容が承認され、あなたのプロフィールが公開されます。
+ 
+あなたのプロフィールの内容等が以下の禁止行為のに該当しないこと確認し、申請ボタンから公開申請をしてください。`,
+		prohibited_actions: '禁止行為',
+		prohibited_actions_content: `JDUの学生は、本サービスの利用に際し、次の各号の行為を行ってはならないものとします。
+<ol>
+<li>虚偽または不正確な情報を提供する行為</li>
+<li>個人や団体を誹謗、中傷、脅迫、またはそのおそれのある行為</li>
+<li>著作権、商標権、その他の知的財産権を含む他人の権利を侵害し、またはそのおそれのある行為 例：芸能人や他人の写真、作品、キャラクターなどを無断で利用する行為</li>
+<li>本サービスの円滑な運営を妨げる行為、または当社および求人者の信用または名誉を毀損する行為、もしくはそれらのおそれのある行為 例：求人者への直接連絡、面談等の行為</li>
+<li>犯罪行為、または法令に反する行為等公序良俗に反する行為、もしくはそれらのおそれのある行為</li>
+<li>反社会的勢力等に関連する組織に属する行為、反社会的勢力に利益を与え、または利用する等不適切な関係を持つ行為、もしくはそれらのおそれのある行為</li>
+</ol>`,
 		confirm_no_prohibited_actions:
 			'上記の禁止行為に該当しないことを確認しました。',
 		no_button: 'いいえ',
@@ -499,7 +496,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		phone: 'Telefon',
 		email: 'Elektron pochta',
 		change_password: "Parolni o'zgartirish",
-		current_password: 'Joriy parol',
+		current_password: 'Parol',
 		new_password: 'Yangi parol',
 		confirm_password: 'Parolni tasdiqlash',
 		toggle_password_visibility: "Parolni ko'rishni yoqish/o'chirish",
@@ -596,7 +593,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		draft: 'Qoralama',
 		published: 'Ochiq',
 		private: 'Maxfiy',
-		welcome: 'JDU Portfolioga xush kelibsiz',
+		welcome: 'JDU Portfolio',
 		forgotPassword: 'Parolni unutdingizmi',
 		resetPassword2:
 			"Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
@@ -612,13 +609,15 @@ Agar arizangiz mazmuni boʻyicha kamchiliklar yoki savollar boʻlsa, siz bilan e
 Agar arizangiz mazmuni boʻyicha hech qanday kamchiliklar yoki savollar boʻlmasa, arizangiz maʼqullanadi hamda profilingiz eʼlon qilinadi.
 Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakatlarga toʻgʻri kelmasligiga ishonch hosil qiling, Ariza yuborish tugmasini bosib nashr etish uchun ariza bering.`,
 		prohibited_actions: '（Taqiqlangan xatti-harakatlar）',
-		prohibited_actions_content: `JDU talabalari ushbu xizmatdan foydalanganda quyidagi harakatlarni amalga oshirmasliklari kerak.
-(1)Yolgoʻon yoki notoʻgʻri bo\`lgan maʼlumotlarni taqdim etish harakatlari
-(2)Shaxslar hamda tashkilotga nisbatan tuhmat qilish, tahdid qilish, qoʻrqitish yoki shunga oʻxshash nojoyi harakatlarga olib keluvchi harakatlar
-(3)Boshqalarning huquqlarini, shu jumladan mualliflik huquqlari, savdo belgilari va boshqa intellektual mulk huquqlarini buzadigan yoki buzishi mumkin boʻlgan harakat. Masalan, ruxsatsiz taniqli shaxslar yoki boshqa shaxslarning fotosuratlari, asarlari yoki personajlaridan foydalanish bilan bogʻliq boʻlgan harakat
-(5)Xizmatning uzluksiz ishlashiga xalaqit beradigan, kompaniya yoki yollovchining obroʻsi yoki ishonchiga putur yetkazadigan har qanday harakat yoki bunday zararga olib kelishi mumkin boʻlgan har qanday harakat. Masalan, ishga yollovchi bilan bevosita aloqa yoki u bilan suhbat
-(6)Jinoiy harakatlar, jamoat tartibi va intizomiga zid harakatlar, shu jumladan qonunga zid harakatlar yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar
-(7)Jamiyatga qarshi kuchlar bilan bogʻliq boʻlgan tashkilotlarga tegishli boʻlish va boshqalar yoki nomaqbul munosabatlarga ega boʻlish, masalan, imtiyozlar berish yoki jamiyatga qarshi kuchlardan foydalanish yoki bunday harakatlarga olib kelishi mumkin boʻlgan harakatlar`,
+		prohibited_actions_content: `JDU talabalari ushbu xizmatdan foydalanishda quyidagi xatti-harakatlarning amalga oshirilishi taqiqlanadi:
+<ol>
+<li>Yolg‘on yoki noaniq ma’lumot taqdim etish xatti-harakati</li>
+<li>Shaxs yoki tashkilotlarni tuhmat qilish, haqorat qilish, tahdid qilish yoki bunga olib kelishi mumkin bo‘lgan xatti-harakatlar</li>
+<li>Mualliflik huquqi, savdo belgisi va boshqa intellektual mulk huquqlarini o‘z ichiga olgan boshqalarning huquqlarini buzish yoki buzish ehtimoli bo‘lgan xatti-harakatlar. Masalan: taniqli shaxslar yoki boshqalarning fotosuratlari, asarlari, personajlarini ruxsatsiz foydalanish xatti-harakati</li>
+<li>Ushbu xizmatning muammosiz ishlashiga xalaqit berish yoki kompaniya va ish qidiruvchilarning obro‘si yoki sha’niga putur yetkazish yoki bunga olib kelishi mumkin bo‘lgan xatti-harakatlar. Masalan: ish qidiruvchilarga bevosita murojaat qilish, suhbat o‘tkazish kabi xatti-harakatlar</li>
+<li>Jinoyat xatti-harakatlari yoki qonunlar yoki jamoat odob-axloq normalariga zid bo‘lgan xatti-harakatlar yoki bunga olib kelishi mumkin bo‘lgan xatti-harakatlar</li>
+<li>Antisotsial kuchlar bilan bog‘liq tashkilotlarga mansub bo‘lish, antisotsial kuchlarga foyda keltirish yoki ulardan foydalanish kabi nojo‘ya munosabatlarga ega bo‘lish xatti-harakati yoki bunga olib kelishi mumkin bo‘lgan xatti-harakatlar</li>
+</ol>`,
 		apply_button: 'Yuborish',
 		no_button: "Yo'q",
 		confirm_no_prohibited_actions:

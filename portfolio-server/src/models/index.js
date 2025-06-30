@@ -3,6 +3,8 @@
 const { Sequelize } = require('sequelize')
 const config = require('../config/config') // Adjust the path as needed
 const Log = require('./Log')
+const userFile = require('./userFile')
+const News = require('./News')
 
 const env = process.env.NODE_ENV || 'development'
 
@@ -38,6 +40,8 @@ db.Draft = require('./Draft')(sequelize, Sequelize)
 db.Log = require('./Log')(sequelize, Sequelize)
 db.Notification = require('./Notification')(sequelize, Sequelize)
 db.Image = require('./Image')(sequelize, Sequelize); // Image modelini qo'shish
+db.UserFile = require('./userFile')(sequelize, Sequelize);
+db.News = require('./News')(sequelize, Sequelize); // News modelini qo'shish
 
 
 // Load other models here if needed
@@ -45,6 +49,21 @@ db.Image = require('./Image')(sequelize, Sequelize); // Image modelini qo'shish
 
 // Apply associations here if needed
 // Example:
+
+db.Admin.hasMany(db.News, { foreignKey: 'authorId', constraints: false, scope: { authorType: 'Admin' }, as: 'newsByAdmin' });
+db.Staff.hasMany(db.News, { foreignKey: 'authorId', constraints: false, scope: { authorType: 'Staff' }, as: 'newsByStaff' });
+db.Recruiter.hasMany(db.News, { foreignKey: 'authorId', constraints: false, scope: { authorType: 'Recruiter' }, as: 'newsByRecruiter' });
+
+db.News.belongsTo(db.Admin, { foreignKey: 'authorId', constraints: false, as: 'authorAdmin' });
+db.News.belongsTo(db.Staff, { foreignKey: 'authorId', constraints: false, as: 'authorStaff' });
+db.News.belongsTo(db.Recruiter, { foreignKey: 'authorId', constraints: false, as: 'authorRecruiter' });
+
+db.Admin.hasMany(db.News, { foreignKey: 'moderatorId', constraints: false, scope: { moderatorType: 'Admin' }, as: 'moderatedByAdmin' });
+db.Staff.hasMany(db.News, { foreignKey: 'moderatorId', constraints: false, scope: { moderatorType: 'Staff' }, as: 'moderatedByStaff' });
+
+db.News.belongsTo(db.Admin, { foreignKey: 'moderatorId', constraints: false, as: 'moderatorAdmin' });
+db.News.belongsTo(db.Staff, { foreignKey: 'moderatorId', constraints: false, as: 'moderatorStaff' });
+
 db.Recruiter.hasMany(db.Bookmark, {
 	foreignKey: 'recruiterId',
 	as: 'bookmarks',
@@ -81,4 +100,6 @@ module.exports = {
 	Log: db.Log,
 	Notification: db.Notification,
 	Image: db.Image, // Image modelini eksport qilish
+	UserFile: db.UserFile,
+	News: db.News, // News modelini eksport qilish
 }

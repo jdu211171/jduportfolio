@@ -9,6 +9,9 @@ const upload = multer({ storage: multer.memoryStorage() })
 const fs = require('fs')
 const axios = require('axios')
 
+const authMiddleware = require('../middlewares/auth-middleware');
+const { UserFile } = require('../models');
+
 /**
  * @swagger
  * /api/files/upload:
@@ -72,14 +75,14 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 			}
 		}
 
-		res
-			.status(200)
-			.send(uploadedFiles.length === 1 ? uploadedFiles[0] : uploadedFiles)
-	} catch (error) {
-		console.log(error)
-		res.status(500).send('Error uploading file(s)')
-	}
-})
+		// Return the uploaded files array
+		res.status(201).send(uploadedFiles);
+
+    } catch (error) {
+        console.error('Error during file upload and record creation:', error);
+        res.status(500).send('Error processing file upload');
+    }
+});
 
 /**
  * @swagger

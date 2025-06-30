@@ -1,61 +1,227 @@
-const axios = require('axios')
-const kintoneConfig = require('../config/kintoneConfig')
-const StudentService = require('./studentService')
+// services/KintoneService.js
+
+const axios = require('axios');
+const kintoneConfig = require('../config/kintoneConfig');
+
+const StudentService = require('./studentService');
+const StaffService = require('./staffService');
+const RecruiterService = require('./recruiterService');
+const { sendBulkEmails } = require('../utils/emailService');
 
 class KintoneService {
-	static baseUrl = process.env.KINTONE_API_BASE_URL
+    static baseUrl = process.env.KINTONE_API_BASE_URL;
 
-	static getAppConfig(appName) {
-		const appConfig = kintoneConfig[appName]
-		if (!appConfig) {
-			throw new Error(`App configuration for ${appName} not found.`)
-		}
-		return appConfig
-	}
+    /**
+     * Kintone ilovasi uchun konfiguratsiyani oladi.
+     * @param {string} appName - Ilovaning nomi (masalan, 'students').
+     * @returns {object} Ilova konfiguratsiyasi (appId, token).
+     */
+    static getAppConfig(appName) {
+        const appConfig = kintoneConfig[appName];
+        if (!appConfig) {
+            throw new Error(`App configuration for '${appName}' not found in kintoneConfig.js`);
+        }
+        return appConfig;
+    }
 
-	// Service method to retrieve all records
-	static async getAllRecords(appName) {
-		try {
-			const { appId, token } = this.getAppConfig(appName)
-			let allRecords = []
-			let offset = 0
-			let hasMoreRecords = true
+    /**
+     * Kintone'dan barcha yozuvlarni pagination bilan oladi.
+     * @param {string} appName - Ilovaning nomi.
+     * @returns {Promise<object>} Yozuvlar massivini o'z ichiga olgan obyekt.
+     */
+    static async getAllRecords(appName) {
+        try {
+            const { appId, token } = this.getAppConfig(appName);
+            let allRecords = [];
+            let offset = 0;
+            let hasMoreRecords = true;
 
-			while (hasMoreRecords) {
-				const response = await axios.get(`${this.baseUrl}/k/v1/records.json`, {
-					headers: {
-						'X-Cybozu-API-Token': token,
-					},
-					params: {
-						app: appId,
-						query: `limit 100 offset ${offset}`, // Limit per request (maximum is 100)
-					},
-				})
+            while (hasMoreRecords) {
+                const response = await axios.get(`${this.baseUrl}/k/v1/records.json`, {
+                    headers: { 'X-Cybozu-API-Token': token },
+                    params: {
+                        app: appId,
+                        query: `limit 100 offset ${offset}`,
+                    },
+                });
 
-				// Add the current batch of records to the allRecords array
-				allRecords = allRecords.concat(response.data.records)
-				// Check if more records are available (if the response contains 100 records)
-				hasMoreRecords = response.data.records.length === 100
+                const records = response.data.records;
+                allRecords = allRecords.concat(records);
+                hasMoreRecords = records.length === 100;
+                offset += 100;
+            }
+            return { records: allRecords };
+        } catch (error) {
+            console.error(`Error fetching records from Kintone app '${appName}':`, error.message);
+            console.error('Error details:', error.response ? error.response.data : error);
+            throw error;
+        }
+    }
 
-				// Increment offset for next batch
-				offset += 100
-			}
+    /**
+     * Barcha ma'lumotlarni Kintone'dan olib, mahalliy baza bilan sinxronizatsiya qiladi.
+     */
+	 static async syncData() {
+        try {
+            console.log("🚀 Umumiy sinxronizatsiya boshlandi...");
 
-			let data = {
-				records: allRecords,
-			}
-			return data
-		} catch (error) {
-			console.error('Error fetching records from Kintone:', error.message)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
-			throw error
-		}
-	}
+            // 1. Kintone'dan barcha ma'lumotlarni parallel ravishda olamiz
+            const [
+                students, staff, recruiters, credits, ieltsCerts, 
+                itContestCerts, jlptCerts, benronCerts, jduNinteiCerts
+            ] = await Promise.all([
+                this.getAllRecords('students').then(res => res.records),
+                this.getAllRecords('staff').then(res => res.records),
+                this.getAllRecords('recruiters').then(res => res.records),
+                this.getAllRecords('student_credits').then(res => res.records),
+                this.getAllRecords('student_ielts').then(res => res.records),
+                this.getAllRecords('student_it_contest').then(res => res.records),
+                this.getAllRecords('student_jlpt').then(res => res.records),
+                this.getAllRecords('student_benron_taikai').then(res => res.records),
+                this.getAllRecords('student_jdu_ninteishiken').then(res => res.records),
+            ]);
+            
+            console.log(`✅ Ma'lumotlar olindi: ${students.length} talaba, ${staff.length} xodim, ${recruiters.length} rekruter.`);
 
-	// Service method to retrieve records by column name and value
+            // 2. Har bir turdagi foydalanuvchini sinxronizatsiya qilib, email vazifalarini yig'amiz
+            const staffEmailTasks = await StaffService.syncStaffData(staff);
+            const recruiterEmailTasks = await RecruiterService.syncRecruiterData(recruiters);
+            
+            // 3. Talabalar uchun ma'lumotlarni formatlash
+            const creditsMap = new Map();
+            credits.forEach(rec => {
+                creditsMap.set(rec.studentId?.value, {
+                    worldLanguageUniversityCredits: rec.worldLanguageUniversityCredits?.value,
+                    businessSkillsCredits: rec.businessSkillsCredits?.value,
+                    japaneseEmploymentCredits: rec.japaneseEmploymentCredits?.value,
+                    liberalArtsEducationCredits: rec.liberalArtsEducationCredits?.value,
+                    totalCredits: rec.totalCredits?.value,
+                    specializedEducationCredits: rec.specializedEducationCredits?.value,
+                    partnerUniversityCredits: rec.partnerUniversityCredits?.value,
+                });
+            });
+
+            const ieltsData = this.formatCertificateData(ieltsCerts, 'ielts', 'date');
+            const itContestData = this.formatCertificateData(itContestCerts, 'it_contest', 'date', true);
+            const jlptData = this.formatCertificateData(jlptCerts, 'jlptCertificate', 'jlpt_date', true);
+            const benronData = this.formatCertificateData(benronCerts, 'japanese_speech_contest', 'campusDate', true);
+            const jduNinteiData = this.formatCertificateData(jduNinteiCerts, 'jdu_japanese_certification', 'date', true);
+
+            const formattedStudentData = students.map(record => {
+                const studentId = record.studentId?.value;
+                if (!studentId) return null;
+                const studentCredits = creditsMap.get(studentId) || {};
+                return {
+                    studentId,
+                    studentFirstName: record.studentFirstName?.value,
+                    studentLastName: record.studentLastName?.value,
+                    birthday: record.birthday?.value,
+                    gender: record.gender?.value,
+                    address: record.address?.value,
+                    mail: record.mail?.value,
+                    phoneNumber: record.phoneNumber?.value,
+                    parentsPhoneNumber: record.parentsPhoneNumber?.value,
+                    jduDate: record.jduDate?.value,
+                    partnerUniversity: record.partnerUniversity?.value,
+                    partnerUniversityEnrollmentDate: record.partnerUniversityEnrollmentDate?.value,
+                    semester: record.semester?.value,
+                    studentStatus: record.studentStatus?.value,
+                    kintone_id_value: record['$id']?.value,
+                    ...studentCredits,
+                    ielts: JSON.stringify(ieltsData[studentId] || null),
+                    it_contest: JSON.stringify(itContestData[studentId] || null),
+                    jlpt: JSON.stringify(jlptData[studentId] || null),
+                    japanese_speech_contest: JSON.stringify(benronData[studentId] || null),
+                    jdu_japanese_certification: JSON.stringify(jduNinteiData[studentId] || null),
+                };
+            }).filter(Boolean);
+
+            const studentEmailTasks = await StudentService.syncStudentData(formattedStudentData);
+
+            // 4. Barcha email vazifalarini bitta ro'yxatga birlashtiramiz
+            const allEmailTasks = [ ...studentEmailTasks, ...staffEmailTasks, ...recruiterEmailTasks ];
+            
+            // 5. Agar jo'natiladigan email bo'lsa, barchasini ommaviy jo'natamiz
+            if (allEmailTasks.length > 0) {
+                console.log(`📨 Jami ${allEmailTasks.length} ta yangi foydalanuvchiga email jo'natish boshlandi...`);
+                const emailReport = await sendBulkEmails(allEmailTasks);
+                console.log('--- Ommaviy Email Jo\'natish Hisoboti ---');
+                console.log(`Total: ${emailReport.total}, Successful: ${emailReport.successful}, Failed: ${emailReport.failed}`);
+                if (emailReport.failed > 0) {
+                    console.error('Xato bilan tugagan emaillar:', emailReport.failedEmails);
+                }
+                console.log('-------------------------');
+            } else {
+                console.log('✅ Jo\'natish uchun yangi foydalanuvchilar topilmadi.');
+            }
+
+            console.log("🎉 Umumiy sinxronizatsiya muvaffaqiyatli yakunlandi.");
+            return { message: "All data synchronized successfully." };
+
+        } catch (error) {
+            console.error("❌ KintoneService syncData da jiddiy xatolik yuz berdi:", error);
+            throw error;
+        }
+    }
+
+
+    /**
+     * Sertifikat ma'lumotlarini talaba IDsi bo'yicha guruhlaydi.
+     */
+    static formatCertificateData(certificateRecords, levelField, dateField, isReverse = false) {
+        const data = {};
+        if (!Array.isArray(certificateRecords)) return data;
+
+        certificateRecords.forEach(record => {
+            const studentId = record.studentId?.value;
+            if (!studentId) return;
+
+            const nLevel = record[levelField]?.value;
+            const date = record[dateField]?.value;
+            if (!nLevel) return;
+
+            const newEntry = { level: nLevel, date: date };
+            
+            if (!data[studentId]) {
+                data[studentId] = {
+                    highest: nLevel,
+                    list: [newEntry],
+                };
+            } else {
+                data[studentId].list.push(newEntry);
+                if (this.isHigherLevel(nLevel, data[studentId].highest, isReverse)) {
+                    data[studentId].highest = nLevel;
+                }
+            }
+        });
+        return data;
+    }
+
+    /**
+     * Sertifikat darajasidan raqamni ajratib oladi.
+     */
+    static extractLevelNumber(level) {
+        if (typeof level !== 'string') return null;
+        const match = level.match(/\d+(\.\d+)?/); // Son va o'nlik kasrlarni ham topadi
+        return match ? parseFloat(match[0]) : null;
+    }
+    
+    /**
+     * Ikki sertifikat darajasini solishtiradi (N1 > N2 yoki 8.0 > 7.5).
+     */
+    static isHigherLevel(level1, level2, isReverse = false) {
+        const level1Number = this.extractLevelNumber(level1);
+        const level2Number = this.extractLevelNumber(level2);
+
+        if (level1Number === null || level2Number === null) {
+            // Raqam bo'lmasa, matnli solishtirish
+            return isReverse ? level1 < level2 : level1 > level2;
+        }
+
+        return isReverse ? level1Number < level2Number : level1Number > level2Number;
+    }
+
+    // Bu metodlar tashqaridan chaqirilishi mumkinligi uchun saqlab qolindi
 	static async getRecordBy(appName, colName, colValue) {
 		try {
 			const { appId, token } = this.getAppConfig(appName)
@@ -168,32 +334,6 @@ class KintoneService {
 		}
 	}
 
-	// Service method to delete a record
-	// static async deleteRecord(appName, recordId) {
-	// 	try {
-	// 		const { appId, token } = this.getAppConfig(appName)
-	// 		console.log(`Deleting record ${recordId} from app ${appId}`)
-
-	// 		const response = await axios.post(`${this.baseUrl}/k/v1/record.json`, {
-	// 			headers: {
-	// 				'X-Cybozu-API-Token': token,
-	// 			},
-	// 			data: {
-	// 				app: appId,
-	// 				ids: [recordId],
-	// 			},
-	// 		})
-
-	// 		return response.data
-	// 	} catch (error) {
-	// 		console.error('Error deleting record from Kintone:', error.message)
-	// 		console.error(
-	// 			'Error details:',
-	// 			error.response ? error.response.data : error
-	// 		)
-	// 		throw error
-	// 	}
-	// }
 	static async deleteRecord(appName, recordId) {
 		try {
 			const { appId, token } = this.getAppConfig(appName);
@@ -219,136 +359,9 @@ class KintoneService {
 			throw error;
 		}
 	}
-
-	// Service method to delete a record
-	static async syncData() {
-		try {
-			let students = (await this.getAllRecords('students')).records
-
-			let certificate_jlpt = (await this.getAllRecords('certificate_jlpt'))
-				.records
-			let certificate_jdu_jlpt = (
-				await this.getAllRecords('certificate_jdu_jlpt')
-			).records
-			let certificate_ielts = (await this.getAllRecords('certificate_ielts'))
-				.records
-			let certificate_benron = (await this.getAllRecords('certificate_benron'))
-				.records
-			let certificate_it_contest = (
-				await this.getAllRecords('certificate_it_contest')
-			).records
-
-			let jlptData = this.formatCertificateData(certificate_jlpt, 'level', true)
-			let jduJlptData = this.formatCertificateData(
-				certificate_jdu_jlpt,
-				'level',
-				true
-			)
-			let ieltsData = this.formatCertificateData(certificate_ielts, 'score')
-			let benronData = this.formatCertificateData(
-				certificate_benron,
-				'rank',
-				true
-			)
-			let itContestData = this.formatCertificateData(
-				certificate_it_contest,
-				'award',
-				true
-			)
-
-			const formattedStudentData = students.map(record => ({
-				studentId: record.studentId.value,
-				// studentName: record.studentName.value,
-				studentFirstName: record.studentFirstName.value, // To‘g‘ri nom
-    			studentLastName: record.studentLastName.value, // To‘g‘ri nom
-
-				mail: record.studentEmail.value,
-				jduDate: record.jduEnrollmentDate.value,
-				birthday: record.birthDate.value,
-				semester: record.semester.value,
-				univer: record.partnerUniversity.value,
-				レコード番号: record['レコード番号'],
-				jlpt: JSON.stringify(
-					jlptData[record.studentId.value]
-						? jlptData[record.studentId.value]
-						: ''
-				),
-				jdu_japanese_certification: JSON.stringify(
-					jduJlptData[record.studentId.value]
-						? jduJlptData[record.studentId.value]
-						: ''
-				),
-				ielts: JSON.stringify(
-					ieltsData[record.studentId.value]
-						? ieltsData[record.studentId.value]
-						: ''
-				),
-				japanese_speech_contest: JSON.stringify(
-					benronData[record.studentId.value]
-						? benronData[record.studentId.value]
-						: ''
-				),
-				it_contest: JSON.stringify(
-					itContestData[record.studentId.value]
-						? itContestData[record.studentId.value]
-						: ''
-				),
-			}))
-
-			let result = await StudentService.syncStudentData(formattedStudentData)
-		} catch (error) {
-			console.log(error)
-			throw error
-		}
-	}
-
-	static formatCertificateData(certificateJlpt, level, isReverse) {
-		const data = {}
-		// console.log(certificateJlpt, level, isReverse)
-		certificateJlpt.forEach(record => {
-			const studentId = record.studentId.value
-			const nLevel = record[level].value
-			const date = record.date.value
-
-			if (!data[studentId]) {
-				data[studentId] = {
-					highest: nLevel,
-					list: [{ level: nLevel, date: date }],
-				}
-			} else {
-				data[studentId].list.push({ level: nLevel, date: date })
-
-				// Update the highest level if the current level is higher
-				if (this.isHigherLevel(nLevel, data[studentId].highest, isReverse)) {
-					data[studentId].highest = nLevel
-				}
-			}
-		})
-
-		return data
-	}
-
-	static extractLevelNumber(level) {
-		const match = level.match(/\d+/) // Extract digits from the string
-		return match ? parseInt(match[0], 10) : null
-	}
-
-	static isHigherLevel(level1, level2, isReverse = false) {
-		const level1Number = this.extractLevelNumber(level1)
-		const level2Number = this.extractLevelNumber(level2)
-
-		// Ensure that levels are valid and numbers are extracted
-		if (level1Number === null || level2Number === null) {
-			throw new Error('Invalid level format.')
-		}
-
-		// Compare the numeric values
-		if (isReverse) {
-			return level1Number < level2Number
-		} else {
-			return level1Number > level2Number
-		} // Lower number means a higher level
-	}
 }
 
-module.exports = KintoneService
+// Boshqa metodlarni (create, update, delete, getBy) eski koddan to'liq ko'chirib, shu yerga qo'yish kerak
+// Ularning tanasi o'zgarishsiz qoladi
+
+module.exports = KintoneService;
