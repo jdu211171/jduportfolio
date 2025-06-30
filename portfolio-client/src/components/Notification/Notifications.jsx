@@ -278,7 +278,36 @@ export default function Notifications() {
 							<CloseIcon />
 						</button>
 						<div className={styles.messageBody}>
-							<p className={styles.messageText}>{selectedMessage.message}</p>
+							{(() => {
+								// Parse message to separate main message and comment
+								const messageParts = selectedMessage.message.split(
+									'|||COMMENT_SEPARATOR|||'
+								)
+								const mainMessage = messageParts[0]
+								const commentSection = messageParts[1]
+
+								return (
+									<>
+										<p className={styles.messageText}>{mainMessage}</p>
+										{commentSection && (
+											<p
+												className={styles.commentText}
+												style={{
+													backgroundColor: '#fff3e0',
+													padding: '10px',
+													borderRadius: '6px',
+													border: '1px solid #ff9800',
+													marginTop: '10px',
+													whiteSpace: 'pre-wrap',
+													fontWeight: 'bold',
+												}}
+											>
+												{commentSection}
+											</p>
+										)}
+									</>
+								)
+							})()}
 							<p className={styles.messageDate}>
 								📅 {shortText(selectedMessage.createdAt, 10, true)}
 							</p>

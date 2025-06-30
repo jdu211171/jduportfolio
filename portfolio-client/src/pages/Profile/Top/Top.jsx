@@ -668,7 +668,55 @@ const Top = () => {
 				)}
 			</div>
 
-			{role === 'Staff' && !isChecking && currentDraft && currentDraft.id ? (
+			{/* Staff Comment Display Section for Students */}
+			{role === 'Student' &&
+				currentDraft &&
+				currentDraft.comments &&
+				(currentDraft.status === 'resubmission_required' ||
+					currentDraft.status === 'disapproved') && (
+					<Box
+						sx={{
+							my: 2,
+							mx: 2,
+							p: 2,
+							backgroundColor: '#fff3e0',
+							border: '1px solid #ff9800',
+							borderRadius: '8px',
+							borderLeft: '4px solid #ff9800',
+						}}
+					>
+						<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+							<span style={{ fontWeight: 'bold', color: '#e65100' }}>
+								スタッフからのフィードバック
+							</span>
+						</Box>
+						<Box
+							sx={{
+								backgroundColor: '#ffffff',
+								p: 2,
+								borderRadius: '4px',
+								border: '1px solid #ffcc80',
+							}}
+						>
+							<pre
+								style={{
+									whiteSpace: 'pre-wrap',
+									wordWrap: 'break-word',
+									fontFamily: 'inherit',
+									margin: 0,
+									color: '#424242',
+								}}
+							>
+								{currentDraft.comments}
+							</pre>
+						</Box>
+						<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>
+							プロフィールを修正して再度提出してください。
+						</Box>
+					</Box>
+				)}
+
+			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id ? (
 				<Box
 					sx={{
 						my: 2,
