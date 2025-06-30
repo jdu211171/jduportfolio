@@ -200,36 +200,16 @@ const Layout = () => {
 							</div>
 						</div>
 						{/* language selector */}
-						<div
-							className={style.langSelector}
-							onChange={e => handleChangeLanguage(e.target.value)}
-						>
-							<input
-								type='radio'
-								id='jp'
-								name='lang'
-								value='ja'
-								defaultChecked={language === 'ja'}
-							/>
-							<label htmlFor='jp'>JP</label>
-
-							<input
-								type='radio'
-								id='uz'
-								name='lang'
-								value='uz'
-								defaultChecked={language === 'uz'}
-							/>
-							<label htmlFor='uz'>UZ</label>
-
-							<input
-								type='radio'
-								id='en'
-								name='lang'
-								value='en'
-								defaultChecked={language === 'en'}
-							/>
-							<label htmlFor='en'>EN</label>
+						<div className={style.languageSelector}>
+							<select
+								value={language}
+								onChange={e => handleChangeLanguage(e.target.value)}
+								className={style.languageDropdown}
+							>
+								<option value='ja'>JP</option>
+								<option value='en'>EN</option>
+								<option value='uz'>UZ</option>
+							</select>
 						</div>
 
 						{/* notifications */}
