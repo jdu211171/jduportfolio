@@ -554,7 +554,10 @@ const QA = ({
 					)}
 			</Box>
 
-			<Box my={2}>
+			<Box
+				my={2}
+				sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+			>
 				{!editMode &&
 					Object.entries(getCategoryData(subTabIndex)).map(
 						([key, { question, answer }]) =>

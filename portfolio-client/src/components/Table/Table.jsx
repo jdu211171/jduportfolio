@@ -874,7 +874,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
+																disabled={header.disabled || false}
 																onChange={async e => {
+																	// Prevent changes if disabled
+																	if (header.disabled) {
+																		return
+																	}
+
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 
