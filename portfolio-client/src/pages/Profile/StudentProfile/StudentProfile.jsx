@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import {
-	useParams,
-	useNavigate,
-	useLocation,
-	Outlet,
-	NavLink,
-} from 'react-router-dom'
-import axios from '../../../utils/axiosUtils'
-import { Box, Typography, IconButton, Chip, Avatar, Grid } from '@mui/material'
 import EmailIcon from '@mui/icons-material/Email'
+import { Avatar, Box, IconButton } from '@mui/material'
+import { useContext, useEffect, useState } from 'react'
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import ArrowGoBackIcon from '../../../assets/icons/arrow-go-back-line.svg'
-import styles from './StudentProfile.module.css'
-import translations from '../../../locales/translations'
-import { useContext } from 'react'
 import { UserContext } from '../../../contexts/UserContext'
+import translations from '../../../locales/translations'
+import axios from '../../../utils/axiosUtils'
+import styles from './StudentProfile.module.css'
 
 const StudentProfile = ({ userId = 0 }) => {
 	const { studentId } = useParams()
@@ -37,7 +30,8 @@ const StudentProfile = ({ userId = 0 }) => {
 				const response = await axios.get(`/api/students/${id}`)
 				setStudent(response.data)
 			} catch (error) {
-				showAlert('Error fetching student data', 'error')
+				// showAlert('Error fetching student data', 'error')
+				console.log('Error fetching student data', error)
 			}
 		}
 

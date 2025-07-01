@@ -1,5 +1,7 @@
 .container {
-	margin-block: 30px;
+	background-color: #ffffff;
+	padding: 15px;
+	border-radius: 10px;
 }
 .title {
 	font-size: 20px;

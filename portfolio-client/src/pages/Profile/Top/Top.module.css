@@ -37,6 +37,7 @@
 .gridBox {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
+	gap: 20px;
 }
 
 .buttonsContainer {
@@ -44,6 +45,12 @@
 	flex-direction: row-reverse;
 	top: -32px;
 	gap: 8px;
+}
+
+.skillBox {
+	background-color: #ffffff;
+	padding: 15px;
+	border-radius: 10px;
 }
 
 /* /////////////////////////// MEDIA ///////////////////////////////////// */

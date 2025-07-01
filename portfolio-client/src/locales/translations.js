@@ -1,5 +1,6 @@
 const translations = {
 	en: {
+		studentCredits: "Student's number of credits",
 		origin: 'origin',
 		major: 'Field of study',
 		jobType: 'Desired job type',
@@ -219,7 +220,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		approved: '確認済',
 		start_check_drafting: '確認開始',
 		setToChecking: 'ステータスが確認中に更新されました',
-
+		studentCredits: '学生単位数',
 		general: '一般',
 		home: 'ホーム',
 		profile: 'プロフィール',
@@ -421,6 +422,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		apply_button: '申請する',
 	},
 	uz: {
+		studentCredits: 'Talabaning kreditlar soni',
 		major: 'Mutaxassislik',
 		origin: 'Kelib chiqish',
 		jobType: 'Istagan ish turi',
