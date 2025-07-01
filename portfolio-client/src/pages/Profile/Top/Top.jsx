@@ -350,6 +350,12 @@ const Top = () => {
 		if (res.status === 200) {
 			showAlert(t('setToChecking'), 'success')
 			setIsChecking(true)
+			// Update the currentDraft state to reflect the new status
+			setCurrentDraft(prevDraft => ({
+				...prevDraft,
+				status: 'checking',
+				reviewed_by: userId,
+			}))
 		}
 	}
 
@@ -716,7 +722,12 @@ const Top = () => {
 					</Box>
 				)}
 
-			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id ? (
+			{role === 'Staff' &&
+			!isLoading &&
+			currentDraft &&
+			currentDraft.id &&
+			currentDraft.status !== 'checking' &&
+			currentDraft.status !== 'approved' ? (
 				<Box
 					sx={{
 						my: 2,

@@ -165,25 +165,4 @@ router.get('/:id', RecruiterController.getById)
  */
 router.put('/:id', validateRecruiterUpdate, RecruiterController.update)
 
-/**
- * @swagger
- * /api/recruiters/{id}:
- *   delete:
- *     tags: [Recruiters]
- *     summary: Delete a recruiter
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: Recruiter ID
- *     responses:
- *       204:
- *         description: Recruiter deleted
- *       400:
- *         description: Bad request
- */
-router.delete('/:id', RecruiterController.delete)
-
 module.exports = router
