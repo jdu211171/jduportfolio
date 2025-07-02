@@ -693,7 +693,15 @@ class StudentService {
 					)
 				}
 
-				upsertPromises.push(Student.upsert(formattedData))
+				// Upsert operatsiyasi
+				if (!existingStudent) {
+					// Yangi talaba uchun - barcha maydonlar bilan yaratamiz
+					upsertPromises.push(Student.create(formattedData))
+				} else {
+					// Mavjud talaba uchun - parolni chiqarib, faqat boshqa maydonlarni yangilaymiz
+					const { password, ...updateData } = formattedData
+					upsertPromises.push(existingStudent.update(updateData))
+				}
 			}
 
 			// Barcha talabalarni bazaga yozib olamiz

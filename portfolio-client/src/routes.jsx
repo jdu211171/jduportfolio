@@ -55,6 +55,7 @@ const AppRoutes = () => {
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -67,6 +68,7 @@ const AppRoutes = () => {
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -100,12 +102,14 @@ const AppRoutes = () => {
 							path='/profile'
 							element={<ProtectedLayout allowedRoles={['Student']} />}
 						>
+							{' '}
 							<Route path='*' element={<StudentProfile userId={userId} />}>
 								<Route
 									index
 									element={<Navigate to='top' state={{ userId: userId }} />}
 								/>
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -135,6 +139,7 @@ const AppRoutes = () => {
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>

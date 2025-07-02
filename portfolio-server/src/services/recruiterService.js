@@ -141,6 +141,15 @@ class RecruiterService {
 		}
 	}
 
+	static async deleteRecruiter(recruiterId) {
+		try {
+			await Recruiter.destroy({ where: { kintone_id: recruiterId } })
+		} catch (error) {
+			console.error('Error deleting recruiter:', error)
+			throw error
+		}
+	}
+
 	static async updateRecruiterByKintoneId(kintoneId, data) {
 		const [affectedRows, updatedRecruiters] = await Recruiter.update(data, {
 			where: { kintone_id: kintoneId },
@@ -170,7 +179,9 @@ class RecruiterService {
 			const existingRecruiter = await Recruiter.findOne({
 				where: { kintone_id: kintoneId },
 			})
-			// console.log(`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`);
+			console.log(
+				`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`
+			)
 			if (!existingRecruiter) {
 				console.log(
 					`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`
@@ -192,6 +203,9 @@ class RecruiterService {
 					kintone_id: kintoneId,
 					active: true,
 				}
+				console.log('====================================')
+				console.log("Yangi rekruter ma'lumotlari:", recruiterData)
+				console.log('====================================')
 
 				const newRecruiter = await this.createRecruiter(recruiterData)
 

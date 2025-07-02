@@ -1,33 +1,59 @@
-import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
-import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
-import CodeIcon from '@mui/icons-material/Code'
-import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
-import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined'
-import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone'
-import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
-import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
-import TranslateIcon from '@mui/icons-material/Translate'
-import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
-import { Box, Button } from '@mui/material'
-import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
+import { useState, useEffect } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
-import Deliverables from '../../../components/Deliverables/Deliverables'
-import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
-import SkillSelector from '../../../components/SkillSelector/SkillSelector'
+import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
+import axios from '../../../utils/axiosUtils'
+import { Box, Button } from '@mui/material'
+import Gallery from '../../../components/Gallery'
 import TextField from '../../../components/TextField/TextField'
+import SkillSelector from '../../../components/SkillSelector/SkillSelector'
+import Deliverables from '../../../components/Deliverables/Deliverables'
+import QA from '../../../pages/Profile/QA/QA'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import translations from '../../../locales/translations'
-import QA from '../../../pages/Profile/QA/QA'
-import axios from '../../../utils/axiosUtils'
 import styles from './Top.module.css'
-const breakpoints = [
-	{ point: 30, label: '1年終了' }, // 1st year complete
-	{ point: 60, label: '2年終了' },
-	{ point: 90, label: '3年終了' },
-	{ point: 124, label: '卒業条件' }, // graduation requirement
+import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
+import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
+import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone'
+import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
+import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
+import { TrendingUp } from '@mui/icons-material'
+import PermIdentityIcon from '@mui/icons-material/PermIdentity'
+import WorkOutlineOutlinedIcon from '@mui/icons-material/WorkOutlineOutlined'
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
+import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined'
+import CodeIcon from '@mui/icons-material/Code'
+import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
+import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined'
+import TranslateIcon from '@mui/icons-material/Translate'
+
+const qaQuestions = [
+	{
+		icon: SchoolOutlinedIcon,
+		label: '学生成績',
+		iconColor: '#3275f2',
+	},
+	{
+		icon: AutoStoriesOutlinedIcon,
+		label: '専門知識',
+		iconColor: '#a551f5',
+	},
+	{
+		icon: PermIdentityIcon,
+		label: '個性',
+		iconColor: '#0dae7a',
+	},
+	{
+		icon: WorkOutlineOutlinedIcon,
+		label: '実務経験',
+		iconColor: '#5b59ec',
+	},
+	{
+		icon: TrendingUp,
+		label: 'キャリア目標',
+		iconColor: '#e63c8c',
+	},
 ]
 
 const Top = () => {
@@ -45,12 +71,60 @@ const Top = () => {
 	// Helper function to safely parse JLPT data
 	const getJLPTData = jlptString => {
 		try {
-			if (!jlptString) return { highest: 'なし' }
+			if (!jlptString || jlptString === 'null' || jlptString === 'undefined')
+				return { highest: 'N/A' }
 			const parsed = JSON.parse(jlptString)
-			return parsed || { highest: 'なし' }
+			return parsed || { highest: 'N/A' }
 		} catch (error) {
 			console.error('Error parsing JLPT data:', error)
-			return { highest: 'なし' }
+			return { highest: 'N/A' }
+		}
+	}
+
+	// Helper function to safely parse Japanese Speech Contest data
+	const getJapaneseSpeechContestData = contestString => {
+		try {
+			if (
+				!contestString ||
+				contestString === 'null' ||
+				contestString === 'undefined'
+			)
+				return { highest: 'N/A' }
+			const parsed = JSON.parse(contestString)
+			return parsed || { highest: 'N/A' }
+		} catch (error) {
+			console.error('Error parsing Japanese Speech Contest data:', error)
+			return { highest: 'N/A' }
+		}
+	}
+
+	// Helper function to safely parse IT Contest data
+	const getITContestData = contestString => {
+		try {
+			if (
+				!contestString ||
+				contestString === 'null' ||
+				contestString === 'undefined'
+			)
+				return { highest: 'N/A' }
+			const parsed = JSON.parse(contestString)
+			return parsed || { highest: 'N/A' }
+		} catch (error) {
+			console.error('Error parsing IT Contest data:', error)
+			return { highest: 'N/A' }
+		}
+	}
+
+	// Helper function to safely parse IELTS data
+	const getIELTSData = ieltsString => {
+		try {
+			if (!ieltsString || ieltsString === 'null' || ieltsString === 'undefined')
+				return { highest: 'N/A' }
+			const parsed = JSON.parse(ieltsString)
+			return parsed || { highest: 'N/A' }
+		} catch (error) {
+			console.error('Error parsing IELTS data:', error)
+			return { highest: 'N/A' }
 		}
 	}
 
@@ -72,9 +146,6 @@ const Top = () => {
 	const [hasDraft, setHasDraft] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 	const [confirmMode, setConfirmMode] = useState(false)
-	const [activeUniver, setActiveUniver] = useState('JDU')
-	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
-		useState(false)
 
 	// ✅ Portal container state
 	const [portalContainer, setPortalContainer] = useState(null)
@@ -262,11 +333,6 @@ const Top = () => {
 			'other_information',
 			'it_skills',
 			'skills',
-			'address',
-			'jlpt',
-			'jdu_japanese_certification',
-			'japanese_speech_contest',
-			'it_contest',
 		]
 		return {
 			...data,
@@ -332,12 +398,6 @@ const Top = () => {
 		if (res.status === 200) {
 			showAlert(t('setToChecking'), 'success')
 			setIsChecking(true)
-			// Update the currentDraft state to reflect the new status
-			setCurrentDraft(prevDraft => ({
-				...prevDraft,
-				status: 'checking',
-				reviewed_by: userId,
-			}))
 		}
 	}
 
@@ -464,148 +524,68 @@ const Top = () => {
 
 	const handleDraftUpsert = async () => {
 		try {
-			console.log('Starting draft upsert...')
-			console.log('Deliverable images:', deliverableImages)
-			console.log('Edit data deliverables:', editData.draft.deliverables)
+			const formData = new FormData()
+			newImages.forEach((file, index) => {
+				formData.append(`files[${index}]`, file)
+			})
+			formData.append('role', role)
+			formData.append('imageType', 'Gallery')
+			formData.append('id', id)
+			deletedUrls.forEach((url, index) => {
+				formData.append(`oldFilePath[${index}]`, url)
+			})
 
-			// First, upload gallery images if any
-			if (newImages.length > 0) {
-				const formData = new FormData()
-				newImages.forEach((file, index) => {
-					formData.append(`files`, file) // Use 'files' for multiple uploads
+			const fileResponse = await axios.post('/api/files/upload', formData, {
+				headers: { 'Content-Type': 'multipart/form-data' },
+			})
+
+			let oldFiles = editData.draft.gallery || []
+			if (Array.isArray(fileResponse.data)) {
+				fileResponse.data.forEach(file => {
+					oldFiles.push(file.Location)
 				})
-				formData.append('role', role)
-				formData.append('imageType', 'Gallery')
-				formData.append('id', id)
-				deletedUrls.forEach((url, index) => {
-					formData.append(`oldFilePath[${index}]`, url)
-				})
-
-				const fileResponse = await axios.post(
-					'/api/files/upload-multiple',
-					formData,
-					{
-						headers: { 'Content-Type': 'multipart/form-data' },
-					}
-				)
-
-				let oldFiles = editData.draft.gallery || []
-				if (Array.isArray(fileResponse.data)) {
-					fileResponse.data.forEach(file => {
-						oldFiles.push(file.Location)
-					})
-				}
-				await handleUpdateEditData('gallery', oldFiles)
+			} else if (fileResponse.data.Location) {
+				oldFiles.push(fileResponse.data.Location)
 			}
-
-			// Upload deliverable images
-			const updatedDeliverables = [...(editData.draft.deliverables || [])]
+			await handleUpdateEditData('gallery', oldFiles)
 
 			for (const [index, file] of Object.entries(deliverableImages)) {
 				if (file) {
-					console.log(`Uploading deliverable image for index ${index}`)
 					const deliverableFormData = new FormData()
 					deliverableFormData.append('role', role)
 					deliverableFormData.append('file', file)
 					deliverableFormData.append('imageType', 'Deliverable')
 					deliverableFormData.append('id', id)
-
-					// Get existing image URL to replace
-					const existingImageUrl = updatedDeliverables[index]?.imageLink || ''
-					if (existingImageUrl && !existingImageUrl.startsWith('blob:')) {
-						deliverableFormData.append('oldFilePath', existingImageUrl)
-					}
-
-					try {
-						const deliverableFileResponse = await axios.post(
-							'/api/files/upload',
-							deliverableFormData,
-							{ headers: { 'Content-Type': 'multipart/form-data' } }
-						)
-
-						console.log(
-							'Deliverable image upload response:',
-							deliverableFileResponse.data
-						)
-
-						if (deliverableFileResponse.data.Location) {
-							// Make sure we have a deliverable at this index
-							if (!updatedDeliverables[index]) {
-								updatedDeliverables[index] = {
-									title: '',
-									description: '',
-									link: '',
-									role: [],
-									codeLink: '',
-									imageLink: '',
-								}
-							}
-							updatedDeliverables[index].imageLink =
-								deliverableFileResponse.data.Location
-							console.log(
-								`Updated deliverable ${index} with image URL:`,
-								deliverableFileResponse.data.Location
-							)
-						}
-					} catch (imageUploadError) {
-						console.error(
-							`Error uploading deliverable image ${index}:`,
-							imageUploadError
-						)
-					}
+					deliverableFormData.append(
+						'oldFilePath',
+						editData.draft.deliverables[index]?.imageLink || ''
+					)
+					const deliverableFileResponse = await axios.post(
+						'/api/files/upload',
+						deliverableFormData,
+						{ headers: { 'Content-Type': 'multipart/form-data' } }
+					)
+					const deliverableImageLink = deliverableFileResponse.data.Location
+					editData.draft.deliverables[index].imageLink = deliverableImageLink
 				}
 			}
-
-			// Update the deliverables in editData
-			await handleUpdateEditData('deliverables', updatedDeliverables)
 
 			const studentIdToUse = student.student_id || id
 
 			const draftData = {
 				student_id: studentIdToUse,
-				profile_data: {
-					...editData.draft,
-					deliverables: updatedDeliverables,
-				},
+				profile_data: editData.draft,
 				status: 'draft',
 				submit_count: currentDraft.submit_count || 0,
 			}
 
-			console.log('Saving draft with data:', draftData)
-
-			let res
-			if (currentDraft.id) {
-				// Update existing draft
-				res = await axios.put(`/api/draft/${currentDraft.id}`, {
-					profile_data: draftData.profile_data,
-					status: draftData.status,
-				})
-			} else {
-				// Create new draft
-				res = await axios.post(`/api/draft`, draftData)
-			}
-
-			console.log('Draft save response:', res.data)
-
-			setCurrentDraft(res.data.draft || res.data)
+			const res = await axios.post(`/api/draft`, draftData)
+			setCurrentDraft(res.data.draft)
 			setHasDraft(true)
 
-			// Update student data with new deliverables
-			const updatedStudent = {
-				...editData,
-				draft: {
-					...editData.draft,
-					deliverables: updatedDeliverables,
-				},
-			}
-			setStudent(updatedStudent)
-			setEditData(updatedStudent)
-
-			// Clear temporary data
+			setStudent(editData)
 			setNewImages([])
 			setDeletedUrls([])
-			setDeliverableImages({})
-			setResetDeliverablePreviews(prev => !prev) // Trigger reset
 			setEditMode(false)
 			showAlert(t('changesSavedSuccessfully'), 'success')
 		} catch (error) {
@@ -697,32 +677,24 @@ const Top = () => {
 			)}
 		</Box>
 	)
-	const creditMap = {
-		JDU: student.japanese_employment_credits,
-		'University of World Languages': student.world_language_university_credits,
-		[String(student.partner_university)]: student.partner_university_credits,
-	}
+
 	return (
-		<Box mb={2}>
+		<Box my={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student'
+			{subTabIndex !== 2 && portalContainer && role === 'Student'
 				? createPortal(portalContent, portalContainer)
 				: null}
 
 			<div
 				style={{
-					borderTop: '1px solid #e1e1e1',
-					backgroundColor: '#ffffff',
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'start',
-					padding: '20px 16px',
+					padding: '10px 16px',
 					gap: 32,
-					borderEndEndRadius: 10,
-					borderEndStartRadius: 10,
 				}}
 			>
-				{['selfIntroduction', 'skill', 'deliverables', 'credits', 'qa'].map(
+				{['selfIntroduction', 'skill', 'deliverables', 'qa'].map(
 					(item, ind) => (
 						<div
 							key={ind}
@@ -792,12 +764,7 @@ const Top = () => {
 					</Box>
 				)}
 
-			{role === 'Staff' &&
-			!isLoading &&
-			currentDraft &&
-			currentDraft.id &&
-			currentDraft.status !== 'checking' &&
-			currentDraft.status !== 'approved' ? (
+			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id ? (
 				<Box
 					sx={{
 						my: 2,
@@ -857,11 +824,11 @@ const Top = () => {
 					<div style={{ display: 'flex', gap: 25 }}>
 						<TextField
 							title={t('origin')}
-							data={student.draft.address || student.address}
+							data={'ウズベキスタン'}
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
-							keyName='address'
+							keyName='hobbies'
 							parentKey='draft'
 							icon={LocationOnOutlinedIcon}
 						/>
@@ -908,7 +875,7 @@ const Top = () => {
 							parentKey='draft'
 							icon={<CodeIcon sx={{ color: '#5627DB' }} />}
 						/>
-						<div className={styles.skillBox}>
+						<div style={{ marginBlock: 30 }}>
 							<div
 								style={{
 									fontSize: 20,
@@ -924,61 +891,34 @@ const Top = () => {
 							<div style={{ marginBlock: 30 }}>
 								<div style={{ height: 36 }}>
 									JLPT:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.jlpt ||
-												getJLPTData(student.jlpt).highest ||
-												''
-											}
-											onChange={e =>
-												handleUpdateEditData('jlpt', e.target.value)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.jlpt || getJLPTData(student.jlpt).highest}
-										</span>
-									)}
+									<span
+										style={{
+											margin: '0px 10px',
+											padding: '2px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+										}}
+									>
+										{getJLPTData(student.jdu_japanese_certification).highest}
+									</span>
 								</div>
 								<div style={{ height: 36 }}>
 									{t('jdu_certification')}:{' '}
 									{editMode ? (
 										<input
 											type='text'
-											value={
-												editData.draft.jdu_japanese_certification ||
+											defaultValue={
 												getJLPTData(student.jdu_japanese_certification)
-													.highest ||
-												''
+													.highest || ''
 											}
 											onChange={e =>
-												handleUpdateEditData(
-													'jdu_japanese_certification',
-													e.target.value
-												)
+												handleUpdateEditData('jlpt', e.target.value)
 											}
 											style={{
 												marginLeft: 8,
-												padding: '8px 15px',
+												padding: '2px 8px',
 												fontSize: 14,
 												border: '1px solid #e0e0e0',
 												borderRadius: 6,
@@ -986,19 +926,7 @@ const Top = () => {
 											}}
 										/>
 									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.jdu_japanese_certification ||
-												getJLPTData(student.jdu_japanese_certification).highest}
-										</span>
+										getJLPTData(student.jdu_japanese_certification).highest
 									)}
 								</div>
 							</div>
@@ -1021,7 +949,7 @@ const Top = () => {
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
 						/>
-						<div className={styles.skillBox}>
+						<div style={{ marginBlock: 30 }}>
 							<div
 								style={{
 									fontSize: 20,
@@ -1037,85 +965,43 @@ const Top = () => {
 							<div style={{ marginBlock: 30 }}>
 								<div style={{ height: 36 }}>
 									{t('japaneseSpeechContest')}:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.japanese_speech_contest ||
-												student.japanese_speech_contest ||
-												''
-											}
-											onChange={e =>
-												handleUpdateEditData(
-													'japanese_speech_contest',
-													e.target.value
-												)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.japanese_speech_contest ||
-												student.japanese_speech_contest}
-										</span>
-									)}
+									<span
+										style={{
+											margin: '0px 10px',
+											padding: '2px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+										}}
+									>
+										{
+											getJapaneseSpeechContestData(
+												student.japanese_speech_contest
+											).highest
+										}
+									</span>
 								</div>
 								<div>
 									{t('itContest')}:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.it_contest || student.it_contest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData('it_contest', e.target.value)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.it_contest || student.it_contest}
-										</span>
-									)}
+									<span
+										style={{
+											margin: '0px 10px',
+											padding: '2px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+										}}
+									>
+										{getITContestData(student.it_contest).highest}
+									</span>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<Box sx={{ my: 2, backgroundColor: '#FFFFFF', padding: 3 }}>
+					<div>
 						<div
 							style={{
 								fontSize: 20,
@@ -1144,7 +1030,7 @@ const Top = () => {
 										N3: '60%',
 										N2: '80%',
 										N1: '100%',
-									}[student.draft.jlpt || getJLPTData(student.jlpt).highest] ||
+									}[getJLPTData(student.jdu_japanese_certification).highest] ||
 										'0%'}
 								</div>
 							</div>
@@ -1170,13 +1056,13 @@ const Top = () => {
 												N2: '80%',
 												N1: '100%',
 											}[
-												student.draft.jlpt || getJLPTData(student.jlpt).highest
+												getJLPTData(student.jdu_japanese_certification).highest
 											] || '0%',
 									}}
 								></div>
 							</div>
 						</div>
-					</Box>
+					</div>
 				</Box>
 			)}
 			{/* deliverables */}
@@ -1189,55 +1075,11 @@ const Top = () => {
 						updateEditData={handleUpdateEditData}
 						onImageUpload={handleImageUpload}
 						keyName='deliverables'
-						resetPreviews={resetDeliverablePreviews}
 					/>
 				</Box>
 			)}
 			{/* QA */}
 			{subTabIndex === 3 && (
-				<Box my={2} backgroundColor={'#FFFFFF'} padding={3}>
-					<div style={{ display: 'flex', gap: 10 }}>
-						{[
-							'JDU',
-							String(student.partner_university),
-							'University of World Languages',
-						].map((item, ind) => (
-							<Button
-								key={ind}
-								variant={item === activeUniver ? 'contained' : 'outlined'}
-								onClick={() => {
-									setActiveUniver(item)
-								}}
-							>
-								{item}
-							</Button>
-						))}
-					</div>
-
-					<Box
-						sx={{
-							color: '#1E1E1ECC',
-							marginBlock: '20px',
-						}}
-						my={2}
-					>
-						<div>{t('studentCredits')}</div>
-						<div>
-							<span style={{ fontSize: 32, fontWeight: 600, color: 'black' }}>
-								{creditMap[activeUniver] ?? 0}
-							</span>
-							/124
-						</div>
-					</Box>
-					<CreditsProgressBar
-						breakpoints={breakpoints}
-						unit='単位' // credit unit
-						credits={creditMap[activeUniver] ?? 0} // student's earned credits
-						semester={student.semester} // current semester
-					/>
-				</Box>
-			)}
-			{subTabIndex === 4 && (
 				<Box my={2}>
 					<QA
 						updateQA={updateQA}
