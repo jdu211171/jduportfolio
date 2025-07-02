@@ -247,8 +247,17 @@ class DraftController {
 				staffName = `スタッフによって` // Agar ismi topilmasa
 			}
 
+			// Create notification message with comments if available
+			let notificationMessage = `あなたの情報は${staffName} 「${status}」ステータスに変更されました。`
+
+			// Add comment as separate part if available
+			if (comments && status.toLowerCase() !== 'approved') {
+				// Use special separator to identify comment section in frontend
+				notificationMessage += `|||COMMENT_SEPARATOR|||📝 **スタッフからのコメント:**\n${comments}`
+			}
+
 			const notification = await NotificationService.create({
-				message: `あなたの情報は${staffName} 「${status}」ステータスに変更されました。`,
+				message: notificationMessage,
 				status: 'unread',
 				user_id: student.student_id,
 				user_role: 'student',

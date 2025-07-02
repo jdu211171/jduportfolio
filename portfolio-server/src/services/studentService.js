@@ -324,6 +324,20 @@ class StudentService {
 						  ]
 						: [],
 				},
+				include: [
+					{
+						model: Draft,
+						as: 'draft',
+						attributes: [
+							'id',
+							'status',
+							'submit_count',
+							'created_at',
+							'updated_at',
+						],
+						required: false, // LEFT JOIN so students without drafts are still included
+					},
+				],
 			})
 
 			return students
