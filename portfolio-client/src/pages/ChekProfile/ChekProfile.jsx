@@ -14,7 +14,9 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const { language } = useLanguage()
 	const { role } = useContext(UserContext)
 	const t = key => translations[language][key] || key
-	const [filterState, setFilterState] = useState({})
+	const [filterState, setFilterState] = useState({
+		search: '',
+	})
 
 	const showAlert = useAlert()
 
@@ -229,6 +231,13 @@ const Student = ({ OnlyBookmarked = false }) => {
 			onClickAction: navigateToProfile,
 		},
 		{
+			id: 'student_id',
+			numeric: false,
+			disablePadding: false,
+			label: '学生ID',
+			minWidth: '120px',
+		},
+		{
 			id: 'age',
 			numeric: true,
 			disablePadding: false,
@@ -317,6 +326,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 					fields={filterProps}
 					filterState={filterState}
 					onFilterChange={handleFilterChange}
+					disableStudentIdSearch={true}
 				/>
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />

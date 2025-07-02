@@ -73,6 +73,35 @@ router.get('/', StudentController.getAllStudents)
 
 /**
  * @swagger
+ * /api/students/ids:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get student IDs for autocomplete
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter student IDs
+ *     responses:
+ *       200:
+ *         description: List of student IDs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   student_id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ */
+router.get('/ids', StudentController.getStudentIds)
+
+/**
+ * @swagger
  * /api/students/{id}:
  *   get:
  *     tags: [Students]
@@ -158,4 +187,3 @@ router.delete('/:id', StudentController.deleteStudent)
 // router.get('/pending-drafts', StudentController.getStudentsWithPendingDrafts);
 
 module.exports = router
-
