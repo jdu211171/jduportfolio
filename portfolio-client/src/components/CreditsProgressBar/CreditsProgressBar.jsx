@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import styles from './CreditsProgressBar.module.css'
 
 const CreditsProgressBar = ({ breakpoints, unit, credits, semester }) => {
@@ -39,58 +39,65 @@ const CreditsProgressBar = ({ breakpoints, unit, credits, semester }) => {
 
 	return (
 		<div className={styles.graphContainer} ref={graphContainerRef}>
-			<svg width='100%' height='120' style={{ overflow: 'visible' }}>
-				{/* Base line */}
-				<line x1='0' y1='60' x2='100%' y2='60' stroke='#000' strokeWidth='2' />
+			<div className={styles.progressContainer}>
+				{/* Top labels */}
+				<div className={styles.topLabels}>
+					<span className={styles.startLabel}>入学</span>
+					<span className={styles.endLabel}>卒業</span>
+				</div>
 
-				{/* Breakpoints */}
-				{breakpoints.map((breakpoint, index) => {
-					const x = `${(breakpoint.point / totalPoints) * 100}%`
-					if (breakpoint.point <= 124) {
+				{/* Progress bar */}
+				<div className={styles.progressBar}>
+					{/* Background line */}
+					<div className={styles.progressLine}></div>
+
+					{/* Active progress line */}
+					<div
+						className={styles.activeProgressLine}
+						style={{ width: `${creditPercentage}%` }}
+					></div>
+
+					{/* Breakpoints */}
+					{breakpoints.map((breakpoint, index) => {
+						const leftPosition = (breakpoint.point / totalPoints) * 100
+						const isCompleted = credits >= breakpoint.point
+
 						return (
-							<g key={index}>
-								<line
-									x1={x}
-									y1='50'
-									x2={x}
-									y2='70'
-									stroke='#000'
-									strokeWidth='2'
-								/>
-								<text x={x} y='40' textAnchor='middle' fontSize='12'>
-									{breakpoint.label}
-								</text>
-								<text x={x} y='90' textAnchor='middle' fontSize='12'>
+							<div
+								key={index}
+								className={`${styles.breakpoint} ${isCompleted ? styles.completed : ''}`}
+								style={{ left: `${leftPosition}%` }}
+							>
+								<div className={styles.circle}>
+									{isCompleted && (
+										<svg width='16' height='16' viewBox='0 0 16 16' fill='none'>
+											<path
+												d='M13.5 4.5L6 12L2.5 8.5'
+												stroke='white'
+												strokeWidth='2'
+												strokeLinecap='round'
+												strokeLinejoin='round'
+											/>
+										</svg>
+									)}
+								</div>
+								<div className={styles.creditLabel}>
 									{breakpoint.point}
 									{unit}
-								</text>
-							</g>
+								</div>
+							</div>
 						)
-					} else {
-					}
-				})}
+					})}
 
-				{/* Credit Indicator */}
-				<g>
-					<line
-						x1={`${creditPercentage}%`}
-						y1='55'
-						x2={`${creditPercentage}%`}
-						y2='130'
-						stroke={color}
-						strokeWidth='2'
-					/>
-					<text
-						x={`${creditPercentage}%`}
-						y='150'
-						textAnchor='middle'
-						fontSize='12'
-						fill={color}
+					{/* Current credit indicator */}
+					<div
+						className={styles.currentIndicator}
+						style={{ left: `${creditPercentage}%` }}
 					>
-						学生単位数: {credits}
-					</text>
-				</g>
-			</svg>
+						<div className={styles.currentCircle}></div>
+					</div>
+				</div>
+			</div>
 		</div>
 	)
 }
