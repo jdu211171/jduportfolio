@@ -1,6 +1,6 @@
 module.exports = {
   apps: [{
-    name: 'portfolio-backend',
+    name: 'portfolio-server',
     script: './src/app.js',
     instances: 1,
     autorestart: true,
