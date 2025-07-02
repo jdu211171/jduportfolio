@@ -2,10 +2,12 @@ const { Op } = require('sequelize')
 const { Draft, Student, sequelize } = require('../models')
 
 class DraftService {
-
 	static async getAll(filter) {
 		try {
-			// console.log(filter)
+			console.log(
+				'DraftService.getAll called with filter:',
+				JSON.stringify(filter, null, 2)
+			)
 
 			const semesterMapping = {
 				'1年生': ['1', '2'],
@@ -66,14 +68,14 @@ class DraftService {
 				'email',
 				'first_name',
 				'last_name',
+				'student_id',
 				'self_introduction',
 				'hobbies',
-				'skills',
-				'it_skills',
 				'jlpt',
 			]
-			let statusFilter = ''
-			let approvalStatusFilter = '' // New filter for approval_status
+
+			let draftStatusConditions = []
+			let approvalStatusConditions = []
 
 			// Process approval_status filter
 			if (
@@ -81,26 +83,38 @@ class DraftService {
 				Array.isArray(filter.approval_status) &&
 				filter.approval_status.length > 0
 			) {
-				const draftStatuses = []
 				filter.approval_status.forEach(approvalStatus => {
 					if (approvalStatusMapping[approvalStatus]) {
-						draftStatuses.push(...approvalStatusMapping[approvalStatus])
+						approvalStatusConditions.push(
+							...approvalStatusMapping[approvalStatus]
+						)
 					}
 				})
-
-				approvalStatusFilter = draftStatuses.length
-					? `AND d.status IN (${draftStatuses.map(s => `'${s}'`).join(', ')})`
-					: ''
-
 				delete filter.approval_status // Remove to avoid double handling
 			}
 
 			Object.keys(filter).forEach(key => {
 				if (filter[key] && key !== 'draft_status') {
 					if (key === 'search') {
-						querySearch[Op.or] = searchableColumns.map(column => ({
+						let searchConditions = searchableColumns.map(column => ({
 							[column]: { [Op.iLike]: `%${filter[key]}%` },
 						}))
+
+						// Add JSONB search conditions for skills and it_skills using sequelize.where
+						searchConditions.push(
+							sequelize.where(
+								sequelize.cast(sequelize.col('Student.skills'), 'TEXT'),
+								{ [Op.iLike]: `%${filter[key]}%` }
+							)
+						)
+						searchConditions.push(
+							sequelize.where(
+								sequelize.cast(sequelize.col('Student.it_skills'), 'TEXT'),
+								{ [Op.iLike]: `%${filter[key]}%` }
+							)
+						)
+
+						querySearch[Op.or] = searchConditions
 					} else if (key === 'skills' || key === 'it_skills') {
 						queryOther[Op.and].push({
 							[Op.or]: [
@@ -137,9 +151,7 @@ class DraftService {
 					const filteredStatuses = filter[key].map(
 						status => statusMapping[status]
 					)
-					statusFilter = filteredStatuses.length
-						? `AND d.status IN (${filteredStatuses.map(s => `'${s}'`).join(', ')})`
-						: ''
+					draftStatusConditions.push(...filteredStatuses)
 				}
 			})
 
@@ -149,16 +161,34 @@ class DraftService {
 
 			query[Op.and].push(querySearch, queryOther, { active: true })
 
-			// Combine status filters (combine draft_status and approval_status)
-			let combinedStatusFilter = ''
-			if (statusFilter && approvalStatusFilter) {
-				// If both filters are specified, use OR logic between them
-				const statusPart = statusFilter.replace(/^AND /, '')
-				const approvalPart = approvalStatusFilter.replace(/^AND /, '')
-				combinedStatusFilter = `AND (${statusPart} OR ${approvalPart})`
-			} else {
-				combinedStatusFilter = statusFilter || approvalStatusFilter
+			// Build draft where conditions
+			let draftWhere = {
+				status: { [Op.ne]: 'draft' },
 			}
+
+			// Apply status filters to draft where conditions
+			if (
+				draftStatusConditions.length > 0 &&
+				approvalStatusConditions.length > 0
+			) {
+				// If both filters exist, use OR
+				draftWhere.status = {
+					[Op.or]: [
+						{ [Op.in]: draftStatusConditions },
+						{ [Op.in]: approvalStatusConditions },
+					],
+				}
+			} else if (draftStatusConditions.length > 0) {
+				draftWhere.status = { [Op.in]: draftStatusConditions }
+			} else if (approvalStatusConditions.length > 0) {
+				draftWhere.status = { [Op.in]: approvalStatusConditions }
+			}
+
+			console.log(
+				'Draft where conditions:',
+				JSON.stringify(draftWhere, null, 2)
+			)
+			console.log('Student query conditions:', JSON.stringify(query, null, 2))
 
 			const students = await Student.findAll({
 				where: query,
@@ -168,13 +198,13 @@ class DraftService {
 						as: 'draft',
 						required: true,
 						where: {
-							status: { [Op.ne]: 'draft' },
+							...draftWhere,
 							updated_at: {
 								[Op.eq]: sequelize.literal(`
                               (SELECT MAX("updated_at") 
                               FROM "Drafts" AS d
                               WHERE d.student_id = "Student".student_id
-                              AND d.status != 'draft' ${combinedStatusFilter})
+                              AND d.status != 'draft')
                           `),
 							},
 						},
@@ -184,6 +214,12 @@ class DraftService {
 
 			return students
 		} catch (error) {
+			console.error('Error in DraftService.getAll:', error)
+			console.error('Error details:', {
+				message: error.message,
+				sql: error.sql,
+				parameters: error.parameters,
+			})
 			throw error
 		}
 	}
