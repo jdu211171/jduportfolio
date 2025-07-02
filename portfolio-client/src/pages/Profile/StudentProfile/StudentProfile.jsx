@@ -24,6 +24,19 @@ const StudentProfile = ({ userId = 0 }) => {
 	const location = useLocation()
 	const [student, setStudent] = useState(null)
 
+	// Helper function to safely parse JLPT data
+	const getJLPTData = jlptString => {
+		try {
+			if (!jlptString || jlptString === 'null' || jlptString === 'undefined')
+				return { highest: 'N/A' }
+			const parsed = JSON.parse(jlptString)
+			return parsed || { highest: 'N/A' }
+		} catch (error) {
+			console.error('Error parsing JLPT data:', error)
+			return { highest: 'N/A' }
+		}
+	}
+
 	useEffect(() => {
 		const fetchStudent = async () => {
 			try {
@@ -139,7 +152,9 @@ const StudentProfile = ({ userId = 0 }) => {
 							<div style={{ display: 'flex', gap: 10 }}>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>jlpt tarjima:</div>
-									<div>{JSON.parse(student.jlpt).highest}</div>
+									<div>
+										{getJLPTData(student.jdu_japanese_certification).highest}
+									</div>
 								</div>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>卒業見込み:</div>
@@ -168,30 +183,6 @@ const StudentProfile = ({ userId = 0 }) => {
 					</Box>
 				</Box>
 			</Box>
-			{/* <Box className={styles.navbar}>
-				<NavLink
-					to={`top`}
-					state={{ userId: userId }}
-					className={({ isActive }) => (isActive ? styles.active : '')}
-				>
-					{t.top}
-				</NavLink>
-				<NavLink
-					to={`qa`}
-					state={{ userId: userId }}
-					className={({ isActive }) => (isActive ? styles.active : '')}
-				>
-					{t.qa}
-				</NavLink>
-				<NavLink
-					to={`stats`}
-					state={{ userId: userId }}
-					className={({ isActive }) => (isActive ? styles.active : '')}
-					style={{ minWidth: '130px' }}
-				>
-					{t.stats}
-				</NavLink>
-			</Box> */}
 			<Outlet />
 		</Box>
 	)
