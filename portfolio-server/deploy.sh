@@ -74,12 +74,12 @@ if ! cd "$(dirname "$0")"; then
 fi
 echo_success "Changed directory successfully"
 
-# Install dependencies locally
-echo_status "Installing npm dependencies locally"
-if ! npm install; then
-    echo_error "Failed to install dependencies"
+# Verify package files exist
+echo_status "Verifying package files"
+if [ ! -f "package.json" ]; then
+    echo_error "package.json not found"
 fi
-echo_success "Dependencies installed"
+echo_success "Package files verified"
 
 # Create deployment package
 echo_status "Creating deployment package"
@@ -97,9 +97,6 @@ cp package.json "$DEPLOY_DIR/"
 cp package-lock.json "$DEPLOY_DIR/" 2>/dev/null || echo "No package-lock.json found, continuing..."
 cp ecosystem.config.js "$DEPLOY_DIR/"
 
-# Copy node_modules
-echo_status "Copying node_modules (this may take a while)"
-cp -r node_modules "$DEPLOY_DIR/"
 echo_success "Application files copied"
 
 # Create zip file
@@ -145,6 +142,14 @@ DEPLOY_COMMANDS="cd $EC2_PATH && \
   git pull origin master || { echo 'ERROR: Failed to pull from git'; exit 1; } && \
   echo 'Extracting deployment package...' && \
   unzip -o deploy.zip || { echo 'ERROR: Failed to extract zip file'; exit 1; } && \
+  echo 'Moving files from deploy_package to root...' && \
+  cp -rf deploy_package/* . || { echo 'ERROR: Failed to move files from deploy_package'; exit 1; } && \
+  echo 'Cleaning up deploy_package directory...' && \
+  rm -rf deploy_package || echo 'Warning: Failed to remove deploy_package directory' && \
+  echo 'Removing deploy.zip...' && \
+  rm -f deploy.zip || echo 'Warning: Failed to remove deploy.zip' && \
+  echo 'Installing npm dependencies on server...' && \
+  npm install --production || { echo 'ERROR: Failed to install npm dependencies'; exit 1; } && \
   echo 'Removing backup node_modules...' && \
   [ -d node_modules.backup ] && rm -rf node_modules.backup || echo 'No backup to remove' && \
   echo 'Creating logs directory...' && \
@@ -176,8 +181,6 @@ echo_success "Local cleanup completed"
 # Check the status of the deployment
 echo_status "Checking deployment status"
 if ! ssh -i "$EC2_KEY" "$EC2_USER@$EC2_HOST" "cd $EC2_PATH && \
-    echo 'Checking node_modules...' && \
-    [ -d node_modules ] && echo '✓ node_modules directory exists' || echo '✗ node_modules directory missing' && \
     echo 'Checking PM2 service...' && \
     pm2 status $PM2_SERVICE_NAME && \
     echo 'Checking recent logs...' && \
@@ -187,4 +190,4 @@ fi
 echo_success "Deployment status verified"
 
 echo "🎉 Backend deployment completed successfully!"
-echo "📝 Note: The backend code is updated via git pull, while node_modules are deployed from local installation"
+echo "📝 Note: The backend code is updated via git pull, and dependencies are installed on the server"
