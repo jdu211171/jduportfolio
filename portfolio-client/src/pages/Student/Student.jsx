@@ -137,6 +137,13 @@ const Student = ({ OnlyBookmarked = false }) => {
 			onClickAction: navigateToProfile,
 		},
 		{
+			id: 'student_id',
+			numeric: false,
+			disablePadding: false,
+			label: t('student_id'),
+			minWidth: '120px',
+		},
+		{
 			id: 'age',
 			numeric: true,
 			disablePadding: false,

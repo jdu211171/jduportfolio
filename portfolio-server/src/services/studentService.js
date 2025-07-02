@@ -5,8 +5,8 @@ const generatePassword = require('generate-password')
 const { Student, Draft, Bookmark, sequelize } = require('../models')
 const DraftService = require('./draftService')
 
-const { formatStudentWelcomeEmail } = require('../utils/emailToStudent');
-const { sendBulkEmails } = require('../utils/emailService');
+const { formatStudentWelcomeEmail } = require('../utils/emailToStudent')
+const { sendBulkEmails } = require('../utils/emailService')
 
 class StudentService {
 	// Service method to create a new student
@@ -244,7 +244,7 @@ class StudentService {
 									],
 								}
 							} else if (column === 'student_id') {
-								return { [column]: { [Op.eq]: searchValue } } // INTEGER uchun aniq moslik
+								return { [column]: { [Op.iLike]: `%${searchValue}%` } } // Student ID uchun qisman moslik
 							} else {
 								return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 							}
@@ -549,148 +549,166 @@ class StudentService {
 		}
 	}
 
-    //         for (const data of studentData) {
-    //             if (!data.studentId || !data.mail) continue; // Agar asosiy maydonlar bo'lmasa, keyingisiga o'tish
+	//         for (const data of studentData) {
+	//             if (!data.studentId || !data.mail) continue; // Agar asosiy maydonlar bo'lmasa, keyingisiga o'tish
 
-    //             const existingStudent = await Student.findOne({ where: { student_id: data.studentId } });
+	//             const existingStudent = await Student.findOne({ where: { student_id: data.studentId } });
 
-    //             const formattedData = {
-    //                 email: data.mail.trim(),
-    //                 student_id: data.studentId,
-    //                 first_name: data.studentFirstName,
-    //                 last_name: data.studentLastName,
-    //                 date_of_birth: data.birthday,
-    //                 gender: data.gender,
-    //                 address: data.address,
-    //                 parents_phone_number: data.parentsPhoneNumber,
-    //                 phone: data.phoneNumber,
-    //                 enrollment_date: data.jduDate,
-    //                 partner_university_enrollment_date: data.partnerUniversityEnrollmentDate,
-    //                 semester: data.semester,
-    //                 student_status: data.studentStatus,
-    //                 partner_university: data.partnerUniversity,
-    //                 kintone_id: data.kintone_id_value,
-    //                 world_language_university_credits: Number(data.worldLanguageUniversityCredits) || 0,
-    //                 business_skills_credits: Number(data.businessSkillsCredits) || 0,
-    //                 japanese_employment_credits: Number(data.japaneseEmploymentCredits) || 0,
-    //                 liberal_arts_education_credits: Number(data.liberalArtsEducationCredits) || 0,
-    //                 total_credits: Number(data.totalCredits) || 0,
-    //                 specialized_education_credits: Number(data.specializedEducationCredits) || 0,
-    //                 partner_university_credits: Number(data.partnerUniversityCredits) || 0,
-    //                 jlpt: data.jlpt,
-    //                 jdu_japanese_certification: data.jdu_japanese_certification,
-    //                 ielts: data.ielts,
-    //                 japanese_speech_contest: data.japanese_speech_contest,
-    //                 it_contest: data.it_contest,
-    //             };
+	//             const formattedData = {
+	//                 email: data.mail.trim(),
+	//                 student_id: data.studentId,
+	//                 first_name: data.studentFirstName,
+	//                 last_name: data.studentLastName,
+	//                 date_of_birth: data.birthday,
+	//                 gender: data.gender,
+	//                 address: data.address,
+	//                 parents_phone_number: data.parentsPhoneNumber,
+	//                 phone: data.phoneNumber,
+	//                 enrollment_date: data.jduDate,
+	//                 partner_university_enrollment_date: data.partnerUniversityEnrollmentDate,
+	//                 semester: data.semester,
+	//                 student_status: data.studentStatus,
+	//                 partner_university: data.partnerUniversity,
+	//                 kintone_id: data.kintone_id_value,
+	//                 world_language_university_credits: Number(data.worldLanguageUniversityCredits) || 0,
+	//                 business_skills_credits: Number(data.businessSkillsCredits) || 0,
+	//                 japanese_employment_credits: Number(data.japaneseEmploymentCredits) || 0,
+	//                 liberal_arts_education_credits: Number(data.liberalArtsEducationCredits) || 0,
+	//                 total_credits: Number(data.totalCredits) || 0,
+	//                 specialized_education_credits: Number(data.specializedEducationCredits) || 0,
+	//                 partner_university_credits: Number(data.partnerUniversityCredits) || 0,
+	//                 jlpt: data.jlpt,
+	//                 jdu_japanese_certification: data.jdu_japanese_certification,
+	//                 ielts: data.ielts,
+	//                 japanese_speech_contest: data.japanese_speech_contest,
+	//                 it_contest: data.it_contest,
+	//             };
 
-    //             if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
-    //                 const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true, });
-    //                 formattedData.password = await bcrypt.hash(password, 10);
-    //                 formattedData.active = true;
-    //                 emailTasks.push(formatStudentWelcomeEmail(formattedData.email, password, formattedData.first_name, formattedData.last_name));
-    //             } else {
-    //                 formattedData.password = existingStudent.password;
-    //             }
+	//             if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
+	//                 const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true, });
+	//                 formattedData.password = await bcrypt.hash(password, 10);
+	//                 formattedData.active = true;
+	//                 emailTasks.push(formatStudentWelcomeEmail(formattedData.email, password, formattedData.first_name, formattedData.last_name));
+	//             } else {
+	//                 formattedData.password = existingStudent.password;
+	//             }
 
-    //             upsertPromises.push(Student.upsert(formattedData));
-    //         }
-            
-    //         await Promise.all(upsertPromises);
-    //         console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
+	//             upsertPromises.push(Student.upsert(formattedData));
+	//         }
 
-    //         if (emailTasks.length > 0) {
-    //             console.log(`${emailTasks.length} ta yangi talabaga email jo'natish boshlandi...`);
-    //             const emailReport = await sendBulkEmails(emailTasks);
-    //             console.log('--- Ommaviy Email Jo\'natish Hisoboti ---', emailReport);
-    //         } else {
-    //             console.log('Jo\'natish uchun yangi aktiv talabalar topilmadi.');
-    //         }
+	//         await Promise.all(upsertPromises);
+	//         console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
 
-    //         return { message: "Sinxronizatsiya muvaffaqiyatli yakunlandi." };
+	//         if (emailTasks.length > 0) {
+	//             console.log(`${emailTasks.length} ta yangi talabaga email jo'natish boshlandi...`);
+	//             const emailReport = await sendBulkEmails(emailTasks);
+	//             console.log('--- Ommaviy Email Jo\'natish Hisoboti ---', emailReport);
+	//         } else {
+	//             console.log('Jo\'natish uchun yangi aktiv talabalar topilmadi.');
+	//         }
 
-    //     } catch (error) {
-    //         console.error("syncStudentData xatolik:", error);
-    //         throw error;
-    //     }
-    // }
+	//         return { message: "Sinxronizatsiya muvaffaqiyatli yakunlandi." };
+
+	//     } catch (error) {
+	//         console.error("syncStudentData xatolik:", error);
+	//         throw error;
+	//     }
+	// }
 	/**
-     * Kintone'dan kelgan talabalar ro'yxatini sinxronizatsiya qiladi.
-     * Yangi yaratilgan har bir talaba uchun email vazifasini tayyorlaydi.
-     * @param {Array} studentData - Kintone'dan kelgan formatlangan talabalar ro'yxati.
-     * @returns {Array} Yangi talabalar uchun email vazifalari massivi.
-     */
-    static async syncStudentData(studentData) {
-        try {
-            const emailTasks = []; // Jo'natiladigan email vazifalari uchun massiv
-            const upsertPromises = []; // DB'ga yozish uchun promise'lar massivi
+	 * Kintone'dan kelgan talabalar ro'yxatini sinxronizatsiya qiladi.
+	 * Yangi yaratilgan har bir talaba uchun email vazifasini tayyorlaydi.
+	 * @param {Array} studentData - Kintone'dan kelgan formatlangan talabalar ro'yxati.
+	 * @returns {Array} Yangi talabalar uchun email vazifalari massivi.
+	 */
+	static async syncStudentData(studentData) {
+		try {
+			const emailTasks = [] // Jo'natiladigan email vazifalari uchun massiv
+			const upsertPromises = [] // DB'ga yozish uchun promise'lar massivi
 
-            for (const data of studentData) {
-                if (!data.studentId || !data.mail) continue;
+			for (const data of studentData) {
+				if (!data.studentId || !data.mail) continue
 
-                const existingStudent = await Student.findOne({ where: { student_id: data.studentId } });
+				const existingStudent = await Student.findOne({
+					where: { student_id: data.studentId },
+				})
 
 				const formattedData = {
-                    email: data.mail.trim(),
-                    student_id: data.studentId,
-                    first_name: data.studentFirstName,
-                    last_name: data.studentLastName,
-                    date_of_birth: data.birthday,
-                    gender: data.gender,
-                    address: data.address,
-                    parents_phone_number: data.parentsPhoneNumber,
-                    phone: data.phoneNumber,
-                    enrollment_date: data.jduDate,
-                    partner_university_enrollment_date: data.partnerUniversityEnrollmentDate,
-                    semester: data.semester,
-                    student_status: data.studentStatus,
-                    partner_university: data.partnerUniversity,
-                    kintone_id: data.kintone_id_value,
-                    world_language_university_credits: Number(data.worldLanguageUniversityCredits) || 0,
-                    business_skills_credits: Number(data.businessSkillsCredits) || 0,
-                    japanese_employment_credits: Number(data.japaneseEmploymentCredits) || 0,
-                    liberal_arts_education_credits: Number(data.liberalArtsEducationCredits) || 0,
-                    total_credits: Number(data.totalCredits) || 0,
-                    specialized_education_credits: Number(data.specializedEducationCredits) || 0,
-                    partner_university_credits: Number(data.partnerUniversityCredits) || 0,
-                    jlpt: data.jlpt,
-                    jdu_japanese_certification: data.jdu_japanese_certification,
-                    ielts: data.ielts,
-                    japanese_speech_contest: data.japanese_speech_contest,
-                    it_contest: data.it_contest,
-                };
-                
-                // Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
-                if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
-                    const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
-                    formattedData.password = password; // Parolni xeshlash model ichidagi hook'da bajariladi
-                    formattedData.active = true;
+					email: data.mail.trim(),
+					student_id: data.studentId,
+					first_name: data.studentFirstName,
+					last_name: data.studentLastName,
+					date_of_birth: data.birthday,
+					gender: data.gender,
+					address: data.address,
+					parents_phone_number: data.parentsPhoneNumber,
+					phone: data.phoneNumber,
+					enrollment_date: data.jduDate,
+					partner_university_enrollment_date:
+						data.partnerUniversityEnrollmentDate,
+					semester: data.semester,
+					student_status: data.studentStatus,
+					partner_university: data.partnerUniversity,
+					kintone_id: data.kintone_id_value,
+					world_language_university_credits:
+						Number(data.worldLanguageUniversityCredits) || 0,
+					business_skills_credits: Number(data.businessSkillsCredits) || 0,
+					japanese_employment_credits:
+						Number(data.japaneseEmploymentCredits) || 0,
+					liberal_arts_education_credits:
+						Number(data.liberalArtsEducationCredits) || 0,
+					total_credits: Number(data.totalCredits) || 0,
+					specialized_education_credits:
+						Number(data.specializedEducationCredits) || 0,
+					partner_university_credits:
+						Number(data.partnerUniversityCredits) || 0,
+					jlpt: data.jlpt,
+					jdu_japanese_certification: data.jdu_japanese_certification,
+					ielts: data.ielts,
+					japanese_speech_contest: data.japanese_speech_contest,
+					it_contest: data.it_contest,
+				}
 
-                    // >>> O'ZGARISH: Emailni darhol jo'natmaymiz! Faqat vazifani tayyorlab, ro'yxatga qo'shamiz. <<<
-                    emailTasks.push(formatStudentWelcomeEmail(
-                        formattedData.email,
-                        password,
-                        formattedData.first_name,
-                        formattedData.last_name
-                    ));
-                }
+				// Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
+				if (
+					!existingStudent ||
+					(data.semester > 0 && !existingStudent.active)
+				) {
+					const password = generatePassword.generate({
+						length: 12,
+						numbers: true,
+						symbols: false,
+						uppercase: true,
+					})
+					formattedData.password = password // Parolni xeshlash model ichidagi hook'da bajariladi
+					formattedData.active = true
 
-                upsertPromises.push(Student.upsert(formattedData));
-            }
+					// >>> O'ZGARISH: Emailni darhol jo'natmaymiz! Faqat vazifani tayyorlab, ro'yxatga qo'shamiz. <<<
+					emailTasks.push(
+						formatStudentWelcomeEmail(
+							formattedData.email,
+							password,
+							formattedData.first_name,
+							formattedData.last_name
+						)
+					)
+				}
 
-            // Barcha talabalarni bazaga yozib olamiz
-            await Promise.all(upsertPromises);
-            console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`);
-            
-            // >>> O'ZGARISH: Tayyor bo'lgan email vazifalari ro'yxatini qaytaramiz <<<
-            return emailTasks;
+				upsertPromises.push(Student.upsert(formattedData))
+			}
 
-        } catch (error) {
-            console.error("syncStudentData jarayonida jiddiy xatolik:", error);
-            throw error;
-        }
-    }
-	
+			// Barcha talabalarni bazaga yozib olamiz
+			await Promise.all(upsertPromises)
+			console.log(
+				`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`
+			)
+
+			// >>> O'ZGARISH: Tayyor bo'lgan email vazifalari ro'yxatini qaytaramiz <<<
+			return emailTasks
+		} catch (error) {
+			console.error('syncStudentData jarayonida jiddiy xatolik:', error)
+			throw error
+		}
+	}
 
 	static async getStudentsWithPendingDrafts() {
 		try {
@@ -704,6 +722,42 @@ class StudentService {
 				],
 			})
 			return students
+		} catch (error) {
+			throw error
+		}
+	}
+
+	// Get student IDs for autocomplete
+	static async getStudentIds(search = '') {
+		try {
+			const { Op } = require('sequelize')
+			const whereClause = search
+				? {
+						[Op.or]: [
+							{ student_id: { [Op.iLike]: `%${search}%` } },
+							{
+								[Op.or]: [
+									{ first_name: { [Op.iLike]: `%${search}%` } },
+									{ last_name: { [Op.iLike]: `%${search}%` } },
+								],
+							},
+						],
+						active: true,
+				  }
+				: { active: true }
+
+			const students = await Student.findAll({
+				where: whereClause,
+				attributes: ['student_id', 'first_name', 'last_name'],
+				order: [['student_id', 'ASC']],
+				limit: 10, // Limit to 10 suggestions
+			})
+
+			return students.map(student => ({
+				student_id: student.student_id,
+				name: `${student.first_name} ${student.last_name}`,
+				display: `${student.student_id} - ${student.first_name} ${student.last_name}`,
+			}))
 		} catch (error) {
 			throw error
 		}

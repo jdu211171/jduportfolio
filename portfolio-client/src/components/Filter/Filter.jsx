@@ -8,6 +8,7 @@ import translations from '../../locales/translations'
 import style from './Filter.module.css'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
+import axios from '../../utils/axiosUtils'
 
 const Filter = ({
 	fields,
@@ -17,6 +18,7 @@ const Filter = ({
 	viewMode = 'grid',
 	onViewModeChange,
 	persistKey = 'filter-state',
+	disableStudentIdSearch = false,
 }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
@@ -154,6 +156,34 @@ const Filter = ({
 
 	// Create suggestions based on input
 	const [suggestions, setSuggestions] = useState([])
+	const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+
+	// Function to fetch student ID suggestions
+	const fetchStudentIdSuggestions = useCallback(
+		async searchTerm => {
+			if (!searchTerm.trim() || disableStudentIdSearch) return []
+
+			try {
+				setLoadingSuggestions(true)
+				const response = await axios.get(
+					`/api/students/ids?search=${encodeURIComponent(searchTerm)}`
+				)
+				const data = response.data
+				return data.map(student => ({
+					label: student.display,
+					field: 'search',
+					type: 'student_id',
+					value: student.student_id,
+				}))
+			} catch (error) {
+				console.error('Error fetching student ID suggestions:', error)
+				return []
+			} finally {
+				setLoadingSuggestions(false)
+			}
+		},
+		[disableStudentIdSearch]
+	)
 
 	useEffect(() => {
 		if (!inputValue.trim()) {
@@ -162,13 +192,30 @@ const Filter = ({
 			return
 		}
 
-		const filtered = allFilterOptions.filter(option =>
-			option.label.toLowerCase().includes(inputValue.toLowerCase())
-		)
-		setSuggestions(filtered)
-		setNoMatches(inputValue.trim().length > 0 && filtered.length === 0)
-		setShowSuggestions(true)
-	}, [inputValue, allFilterOptions])
+		const getSuggestions = async () => {
+			// Get static filter suggestions
+			const staticSuggestions = allFilterOptions.filter(option =>
+				option.label.toLowerCase().includes(inputValue.toLowerCase())
+			)
+
+			// Get dynamic student ID suggestions
+			const studentIdSuggestions = await fetchStudentIdSuggestions(inputValue)
+
+			// Combine both types of suggestions
+			const combinedSuggestions = [
+				...staticSuggestions,
+				...studentIdSuggestions,
+			]
+
+			setSuggestions(combinedSuggestions)
+			setNoMatches(
+				inputValue.trim().length > 0 && combinedSuggestions.length === 0
+			)
+			setShowSuggestions(true)
+		}
+
+		getSuggestions()
+	}, [inputValue, allFilterOptions, fetchStudentIdSuggestions])
 
 	// Debounce input changes for performance
 	const debouncedSetInputValue = useMemo(
@@ -206,11 +253,18 @@ const Filter = ({
 
 	const handleSuggestionClick = useCallback(
 		suggestion => {
-			handleChange(
-				suggestion.field,
-				suggestion.type === 'checkbox' ? [suggestion.label] : suggestion.label
-			)
-			setInputValue(suggestion.label)
+			if (suggestion.type === 'student_id') {
+				// For student ID suggestions, set the search field with the student ID
+				handleChange('search', suggestion.value)
+				setInputValue(suggestion.value)
+			} else {
+				// For regular filter suggestions
+				handleChange(
+					suggestion.field,
+					suggestion.type === 'checkbox' ? [suggestion.label] : suggestion.label
+				)
+				setInputValue(suggestion.label)
+			}
 			setShowSuggestions(false)
 		},
 		[handleChange]
@@ -565,6 +619,7 @@ Filter.propTypes = {
 	viewMode: PropTypes.string,
 	onViewModeChange: PropTypes.func,
 	persistKey: PropTypes.string,
+	disableStudentIdSearch: PropTypes.bool,
 }
 
 export default Filter
