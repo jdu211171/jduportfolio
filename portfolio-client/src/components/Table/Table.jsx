@@ -758,61 +758,109 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																borderRadius: '8px',
 															}}
 														>
-															{row.visibility ? (
-																<div
-																	style={{
-																		display: 'flex',
-																		alignItems: 'center',
-																		gap: '4px',
-																		backgroundColor: '#4caf5015',
-																		padding: '4px 8px',
-																		borderRadius: '12px',
-																	}}
-																>
-																	<CheckCircleIcon
-																		sx={{
-																			color: '#4caf50',
-																			fontSize: '16px',
-																		}}
-																	/>
-																	<span
+															{(() => {
+																// Checking logic based on draft status and visibility
+																const draftStatus = row.draft?.status
+																let color, icon, text
+
+																if (row.visibility === true) {
+																	// Agar visibility true bo'lsa - public/tasdiqlangan
+																	color = '#4caf50'
+																	icon = 'approved'
+																	text = '承認済'
+																} else if (
+																	draftStatus === 'submitted' ||
+																	draftStatus === 'checking'
+																) {
+																	// Draft yuborilgan yoki tekshirilmoqda - checking holati
+																	color = '#ff9800'
+																	icon = 'pending'
+																	text = '未確認'
+																} else if (
+																	draftStatus === 'disapproved' ||
+																	draftStatus === 'resubmission_required'
+																) {
+																	// Draft rad etilgan
+																	color = '#f44336'
+																	icon = 'rejected'
+																	text = '差し戻し'
+																} else {
+																	// Default holat (draft yo'q yoki boshqa holatlar)
+																	// visibility false bo'lsa va draft holati aniq emas bo'lsa
+																	color = '#ff9800'
+																	icon = 'pending'
+																	text = '未確認'
+																}
+
+																return (
+																	<div
 																		style={{
-																			color: '#4caf50',
-																			fontSize: '12px',
-																			fontWeight: '500',
+																			display: 'flex',
+																			alignItems: 'center',
+																			gap: '4px',
+																			backgroundColor: `${color}15`,
+																			padding: '4px 8px',
+																			borderRadius: '12px',
+																			position: 'relative',
 																		}}
+																		title={
+																			row.draft?.comments
+																				? `コメント: ${row.draft.comments}`
+																				: ''
+																		}
 																	>
-																		承認済
-																	</span>
-																</div>
-															) : (
-																<div
-																	style={{
-																		display: 'flex',
-																		alignItems: 'center',
-																		gap: '4px',
-																		backgroundColor: '#f4433615',
-																		padding: '4px 8px',
-																		borderRadius: '12px',
-																	}}
-																>
-																	<CancelIcon
-																		sx={{
-																			color: '#f44336',
-																			fontSize: '16px',
-																		}}
-																	/>
-																	<span
-																		style={{
-																			color: '#f44336',
-																			fontSize: '12px',
-																			fontWeight: '500',
-																		}}
-																	>
-																		差し戻し
-																	</span>
-																</div>
-															)}
+																		{icon === 'approved' && (
+																			<CheckCircleIcon
+																				sx={{
+																					color: color,
+																					fontSize: '16px',
+																				}}
+																			/>
+																		)}
+																		{icon === 'rejected' && (
+																			<CancelIcon
+																				sx={{
+																					color: color,
+																					fontSize: '16px',
+																				}}
+																			/>
+																		)}
+																		{icon === 'pending' && (
+																			<PendingIcon
+																				sx={{
+																					color: color,
+																					fontSize: '16px',
+																				}}
+																			/>
+																		)}
+																		<span
+																			style={{
+																				color: color,
+																				fontSize: '12px',
+																				fontWeight: '500',
+																			}}
+																		>
+																			{text}
+																		</span>
+																		{/* Show comment indicator when there are staff comments */}
+																		{row.draft?.comments &&
+																			(draftStatus === 'disapproved' ||
+																				draftStatus ===
+																					'resubmission_required') && (
+																				<span
+																					style={{
+																						color: color,
+																						fontSize: '10px',
+																						marginLeft: '2px',
+																					}}
+																					title={`スタッフコメント: ${row.draft.comments}`}
+																				>
+																					💬
+																				</span>
+																			)}
+																	</div>
+																)
+															})()}
 														</div>
 													) : header.type === 'visibility_toggle' ? (
 														<div
@@ -826,7 +874,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
+																disabled={header.disabled || false}
 																onChange={async e => {
+																	// Prevent changes if disabled
+																	if (header.disabled) {
+																		return
+																	}
+
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 

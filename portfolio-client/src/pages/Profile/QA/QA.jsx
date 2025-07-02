@@ -185,7 +185,7 @@ const QA = ({
 		try {
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
-				comments: comment.comment,
+				comments: comment.comments,
 			})
 			showAlert(t['profileConfirmed'], 'success')
 		} catch (error) {
@@ -554,7 +554,10 @@ const QA = ({
 					)}
 			</Box>
 
-			<Box my={2}>
+			<Box
+				my={2}
+				sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+			>
 				{!editMode &&
 					Object.entries(getCategoryData(subTabIndex)).map(
 						([key, { question, answer }]) =>

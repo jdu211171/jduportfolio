@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import Table from '../../components/Table/Table'
@@ -7,10 +7,12 @@ import Filter from '../../components/Filter/Filter'
 import axios from '../../utils/axiosUtils'
 import { useAlert } from '../../contexts/AlertContext'
 import { useLanguage } from '../../contexts/LanguageContext'
+import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
 
 const Student = ({ OnlyBookmarked = false }) => {
 	const { language } = useLanguage()
+	const { role } = useContext(UserContext)
 	const t = key => translations[language][key] || key
 	const [filterState, setFilterState] = useState({})
 
@@ -288,6 +290,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: '公開状況',
 			minWidth: '100px',
 			onToggle: setProfileVisibility,
+			disabled: role === 'Staff', // Disable for staff users
 		},
 		{
 			id: 'email',
