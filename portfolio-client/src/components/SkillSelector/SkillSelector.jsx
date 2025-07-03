@@ -29,8 +29,8 @@ const SkillSelector = ({
 	showHeaders,
 	icon,
 }) => {
-	const [jsonData, setJsonData] = useState(data[keyName])
-	const [editJsonData, setEditJsonData] = useState(editData[keyName])
+	const [jsonData, setJsonData] = useState(data[keyName] || {})
+	const [editJsonData, setEditJsonData] = useState(editData[keyName] || {})
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
 
@@ -38,15 +38,19 @@ const SkillSelector = ({
 
 	const t = key => translations[language][key] || key
 	useEffect(() => {
-		setJsonData(data[keyName])
-		setEditJsonData(editData[keyName])
-	}, [data])
+		setJsonData(data[keyName] || {})
+		setEditJsonData(editData[keyName] || {})
+	}, [data, editData, keyName])
 	const handleAddSkill = () => {
 		if (selectedSkill && selectedLevel) {
 			let skillExists = false
-			Object.keys(editJsonData).forEach(level => {
+			const currentEditData = editJsonData || {}
+			Object.keys(currentEditData).forEach(level => {
 				if (
-					editJsonData[level].some(skill => skill.name === selectedSkill.name)
+					currentEditData[level] &&
+					currentEditData[level].some(
+						skill => skill.name === selectedSkill.name
+					)
 				) {
 					skillExists = true
 
@@ -61,9 +65,9 @@ const SkillSelector = ({
 			}
 
 			const updatedSkills = {
-				...editJsonData,
+				...currentEditData,
 				[selectedLevel]: [
-					...(editJsonData[selectedLevel] || []),
+					...(currentEditData[selectedLevel] || []),
 					{
 						name: selectedSkill.name,
 						color: selectedSkill.color,
@@ -76,9 +80,10 @@ const SkillSelector = ({
 	}
 
 	const handleDeleteSkill = (skillToDelete, level) => {
+		const currentEditData = editJsonData || {}
 		const updatedSkills = {
-			...editJsonData,
-			[level]: editJsonData[level].filter(
+			...currentEditData,
+			[level]: (currentEditData[level] || []).filter(
 				skill => skill.name !== skillToDelete.name
 			),
 		}
@@ -151,12 +156,12 @@ const SkillSelector = ({
 			<div className={styles.data}>
 				<table>
 					<tbody>
-						{Object.entries(editMode ? editJsonData : jsonData).map(
+						{Object.entries((editMode ? editJsonData : jsonData) || {}).map(
 							([level, skills]) => (
 								<tr key={level}>
 									<td style={{ fontSize: 14 }}>{t('levels')[level]}</td>
 									<td>
-										{skills.map((skill, index) => (
+										{(skills || []).map((skill, index) => (
 											<Chip
 												key={level + index}
 												label={

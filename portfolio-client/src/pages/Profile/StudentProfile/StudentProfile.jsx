@@ -152,9 +152,7 @@ const StudentProfile = ({ userId = 0 }) => {
 							<div style={{ display: 'flex', gap: 10 }}>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>jlpt tarjima:</div>
-									<div>
-										{getJLPTData(student.jdu_japanese_certification).highest}
-									</div>
+									<div>{getJLPTData(student.jlpt).highest}</div>
 								</div>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>卒業見込み:</div>

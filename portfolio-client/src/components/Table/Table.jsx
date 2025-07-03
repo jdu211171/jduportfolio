@@ -568,10 +568,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	return '135px'
 																case '公開状況':
 																	return '120px'
-																case '学生ID':
-																case '学籍番号':
-																case 'Student ID':
-																	return '110px'
 																default:
 																	return header.minWidth
 															}
@@ -878,13 +874,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
-																disabled={header.disabled || false}
 																onChange={async e => {
-																	// Prevent changes if disabled
-																	if (header.disabled) {
-																		return
-																	}
-
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 
