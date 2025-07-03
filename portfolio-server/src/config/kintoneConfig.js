@@ -16,7 +16,7 @@ const apps = {
 
 	// STUDENTGA BOG'LIQ ILOVALAR
 	student_credits: {
-		appId: '233',
+		appId: '232',
 		token: process.env.KINTONE_STUDENT_CREDITS_TOKEN,
 	},
 	student_ielts: {
