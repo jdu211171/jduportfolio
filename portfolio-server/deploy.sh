@@ -158,7 +158,7 @@ DEPLOY_COMMANDS="cd $EC2_PATH && \
   npm run migrate || echo 'Warning: Migrations failed or no new migrations' && \
   echo 'Starting PM2 service...' && \
   pm2 delete $PM2_SERVICE_NAME 2>/dev/null || echo 'No existing PM2 process to delete' && \
-  pm2 start ecosystem.config.js --update-env || { echo 'ERROR: Failed to start PM2 service'; exit 1; } && \
+  pm2 start ecosystem.config.js --env ${DEPLOY_ENV:-development} --update-env || { echo 'ERROR: Failed to start PM2 service'; exit 1; } && \
   echo 'Saving PM2 configuration...' && \
   pm2 save || echo 'Warning: Failed to save PM2 configuration' && \
   echo 'Verifying service is running...' && \
