@@ -288,7 +288,14 @@ const Top = () => {
 		return {
 			...data,
 			draft: draftKeys.reduce((acc, key) => {
-				acc[key] = data[key] || ''
+				// For certificate fields, parse JSON and extract highest value
+				if (key === 'jlpt' || key === 'jdu_japanese_certification') {
+					acc[key] = getJLPTData(data[key]).highest
+				} else if (key === 'japanese_speech_contest' || key === 'it_contest') {
+					acc[key] = getCertificateData(data[key]).highest
+				} else {
+					acc[key] = data[key] || ''
+				}
 				return acc
 			}, {}),
 		}
