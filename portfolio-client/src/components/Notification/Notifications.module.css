@@ -55,7 +55,7 @@
 	height: 0;
 	border-left: 0.5rem solid transparent;
 	border-right: 0.5rem solid transparent;
-	border-bottom: 0.5rem solid #4682b4;
+	border-bottom: 0.5rem solid #5627dc !important;
 	z-index: 2001;
 }
 
