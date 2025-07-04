@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react'
+import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
+import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
+import CodeIcon from '@mui/icons-material/Code'
+import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
+import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined'
+import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone'
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
+import TranslateIcon from '@mui/icons-material/Translate'
+import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
+import { Box, Button } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import { useLocation, useParams } from 'react-router-dom'
-import ReactDOM from 'react-dom'
-import axios from '../../../utils/axiosUtils'
-import { Box, Tabs, Tab, Button, Chip } from '@mui/material'
-import Gallery from '../../../components/Gallery'
-import TextField from '../../../components/TextField/TextField'
-import SkillSelector from '../../../components/SkillSelector/SkillSelector'
+import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
 import Deliverables from '../../../components/Deliverables/Deliverables'
-import QA from '../../../pages/Profile/QA/QA'
+import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
+import SkillSelector from '../../../components/SkillSelector/SkillSelector'
+import TextField from '../../../components/TextField/TextField'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import translations from '../../../locales/translations'
+import QA from '../../../pages/Profile/QA/QA'
+import axios from '../../../utils/axiosUtils'
 import styles from './Top.module.css'
-import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 
 const Top = () => {
 	let id
@@ -26,12 +36,54 @@ const Top = () => {
 
 	const t = key => translations[language][key] || key
 
+	// Helper function to safely parse JLPT data
+	const getJLPTData = jlptString => {
+		try {
+			if (!jlptString) return { highest: 'なし' }
+			const parsed = JSON.parse(jlptString)
+			return parsed || { highest: 'なし' }
+		} catch (error) {
+			console.error('Error parsing JLPT data:', error)
+			return { highest: 'なし' }
+		}
+	}
+
+	// Helper function to safely parse certificate data (for japanese_speech_contest and it_contest)
+	const getCertificateData = certificateString => {
+		try {
+			if (
+				!certificateString ||
+				certificateString === 'null' ||
+				certificateString === 'undefined'
+			)
+				return { highest: '未提出', list: [] }
+
+			// Check if it's already a string (not JSON)
+			if (typeof certificateString === 'string') {
+				// Try to parse as JSON first
+				try {
+					const parsed = JSON.parse(certificateString)
+					return parsed && parsed.highest
+						? parsed
+						: { highest: certificateString, list: [] }
+				} catch {
+					// If it's not valid JSON, treat it as a plain string
+					return { highest: certificateString, list: [] }
+				}
+			}
+
+			return { highest: '未提出', list: [] }
+		} catch (error) {
+			console.error('Error parsing certificate data:', error)
+			return { highest: '未提出', list: [] }
+		}
+	}
+
 	if (userId !== 0 && userId) {
 		id = userId
 	} else {
 		id = studentId
 	}
-
 	const [student, setStudent] = useState(null)
 	const [editData, setEditData] = useState({})
 	const [editMode, setEditMode] = useState(false)
@@ -45,6 +97,27 @@ const Top = () => {
 	const [hasDraft, setHasDraft] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 	const [confirmMode, setConfirmMode] = useState(false)
+	const [activeUniver, setActiveUniver] = useState('JDU')
+	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
+		useState(false)
+
+	// ✅ Portal container state
+	const [portalContainer, setPortalContainer] = useState(null)
+
+	// ✅ Portal container check effect
+	useEffect(() => {
+		const checkPortalContainer = () => {
+			const container = document.getElementById('saveButton')
+			if (container) {
+				setPortalContainer(container)
+			} else {
+				// Agar container topilmasa, setTimeout bilan qayta urinish
+				setTimeout(checkPortalContainer, 100)
+			}
+		}
+
+		checkPortalContainer()
+	}, [])
 
 	useEffect(() => {
 		const loadData = async () => {
@@ -91,7 +164,6 @@ const Top = () => {
 			setEditData(mappedData)
 			setHasDraft(true)
 			SetUpdateQA(!updateQA)
-			setCurrentDraft(statedata.draft)
 		}
 	}
 
@@ -105,15 +177,12 @@ const Top = () => {
 				return
 			}
 
-			console.log('🔍 Fetching draft for student:', studentIdToUse)
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data) {
 				const studentData = { ...response.data }
 				const draftData = studentData.draft
 				delete studentData.draft
-
-				console.log('📄 Latest draft data received:', draftData)
 
 				if (draftData) {
 					setCurrentDraft(draftData)
@@ -132,7 +201,6 @@ const Top = () => {
 					draft: draftData ? draftData.profile_data : {},
 				}
 
-				console.log('✅ Setting student and editData with latest draft:', mappedData)
 				setStudent(mappedData)
 				setEditData(mappedData)
 				SetUpdateQA(!updateQA)
@@ -173,15 +241,13 @@ const Top = () => {
 
 	const fetchDraft = async (studentData = null) => {
 		try {
-			const studentIdToUse = studentData?.student_id || student?.student_id || id
-			console.log('🔍 Fetching draft for staff view:', studentIdToUse)
+			const studentIdToUse =
+				studentData?.student_id || student?.student_id || id
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data && response.data.draft) {
 				setHasDraft(true)
 				const draft = response.data.draft
-
-				console.log('📄 Draft data for staff:', draft)
 
 				if (draft.status === 'checking' || draft.status === 'approved') {
 					setIsChecking(true)
@@ -199,7 +265,6 @@ const Top = () => {
 							...(draft.profile_data || {}),
 						},
 					}
-					console.log('✅ Updated editData with latest draft:', updatedEditData)
 					return updatedEditData
 				})
 
@@ -222,16 +287,27 @@ const Top = () => {
 			'other_information',
 			'it_skills',
 			'skills',
+			'address',
+			'jlpt',
+			'jdu_japanese_certification',
+			'japanese_speech_contest',
+			'it_contest',
 		]
 		return {
 			...data,
 			draft: draftKeys.reduce((acc, key) => {
-				acc[key] = data[key] || ''
+				// For certificate fields, parse JSON and extract highest value
+				if (key === 'jlpt' || key === 'jdu_japanese_certification') {
+					acc[key] = getJLPTData(data[key]).highest
+				} else if (key === 'japanese_speech_contest' || key === 'it_contest') {
+					acc[key] = getCertificateData(data[key]).highest
+				} else {
+					acc[key] = data[key] || ''
+				}
 				return acc
 			}, {}),
 		}
 	}
-
 	const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
@@ -288,14 +364,20 @@ const Top = () => {
 		if (res.status === 200) {
 			showAlert(t('setToChecking'), 'success')
 			setIsChecking(true)
+			// Update the currentDraft state to reflect the new status
+			setCurrentDraft(prevDraft => ({
+				...prevDraft,
+				status: 'checking',
+				reviewed_by: userId,
+			}))
 		}
 	}
 
-	const handleUpdateEditData = (key, value) => {
+	const handleUpdateEditData = (key, value, parentKey = 'draft') => {
 		setEditData(prevEditData => ({
 			...prevEditData,
-			draft: {
-				...prevEditData.draft,
+			[parentKey]: {
+				...prevEditData[parentKey],
 				[key]: value,
 			},
 		}))
@@ -347,43 +429,6 @@ const Top = () => {
 			...prevImages,
 			[activeDeliverable]: file,
 		}))
-	}
-
-	// ✅ TO'G'IRLANGAN toggleEditMode - eng so'ngi draft'ni oladi
-	const toggleEditMode = async () => {
-		if (!editMode) {
-			// Edit mode yoqilganda eng so'ngi draft'ni olish
-			console.log('🔄 Fetching latest draft for edit mode...')
-
-			try {
-				const studentIdToUse = role === 'Student' ? getStudentIdFromLoginUser() : id
-				const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
-
-				if (response.data && response.data.draft) {
-					console.log('📄 Latest draft loaded for edit mode:', response.data.draft)
-
-					const latestDraft = response.data.draft
-					setCurrentDraft(latestDraft)
-
-					// EditData'ni eng so'ngi draft bilan yangilash
-					const updatedEditData = {
-						...editData,
-						draft: latestDraft.profile_data || {}
-					}
-
-					setEditData(updatedEditData)
-					setStudent(updatedEditData) // Student'ni ham yangilash
-					SetUpdateQA(!updateQA)
-
-					console.log('✅ Edit data updated with latest draft:', updatedEditData)
-				}
-			} catch (error) {
-				console.error('❌ Error fetching latest draft for edit mode:', error)
-				showAlert('Error loading latest draft', 'error')
-			}
-		}
-
-		setEditMode(prev => !prev)
 	}
 
 	const handleSave = async () => {
@@ -451,71 +496,148 @@ const Top = () => {
 
 	const handleDraftUpsert = async () => {
 		try {
-			const formData = new FormData()
-			newImages.forEach((file, index) => {
-				formData.append(`files[${index}]`, file)
-			})
-			formData.append('role', role)
-			formData.append('imageType', 'Gallery')
-			formData.append('id', id)
-			deletedUrls.forEach((url, index) => {
-				formData.append(`oldFilePath[${index}]`, url)
-			})
+			console.log('Starting draft upsert...')
+			console.log('Deliverable images:', deliverableImages)
+			console.log('Edit data deliverables:', editData.draft.deliverables)
 
-			const fileResponse = await axios.post('/api/files/upload', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			})
-
-			let oldFiles = editData.draft.gallery || []
-			if (Array.isArray(fileResponse.data)) {
-				fileResponse.data.forEach(file => {
-					oldFiles.push(file.Location)
+			// First, upload gallery images if any
+			if (newImages.length > 0) {
+				const formData = new FormData()
+				newImages.forEach((file, index) => {
+					formData.append(`files`, file) // Use 'files' for multiple uploads
 				})
-			} else if (fileResponse.data.Location) {
-				oldFiles.push(fileResponse.data.Location)
+				formData.append('role', role)
+				formData.append('imageType', 'Gallery')
+				formData.append('id', id)
+				deletedUrls.forEach((url, index) => {
+					formData.append(`oldFilePath[${index}]`, url)
+				})
+
+				const fileResponse = await axios.post(
+					'/api/files/upload-multiple',
+					formData,
+					{
+						headers: { 'Content-Type': 'multipart/form-data' },
+					}
+				)
+
+				let oldFiles = editData.draft.gallery || []
+				if (Array.isArray(fileResponse.data)) {
+					fileResponse.data.forEach(file => {
+						oldFiles.push(file.Location)
+					})
+				}
+				await handleUpdateEditData('gallery', oldFiles)
 			}
-			await handleUpdateEditData('gallery', oldFiles)
+
+			// Upload deliverable images
+			const updatedDeliverables = [...(editData.draft.deliverables || [])]
 
 			for (const [index, file] of Object.entries(deliverableImages)) {
 				if (file) {
+					console.log(`Uploading deliverable image for index ${index}`)
 					const deliverableFormData = new FormData()
 					deliverableFormData.append('role', role)
 					deliverableFormData.append('file', file)
 					deliverableFormData.append('imageType', 'Deliverable')
 					deliverableFormData.append('id', id)
-					deliverableFormData.append(
-						'oldFilePath',
-						editData.draft.deliverables[index]?.imageLink || ''
-					)
-					const deliverableFileResponse = await axios.post(
-						'/api/files/upload',
-						deliverableFormData,
-						{ headers: { 'Content-Type': 'multipart/form-data' } }
-					)
-					const deliverableImageLink = deliverableFileResponse.data.Location
-					editData.draft.deliverables[index].imageLink = deliverableImageLink
+
+					// Get existing image URL to replace
+					const existingImageUrl = updatedDeliverables[index]?.imageLink || ''
+					if (existingImageUrl && !existingImageUrl.startsWith('blob:')) {
+						deliverableFormData.append('oldFilePath', existingImageUrl)
+					}
+
+					try {
+						const deliverableFileResponse = await axios.post(
+							'/api/files/upload',
+							deliverableFormData,
+							{ headers: { 'Content-Type': 'multipart/form-data' } }
+						)
+
+						console.log(
+							'Deliverable image upload response:',
+							deliverableFileResponse.data
+						)
+
+						if (deliverableFileResponse.data.Location) {
+							// Make sure we have a deliverable at this index
+							if (!updatedDeliverables[index]) {
+								updatedDeliverables[index] = {
+									title: '',
+									description: '',
+									link: '',
+									role: [],
+									codeLink: '',
+									imageLink: '',
+								}
+							}
+							updatedDeliverables[index].imageLink =
+								deliverableFileResponse.data.Location
+							console.log(
+								`Updated deliverable ${index} with image URL:`,
+								deliverableFileResponse.data.Location
+							)
+						}
+					} catch (imageUploadError) {
+						console.error(
+							`Error uploading deliverable image ${index}:`,
+							imageUploadError
+						)
+					}
 				}
 			}
+
+			// Update the deliverables in editData
+			await handleUpdateEditData('deliverables', updatedDeliverables)
 
 			const studentIdToUse = student.student_id || id
 
 			const draftData = {
 				student_id: studentIdToUse,
-				profile_data: editData.draft,
+				profile_data: {
+					...editData.draft,
+					deliverables: updatedDeliverables,
+				},
 				status: 'draft',
 				submit_count: currentDraft.submit_count || 0,
 			}
 
-			console.log('💾 Saving draft with data:', draftData)
-			const res = await axios.post(`/api/draft`, draftData)
-			console.log('✅ Draft saved successfully:', res.data)
+			console.log('Saving draft with data:', draftData)
 
-			setCurrentDraft(res.data.draft)
+			let res
+			if (currentDraft.id) {
+				// Update existing draft
+				res = await axios.put(`/api/draft/${currentDraft.id}`, {
+					profile_data: draftData.profile_data,
+					status: draftData.status,
+				})
+			} else {
+				// Create new draft
+				res = await axios.post(`/api/draft`, draftData)
+			}
+
+			console.log('Draft save response:', res.data)
+
+			setCurrentDraft(res.data.draft || res.data)
 			setHasDraft(true)
 
-			setStudent(editData)
+			// Update student data with new deliverables
+			const updatedStudent = {
+				...editData,
+				draft: {
+					...editData.draft,
+					deliverables: updatedDeliverables,
+				},
+			}
+			setStudent(updatedStudent)
+			setEditData(updatedStudent)
+
+			// Clear temporary data
 			setNewImages([])
 			setDeletedUrls([])
+			setDeliverableImages({})
+			setResetDeliverablePreviews(prev => !prev) // Trigger reset
 			setEditMode(false)
 			showAlert(t('changesSavedSuccessfully'), 'success')
 		} catch (error) {
@@ -527,7 +649,6 @@ const Top = () => {
 	const toggleConfirmMode = () => {
 		setConfirmMode(prev => !prev)
 	}
-
 	const handleConfirmProfile = async () => {
 		try {
 			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
@@ -550,18 +671,10 @@ const Top = () => {
 		setSubTabIndex(newIndex)
 	}
 
-	// ✅ Debug uchun ma'lumotlar o'zgarishini kuzatish
-	useEffect(() => {
-		console.log('🔍 Data state changed:')
-		console.log('📊 student.draft:', student?.draft)
-		console.log('📝 editData.draft:', editData?.draft)
-		console.log('📋 currentDraft:', currentDraft)
-		console.log('🎛️ editMode:', editMode)
-	}, [student, editData, currentDraft, editMode])
-
 	if (isLoading) {
 		return <div>{t('loading')}</div>
 	}
+	console.log(student)
 
 	if (!student) {
 		return <div>{t('noDataFound')}</div>
@@ -569,109 +682,154 @@ const Top = () => {
 
 	const portalContent = (
 		<Box className={styles.buttonsContainer}>
-			{role === 'Student' && (
+			{editMode ? (
 				<>
-					{editMode ? (
-						<>
-							<Button
-								onClick={handleDraftUpsert}
-								variant='contained'
-								color='primary'
-								size='small'
-							>
-								{t('updateDraft')}
-							</Button>
-							<Button
-								onClick={handleCancel}
-								variant='outlined'
-								color='error'
-								size='small'
-							>
-								{t('cancel')}
-							</Button>
-						</>
-					) : (
-						<>
-							<Button
-								onClick={toggleEditMode}
-								variant='contained'
-								color='primary'
-								size='small'
-							>
-								{t('editProfile')}
-							</Button>
+					<Button
+						onClick={handleDraftUpsert}
+						variant='contained'
+						color='primary'
+						size='small'
+					>
+						{t('updateDraft')}
+					</Button>
+					<Button
+						onClick={handleCancel}
+						variant='outlined'
+						color='error'
+						size='small'
+					>
+						{t('cancel')}
+					</Button>
+				</>
+			) : (
+				<>
+					<Button
+						onClick={() => {
+							setEditMode(prev => !prev)
+						}}
+						variant='contained'
+						color='primary'
+						size='small'
+					>
+						{t('editProfile')}
+					</Button>
 
-							{hasDraft && currentDraft && currentDraft.status === 'draft' && (
-								<Button
-									onClick={toggleConfirmMode}
-									variant='contained'
-									color='success'
-									size='small'
-									sx={{ ml: 1 }}
-								>
-									{t('submitAgree')}
-								</Button>
-							)}
-						</>
-					)}
+					{hasDraft && currentDraft && currentDraft.status === 'draft' ? (
+						<Button
+							onClick={toggleConfirmMode}
+							variant='contained'
+							color='success'
+							size='small'
+							sx={{ ml: 1 }}
+						>
+							{t('submitAgree')}
+						</Button>
+					) : null}
 				</>
 			)}
 		</Box>
 	)
-
+	const creditMap = {
+		JDU: student.japanese_employment_credits,
+		'University of World Languages': student.world_language_university_credits,
+		[String(student.partner_university)]: student.partner_university_credits,
+	}
 	return (
-		<Box my={2}>
-			<>
-				{subTabIndex !== 2 &&
-					ReactDOM.createPortal(
-						portalContent,
-						document.getElementById('saveButton')
-					)}
-			</>
-			<Box className={styles.TabsContainer}>
-				<Tabs
-					className={styles.Tabs}
-					value={subTabIndex}
-					onChange={handleSubTabChange}
-				>
-					<Tab label={t('selfIntroduction')} />
-					<Tab label={t('deliverables')} />
-					<Tab label={t('qa')} />
-				</Tabs>
+		<Box mb={2}>
+			{/* ✅ Portal container mavjudligini tekshirish */}
+			{portalContainer && role === 'Student'
+				? createPortal(portalContent, portalContainer)
+				: null}
 
-				{role === 'Student' && hasDraft && currentDraft && (
-					<Box sx={{ display: 'flex', gap: 1 }}>
-						<Chip
-							label={
-								currentDraft.status === 'submitted'
-									? t('submitted_draft')
-									: currentDraft.status === 'approved'
-										? t('approved_draft')
-										: currentDraft.status === 'disapproved'
-											? t('disapproved_draft')
-											: currentDraft.status === 'resubmission_required'
-												? t('resubmission_required_draft')
-												: t('draft')
-							}
-							size='small'
-							color={
-								currentDraft.status === 'submitted'
-									? 'primary'
-									: currentDraft.status === 'approved'
-										? 'success'
-										: currentDraft.status === 'disapproved'
-											? 'error'
-											: currentDraft.status === 'resubmission_required'
-												? 'warning'
-												: 'default'
-							}
-							variant='outlined'
-						/>
+			<div
+				style={{
+					borderTop: '1px solid #e1e1e1',
+					backgroundColor: '#ffffff',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'start',
+					padding: '20px 16px',
+					gap: 32,
+					borderEndEndRadius: 10,
+					borderEndStartRadius: 10,
+				}}
+			>
+				{['selfIntroduction', 'skill', 'deliverables', 'credits', 'qa'].map(
+					(item, ind) => (
+						<div
+							key={ind}
+							style={{
+								fontWeight: 500,
+								fontSize: 16,
+								color: subTabIndex === ind ? '#5627db' : '#4b4b4b',
+								borderBottom:
+									subTabIndex === ind ? '2px solid #5627db' : '#4b4b4b',
+								cursor: 'pointer',
+							}}
+							onClick={() => {
+								setSubTabIndex(ind)
+							}}
+						>
+							{t(item)}
+						</div>
+					)
+				)}
+			</div>
+
+			{/* Staff Comment Display Section for Students */}
+			{role === 'Student' &&
+				currentDraft &&
+				currentDraft.comments &&
+				(currentDraft.status === 'resubmission_required' ||
+					currentDraft.status === 'disapproved') && (
+					<Box
+						sx={{
+							my: 2,
+							mx: 2,
+							p: 2,
+							backgroundColor: '#fff3e0',
+							border: '1px solid #ff9800',
+							borderRadius: '8px',
+							borderLeft: '4px solid #ff9800',
+						}}
+					>
+						<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+							<span style={{ fontWeight: 'bold', color: '#e65100' }}>
+								スタッフからのフィードバック
+							</span>
+						</Box>
+						<Box
+							sx={{
+								backgroundColor: '#ffffff',
+								p: 2,
+								borderRadius: '4px',
+								border: '1px solid #ffcc80',
+							}}
+						>
+							<pre
+								style={{
+									whiteSpace: 'pre-wrap',
+									wordWrap: 'break-word',
+									fontFamily: 'inherit',
+									margin: 0,
+									color: '#424242',
+								}}
+							>
+								{currentDraft.comments}
+							</pre>
+						</Box>
+						<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>
+							プロフィールを修正して再度提出してください。
+						</Box>
 					</Box>
 				)}
-			</Box>
 
-			{role === 'Staff' && !isChecking && currentDraft && currentDraft.id && (
+			{role === 'Staff' &&
+			!isLoading &&
+			currentDraft &&
+			currentDraft.id &&
+			currentDraft.status !== 'checking' &&
+			currentDraft.status !== 'approved' ? (
 				<Box
 					sx={{
 						my: 2,
@@ -689,95 +847,447 @@ const Top = () => {
 						{t('start_checking')}
 					</Button>
 				</Box>
-			)}
-
+			) : null}
+			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>
 					<TextField
 						title={t('selfIntroduction')}
-						data={editData.draft.self_introduction || ''}
+						data={student.draft.self_introduction}
 						editData={editData}
 						editMode={editMode}
 						updateEditData={handleUpdateEditData}
 						keyName='self_introduction'
 						parentKey='draft'
+						icon={BadgeOutlinedIcon}
+						imageUrl={student.photo}
 					/>
-					<Gallery
-						galleryUrls={editData}
-						newImages={newImages}
-						deletedUrls={deletedUrls}
-						editMode={editMode}
-						updateEditData={handleGalleryUpdate}
-						keyName='gallery'
-						parentKey='draft'
-					/>
-					<TextField
-						title={t('hobbies')}
-						data={editData.draft.hobbies || ''}
-						editData={editData}
-						editMode={editMode}
-						updateEditData={handleUpdateEditData}
-						keyName='hobbies'
-						parentKey='draft'
-					/>
-					<TextField
-						title={t('specialSkills')}
-						data={editData.draft.other_information || ''}
-						editData={editData}
-						editMode={editMode}
-						updateEditData={handleUpdateEditData}
-						keyName='other_information'
-						parentKey='draft'
-					/>
-					<SkillSelector
-						title={t('itSkills')}
-						headers={{
-							上級: t('threeYearsOrMore'),
-							中級: t('threeYearsOrMore'),
-							初級: t('oneToOneAndHalfYears'),
-						}}
-						data={editData}
-						editData={editData}
-						editMode={editMode}
-						updateEditData={handleUpdateEditData}
-						showAutocomplete={true}
-						showHeaders={true}
-						keyName='it_skills'
-						parentKey='draft'
-					/>
-					<SkillSelector
-						title={t('otherSkills')}
-						headers={{
-							上級: '3年間以上',
-							中級: '1年間〜1年間半',
-							初級: '基礎',
-						}}
-						data={editData}
-						editMode={editMode}
-						editData={editData}
-						updateEditData={handleUpdateEditData}
-						showAutocomplete={false}
-						showHeaders={false}
-						keyName='skills'
-						parentKey='draft'
-					/>
+					<div style={{ display: 'flex', gap: 25 }}>
+						<TextField
+							title={t('hobbies')}
+							data={student.draft.hobbies}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							keyName='hobbies'
+							parentKey='draft'
+							icon={FavoriteBorderTwoToneIcon}
+							details={editData.draft?.hobbies_details || ['SF映画', '卓球']}
+						/>
+						<TextField
+							title={t('specialSkills')}
+							data={student.draft.other_information || ''}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							keyName='other_information'
+							parentKey='draft'
+							icon={ElectricBoltIcon}
+							details={
+								editData.draft?.other_information_details || [
+									'Webデザイン',
+									'UX/UI設計',
+								]
+							}
+						/>
+					</div>
+					<div style={{ display: 'flex', gap: 25 }}>
+						<TextField
+							title={t('origin')}
+							data={student.draft.address || student.address}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							keyName='address'
+							parentKey='draft'
+							icon={LocationOnOutlinedIcon}
+						/>
+						<TextField
+							title={t('major')}
+							data={'ITマネジメント'}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							keyName='major'
+							parentKey='draft'
+							icon={SchoolOutlinedIcon}
+						/>
+						<TextField
+							title={t('jobType')}
+							data={'UX/UIデザイナー'}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							keyName='job_type'
+							parentKey='draft'
+							icon={BusinessCenterOutlinedIcon}
+						/>
+					</div>
 				</Box>
 			)}
-
+			{/* skills */}
 			{subTabIndex === 1 && (
 				<Box my={2}>
+					<div className={styles.gridBox}>
+						{console.log('🔍 DEBUG - Student draft data:', student.draft)}
+						{console.log('🔍 DEBUG - Edit data:', editData)}
+						{console.log(
+							'🔍 DEBUG - IT Skills in draft:',
+							student.draft?.it_skills
+						)}
+						<SkillSelector
+							title={t('itSkills')}
+							headers={{
+								上級: t('threeYearsOrMore'),
+								中級: t('threeYearsOrMore'),
+								初級: t('oneToOneAndHalfYears'),
+							}}
+							data={student.draft}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							showAutocomplete={true}
+							keyName='it_skills'
+							parentKey='draft'
+							icon={<CodeIcon sx={{ color: '#5627DB' }} />}
+						/>
+						<div className={styles.skillBox}>
+							<div
+								style={{
+									fontSize: 20,
+									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+								}}
+							>
+								<WorkspacePremiumOutlinedIcon sx={{ color: '#5627DB' }} />
+								{t('qualification')}
+							</div>
+							<div style={{ marginBlock: 30 }}>
+								<div style={{ height: 36 }}>
+									JLPT:
+									{editMode ? (
+										<input
+											type='text'
+											value={
+												editData.draft.jlpt ||
+												getJLPTData(student.jlpt).highest ||
+												''
+											}
+											onChange={e =>
+												handleUpdateEditData('jlpt', e.target.value)
+											}
+											style={{
+												marginLeft: 8,
+												padding: '8px 15px',
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+												width: 120,
+											}}
+										/>
+									) : (
+										<span
+											style={{
+												margin: '0px 10px',
+												padding: '2px 20px',
+												fontWeight: 500,
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+											}}
+										>
+											{editData.draft.jlpt || getJLPTData(student.jlpt).highest}
+										</span>
+									)}
+								</div>
+								<div style={{ height: 36 }}>
+									{t('jdu_certification')}:{' '}
+									{editMode ? (
+										<input
+											type='text'
+											value={
+												editData.draft.jdu_japanese_certification ||
+												getJLPTData(student.jdu_japanese_certification)
+													.highest ||
+												''
+											}
+											onChange={e =>
+												handleUpdateEditData(
+													'jdu_japanese_certification',
+													e.target.value
+												)
+											}
+											style={{
+												marginLeft: 8,
+												padding: '8px 15px',
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+												width: 120,
+											}}
+										/>
+									) : (
+										<span
+											style={{
+												margin: '0px 10px',
+												padding: '2px 20px',
+												fontWeight: 500,
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+											}}
+										>
+											{editData.draft.jdu_japanese_certification ||
+												getJLPTData(student.jdu_japanese_certification).highest}
+										</span>
+									)}
+								</div>
+							</div>
+						</div>
+
+						<SkillSelector
+							title={t('otherSkills')}
+							headers={{
+								上級: '3年間以上',
+								中級: '1年間〜1年間半',
+								初級: '基礎',
+							}}
+							data={student.draft}
+							editMode={editMode}
+							editData={editData}
+							updateEditData={handleUpdateEditData}
+							showAutocomplete={false}
+							showHeaders={false}
+							keyName='skills'
+							parentKey='draft'
+							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
+						/>
+						<div className={styles.skillBox}>
+							<div
+								style={{
+									fontSize: 20,
+									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+								}}
+							>
+								<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />
+								{t('otherSkills')}
+							</div>
+							<div style={{ marginBlock: 30 }}>
+								<div style={{ height: 36 }}>
+									{t('japaneseSpeechContest')}:
+									{editMode ? (
+										<input
+											type='text'
+											value={
+												editData.draft.japanese_speech_contest ||
+												getCertificateData(student.japanese_speech_contest)
+													.highest ||
+												''
+											}
+											onChange={e =>
+												handleUpdateEditData(
+													'japanese_speech_contest',
+													e.target.value
+												)
+											}
+											style={{
+												marginLeft: 8,
+												padding: '8px 15px',
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+												width: 120,
+											}}
+										/>
+									) : (
+										<span
+											style={{
+												margin: '0px 10px',
+												padding: '2px 20px',
+												fontWeight: 500,
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+											}}
+										>
+											{editData.draft.japanese_speech_contest ||
+												getCertificateData(student.japanese_speech_contest)
+													.highest}
+										</span>
+									)}
+								</div>
+								<div>
+									{t('itContest')}:
+									{editMode ? (
+										<input
+											type='text'
+											value={
+												editData.draft.it_contest ||
+												getCertificateData(student.it_contest).highest ||
+												''
+											}
+											onChange={e =>
+												handleUpdateEditData('it_contest', e.target.value)
+											}
+											style={{
+												marginLeft: 8,
+												padding: '8px 15px',
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+												width: 120,
+											}}
+										/>
+									) : (
+										<span
+											style={{
+												margin: '0px 10px',
+												padding: '2px 20px',
+												fontWeight: 500,
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+											}}
+										>
+											{editData.draft.it_contest ||
+												getCertificateData(student.it_contest).highest}
+										</span>
+									)}
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<Box sx={{ my: 2, backgroundColor: '#FFFFFF', padding: 3 }}>
+						<div
+							style={{
+								fontSize: 20,
+								fontWeight: 600,
+								display: 'flex',
+								alignItems: 'center',
+								gap: 8,
+							}}
+						>
+							<TranslateIcon sx={{ color: '#5627DB' }} /> {t('languageSkills')}
+						</div>
+						<div>
+							<div
+								style={{
+									marginTop: 10,
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+								}}
+							>
+								<div>{t('japanese')}</div>
+								<div>
+									{{
+										N5: '20%',
+										N4: '40%',
+										N3: '60%',
+										N2: '80%',
+										N1: '100%',
+									}[student.draft.jlpt || getJLPTData(student.jlpt).highest] ||
+										'0%'}
+								</div>
+							</div>
+							<div
+								style={{
+									width: '100%',
+									height: 10,
+									backgroundColor: '#e6dffa',
+									borderRadius: 10,
+									marginTop: 5,
+								}}
+							>
+								<div
+									style={{
+										backgroundColor: '#5627db',
+										borderRadius: 10,
+										height: 10,
+										width:
+											{
+												N5: '20%',
+												N4: '40%',
+												N3: '60%',
+												N2: '80%',
+												N1: '100%',
+											}[
+												student.draft.jlpt || getJLPTData(student.jlpt).highest
+											] || '0%',
+									}}
+								></div>
+							</div>
+						</div>
+					</Box>
+				</Box>
+			)}
+			{/* deliverables */}
+			{subTabIndex === 2 && (
+				<Box my={2}>
 					<Deliverables
-						data={editData.draft.deliverables || []}
+						data={student.draft.deliverables}
 						editMode={editMode}
-						editData={editData.draft.deliverables || []}
+						editData={editData.draft.deliverables}
 						updateEditData={handleUpdateEditData}
 						onImageUpload={handleImageUpload}
 						keyName='deliverables'
+						resetPreviews={resetDeliverablePreviews}
 					/>
 				</Box>
 			)}
+			{/* QA */}
+			{subTabIndex === 3 && (
+				<Box my={2} backgroundColor={'#FFFFFF'} padding={3}>
+					<div style={{ display: 'flex', gap: 10 }}>
+						{[
+							'JDU',
+							String(student.partner_university),
+							'University of World Languages',
+						].map((item, ind) => (
+							<Button
+								key={ind}
+								variant={item === activeUniver ? 'contained' : 'outlined'}
+								onClick={() => {
+									setActiveUniver(item)
+								}}
+							>
+								{item}
+							</Button>
+						))}
+					</div>
 
-			{subTabIndex === 2 && (
+					<Box
+						sx={{
+							color: '#1E1E1ECC',
+							marginBlock: '20px',
+						}}
+						my={2}
+					>
+						<div>{t('studentCredits')}</div>
+						<div>
+							<span style={{ fontSize: 32, fontWeight: 600, color: 'black' }}>
+								{creditMap[activeUniver] ?? 0}
+							</span>
+							/124
+						</div>
+					</Box>
+					<CreditsProgressBar
+						studentId={student?.student_id}
+						student={{
+							totalCredits: creditMap[activeUniver] ?? 0,
+							semester: student?.semester,
+							university: activeUniver, // Pass university name for target credits calculation
+						}}
+					/>
+				</Box>
+			)}
+			{subTabIndex === 4 && (
 				<Box my={2}>
 					<QA
 						updateQA={updateQA}

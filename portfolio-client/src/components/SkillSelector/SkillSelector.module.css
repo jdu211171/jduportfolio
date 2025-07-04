@@ -1,34 +1,101 @@
 .container {
-	margin: 30px auto;
+	background-color: #ffffff;
+	padding: 20px;
+	border-radius: 12px;
+	border: 1px solid #f0f0f0;
+	margin-bottom: 16px;
+	transition: all 0.2s ease-in-out;
 }
+
+.container:hover {
+	box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.08);
+	border-color: #e0e0e0;
+}
+
 .title {
 	font-size: 20px;
 	font-weight: 600;
-	margin: 15px auto;
+	color: #333;
+	margin-bottom: 8px;
 }
 
 .description {
 	display: flex;
-	flex-direction: row;
 	justify-content: flex-start;
-	gap: 10px;
 	flex-wrap: wrap;
 	width: fit-content;
 	padding: 10px;
+	margin-bottom: 10px;
 }
 
 .description div {
 	padding: 8px;
+	color: #666;
+}
+
+.addSkillForm {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 16px 0;
+	padding: 16px;
+	background-color: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #e9ecef;
 }
 
 .data {
-	margin-top: 20px;
+	max-height: 400px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	margin-top: 16px;
 }
 
 .data table {
-	border-spacing: 10px 10px;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.data::-webkit-scrollbar {
+	width: 6px;
+}
+
+.data::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: 3px;
+}
+
+.data::-webkit-scrollbar-thumb {
+	background: #c1c1c1;
+	border-radius: 3px;
+}
+
+.data::-webkit-scrollbar-thumb:hover {
+	background: #a8a8a8;
 }
 
 .data td {
 	min-width: 38px;
+	vertical-align: top;
+	padding: 12px 8px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.data td:first-child {
+	width: 120px;
+	white-space: nowrap;
+	font-weight: 600;
+	color: #333;
+}
+
+.data td:last-child {
+	width: auto;
+}
+
+.skillChipContainer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: flex-start;
+	max-width: 100%;
 }

@@ -6,7 +6,21 @@ import svgr from '@svgr/rollup';
 dotenv.config();
 
 export default defineConfig({
-  plugins: [react(),svgr()],
+  optimizeDeps: {
+    include: [
+      '@emotion/react', 
+      '@emotion/styled', 
+      '@mui/material/Tooltip'
+    ],
+  },
+  plugins: [
+    react({
+      jsxImportSource: '@emotion/react',
+      babel: {
+        plugins: ['@emotion/babel-plugin'],
+      },
+    }),svgr()
+  ],
   server: {
     proxy: {
       '/api': {
