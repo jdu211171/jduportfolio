@@ -132,6 +132,11 @@ app.use(
 	})
 )
 
+// Serve uploaded files statically (only for local development)
+if (process.env.NODE_ENV === 'development') {
+	app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+}
+
 app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
 app.get('*', (req, res) => {

@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+// Enable sending cookies with all requests
+axios.defaults.withCredentials = true
+
 // // Add a request interceptor
 // axios.interceptors.request.use(
 //   function (config) {

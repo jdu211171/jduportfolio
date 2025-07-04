@@ -23,12 +23,6 @@ import translations from '../../../locales/translations'
 import QA from '../../../pages/Profile/QA/QA'
 import axios from '../../../utils/axiosUtils'
 import styles from './Top.module.css'
-const breakpoints = [
-	{ point: 30, label: '1年終了' }, // 1st year complete
-	{ point: 60, label: '2年終了' },
-	{ point: 90, label: '3年終了' },
-	{ point: 124, label: '卒業条件' }, // graduation requirement
-]
 
 const Top = () => {
 	let id
@@ -1259,10 +1253,12 @@ const Top = () => {
 						</div>
 					</Box>
 					<CreditsProgressBar
-						breakpoints={breakpoints}
-						unit='単位' // credit unit
-						credits={creditMap[activeUniver] ?? 0} // student's earned credits
-						semester={student.semester} // current semester
+						studentId={student?.student_id}
+						student={{
+							totalCredits: creditMap[activeUniver] ?? 0,
+							semester: student?.semester,
+							university: activeUniver, // Pass university name for target credits calculation
+						}}
 					/>
 				</Box>
 			)}

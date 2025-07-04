@@ -223,6 +223,12 @@ class StudentController {
 			const student = await StudentService.getStudentById(id)
 			res.status(200).json(student)
 		} catch (error) {
+			if (error.message === 'Student not found') {
+				return res.status(404).json({
+					error: 'Student not found',
+					message: `Student with ID ${req.params.id} not found`,
+				})
+			}
 			next(error)
 		}
 	}
@@ -319,6 +325,77 @@ class StudentController {
 			const { email, password, firstName, lastName } = req.body
 			await StudentService.EmailToStudent(email, password, firstName, lastName)
 			res.status(204).end()
+		} catch (error) {
+			next(error)
+		}
+	}
+
+	// Credit Details Methods
+	static async getStudentWithCreditDetails(req, res, next) {
+		try {
+			const { studentId } = req.params
+			const student = await StudentService.getStudentWithCreditDetails(
+				studentId
+			)
+
+			res.status(200).json({
+				success: true,
+				data: student,
+				message: 'Student with credit details retrieved successfully',
+			})
+		} catch (error) {
+			if (error.message === 'Student not found') {
+				res.status(404).json({
+					success: false,
+					message: 'Student not found',
+				})
+			} else {
+				next(error)
+			}
+		}
+	}
+
+	static async syncStudentCreditDetails(req, res, next) {
+		try {
+			const { studentId } = req.params
+			const result = await StudentService.updateStudentCreditDetails(studentId)
+
+			res.status(200).json({
+				success: true,
+				data: result,
+				message: 'Credit details synced successfully',
+			})
+		} catch (error) {
+			if (error.message === 'Student not found or no update needed') {
+				res.status(404).json({
+					success: false,
+					message: 'Student not found',
+				})
+			} else {
+				next(error)
+			}
+		}
+	}
+
+	static async syncAllStudentCreditDetails(req, res, next) {
+		try {
+			const results = await StudentService.syncAllStudentCreditDetails()
+
+			const successCount = results.filter(r => !r.error).length
+			const errorCount = results.filter(r => r.error).length
+
+			res.status(200).json({
+				success: true,
+				data: {
+					results,
+					summary: {
+						total: results.length,
+						successful: successCount,
+						failed: errorCount,
+					},
+				},
+				message: `Credit details sync completed. ${successCount} successful, ${errorCount} failed.`,
+			})
 		} catch (error) {
 			next(error)
 		}

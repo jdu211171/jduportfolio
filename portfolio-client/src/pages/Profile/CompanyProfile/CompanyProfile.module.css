@@ -112,10 +112,16 @@
 	width: 100%;
 }
 
+/* Name text style */
+.nameText {
+	color: #555;
+	font-size: 1.25rem;
+}
+
 .mainTitle {
 	display: flex;
 	align-items: center;
-	font-size: 2rem;
+	font-size: 5rem;
 	font-weight: bold;
 }
 
@@ -140,11 +146,7 @@
 	flex-wrap: wrap;
 }
 
-.primaryChip {
-	font-size: 16px;
-	padding: 2px 6px;
-	height: auto;
-}
+
 
 /* Control Buttons */
 .topControlButtons {
@@ -249,6 +251,7 @@
 .displayTextContent {
 	color: rgba(30, 30, 30, 0.7) !important;
 	margin-bottom: 4px;
+	white-space: pre-wrap;
 }
 
 /* Field Labels */
@@ -270,6 +273,12 @@
 	color: #000;
 	font-weight: 600;
 	font-size: 16px;
+}
+
+.fieldLabel {
+	font-weight: 600;
+	margin-bottom: 8px;
+	color: #000;
 }
 
 /* FIXED: Custom TextField Styles - Removed problematic scroll properties */
@@ -540,7 +549,7 @@
 	height: 20px;
 }
 
-/* Business Overview Edit Mode Styles */
+/* Business Overview Edit Mode Styles - UPDATED */
 .businessOverviewEditContainer {
 	display: flex;
 	flex-direction: column;
@@ -568,12 +577,12 @@
 	background-color: #4520b8;
 }
 
+/* UPDATED: Business Overview Saved Item for Edit Mode */
 .businessOverviewSavedItem {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 8px;
-	padding: 8px 12px;
-	background-color: #f5f5f5;
+	padding: 8px 0px;
 	border-radius: 4px;
 	margin-bottom: 8px;
 }
@@ -581,7 +590,8 @@
 .businessOverviewSavedContent {
 	flex: 1;
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
+	/* Changed from center to flex-start */
 	gap: 8px;
 }
 
@@ -598,6 +608,34 @@
 
 .businessOverviewDeleteButton:hover {
 	opacity: 0.7;
+}
+
+/* NEW: Business Overview Add Button */
+.addBusinessOverviewButton {
+	margin-top: 16px;
+	margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border-color: #5627dc;
+	color: #5627dc;
+	padding: 12px 24px;
+	border-radius: 8px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+}
+
+.addBusinessOverviewButton:hover {
+	background-color: #5627dc;
+	color: white;
+	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.3);
+}
+
+/* Icon Container Adjustments for Edit Mode */
+.businessOverviewSavedContent .iconContainerCheck {
+	margin-top: 8px;
+	/* Add top margin to align with text field */
+	min-width: 20px;
 }
 
 /* Recruitment Requirements View Mode Styles */
@@ -620,20 +658,22 @@
 	align-items: center;
 }
 
-/* NEW: Recruitment Requirements Edit Mode Styles with Different Colors */
+/* NEW: Recruitment Requirements Edit Mode Styles with Different Colors - UPDATED */
 .recruitmentEditColumn {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-/* Base styles for saved items */
+/* Base styles for saved items - UPDATED */
 .recruitmentSavedItem {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
+	/* Changed from center to flex-start */
 	gap: 8px;
-	padding: 8px 12px;
+	padding: 8px 0px;
 	border-radius: 4px;
+	margin-bottom: 8px;
 }
 
 /* Required Skills (First Column) - Purple Color (#5627DB with 70% opacity) */
@@ -659,13 +699,15 @@
 .recruitmentSavedContent {
 	flex: 1;
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
+	/* Changed from center to flex-start */
 	gap: 8px;
 }
 
 .recruitmentSavedContent .iconContainerFullPurple,
 .recruitmentSavedContent .iconContainerPurple {
-	margin-top: 0;
+	margin-top: 8px;
+	/* Add top margin to align with text field */
 	min-width: 20px;
 	height: 20px;
 }
@@ -673,7 +715,6 @@
 .recruitmentInputContainer {
 	display: flex;
 	gap: 8px;
-	align-items: flex-start;
 }
 
 .recruitmentSaveButton {
@@ -712,6 +753,195 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	border-color: #5627dc;
+	color: #5627dc;
+	padding: 12px 24px;
+	border-radius: 8px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+}
+
+.addRecruitmentButton:hover {
+	background-color: #5627dc;
+	color: white;
+	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.3);
+}
+
+/* Video Container Styles */
+.videoContainer {
+	position: relative;
+	padding-bottom: 56.25%;
+	/* 16:9 aspect ratio */
+	height: 0;
+	overflow: hidden;
+	max-width: 100%;
+	background: #000;
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.videoIframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+.videoDescription {
+	margin-bottom: 16px;
+	color: rgba(30, 30, 30, 0.7);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.videoPlaceholder {
+	text-align: center;
+	padding: 40px 20px;
+	background: #f5f5f5;
+	border-radius: 8px;
+	color: rgba(30, 30, 30, 0.5);
+}
+
+/* Video Carousel Styles */
+.videoCarouselContainer {
+	margin-top: 8px;
+}
+
+.videoSwiper {
+	width: 100%;
+	border-radius: 12px;
+	overflow: hidden;
+	--swiper-theme-color: #1976d2;
+}
+
+/* Optimize iframe loading */
+.videoSwiper iframe {
+	border: none;
+	background: #000;
+}
+
+/* Swiper Navigation Buttons */
+.videoSwiper :global(.swiper-button-next),
+.videoSwiper :global(.swiper-button-prev) {
+	color: #1976d2;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 50%;
+	width: 44px;
+	height: 44px;
+	margin-top: -22px;
+	backdrop-filter: blur(8px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	transition: all 0.3s ease;
+	z-index: 10;
+}
+
+.videoSwiper :global(.swiper-button-next):hover,
+.videoSwiper :global(.swiper-button-prev):hover {
+	background: rgba(255, 255, 255, 1);
+	transform: scale(1.1);
+}
+
+.videoSwiper :global(.swiper-button-next::after),
+.videoSwiper :global(.swiper-button-prev::after) {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+/* Swiper Pagination */
+.videoSwiper :global(.swiper-pagination) {
+	bottom: 16px;
+	z-index: 10;
+}
+
+.videoSwiper :global(.swiper-pagination-bullet) {
+	background: rgba(255, 255, 255, 0.7);
+	opacity: 1;
+	border: 2px solid transparent;
+	transition: all 0.3s ease;
+	width: 12px;
+	height: 12px;
+}
+
+.videoSwiper :global(.swiper-pagination-bullet-active) {
+	background: #1976d2;
+	border-color: rgba(255, 255, 255, 0.8);
+	transform: scale(1.2);
+}
+
+/* Hide navigation on mobile for better UX */
+@media (max-width: 768px) {
+
+	.videoSwiper :global(.swiper-button-next),
+	.videoSwiper :global(.swiper-button-prev) {
+		display: none;
+	}
+
+	.videoSwiper :global(.swiper-pagination-bullet) {
+		width: 10px;
+		height: 10px;
+	}
+}
+
+/* Video Edit/Save Styles */
+.videoEditItem {
+	margin-bottom: 16px;
+}
+
+.videoEditContent {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.videoInputContainer {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-top: 16px;
+}
+
+.videoSaveButton {
+	background-color: #1976d2;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 8px 16px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	min-width: 60px;
+}
+
+.videoSaveButton:hover {
+	background-color: #1565c0;
+}
+
+.videoDeleteButton {
+	background-color: #f44336;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 6px 8px;
+	cursor: pointer;
+	transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 36px;
+	height: 36px;
+}
+
+.videoDeleteButton:hover {
+	background-color: #d32f2f;
+}
+
+.videoDeleteButton .deleteIcon {
+	width: 16px;
+	height: 16px;
+	filter: brightness(0) invert(1);
 }
 
 /* Responsive Design */
@@ -836,6 +1066,33 @@
 		min-height: 100px;
 		padding: 20px;
 	}
+
+	/* NEW: Add button responsive */
+	.addBusinessOverviewButton,
+	.addTargetAudienceButton,
+	.addRecruitmentButton {
+		width: 100%;
+		justify-content: center;
+		margin-top: 12px;
+	}
+
+	.businessOverviewSavedItem,
+	.recruitmentSavedItem {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.businessOverviewSavedContent,
+	.recruitmentSavedContent {
+		width: 100%;
+	}
+
+	.businessOverviewDeleteButton,
+	.recruitmentDeleteButton {
+		align-self: flex-end;
+		margin-top: 4px;
+	}
 }
 
 /* Mobile (460px) */
@@ -941,6 +1198,14 @@
 		padding: 4px;
 		z-index: 1100;
 	}
+
+	/* NEW: Add button mobile responsive */
+	.addBusinessOverviewButton,
+	.addTargetAudienceButton,
+	.addRecruitmentButton {
+		font-size: 14px;
+		padding: 10px 16px;
+	}
 }
 
 /* Small Mobile (440px) */
@@ -994,7 +1259,7 @@
 		font-size: 1.25rem;
 	}
 
-	.primaryChip {
+	.nameText {
 		font-size: 14px;
 	}
 

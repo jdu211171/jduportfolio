@@ -55,8 +55,8 @@ const Setting = () => {
 		currentPassword: '',
 		password: '',
 		confirmPassword: '',
-		first_name: '',
 		last_name: '',
+		first_name: '',
 		phone: '',
 		email: '',
 		contactEmail: '',
@@ -194,8 +194,8 @@ const Setting = () => {
 		try {
 			const id = activeUser.id
 			const updateData = {
-				first_name: data.first_name,
 				last_name: data.last_name,
+				first_name: data.first_name,
 				phone: data.phone,
 				email: data.email,
 				contactEmail: data.contactEmail,
@@ -210,16 +210,13 @@ const Setting = () => {
 
 			if (selectedFile) {
 				const formData = new FormData()
-				formData.append('file', selectedFile)
-				formData.append('role', role)
+				formData.append('files', selectedFile)
 				formData.append('imageType', 'avatar')
-				formData.append('id', id)
-				formData.append('oldFilePath', user.photo)
 				const fileResponse = await axios.post('/api/files/upload', formData, {
 					headers: { 'Content-Type': 'multipart/form-data' },
 				})
 
-				updateData.photo = fileResponse.data.Location
+				updateData.photo = fileResponse.data[0].file_url
 			}
 
 			let updatedData
@@ -283,8 +280,8 @@ const Setting = () => {
 			currentPassword: '',
 			password: '',
 			confirmPassword: '',
-			first_name: user.first_name || '',
 			last_name: user.last_name || '',
+			first_name: user.first_name || '',
 			phone: user.phone || '',
 			email: user.email || '',
 			contactEmail: user.contactEmail || 'test@jdu.uz',
@@ -370,19 +367,16 @@ const Setting = () => {
 						</Box>
 
 						<Box className={SettingStyle.userInfo}>
-							<Typography variant='h4' className={SettingStyle.userName}>
-								{user.first_name && user.last_name
-									? `${user.first_name} ${user.last_name}`
-									: t('user')}
-							</Typography>
 							{role === 'Recruiter' && (
-								<Typography
-									variant='body1'
-									className={SettingStyle.companyName}
-								>
+								<Typography variant='h2' className={SettingStyle.userName}>
 									{getCompanyName()}
 								</Typography>
 							)}
+							<Typography variant='body2' className={SettingStyle.companyName}>
+								{user.first_name && user.last_name
+									? `${user.first_name}${user.last_name}`
+									: t('user')}
+							</Typography>
 						</Box>
 						{/* Admin Sync Button */}
 						{role === 'Admin' && (

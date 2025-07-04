@@ -69,21 +69,35 @@
 
 .userInfo {
   flex: 1;
+  align-items: center;
+  font-size: 5rem;
+  font-weight: bold;
 }
 
+/* Settings component - updated styles */
 .userName {
-  font-size: 32px !important;
-  font-weight: 600 !important;
-  color: #333;
-  margin: 0 !important;
-  line-height: 1.2;
+  /* Now used for company name (main title) */
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000;
 }
 
 .companyName {
-  font-size: 16px !important;
-  color: #6366f1 !important;
+  /* Now used for user name (smaller text) */
+  font-size: 2rem;
+  font-weight: 400;
+  color: #555;
+}
+
+.userName {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.companyName {
+  font-size: 1.25rem !important;
   margin-top: 8px !important;
-  font-weight: 500;
+  color: #555;
 }
 
 /* Sync Section */
@@ -318,7 +332,7 @@
   }
 
   .userName {
-    font-size: 24px !important;
+    font-size: 14px !important;
   }
 
   .editButtonContainer {
@@ -351,11 +365,11 @@
   }
 
   .userName {
-    font-size: 20px !important;
+    font-size: 16px !important;
   }
 
   .companyName {
-    font-size: 14px !important;
+    font-size: 2rem !important;
   }
 
   .sectionTitle {

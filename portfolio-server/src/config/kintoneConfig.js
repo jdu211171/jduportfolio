@@ -41,7 +41,7 @@ const apps = {
 	},
 	// Eski ilovalar
 	credit_details: {
-		appId: '232',
+		appId: '233',
 		token: process.env.KINTONE_CREDIT_DETAILS_TOKEN,
 	},
 }
