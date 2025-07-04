@@ -3,7 +3,8 @@ module.exports = {
 		{
 			name: 'portfolio-server',
 			script: './src/app.js',
-			exec_mode: 'fork',
+			exec_mode: 'fork', // Always use fork mode
+			instances: 1, // Single instance for kintone sync
 			autorestart: true,
 			watch: false,
 			max_memory_restart: '1G',

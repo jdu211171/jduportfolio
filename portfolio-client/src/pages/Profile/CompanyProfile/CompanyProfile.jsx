@@ -20,6 +20,13 @@ import {
 	Button,
 	TextField,
 } from '@mui/material'
+// Swiper imports
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation, Pagination } from 'swiper/modules'
+// Swiper CSS
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
 // Icon imports from assets folder
 import BusinessIcon from '../../../assets/icons/buildingLine.svg'
 import WorkIcon from '../../../assets/icons/briefcase-3-line.svg'
@@ -58,6 +65,22 @@ const safeParse = data => {
 		}
 	}
 	return Array.isArray(data) ? data : []
+}
+
+// Helper function to extract YouTube video ID from URL
+const extractYouTubeId = url => {
+	if (!url) return null
+
+	const regexPatterns = [
+		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+		/youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+	]
+
+	for (const pattern of regexPatterns) {
+		const match = url.match(pattern)
+		if (match) return match[1]
+	}
+	return null
 }
 
 // Box style component for regular content
@@ -232,6 +255,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 		salary: '',
 		benefits: '',
 		selection_process: '',
+		company_video_url: [],
+		newVideoUrl: '',
 		first_name: '',
 		last_name: '',
 		company_name: '',
@@ -257,6 +282,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 					target_audience: safeParse(companyData.target_audience),
 					required_skills: safeParse(companyData.required_skills),
 					welcome_skills: safeParse(companyData.welcome_skills),
+					company_video_url: Array.isArray(companyData.company_video_url)
+						? companyData.company_video_url
+						: [],
 				}
 
 				setCompany(processedData)
@@ -265,6 +293,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 					newBusinessOverview: '',
 					newRequiredSkill: '',
 					newWelcomeSkill: '',
+					newVideoUrl: '',
 				})
 			} catch (error) {
 				console.error('Error fetching company data:', error)
@@ -322,6 +351,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 				welcome_skills: JSON.stringify(
 					safeArrayRender(editData.welcome_skills)
 				),
+				company_video_url: Array.isArray(editData.company_video_url)
+					? editData.company_video_url
+					: [],
 			}
 
 			// Remove new item fields and invalid fields
@@ -329,13 +361,27 @@ const CompanyProfile = ({ userId = 0 }) => {
 			delete cleanedData.newRequiredSkill
 			delete cleanedData.newWelcomeSkill
 			delete cleanedData.newTargetAudience
+			delete cleanedData.newVideoUrl
 
 			// Prepare data for backend validation
 			const dataToSave = {}
 
+			// Always include company_video_url first (even if empty array)
+			dataToSave.company_video_url = Array.isArray(
+				cleanedData.company_video_url
+			)
+				? cleanedData.company_video_url
+				: []
+
 			// Only include non-empty fields to avoid validation errors
 			Object.keys(cleanedData).forEach(key => {
 				const value = cleanedData[key]
+
+				// Skip company_video_url since we already handled it above
+				if (key === 'company_video_url') {
+					return
+				}
+
 				if (value !== null && value !== undefined && value !== '') {
 					// Handle phone_number validation (must be numeric string)
 					if (key === 'phone_number') {
@@ -372,11 +418,68 @@ const CompanyProfile = ({ userId = 0 }) => {
 			})
 
 			// Debug: Log the data being sent
-			console.log('Data being sent to server:', dataToSave)
-			console.log('Recruiter ID:', id)
+			console.log('💾 Data being sent to server:', dataToSave)
+			console.log(
+				'💾 Company video URLs being sent:',
+				dataToSave.company_video_url
+			)
+			console.log('💾 Video URLs count:', dataToSave.company_video_url?.length)
+			console.log('💾 Recruiter ID:', id)
 
 			await axios.put(`/api/recruiters/${id}`, dataToSave)
-			setCompany({ ...editData })
+			console.log('💾 Successfully saved to backend')
+
+			// Fetch fresh data from backend to ensure consistency
+			try {
+				const freshResponse = await axios.get(`/api/recruiters/${id}`)
+				const freshData = freshResponse.data
+
+				const processedFreshData = {
+					...freshData,
+					business_overview: safeParse(freshData.business_overview),
+					target_audience: safeParse(freshData.target_audience),
+					required_skills: safeParse(freshData.required_skills),
+					welcome_skills: safeParse(freshData.welcome_skills),
+					company_video_url: Array.isArray(freshData.company_video_url)
+						? freshData.company_video_url
+						: [],
+				}
+
+				console.log(
+					'💾 Fresh data from backend after save:',
+					processedFreshData.company_video_url
+				)
+				setCompany(processedFreshData)
+
+				// Also update editData to keep it in sync
+				setEditData({
+					...processedFreshData,
+					newBusinessOverview: '',
+					newRequiredSkill: '',
+					newWelcomeSkill: '',
+					newVideoUrl: '',
+				})
+			} catch (fetchError) {
+				console.warn('Could not fetch fresh data after save:', fetchError)
+				// Fallback to local data
+				const updatedCompany = {
+					...editData,
+					company_video_url: Array.isArray(editData.company_video_url)
+						? editData.company_video_url
+						: [],
+				}
+				setCompany(updatedCompany)
+
+				// Also update editData in fallback case
+				setEditData({
+					...updatedCompany,
+					newBusinessOverview: '',
+					newRequiredSkill: '',
+					newWelcomeSkill: '',
+					newVideoUrl: '',
+				})
+			}
+
 			setEditMode(false)
 
 			// Show success notification
@@ -406,6 +509,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 				newBusinessOverview: '',
 				newRequiredSkill: '',
 				newWelcomeSkill: '',
+				newVideoUrl: '',
 			})
 		}
 		setEditMode(false)
@@ -413,14 +517,26 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 	// Optimized state update to prevent unnecessary re-renders
 	const handleUpdateEditData = useCallback((key, value) => {
+		console.log(`📝 Updating editData[${key}]:`, value)
+		if (key === 'company_video_url') {
+			console.log(
+				`📝 Video URL update - Array length: ${Array.isArray(value) ? value.length : 'Not an array'}`
+			)
+		}
 		setEditData(prevData => {
 			if (prevData[key] === value) {
+				console.log(`📝 No change needed for ${key}`)
 				return prevData
 			}
-			return {
+			const newData = {
 				...prevData,
 				[key]: value,
 			}
+			if (key === 'company_video_url') {
+				console.log(`📝 Updated company_video_url:`, newData[key])
+				console.log(`📝 Updated array length:`, newData[key]?.length)
+			}
+			return newData
 		})
 	}, [])
 
@@ -448,7 +564,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 		}
 	}, [])
 
-	// Business overview rendering with stable keys
+	// Business overview rendering with editable fields - UPDATED
 	const renderBusinessOverview = () => {
 		const businessOverview = safeArrayRender(editData.business_overview)
 
@@ -468,7 +584,23 @@ const CompanyProfile = ({ userId = 0 }) => {
 										className={styles.checkboxIcon}
 									/>
 								</Box>
-								<Typography>{safeStringValue(item)}</Typography>
+								{/* CHANGED: Replace Typography with CustomTextField for editing */}
+								<CustomTextField
+									value={safeStringValue(item)}
+									onChange={e =>
+										handleArrayChange(
+											'business_overview',
+											index,
+											e.target.value
+										)
+									}
+									multiline
+									placeholder={
+										t.business_content_placeholder || 'Enter business content'
+									}
+									fieldKey={`business_overview_${index}`}
+									inputRef={createInputRef(`business_overview_${index}`)}
+								/>
 							</Box>
 							<button
 								type='button'
@@ -576,17 +708,14 @@ const CompanyProfile = ({ userId = 0 }) => {
 								component='div'
 								className={styles.mainTitle}
 							>
-								{safeStringValue(company.first_name)}{' '}
-								{safeStringValue(company.last_name)}
+								{safeStringValue(company.company_name)}
 							</Typography>
 						</Box>
 						<Box className={styles.chipContainer}>
-							<Chip
-								label={safeStringValue(company.company_name)}
-								variant='outlined'
-								color='primary'
-								className={styles.primaryChip}
-							/>
+							<Typography variant='body4' className={styles.nameText}>
+								{safeStringValue(company.first_name)}
+								{safeStringValue(company.last_name)}
+							</Typography>
 						</Box>
 					</Box>
 					{role === 'Recruiter' && (
@@ -715,6 +844,210 @@ const CompanyProfile = ({ userId = 0 }) => {
 				)}
 			</HeaderContentBox>
 
+			{/* Company Introduction Video */}
+			<ContentBox>
+				<Box
+					className={styles.sectionHeader}
+					style={{ justifyContent: 'center', textAlign: 'center' }}
+				>
+					<Typography
+						variant='h6'
+						className={styles.sectionTitle}
+						sx={{ fontWeight: 600 }}
+					>
+						{t.company_introduction_video || '会社紹介動画'}
+					</Typography>
+				</Box>
+				{editMode ? (
+					<Box>
+						{/* Existing videos */}
+						{Array.isArray(editData.company_video_url) &&
+							editData.company_video_url.map((videoUrl, index) => (
+								<Box key={`video-${index}`} className={styles.videoEditItem}>
+									<Box className={styles.videoEditContent}>
+										<CustomTextField
+											value={safeStringValue(videoUrl)}
+											onChange={e => {
+												const newArray = [...editData.company_video_url]
+												newArray[index] = e.target.value
+												handleUpdateEditData('company_video_url', newArray)
+											}}
+											placeholder={
+												t.company_video_url_placeholder ||
+												'例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5'
+											}
+											fieldKey={`company_video_url_${index}`}
+											inputRef={createInputRef(`company_video_url_${index}`)}
+										/>
+										<button
+											type='button'
+											className={styles.videoDeleteButton}
+											onClick={e => {
+												e.preventDefault()
+												console.log('🗑️ Deleting video at index:', index)
+												console.log(
+													'🗑️ Current array before deletion:',
+													editData.company_video_url
+												)
+												console.log(
+													'🗑️ Array length before deletion:',
+													editData.company_video_url?.length
+												)
+
+												const currentArray = Array.isArray(
+													editData.company_video_url
+												)
+													? editData.company_video_url
+													: []
+												const newArray = currentArray.filter(
+													(_, i) => i !== index
+												)
+
+												console.log('🗑️ New array after deletion:', newArray)
+												console.log(
+													'🗑️ New array length after deletion:',
+													newArray.length
+												)
+												handleUpdateEditData('company_video_url', newArray)
+
+												// Additional debug to confirm state update
+												setTimeout(() => {
+													console.log(
+														'🗑️ EditData after state update:',
+														editData.company_video_url
+													)
+												}, 100)
+											}}
+										>
+											<img
+												src={DeleteIcon}
+												alt='delete'
+												className={styles.deleteIcon}
+											/>
+										</button>
+									</Box>
+								</Box>
+							))}
+
+						{/* New video input */}
+						<Box className={styles.videoInputContainer}>
+							<CustomTextField
+								value={safeStringValue(editData.newVideoUrl)}
+								onChange={e =>
+									handleUpdateEditData('newVideoUrl', e.target.value)
+								}
+								placeholder={
+									t.company_video_url_placeholder ||
+									'例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5'
+								}
+								fieldKey='newVideoUrl'
+								inputRef={createInputRef('newVideoUrl')}
+							/>
+							<button
+								type='button'
+								className={styles.videoSaveButton}
+								onClick={e => {
+									e.preventDefault()
+									const newUrl = safeStringValue(editData.newVideoUrl)
+									if (newUrl.trim()) {
+										const currentArray = Array.isArray(
+											editData.company_video_url
+										)
+											? editData.company_video_url
+											: []
+										handleUpdateEditData('company_video_url', [
+											...currentArray,
+											newUrl.trim(),
+										])
+										handleUpdateEditData('newVideoUrl', '')
+									}
+								}}
+							>
+								保存
+							</button>
+						</Box>
+					</Box>
+				) : (
+					<Box>
+						{Array.isArray(company?.company_video_url) &&
+						company.company_video_url.length > 0 ? (
+							<Box>
+								<Typography
+									variant='body2'
+									className={styles.videoDescription}
+									style={{ textAlign: 'center', marginBottom: '16px' }}
+								>
+									{t.company_introduction_video_description ||
+										'雇用主から提供された企業紹介動画をご覧いただけます'}
+								</Typography>
+								{company.company_video_url.length === 1 ? (
+									// Single video - display directly
+									(() => {
+										const videoId = extractYouTubeId(
+											company.company_video_url[0]
+										)
+										return videoId ? (
+											<Box className={styles.videoContainer}>
+												<iframe
+													src={`https://www.youtube.com/embed/${videoId}?enablejsapi=0&rel=0&modestbranding=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0`}
+													title='Company Introduction Video'
+													className={styles.videoIframe}
+													allowFullScreen
+													loading='lazy'
+													referrerPolicy='no-referrer-when-downgrade'
+												/>
+											</Box>
+										) : null
+									})()
+								) : (
+									// Multiple videos - display in carousel
+									<Box className={styles.videoCarouselContainer}>
+										<Swiper
+											modules={[Navigation, Pagination]}
+											navigation={true}
+											pagination={{
+												clickable: true,
+												dynamicBullets: true,
+											}}
+											loop={company.company_video_url.length > 1}
+											spaceBetween={16}
+											slidesPerView={1}
+											className={styles.videoSwiper}
+											watchSlidesProgress={true}
+										>
+											{company.company_video_url.map((videoUrl, index) => {
+												const videoId = extractYouTubeId(videoUrl)
+												return videoId ? (
+													<SwiperSlide key={`video-slide-${index}`}>
+														<Box className={styles.videoContainer}>
+															<iframe
+																src={`https://www.youtube.com/embed/${videoId}?enablejsapi=0&rel=0&modestbranding=1&controls=1&showinfo=0&fs=1&cc_load_policy=0&iv_load_policy=3&autohide=0`}
+																title={`Company Introduction Video ${index + 1}`}
+																className={styles.videoIframe}
+																allowFullScreen
+																loading='lazy'
+																referrerPolicy='no-referrer-when-downgrade'
+															/>
+														</Box>
+													</SwiperSlide>
+												) : null
+											})}
+										</Swiper>
+									</Box>
+								)}
+							</Box>
+						) : (
+							<Box
+								className={styles.videoPlaceholder}
+								style={{ textAlign: 'center' }}
+							>
+								動画が設定されていません
+							</Box>
+						)}
+					</Box>
+				)}
+			</ContentBox>
+
 			{/* Company Overview */}
 			<ContentBox>
 				<SectionHeader
@@ -751,7 +1084,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 				<Box>{renderBusinessOverview()}</Box>
 			</ContentBox>
 
-			{/* Recruitment Requirements */}
+			{/* Recruitment Requirements - UPDATED */}
 			<ContentBox>
 				<SectionHeader
 					icon={WorkIcon}
@@ -765,7 +1098,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								{t.required_skills || 'Required Skills'}
 							</Typography>
 							<Box className={styles.recruitmentEditColumn}>
-								{/* Saved items */}
+								{/* CHANGED: Editable saved items */}
 								{safeArrayRender(editData.required_skills).map(
 									(item, index) => (
 										<Box
@@ -780,7 +1113,20 @@ const CompanyProfile = ({ userId = 0 }) => {
 														className={styles.CheckboxBlankIcon}
 													/>
 												</Box>
-												<Typography>{safeStringValue(item)}</Typography>
+												{/* CHANGED: Replace Typography with CustomTextField */}
+												<CustomTextField
+													value={safeStringValue(item)}
+													onChange={e =>
+														handleArrayChange(
+															'required_skills',
+															index,
+															e.target.value
+														)
+													}
+													placeholder='例: HTML/CSS/JavaScriptの実務経験（3年以上）'
+													fieldKey={`required_skills_${index}`}
+													inputRef={createInputRef(`required_skills_${index}`)}
+												/>
 											</Box>
 											<button
 												type='button'
@@ -848,7 +1194,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								{t.welcome_skills || 'Welcome Skills'}
 							</Typography>
 							<Box className={styles.recruitmentEditColumn}>
-								{/* Saved items */}
+								{/* CHANGED: Editable saved items */}
 								{safeArrayRender(editData.welcome_skills).map((item, index) => (
 									<Box
 										key={`welcome-${index}`}
@@ -862,7 +1208,20 @@ const CompanyProfile = ({ userId = 0 }) => {
 													className={styles.CheckboxBlankIcon2}
 												/>
 											</Box>
-											<Typography>{safeStringValue(item)}</Typography>
+											{/* CHANGED: Replace Typography with CustomTextField */}
+											<CustomTextField
+												value={safeStringValue(item)}
+												onChange={e =>
+													handleArrayChange(
+														'welcome_skills',
+														index,
+														e.target.value
+													)
+												}
+												placeholder='例: TypeScriptの実務経験'
+												fieldKey={`welcome_skills_${index}`}
+												inputRef={createInputRef(`welcome_skills_${index}`)}
+											/>
 										</Box>
 										<button
 											type='button'

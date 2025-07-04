@@ -11,11 +11,11 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			Recruiter.hasMany(models.News, {
-			foreignKey: 'authorId',
-			constraints: false,
-			scope: { authorType: 'Recruiter' },
-			as: 'authorRecruiter'
-    });
+				foreignKey: 'authorId',
+				constraints: false,
+				scope: { authorType: 'Recruiter' },
+				as: 'authorRecruiter',
+			})
 		}
 	}
 
@@ -121,6 +121,11 @@ module.exports = (sequelize, DataTypes) => {
 			selection_process: {
 				type: DataTypes.TEXT,
 				allowNull: true,
+			},
+			company_video_url: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: [],
 			},
 		},
 		{

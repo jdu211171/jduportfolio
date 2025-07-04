@@ -326,6 +326,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		qa_edit: 'QAを編集',
 		q_edit: '質問を編集',
 		company_overview: '会社概要',
+		company_introduction_video: '会社紹介動画',
+		company_introduction_video_description:
+			'雇用主から提供された企業紹介動画をご覧いただけます',
+		company_video_url: '会社紹介動画',
+		company_video_url_placeholder:
+			'例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		age: '年齢',
 		student_id: '学籍番号',
 		top: 'トップ',
@@ -535,6 +541,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		qa_edit: 'QA tahrirlash',
 		q_edit: 'Savolni tahrirlash',
 		company_overview: "Kompaniya haqida ma'lumot",
+		company_introduction_video: 'Kompaniya tanishtiruv videosi',
+		company_introduction_video_description:
+			'Ish beruvchilar tomonidan taqdim etilgan kompaniya tanishtiruv videosini tomosha qilishingiz mumkin',
+		company_video_url: 'Kompaniya tanishtiruv videosi',
+		company_video_url_placeholder:
+			'Misol uchun：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		age: 'Yosh',
 		student_id: 'Talaba ID',
 		top: 'Asosiy',

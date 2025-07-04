@@ -1,20 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import axios from '../../utils/axiosUtils'
 import {
-	Typography,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Paper,
 	CircularProgress,
 	Alert,
-	Button,
 } from '@mui/material'
 import { useAlert } from '../../contexts/AlertContext'
+import CreditsProgressBar from '../../components/CreditsProgressBar/CreditsProgressBar'
 import styles from './CreditDetails.module.css'
 
 const CreditDetails = () => {
@@ -98,13 +89,17 @@ const CreditDetails = () => {
 				setLoading(true)
 				setError(null)
 
+				console.log('Fetching credit details for student:', studentId)
 				const response = await axios.get(
 					`/api/students/${studentId}/credit-details`
 				)
 
+				console.log('API Response:', response.data)
+
 				if (response.data && response.data.success) {
 					setStudent(response.data.data)
 					setCreditDetails(response.data.data.credit_details || [])
+					console.log('Credit details set:', response.data.data.credit_details?.length || 0, 'items')
 				} else {
 					throw new Error('Invalid response format')
 				}
@@ -122,7 +117,10 @@ const CreditDetails = () => {
 		}
 
 		if (studentId) {
+			console.log('Student ID from params:', studentId)
 			fetchCreditDetails()
+		} else {
+			console.log('No student ID found in params')
 		}
 	}, [studentId, showAlert])
 
@@ -191,124 +189,15 @@ const CreditDetails = () => {
 				</div>
 			</div>
 
-			{/* Progress Section */}
-			<div className={styles.progressSection}>
-				<div className={styles.progressHeader}>
-					<div className={styles.progressTitle}>学生単位数</div>
-					<div className={styles.progressNumbers}>
-						{progress.current}
-						<span className={styles.progressSubtitle}>/{progress.total}</span>
-					</div>
-				</div>
-
-				{/* Progress Timeline */}
-				<div className={styles.progressTimeline}>
-					{milestones.map((milestone, index) => (
-						<div
-							key={index}
-							className={`${styles.progressStep} ${styles[milestone.status]}`}
-						>
-							<div
-								className={`${styles.progressIndicator} ${styles[milestone.status]}`}
-							>
-								{milestone.status === 'completed' ? '✓' : milestone.value}
-							</div>
-							<div
-								className={`${styles.progressLabel} ${styles[milestone.status]}`}
-							>
-								{milestone.label}
-							</div>
-						</div>
-					))}
-				</div>
-			</div>
-
-			{/* Student Information */}
-			<div className={styles.studentInfoSection}>
-				<Typography className={styles.studentInfoTitle}>学生詳細</Typography>
-				<TableContainer component={Paper} className={styles.studentInfoTable}>
-					<Table>
-						<TableHead>
-							<TableRow>
-								<TableCell>学生名</TableCell>
-								<TableCell>提携大学</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							<TableRow>
-								<TableCell>
-									{student?.first_name} {student?.last_name}
-								</TableCell>
-								<TableCell>
-									{student?.partner_university || '東京通信大学'}
-								</TableCell>
-							</TableRow>
-						</TableBody>
-					</Table>
-				</TableContainer>
-			</div>
-
-			{/* Credit Details Table */}
-			<div className={styles.creditDetailsSection}>
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						padding: '24px 24px 16px',
-					}}
-				>
-					<Typography className={styles.creditDetailsTitle}>
-						JDU単位数
-					</Typography>
-					<Button
-						variant='outlined'
-						size='small'
-						onClick={handleSyncCredits}
-						disabled={loading}
-					>
-						Sync from Kintone
-					</Button>
-				</div>
-
-				{creditDetails.length > 0 ? (
-					<table className={styles.creditTable}>
-						<thead>
-							<tr>
-								<th>番号</th>
-								<th>科目名</th>
-								<th>評価</th>
-								<th>単位数</th>
-								<th>取得日</th>
-							</tr>
-						</thead>
-						<tbody>
-							{creditDetails.map((credit, index) => (
-								<tr key={credit.recordId || index}>
-									<td>{credit.番号 || index + 1}</td>
-									<td>{credit.科目名}</td>
-									<td>
-										<span
-											className={`${styles.gradeBadge} ${getGradeBadgeClass(credit.評価)}`}
-										>
-											{credit.評価}
-										</span>
-									</td>
-									<td>{credit.単位数}</td>
-									<td>{credit.取得日}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				) : (
-					<div className={styles.noDataContainer}>
-						<Typography variant='body1' color='textSecondary'>
-							No credit details found. Click &quot;Sync from Kintone&quot; to
-							load data.
-						</Typography>
-					</div>
-				)}
-			</div>
+			{/* Progress Section with Tables */}
+			<CreditsProgressBar 
+				breakpoints={breakpoints}
+				unit="単位"
+				credits={42} // Demo value
+				semester={3} // Demo value
+				studentId={studentId}
+				student={student}
+			/>
 		</div>
 	)
 }

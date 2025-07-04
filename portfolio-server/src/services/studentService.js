@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const generatePassword = require('generate-password')
 const { Student, Draft, Bookmark, sequelize } = require('../models')
 const DraftService = require('./draftService')
+const kintoneCreditDetailsService = require('./kintoneCreditDetailsService')
 
 const { formatStudentWelcomeEmail } = require('../utils/emailToStudent')
 const { sendBulkEmails } = require('../utils/emailService')
@@ -648,6 +649,8 @@ class StudentService {
 					semester: data.semester,
 					student_status: data.studentStatus,
 					partner_university: data.partnerUniversity,
+					graduation_year: data.graduationYear,
+					graduation_season: data.graduationSeason,
 					kintone_id: data.kintone_id_value,
 					world_language_university_credits:
 						Number(data.worldLanguageUniversityCredits) || 0,
@@ -766,6 +769,123 @@ class StudentService {
 				name: `${student.first_name} ${student.last_name}`,
 				display: `${student.student_id} - ${student.first_name} ${student.last_name}`,
 			}))
+		} catch (error) {
+			throw error
+		}
+	}
+
+	// Credit Details Methods
+	static async updateStudentCreditDetails(studentId) {
+		try {
+			// Fetch credit details from Kintone
+			const creditDetails =
+				await kintoneCreditDetailsService.getCreditDetailsByStudentId(studentId)
+
+			// Update student record with credit details
+			const [updatedRowsCount] = await Student.update(
+				{ credit_details: creditDetails },
+				{ where: { student_id: studentId } }
+			)
+
+			if (updatedRowsCount === 0) {
+				throw new Error('Student not found or no update needed')
+			}
+
+			// Calculate total credits and update if needed
+			const totalCredits =
+				kintoneCreditDetailsService.calculateTotalCredits(creditDetails)
+			await Student.update(
+				{ total_credits: totalCredits },
+				{ where: { student_id: studentId } }
+			)
+
+			console.log(
+				`✅ Updated credit details for student ${studentId}: ${creditDetails.length} records, ${totalCredits} total credits`
+			)
+
+			return {
+				studentId,
+				creditDetailsCount: creditDetails.length,
+				totalCredits,
+				creditDetails,
+			}
+		} catch (error) {
+			console.error(
+				`❌ Error updating credit details for student ${studentId}:`,
+				error.message
+			)
+			throw error
+		}
+	}
+
+	static async getStudentWithCreditDetails(studentId) {
+		try {
+			const student = await this.getStudentByStudentId(studentId)
+			if (!student) {
+				throw new Error('Student not found')
+			}
+
+			// If credit_details is empty or outdated, fetch from Kintone
+			if (!student.credit_details || student.credit_details.length === 0) {
+				await this.updateStudentCreditDetails(studentId)
+				// Fetch updated student data
+				const updatedStudent = await this.getStudentByStudentId(studentId)
+
+				// Calculate total credits from credit details (like Sanno University)
+				const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(
+					updatedStudent.credit_details || []
+				)
+
+				return {
+					...updatedStudent.toJSON(),
+					totalCredits,
+					creditDetails: updatedStudent.credit_details || [],
+				}
+			}
+
+			// Calculate total credits from existing credit details
+			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(
+				student.credit_details || []
+			)
+
+			return {
+				...student.toJSON(),
+				totalCredits,
+				creditDetails: student.credit_details || [],
+			}
+		} catch (error) {
+			throw error
+		}
+	}
+
+	static async syncAllStudentCreditDetails() {
+		try {
+			const students = await Student.findAll({
+				attributes: ['student_id'],
+				where: { active: true },
+			})
+
+			const results = []
+			for (const student of students) {
+				try {
+					const result = await this.updateStudentCreditDetails(
+						student.student_id
+					)
+					results.push(result)
+				} catch (error) {
+					console.error(
+						`Failed to sync credit details for ${student.student_id}:`,
+						error.message
+					)
+					results.push({
+						studentId: student.student_id,
+						error: error.message,
+					})
+				}
+			}
+
+			console.log(`✅ Sync completed for ${students.length} students`)
+			return results
 		} catch (error) {
 			throw error
 		}

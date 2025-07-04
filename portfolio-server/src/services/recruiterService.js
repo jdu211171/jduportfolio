@@ -37,6 +37,7 @@ class RecruiterService {
 				'salary',
 				'benefits',
 				'selection_process',
+				'company_video_url',
 			] // Example list of searchable columns
 
 			// Iterate through filter keys
@@ -129,6 +130,7 @@ class RecruiterService {
 				salary: data.salary,
 				benefits: data.benefits,
 				selection_process: data.selection_process,
+				company_video_url: data.company_video_url,
 			}
 
 			if (data.password) {

@@ -1,25 +1,64 @@
-.graphContainer {
+/* Container for the entire credits component */
+.container {
 	padding: 30px 40px;
 	overflow-x: visible;
 	position: relative;
 }
 
-.graphContainer.scrollable {
+.container.scrollable {
 	overflow-x: auto;
 }
 
-.graphContainer::-webkit-scrollbar {
+.container::-webkit-scrollbar {
 	height: 10px;
 }
 
-.graphContainer::-webkit-scrollbar-thumb {
+.container::-webkit-scrollbar-thumb {
 	background: #888;
 }
 
-.graphContainer::-webkit-scrollbar-thumb:hover {
+.container::-webkit-scrollbar-thumb:hover {
 	background: #555;
 }
 
+/* Header Section */
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 30px;
+}
+
+.header h3 {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+	color: #333;
+}
+
+.creditScore {
+	display: flex;
+	align-items: baseline;
+	gap: 2px;
+}
+
+.currentCredits {
+	font-size: 48px;
+	font-weight: bold;
+	color: #333;
+}
+
+.separator {
+	font-size: 32px;
+	color: #666;
+}
+
+.totalCredits {
+	font-size: 24px;
+	color: #666;
+}
+
+/* Progress Container */
 .progressContainer {
 	position: relative;
 	min-width: 800px;
@@ -132,10 +171,116 @@
 	0% {
 		box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
 	}
+
 	50% {
 		box-shadow: 0 2px 16px rgba(99, 102, 241, 0.6);
 	}
+
 	100% {
 		box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+	}
+}
+
+/* Credit Details Section */
+.detailsSection {
+	border-top: 1px solid #e5e7eb;
+	padding-top: 20px;
+	margin-top: 30px;
+}
+
+.detailsHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 15px;
+}
+
+.detailsHeader h4 {
+	margin: 0;
+	color: #333;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.tableContainer {
+	overflow-x: auto;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+}
+
+.creditTable {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 14px;
+}
+
+.creditTable th {
+	background-color: #f9fafb;
+	padding: 12px;
+	text-align: left;
+	font-weight: 600;
+	color: #374151;
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.creditTable td {
+	padding: 12px;
+	border-bottom: 1px solid #f3f4f6;
+}
+
+.creditTable tr:last-child td {
+	border-bottom: none;
+}
+
+.creditTable tr:hover {
+	background-color: #f9fafb;
+}
+
+.subjectName {
+	font-weight: 500;
+	color: #1f2937;
+}
+
+.grade {
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 4px;
+	color: white;
+	font-weight: 500;
+	font-size: 12px;
+	min-width: 20px;
+	text-align: center;
+}
+
+.credits {
+	font-weight: 600;
+	color: #6366f1;
+	text-align: center;
+}
+
+.loading {
+	text-align: center;
+	padding: 20px;
+	color: #6b7280;
+	font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+	.container {
+		padding: 15px;
+	}
+
+	.progressContainer {
+		min-width: 600px;
+	}
+
+	.creditTable {
+		font-size: 12px;
+	}
+
+	.creditTable th,
+	.creditTable td {
+		padding: 8px;
 	}
 }
