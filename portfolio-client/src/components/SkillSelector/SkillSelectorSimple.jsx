@@ -17,7 +17,7 @@ import skills from '../../utils/skills'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
-const SkillSelector = ({
+const SkillSelectorSimple = ({
 	title,
 	data,
 	editData,
@@ -36,40 +36,35 @@ const SkillSelector = ({
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
-	// Get the current skills data
-	const getCurrentSkillsData = () => {
+	// Simple data access
+	const getCurrentData = () => {
 		if (editMode && editData && editData[parentKey]) {
-			console.log(
-				'🎯 Getting skills from editData:',
-				editData[parentKey][keyName]
-			)
 			return editData[parentKey][keyName] || {}
 		}
-		console.log('🎯 Getting skills from data:', data?.[keyName])
 		return data?.[keyName] || {}
 	}
 
 	const handleAddSkill = () => {
-		console.log('� Adding skill - Start:', {
+		console.log('🚀 Simple Add Skill Start:', {
 			selectedSkill,
 			selectedLevel,
 			keyName,
 			parentKey,
 			editMode,
-			currentData: getCurrentSkillsData(),
 		})
 
-		// Validation
 		if (!selectedSkill?.name?.trim() || !selectedLevel) {
-			console.log('❌ Validation failed:', { selectedSkill, selectedLevel })
+			console.log('❌ Validation failed')
 			return
 		}
 
 		const skillName = selectedSkill.name.trim()
-		const currentSkillsData = getCurrentSkillsData()
+		const currentData = getCurrentData()
+
+		console.log('📊 Current data:', currentData)
 
 		// Check for duplicates
-		const isDuplicate = Object.values(currentSkillsData).some(
+		const isDuplicate = Object.values(currentData).some(
 			levelSkills =>
 				Array.isArray(levelSkills) &&
 				levelSkills.some(
@@ -82,11 +77,11 @@ const SkillSelector = ({
 			return
 		}
 
-		// Create updated skills object
+		// Create updated skills
 		const updatedSkills = {
-			...currentSkillsData,
+			...currentData,
 			[selectedLevel]: [
-				...(currentSkillsData[selectedLevel] || []),
+				...(currentData[selectedLevel] || []),
 				{
 					name: skillName,
 					color: selectedSkill.color || '#5627DB',
@@ -94,55 +89,32 @@ const SkillSelector = ({
 			],
 		}
 
-		console.log('✅ Updating skills:', updatedSkills)
-		console.log('📤 Calling updateEditData with:', {
-			keyName,
-			updatedSkills,
-			parentKey,
-		})
+		console.log('✅ Updated skills:', updatedSkills)
 
 		// Update the data
-		try {
-			updateEditData(keyName, updatedSkills, parentKey)
+		updateEditData(keyName, updatedSkills, parentKey)
 
-			// Reset form
-			setSelectedSkill(null)
-			setSelectedLevel('初級')
-
-			console.log('✅ Skill added successfully!')
-		} catch (error) {
-			console.error('❌ Error adding skill:', error)
-		}
+		// Reset form
+		setSelectedSkill(null)
+		setSelectedLevel('初級')
 	}
 
 	const handleDeleteSkill = (skillToDelete, level) => {
-		console.log('🗑️ Deleting skill:', {
-			skillToDelete,
-			level,
-			keyName,
-			parentKey,
-		})
+		console.log('🗑️ Simple Delete Skill:', { skillToDelete, level })
 
-		const currentSkillsData = getCurrentSkillsData()
+		const currentData = getCurrentData()
 		const updatedSkills = {
-			...currentSkillsData,
-			[level]: (currentSkillsData[level] || []).filter(
+			...currentData,
+			[level]: (currentData[level] || []).filter(
 				skill => skill.name !== skillToDelete.name
 			),
 		}
 
-		console.log('✅ Updated skills after delete:', updatedSkills)
-
-		try {
-			updateEditData(keyName, updatedSkills, parentKey)
-			console.log('✅ Skill deleted successfully!')
-		} catch (error) {
-			console.error('❌ Error deleting skill:', error)
-		}
+		console.log('✅ After delete:', updatedSkills)
+		updateEditData(keyName, updatedSkills, parentKey)
 	}
 
-	const skillsToDisplay = getCurrentSkillsData()
-	console.log('📊 Skills to display:', skillsToDisplay)
+	const skillsToDisplay = getCurrentData()
 
 	return (
 		<div className={styles.container}>
@@ -166,23 +138,13 @@ const SkillSelector = ({
 			)}
 
 			{editMode && (
-				<Box
-					display='flex'
-					alignItems='center'
-					mb={2}
-					mt={2}
-					gap={2}
-					className={styles.addSkillForm}
-				>
+				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2}>
 					{showAutocomplete ? (
 						<Autocomplete
 							options={skills}
 							getOptionLabel={option => option.name || ''}
 							value={selectedSkill}
-							onChange={(event, newValue) => {
-								console.log('🎯 Autocomplete changed:', newValue)
-								setSelectedSkill(newValue)
-							}}
+							onChange={(event, newValue) => setSelectedSkill(newValue)}
 							sx={{ width: 200 }}
 							renderInput={params => (
 								<TextField
@@ -196,16 +158,7 @@ const SkillSelector = ({
 					) : (
 						<TextField
 							value={selectedSkill?.name || ''}
-							onChange={event => {
-								console.log('🎯 TextField changed:', event.target.value)
-								setSelectedSkill({ name: event.target.value })
-							}}
-							onKeyPress={event => {
-								if (event.key === 'Enter') {
-									event.preventDefault()
-									handleAddSkill()
-								}
-							}}
+							onChange={event => setSelectedSkill({ name: event.target.value })}
 							label='Skill'
 							variant='outlined'
 							size='small'
@@ -217,10 +170,7 @@ const SkillSelector = ({
 						<InputLabel>Level</InputLabel>
 						<Select
 							value={selectedLevel}
-							onChange={event => {
-								console.log('🎯 Level changed:', event.target.value)
-								setSelectedLevel(event.target.value)
-							}}
+							onChange={event => setSelectedLevel(event.target.value)}
 							label='Level'
 						>
 							{Object.keys(headers || {}).map(key => (
@@ -234,12 +184,10 @@ const SkillSelector = ({
 					<IconButton
 						onClick={handleAddSkill}
 						color='primary'
-						disabled={!selectedSkill?.name?.trim() || !selectedLevel}
 						sx={{
 							backgroundColor: '#5627DB',
 							color: 'white',
 							'&:hover': { backgroundColor: '#4520A6' },
-							'&:disabled': { backgroundColor: '#cccccc', color: '#666666' },
 						}}
 					>
 						<AddIcon />
@@ -272,21 +220,17 @@ const SkillSelector = ({
 											{skills.map((skill, index) => (
 												<Chip
 													key={`${level}-${index}-${skill.name}`}
-													label={
-														skill.name + (skill.date ? `\n${skill.date}` : '')
-													}
+													label={skill.name}
 													variant='filled'
 													style={{
-														color: skill.date
-															? skill.color
-															: level === '上級'
+														color:
+															level === '上級'
 																? '#ffffff'
 																: level === '中級'
 																	? '#FFFFFF'
 																	: '#5627db',
-														backgroundColor: skill.date
-															? skill.color + '16'
-															: level === '上級'
+														backgroundColor:
+															level === '上級'
 																? '#5627DB'
 																: level === '中級'
 																	? '#7852e2'
@@ -294,14 +238,6 @@ const SkillSelector = ({
 														fontWeight: 500,
 														fontSize: 13,
 														borderRadius: '16px',
-													}}
-													sx={{
-														height: 'auto',
-														'& .MuiChip-label': {
-															display: 'block',
-															whiteSpace: 'pre-wrap',
-															padding: '6px 12px',
-														},
 													}}
 													onDelete={
 														editMode
@@ -337,4 +273,4 @@ const SkillSelector = ({
 	)
 }
 
-export default SkillSelector
+export default SkillSelectorSimple
