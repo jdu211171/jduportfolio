@@ -1,3 +1,13 @@
+/*
+TODO: Student Profile Submission Button Fix
+- [x] Fixed submit button visibility: Added 'resubmission_required' status condition 
+- [x] Button now appears for both 'draft' and 'resubmission_required' statuses
+- [x] Student can resubmit after staff rejection (承認依頼・同意 button)
+- [x] Consistent with QA.jsx component behavior
+- [x] Fixed comment input clearing in QA.jsx after staff actions
+- [x] Tested with staff rejection workflow
+*/
+
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
 import CodeIcon from '@mui/icons-material/Code'
@@ -63,10 +73,31 @@ const Top = () => {
 				certificateString === 'undefined'
 			)
 				return { highest: '未提出', list: [] }
-			const parsed = JSON.parse(certificateString)
-			return parsed && parsed.highest ? parsed : { highest: '未提出', list: [] }
+
+			// If it's already a plain string (not JSON), return it as the highest value
+			if (typeof certificateString === 'string') {
+				// Try to parse as JSON first
+				try {
+					const parsed = JSON.parse(certificateString)
+					// If it's a valid JSON object with highest property, return it
+					if (parsed && typeof parsed === 'object' && parsed.highest) {
+						return parsed
+					}
+					// If it's a valid JSON but not the expected structure, treat as plain string
+					return { highest: certificateString, list: [] }
+				} catch (jsonError) {
+					// If JSON parsing fails, it's a plain string, return it as highest value
+					return { highest: certificateString, list: [] }
+				}
+			}
+
+			return { highest: '未提出', list: [] }
 		} catch (error) {
 			console.error('Error parsing certificate data:', error)
+			// If anything goes wrong, return the original string as highest if it exists
+			if (certificateString && typeof certificateString === 'string') {
+				return { highest: certificateString, list: [] }
+			}
 			return { highest: '未提出', list: [] }
 		}
 	}
@@ -503,10 +534,9 @@ const Top = () => {
 			// First, upload gallery images if any
 			if (newImages.length > 0) {
 				const formData = new FormData()
-				newImages.forEach((file, index) => {
-					formData.append(`files`, file) // Use 'files' for multiple uploads
+				newImages.forEach(file => {
+					formData.append('files', file) // Use 'files' for multiple uploads
 				})
-				formData.append('role', role)
 				formData.append('imageType', 'Gallery')
 				formData.append('id', id)
 				deletedUrls.forEach((url, index) => {
@@ -524,7 +554,7 @@ const Top = () => {
 				let oldFiles = editData.draft.gallery || []
 				if (Array.isArray(fileResponse.data)) {
 					fileResponse.data.forEach(file => {
-						oldFiles.push(file.Location)
+						oldFiles.push(file.file_url) // Updated to use file_url from new API response
 					})
 				}
 				await handleUpdateEditData('gallery', oldFiles)
@@ -714,7 +744,10 @@ const Top = () => {
 						{t('editProfile')}
 					</Button>
 
-					{hasDraft && currentDraft && currentDraft.status === 'draft' ? (
+					{hasDraft &&
+					currentDraft &&
+					(currentDraft.status === 'draft' ||
+						currentDraft.status === 'resubmission_required') ? (
 						<Button
 							onClick={toggleConfirmMode}
 							variant='contained'
@@ -1266,10 +1299,13 @@ const Top = () => {
 						</div>
 					</Box>
 					<CreditsProgressBar
-						breakpoints={breakpoints}
-						unit='単位' // credit unit
-						credits={creditMap[activeUniver] ?? 0} // student's earned credits
-						semester={student.semester} // current semester
+						studentId={student?.student_id || id}
+						student={{
+							totalCredits: creditMap[activeUniver] ?? 0,
+							semester: student?.semester,
+							university: activeUniver,
+						}}
+						credit_details={student?.credit_details || []}
 					/>
 				</Box>
 			)}

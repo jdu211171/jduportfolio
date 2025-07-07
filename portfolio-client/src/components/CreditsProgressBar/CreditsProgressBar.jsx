@@ -3,7 +3,7 @@ import axios from 'axios'
 import PropTypes from 'prop-types'
 import styles from './CreditsProgressBar.module.css'
 
-const CreditsProgressBar = ({ studentId, student }) => {
+const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	const [creditDetails, setCreditDetails] = useState([])
 	const [loading, setLoading] = useState(false)
 
@@ -160,8 +160,29 @@ const CreditsProgressBar = ({ studentId, student }) => {
 	}, [studentId])
 
 	useEffect(() => {
-		fetchCreditDetails()
-	}, [fetchCreditDetails])
+		// If credit_details are passed as prop, use them directly
+		if (
+			credit_details &&
+			Array.isArray(credit_details) &&
+			credit_details.length > 0
+		) {
+			console.log(
+				'📋 Using credit_details from props:',
+				credit_details.length,
+				'items'
+			)
+			setCreditDetails(credit_details)
+			setLoading(false)
+		} else if (studentId) {
+			// Otherwise, fetch from API if studentId is available
+			fetchCreditDetails()
+		} else {
+			// No data available
+			console.warn('⚠️ No credit_details prop and no studentId provided')
+			setCreditDetails([])
+			setLoading(false)
+		}
+	}, [fetchCreditDetails, credit_details, studentId])
 
 	// Grade badge styling
 	const getGradeBadgeClass = grade => {
@@ -185,8 +206,11 @@ const CreditsProgressBar = ({ studentId, student }) => {
 
 	return (
 		<div className={styles.container}>
-			{/* Show error message if studentId is missing */}
-			{!studentId ? (
+			{/* Show error message if neither studentId nor credit_details are available */}
+			{!studentId &&
+			(!credit_details ||
+				!Array.isArray(credit_details) ||
+				credit_details.length === 0) ? (
 				<div className={styles.noData}>Student ID is required</div>
 			) : (
 				<>
@@ -266,7 +290,7 @@ const CreditsProgressBar = ({ studentId, student }) => {
 											<th>取得日</th>
 											<th>カテゴリ</th>
 										</tr>
-									</thead>{' '}
+									</thead>
 									<tbody>
 										{Array.isArray(creditDetails) &&
 											creditDetails.map(detail => (
@@ -305,12 +329,27 @@ const CreditsProgressBar = ({ studentId, student }) => {
 }
 
 CreditsProgressBar.propTypes = {
-	studentId: PropTypes.string.isRequired,
+	studentId: PropTypes.string, // Make optional since credit_details can be passed
 	student: PropTypes.shape({
 		totalCredits: PropTypes.number,
 		semester: PropTypes.string,
 		university: PropTypes.string,
 	}),
+	credit_details: PropTypes.arrayOf(
+		PropTypes.shape({
+			recordId: PropTypes.string,
+			番号: PropTypes.string,
+			科目名: PropTypes.string,
+			評価: PropTypes.string,
+			単位数: PropTypes.number,
+			取得日: PropTypes.string,
+			subjectId: PropTypes.string,
+			subjectCategory: PropTypes.string,
+			score: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+			gradeSubjectGroup: PropTypes.string,
+			gradeUniverGroup: PropTypes.string,
+		})
+	),
 }
 
 export default CreditsProgressBar

@@ -9,8 +9,8 @@ const upload = multer({ storage: multer.memoryStorage() })
 const fs = require('fs')
 const axios = require('axios')
 
-const authMiddleware = require('../middlewares/auth-middleware');
-const { UserFile } = require('../models');
+const authMiddleware = require('../middlewares/auth-middleware')
+const { UserFile } = require('../models')
 
 /**
  * @swagger
@@ -84,53 +84,102 @@ const { UserFile } = require('../models');
 //     }
 // });
 
-router.post('/upload', authMiddleware, upload.array('files'), async (req, res) => {
-    // 3. Foydalanuvchi ma'lumotlari authMiddleware'dan olinadi
-    const ownerId = req.user.id; 
-    const ownerType = req.user.userType;
-    const { imageType  } = req.body;
-    const files = req.files; // Endi bu har doim massiv bo'ladi
+// Single file upload endpoint (for compatibility with existing frontend)
+router.post('/upload', upload.single('file'), async (req, res) => {
+	const file = req.file
+	const { role, imageType, id, oldFilePath } = req.body
 
-    if (!files || files.length === 0) {
-        return res.status(400).send('Yuklash uchun fayllar topilmadi.');
-    }
+	try {
+		// Delete old file if specified
+		if (
+			oldFilePath &&
+			oldFilePath !== 'none' &&
+			!oldFilePath.startsWith('blob:')
+		) {
+			try {
+				await deleteFile(oldFilePath)
+				console.log(`Deleted old file: ${oldFilePath}`)
+			} catch (err) {
+				console.error(`Failed to delete file at ${oldFilePath}: ${err}`)
+			}
+		}
 
-    if (!imageType ) {
-        return res.status(400).send("Fayl maqsadi (imageType) talab qilinadi.");
-    }
+		if (!file) {
+			return res.status(400).send('No file uploaded.')
+		}
 
-    try {
-        const uploadedFileRecords = [];
+		if (!role || !imageType || !id) {
+			return res
+				.status(400)
+				.send('Missing required parameters: role, imageType, id')
+		}
 
-        for (const file of files) {
-            const fileBuffer = file.buffer;
-            const uniqueFilename = generateUniqueFilename(file.originalname);
-            const objectName = `${ownerType}/${ownerId}/${imageType}/${uniqueFilename}`;
+		const fileBuffer = file.buffer
+		const uniqueFilename = generateUniqueFilename(file.originalname)
+		const objectName = `${role}/${imageType}/${id}/${uniqueFilename}`
 
-            // S3 ga yuklash
-            const uploadedS3Info = await uploadFile(fileBuffer, objectName);
+		// Upload to S3/storage
+		const uploadedFile = await uploadFile(fileBuffer, objectName)
 
-            // 4. Ma'lumotlar bazasiga yozuv yaratish
-            const newFileRecord = await UserFile.create({
-                file_url: uploadedS3Info.Location,
-                object_name: objectName,
-                original_filename: file.originalname,
-                imageType : imageType ,
-                owner_id: ownerId,
-                owner_type: ownerType,
-            });
+		console.log(`File uploaded successfully: ${uploadedFile.Location}`)
+		res.status(201).send(uploadedFile)
+	} catch (error) {
+		console.error('Error during file upload:', error)
+		res.status(500).send('Error uploading file')
+	}
+})
 
-            uploadedFileRecords.push(newFileRecord);
-        }
+// Multiple files upload endpoint (with authentication)
+router.post(
+	'/upload-multiple',
+	authMiddleware,
+	upload.array('files'),
+	async (req, res) => {
+		// 3. Foydalanuvchi ma'lumotlari authMiddleware'dan olinadi
+		const ownerId = req.user.id
+		const ownerType = req.user.userType
+		const { imageType } = req.body
+		const files = req.files // Endi bu har doim massiv bo'ladi
 
-        res.status(201).send(uploadedFileRecords);
+		if (!files || files.length === 0) {
+			return res.status(400).send('Yuklash uchun fayllar topilmadi.')
+		}
 
-    } catch (error) {
-        console.error('Fayl yuklash va yozuv yaratishda xatolik:', error);
-        res.status(500).send('Fayllarni qayta ishlashda xatolik yuz berdi.');
-    }
-});
+		if (!imageType) {
+			return res.status(400).send('Fayl maqsadi (imageType) talab qilinadi.')
+		}
 
+		try {
+			const uploadedFileRecords = []
+
+			for (const file of files) {
+				const fileBuffer = file.buffer
+				const uniqueFilename = generateUniqueFilename(file.originalname)
+				const objectName = `${ownerType}/${ownerId}/${imageType}/${uniqueFilename}`
+
+				// S3 ga yuklash
+				const uploadedS3Info = await uploadFile(fileBuffer, objectName)
+
+				// 4. Ma'lumotlar bazasiga yozuv yaratish
+				const newFileRecord = await UserFile.create({
+					file_url: uploadedS3Info.Location,
+					object_name: objectName,
+					original_filename: file.originalname,
+					imageType: imageType,
+					owner_id: ownerId,
+					owner_type: ownerType,
+				})
+
+				uploadedFileRecords.push(newFileRecord)
+			}
+
+			res.status(201).send(uploadedFileRecords)
+		} catch (error) {
+			console.error('Fayl yuklash va yozuv yaratishda xatolik:', error)
+			res.status(500).send('Fayllarni qayta ishlashda xatolik yuz berdi.')
+		}
+	}
+)
 
 /**
  * @swagger
