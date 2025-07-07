@@ -1,3 +1,17 @@
+/*
+TODO: Student Resubmission and Staff Workflow Fixes
+- [x] Fixed submit button logic: Students can now resubmit after rejection (承認依頼・同意 button appears)
+- [x] Fixed start_checking button: Only appears for initial submission, disappears after clicking
+- [x] Fixed TextField keyName conflicts: major and job_type fields now use proper unique keyNames
+- [x] Added callback mechanism: QA component now updates parent currentDraft state
+- [x] Simplified submit button condition: Focus on draft/resubmission_required status
+- [x] Fixed handleConfirmProfile: Now updates parent currentDraft state to 'submitted' when student submits
+- [x] Added passedDraft synchronization: passedDraft state now stays in sync with currentDraft changes
+- [x] Added debug logging to track state changes and button visibility conditions
+- [ ] Test and verify submit button appears correctly after rejection
+- [ ] Verify IT skills section design is properly restored
+*/
+
 import React, { useState, useEffect, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import { useLocation, useParams } from 'react-router-dom'
@@ -69,6 +83,7 @@ const QA = ({
 	isHonban = false,
 	handleDraftUpsert = () => {},
 	setTopEditMode = () => {},
+	updateCurrentDraft = () => {},
 }) => {
 	const role = sessionStorage.getItem('role')
 	const labels = ['学生成績', '専門知識', '個性', '実務経験', 'キャリア目標']
@@ -97,6 +112,26 @@ const QA = ({
 		!currentDraft || Object.keys(currentDraft).length === 0
 	)
 	const [passedDraft, setPassedDraft] = useState(currentDraft)
+
+	// Debug logging to track state changes
+	console.log('QA Debug - Role:', role)
+	console.log('QA Debug - currentDraft:', currentDraft)
+	console.log('QA Debug - passedDraft:', passedDraft)
+	console.log('QA Debug - editMode:', editMode)
+
+	// Check submit button visibility condition
+	const shouldShowSubmitButton =
+		role === 'Student' &&
+		currentDraft &&
+		(currentDraft.status === 'draft' ||
+			currentDraft.status === 'resubmission_required')
+	console.log('QA Debug - shouldShowSubmitButton:', shouldShowSubmitButton)
+
+	// Keep passedDraft synchronized with currentDraft changes
+	useEffect(() => {
+		setPassedDraft(currentDraft)
+	}, [currentDraft])
+
 	const fetchStudent = async () => {
 		try {
 			if (!(Object.keys(data).length > 0)) {
@@ -172,6 +207,8 @@ const QA = ({
 		try {
 			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
 			if (res.status == 200) {
+				// Update parent's currentDraft state to 'submitted'
+				updateCurrentDraft('submitted')
 				showAlert(t['profileConfirmed'], 'success')
 			}
 		} catch (error) {
@@ -187,6 +224,13 @@ const QA = ({
 				status: value,
 				comments: comment.comments,
 			})
+			// Update local draft status to reflect the change
+			setPassedDraft(prevDraft => ({
+				...prevDraft,
+				status: value,
+			}))
+			// Update parent's currentDraft state
+			updateCurrentDraft(value)
 			showAlert(t['profileConfirmed'], 'success')
 		} catch (error) {
 			showAlert(t['errorConfirmingProfile'], 'error')
@@ -378,6 +422,20 @@ const QA = ({
 		const category = labels[index]
 		return editData[category] || {}
 	}
+
+	// Debug logging to understand the state
+	console.log('QA Component Debug:', {
+		role,
+		currentDraft: currentDraft,
+		currentDraftStatus: currentDraft?.status,
+		passedDraftStatus: passedDraft?.status,
+		shouldShowSubmitButton:
+			role == 'Student' &&
+			currentDraft &&
+			(currentDraft.status === 'draft' ||
+				currentDraft.status === 'resubmission_required'),
+	})
+
 	console.log(studentQA)
 
 	if (!studentQA) {
@@ -441,16 +499,19 @@ const QA = ({
 						</>
 					) : (
 						<>
-							{role == 'Student' && !isHonban && (
-								<Button
-									onClick={toggleConfirmMode}
-									variant='contained'
-									color='secondary'
-									size='small'
-								>
-									{t['submitAgree']}
-								</Button>
-							)}
+							{role == 'Student' &&
+								currentDraft &&
+								(currentDraft.status === 'draft' ||
+									currentDraft.status === 'resubmission_required') && (
+									<Button
+										onClick={toggleConfirmMode}
+										variant='contained'
+										color='secondary'
+										size='small'
+									>
+										{t['submitAgree']}
+									</Button>
+								)}
 							<Button
 								onClick={toggleEditMode}
 								variant='contained'
@@ -481,7 +542,7 @@ const QA = ({
 						portalContent,
 						document.getElementById('saveButton')
 					)}
-			</> */}
+			> */}
 
 			<div
 				style={{
@@ -596,7 +657,6 @@ const QA = ({
 				<Box
 					sx={{
 						borderRadius: '10px',
-						background: '#ffe',
 						padding: 2,
 					}}
 				>
@@ -638,7 +698,39 @@ const QA = ({
 						</>
 					) : (
 						<>
-							{role == 'Admin' && (
+							{/* Staff can reject after approval */}
+							{role === 'Staff' && (
+								<>
+									<TextField
+										title='差し戻しコメント'
+										data={comment}
+										editData={comment}
+										editMode={true}
+										updateEditData={updateComment}
+										keyName='comments'
+									/>
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'center',
+											gap: 10,
+											mb: 2,
+										}}
+									>
+										<Button
+											onClick={() => approveProfile('resubmission_required')}
+											variant='contained'
+											color='warning'
+											size='small'
+										>
+											差し戻し
+										</Button>
+									</Box>
+								</>
+							)}
+
+							{/* Admin visibility controls */}
+							{role === 'Admin' && (
 								<Box
 									sx={{
 										display: 'flex',

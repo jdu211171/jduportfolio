@@ -134,6 +134,31 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}
 
+	// New function to update draft status with comments
+	const updateDraftStatusWithComments = async (
+		draftId,
+		status,
+		comments = ''
+	) => {
+		try {
+			const res = await axios.put(`/api/draft/status/${draftId}`, {
+				status: status,
+				reviewed_by: userId,
+				comments: comments,
+			})
+			if (res.status === 200) {
+				showAlert(t('statusUpdatedSuccessfully'), 'success')
+				return true
+			} else {
+				return false
+			}
+		} catch (error) {
+			console.error('Error updating draft status:', error)
+			showAlert(t('errorUpdatingStatus'), 'error')
+			return false
+		}
+	}
+
 	const setProfileVisibility = async (id, visibility) => {
 		try {
 			console.log('Setting profile visibility:', { id, visibility })
@@ -317,6 +342,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 		filter: filterState,
 		recruiterId: userId,
 		OnlyBookmarked: OnlyBookmarked,
+		updateDraftStatusWithComments: updateDraftStatusWithComments,
+		userRole: role,
 	}
 
 	return (

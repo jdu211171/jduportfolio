@@ -209,10 +209,13 @@ class DraftController {
 			const reviewed_by = req.user.id
 			const usertype = req.user.userType
 
-			if (usertype.toLowerCase() !== 'staff') {
-				return res
-					.status(403)
-					.json({ error: 'Permission denied. Only staff can update status.' })
+			if (
+				usertype.toLowerCase() !== 'staff' &&
+				usertype.toLowerCase() !== 'admin'
+			) {
+				return res.status(403).json({
+					error: 'Permission denied. Only staff and admin can update status.',
+				})
 			}
 			if (!status) {
 				return res.status(400).json({ error: 'Status is required' })
@@ -227,6 +230,10 @@ class DraftController {
 					.status(200)
 					.json({ error: 'Status is already set to this value' })
 			}
+
+			// Store previous status for visibility logic
+			const previousStatus = draft.status
+
 			draft.status = status
 			draft.reviewed_by = reviewed_by
 			if (comments) {
@@ -235,25 +242,42 @@ class DraftController {
 			await draft.save()
 			let student = await StudentService.getStudentByStudentId(draft.student_id)
 			let student_id = draft.student_id
-			await Student.update({ visibility: false }, { where: { student_id } })
 
-			const staffMember = await StaffService.getStaffById(draft.reviewed_by) //// TODO
-			let staffName = ''
-			if (staffMember && staffMember.first_name && staffMember.last_name) {
-				staffName = `${staffMember.first_name} ${staffMember.last_name} によって`
-			} else if (staffMember && staffMember.first_name) {
-				staffName = `${staffMember.first_name} によって`
+			// If status is changing from 'approved' to anything else, set visibility to false
+			if (previousStatus === 'approved' && status !== 'approved') {
+				await Student.update({ visibility: false }, { where: { student_id } })
+			}
+			// Note: When status becomes 'approved', visibility should NOT be automatically set to true
+			// Only admin should manually control visibility via separate endpoint
+
+			// Get reviewer information (Staff or Admin)
+			let reviewerName = ''
+			let reviewerType = 'スタッフ'
+
+			if (usertype.toLowerCase() === 'staff') {
+				const staffMember = await StaffService.getStaffById(draft.reviewed_by)
+				if (staffMember && staffMember.first_name && staffMember.last_name) {
+					reviewerName = `${staffMember.first_name} ${staffMember.last_name} によって`
+				} else if (staffMember && staffMember.first_name) {
+					reviewerName = `${staffMember.first_name} によって`
+				} else {
+					reviewerName = `スタッフによって`
+				}
+			} else if (usertype.toLowerCase() === 'admin') {
+				// Admin uchun logic qo'shish kerak bo'lsa
+				reviewerName = `管理者によって`
+				reviewerType = '管理者'
 			} else {
-				staffName = `スタッフによって` // Agar ismi topilmasa
+				reviewerName = `スタッフによって` // Default
 			}
 
 			// Create notification message with comments if available
-			let notificationMessage = `あなたの情報は${staffName} 「${status}」ステータスに変更されました。`
+			let notificationMessage = `あなたの情報は${reviewerName} 「${status}」ステータスに変更されました。`
 
-			// Add comment as separate part if available
-			if (comments && status.toLowerCase() !== 'approved') {
+			// Add comment as separate part if available (for all statuses now)
+			if (comments) {
 				// Use special separator to identify comment section in frontend
-				notificationMessage += `|||COMMENT_SEPARATOR|||📝 **スタッフからのコメント:**\n${comments}`
+				notificationMessage += `|||COMMENT_SEPARATOR|||📝 **${reviewerType}からのコメント:**\n${comments}`
 			}
 
 			const notification = await NotificationService.create({

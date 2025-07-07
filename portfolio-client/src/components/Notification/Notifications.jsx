@@ -244,7 +244,7 @@ export default function Notifications() {
 								<div
 									key={item.id || item.createdAt}
 									onClick={() => handleClick(item)}
-									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''}`}
+									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}
 								>
 									<div className={styles.messageContainer}>
 										<div>{shortText(item.message, 28)}</div>
@@ -277,7 +277,9 @@ export default function Notifications() {
 						>
 							<CloseIcon />
 						</button>
-						<div className={styles.messageBody}>
+						<div
+							className={`${styles.messageBody} ${selectedMessage.type === 'approved' ? styles.approvedMessageBody : ''}`}
+						>
 							{(() => {
 								// Parse message to separate main message and comment
 								const messageParts = selectedMessage.message.split(

@@ -130,6 +130,28 @@ router.get('/:id', StudentController.getStudentById)
 
 /**
  * @swagger
+ * /api/students/{id}/credit-details:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get credit details for a student
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student ID
+ *     responses:
+ *       200:
+ *         description: Credit details retrieved successfully
+ *       404:
+ *         description: Student not found
+ */
+// GET /api/students/:id/credit-details
+router.get('/:id/credit-details', StudentController.getCreditDetails)
+
+/**
+ * @swagger
  * /api/students/{id}:
  *   put:
  *     tags: [Students]

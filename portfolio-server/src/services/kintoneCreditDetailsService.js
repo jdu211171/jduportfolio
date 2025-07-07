@@ -36,8 +36,14 @@ class KintoneCreditDetailsService {
 				return this.getDemoDataForStudent(studentId)
 			}
 
-			// Fetch data from Kintone App 233 (like Sanno University)
-			const url = `${this.baseURL}/records.json?app=${this.appId}&limit=500&offset=0`
+			// Fetch data from Kintone App 233 with filter
+			let url = `${this.baseURL}/records.json?app=${this.appId}&limit=500&offset=0`
+
+			// Add filter to search for specific student
+			if (studentId) {
+				const query = `学生ID = "${studentId}" or student_id = "${studentId}" or studentId = "${studentId}"`
+				url += `&query=${encodeURIComponent(query)}`
+			}
 
 			console.log('🚀 Fetching credit details from Kintone:', url)
 
@@ -46,6 +52,7 @@ class KintoneCreditDetailsService {
 					'X-Cybozu-API-Token': this.token,
 					'Content-Type': 'application/json',
 				},
+				timeout: 10000, // 10 second timeout
 			})
 
 			if (response.data && response.data.records) {
@@ -74,16 +81,16 @@ class KintoneCreditDetailsService {
 
 				const creditDetails = studentRecords.map(record => ({
 					recordId: record.$id.value,
-					番号: record.レコード番号?.value || record.番号?.value || '',
-					科目名: record.subjectName?.value || record.科目名?.value || '',
-					評価: record.grade?.value || record.評価?.value || '',
+					番号: record.レコード番号?.value || record.recordNumber?.value || '',
+					科目名: record.科目名?.value || record.subjectName?.value || '',
+					評価: record.評価?.value || record.grade?.value || '',
 					単位数: parseInt(
-						record.subjectCredit?.value ||
+						record.単位数?.value ||
+							record.subjectCredit?.value ||
 							record.manualCredit?.value ||
-							record.単位数?.value ||
 							0
 					),
-					取得日: record.date?.value || record.取得日?.value || '',
+					取得日: record.取得日?.value || record.date?.value || '',
 					subjectId: record.subjectId?.value || '',
 					subjectCategory: record.subjectCategory?.value || '',
 					score: record.score?.value || '',
@@ -149,6 +156,32 @@ class KintoneCreditDetailsService {
 					評価: 'B',
 					単位数: 3,
 					取得日: '2024-06-20',
+				},
+			],
+			214843: [
+				{
+					recordId: 'demo_214843_001',
+					番号: '001',
+					科目名: 'プログラミング基礎',
+					評価: 'A',
+					単位数: 4,
+					取得日: '2024-04-01',
+				},
+				{
+					recordId: 'demo_214843_002',
+					番号: '002',
+					科目名: 'システム設計',
+					評価: 'B',
+					単位数: 3,
+					取得日: '2024-05-15',
+				},
+				{
+					recordId: 'demo_214843_003',
+					番号: '003',
+					科目名: 'プロジェクト管理',
+					評価: 'A',
+					単位数: 2,
+					取得日: '2024-06-10',
 				},
 			],
 		}

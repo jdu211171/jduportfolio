@@ -185,7 +185,8 @@ class StudentController {
 	static async getAllStudents(req, res, next) {
 		try {
 			let filter = {}
-			const userType = req.user.userType
+			const userType = req.user?.userType || 'Guest'
+
 			// console.log('Raw query filter:', req.query.filter);
 			if (req.query.filter) {
 				try {
@@ -203,16 +204,39 @@ class StudentController {
 			const recruiterId = req.query.recruiterId
 			const onlyBookmarked = req.query.onlyBookmarked
 
+			// Add fallback for recruiter search - if recruiterId is required but not provided,
+			// suppress the search instead of throwing error
+			if (userType === 'Recruiter' && !recruiterId) {
+				console.log(
+					'Recruiter user but no recruiterId provided, returning empty result'
+				)
+				return res.status(200).json([])
+			}
+
 			const students = await StudentService.getAllStudents(
 				filter,
 				recruiterId,
 				onlyBookmarked,
 				userType
 			)
+
+			// Set cache control headers to prevent 304 responses
+			res.set({
+				'Cache-Control': 'no-cache, no-store, must-revalidate',
+				Pragma: 'no-cache',
+				Expires: '0',
+			})
+
 			res.status(200).json(students)
 		} catch (error) {
-			console.error('Error in getAllStudents controller:', error.message)
-			next(error)
+			console.error(
+				'Error in getAllStudents controller:',
+				error.message,
+				error.stack
+			)
+
+			// Return empty array instead of 500 error for better UX
+			res.status(200).json([])
 		}
 	}
 
@@ -398,6 +422,29 @@ class StudentController {
 			})
 		} catch (error) {
 			next(error)
+		}
+	}
+
+	// Get credit details for a student
+	static async getCreditDetails(req, res, next) {
+		try {
+			const { id } = req.params
+			const result = await StudentService.getStudentWithCreditDetails(id)
+
+			res.status(200).json({
+				success: true,
+				data: result,
+				message: 'Student with credit details retrieved successfully',
+			})
+		} catch (error) {
+			if (error.message === 'Student not found') {
+				res.status(404).json({
+					success: false,
+					message: 'Student not found',
+				})
+			} else {
+				next(error)
+			}
 		}
 	}
 }

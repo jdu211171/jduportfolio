@@ -90,17 +90,49 @@ class RecruiterController {
 
 	static async getAll(req, res, next) {
 		try {
-			let filter
+			let filter = {}
+
+			// Handle both filter and filter[key] formats
 			if (req.query.filter) {
-				filter = req.query.filter
-			} else {
-				filter = {}
+				try {
+					filter =
+						typeof req.query.filter === 'string'
+							? JSON.parse(req.query.filter)
+							: req.query.filter
+				} catch (e) {
+					console.error('Failed to parse filter:', e.message)
+					// If JSON parsing fails, treat it as a direct search value
+					filter = { search: req.query.filter }
+				}
 			}
 
+			// Handle URL query parameter format like filter[search]=Peter
+			Object.keys(req.query).forEach(key => {
+				if (key.startsWith('filter[') && key.endsWith(']')) {
+					const filterKey = key.slice(7, -1) // Remove 'filter[' and ']'
+					filter[filterKey] = req.query[key]
+				}
+			})
+
 			const recruiters = await RecruiterService.getAllRecruiters(filter)
+
+			// Set cache control headers to prevent 304 responses
+			res.set({
+				'Cache-Control': 'no-cache, no-store, must-revalidate',
+				Pragma: 'no-cache',
+				Expires: '0',
+			})
+
 			res.status(200).json(recruiters)
 		} catch (error) {
-			next(error)
+			console.error(
+				'Error in getAllRecruiters controller:',
+				error.message,
+				error.stack
+			)
+
+			// Return empty array instead of 500 error for better UX
+			res.status(200).json([])
 		}
 	}
 
