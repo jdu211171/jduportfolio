@@ -50,22 +50,58 @@ class NotificationService {
 	}
 
 	static async markAllAsRead(userId, userType) {
-        let whereClause = {};
+		try {
+			console.log('NotificationService.markAllAsRead - Input:', {
+				userId,
+				userType,
+			})
 
-        if (userType.toLowerCase() === 'student') {
-            whereClause = { user_id: userId, user_role: 'student', status: { [Op.ne]: 'read' } };
-        } else if (userType.toLowerCase() === 'admin') {
-            whereClause = { user_role: 'admin', status: { [Op.ne]: 'read' } };
-        } else {
-            whereClause = { user_id: userId, user_role: userType.toLowerCase(), status: { [Op.ne]: 'read' } };
-        }
+			// Handle Recruiter case - recruiters don't have notifications in the current system
+			if (userType.toLowerCase() === 'recruiter') {
+				console.log(
+					'NotificationService.markAllAsRead - Recruiter detected, returning 0 (no notifications)'
+				)
+				return 0 // Return 0 updated records since recruiters don't have notifications
+			}
 
-        const [updatedCount] = await Notification.update(
-            { status: 'read' },
-            { where: whereClause }
-        );
-        return updatedCount;
-    }
+			let whereClause = {}
+
+			if (userType.toLowerCase() === 'student') {
+				whereClause = {
+					user_id: userId,
+					user_role: 'student',
+					status: { [Op.ne]: 'read' },
+				}
+			} else if (userType.toLowerCase() === 'admin') {
+				whereClause = { user_role: 'admin', status: { [Op.ne]: 'read' } }
+			} else {
+				whereClause = {
+					user_id: userId,
+					user_role: userType.toLowerCase(),
+					status: { [Op.ne]: 'read' },
+				}
+			}
+
+			console.log(
+				'NotificationService.markAllAsRead - Where clause:',
+				whereClause
+			)
+
+			const [updatedCount] = await Notification.update(
+				{ status: 'read' },
+				{ where: whereClause }
+			)
+
+			console.log(
+				'NotificationService.markAllAsRead - Updated count:',
+				updatedCount
+			)
+			return updatedCount
+		} catch (error) {
+			console.error('Error in NotificationService.markAllAsRead:', error)
+			throw error
+		}
+	}
 }
 
 module.exports = NotificationService
