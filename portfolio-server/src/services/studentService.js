@@ -777,15 +777,28 @@ class StudentService {
 	// Credit Details Methods
 	static async updateStudentCreditDetails(studentId) {
 		try {
+			console.log(
+				`🔄 updateStudentCreditDetails started for student ${studentId}`
+			)
+
 			// Fetch credit details from Kintone
+			console.log(
+				`📡 Fetching credit details from Kintone for student ${studentId}`
+			)
 			const creditDetails =
 				await kintoneCreditDetailsService.getCreditDetailsByStudentId(studentId)
+
+			console.log(
+				`📊 Received ${creditDetails.length} credit details from Kintone`
+			)
 
 			// Update student record with credit details
 			const [updatedRowsCount] = await Student.update(
 				{ credit_details: creditDetails },
 				{ where: { student_id: studentId } }
 			)
+
+			console.log(`💾 Database update result: ${updatedRowsCount} rows updated`)
 
 			if (updatedRowsCount === 0) {
 				throw new Error('Student not found or no update needed')
@@ -820,21 +833,43 @@ class StudentService {
 
 	static async getStudentWithCreditDetails(studentId) {
 		try {
+			console.log(
+				`🔍 getStudentWithCreditDetails started for student ${studentId}`
+			)
+
 			const student = await this.getStudentByStudentId(studentId)
 			if (!student) {
 				throw new Error('Student not found')
 			}
 
+			console.log(
+				`👤 Student found. Current credit_details length: ${
+					student.credit_details?.length || 0
+				}`
+			)
+
 			// If credit_details is empty or outdated, fetch from Kintone
 			if (!student.credit_details || student.credit_details.length === 0) {
+				console.log(
+					`🔄 Credit details empty, triggering update from Kintone...`
+				)
 				await this.updateStudentCreditDetails(studentId)
+
 				// Fetch updated student data
+				console.log(`📡 Fetching updated student data...`)
 				const updatedStudent = await this.getStudentByStudentId(studentId)
+				console.log(
+					`✅ Updated student credit_details length: ${
+						updatedStudent.credit_details?.length || 0
+					}`
+				)
 
 				// Calculate total credits from credit details (like Sanno University)
 				const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(
 					updatedStudent.credit_details || []
 				)
+
+				console.log(`💯 Calculated total credits: ${totalCredits}`)
 
 				return {
 					...updatedStudent.toJSON(),
@@ -842,6 +877,10 @@ class StudentService {
 					creditDetails: updatedStudent.credit_details || [],
 				}
 			}
+
+			console.log(
+				`📋 Using existing credit details (${student.credit_details.length} records)`
+			)
 
 			// Calculate total credits from existing credit details
 			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(

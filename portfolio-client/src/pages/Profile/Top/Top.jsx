@@ -57,11 +57,23 @@ const Top = () => {
 				certificateString === 'undefined'
 			)
 				return { highest: '未提出', list: [] }
+
+			// Check if the string is already a plain text value (not JSON)
+			// If it doesn't start with '{' or '[', treat it as a plain string
+			if (
+				typeof certificateString === 'string' &&
+				!certificateString.trim().startsWith('{') &&
+				!certificateString.trim().startsWith('[')
+			) {
+				return { highest: certificateString, list: [] }
+			}
+
 			const parsed = JSON.parse(certificateString)
 			return parsed && parsed.highest ? parsed : { highest: '未提出', list: [] }
 		} catch (error) {
 			console.error('Error parsing certificate data:', error)
-			return { highest: '未提出', list: [] }
+			// If JSON parsing fails, treat the input as a plain string value
+			return { highest: certificateString || '未提出', list: [] }
 		}
 	}
 
@@ -723,560 +735,570 @@ const Top = () => {
 	return (
 		<Box mb={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student'
-				? createPortal(portalContent, portalContainer)
-				: null}
+			{portalContainer &&
+				role === 'Student' &&
+				portalContent &&
+				createPortal(portalContent, portalContainer)}
 
-			<div
-				style={{
-					borderTop: '1px solid #e1e1e1',
-					backgroundColor: '#ffffff',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'start',
-					padding: '20px 16px',
-					gap: 32,
-					borderEndEndRadius: 10,
-					borderEndStartRadius: 10,
-				}}
-			>
-				{['selfIntroduction', 'skill', 'deliverables', 'credits', 'qa'].map(
-					(item, ind) => (
-						<div
-							key={ind}
-							style={{
-								fontWeight: 500,
-								fontSize: 16,
-								color: subTabIndex === ind ? '#5627db' : '#4b4b4b',
-								borderBottom:
-									subTabIndex === ind ? '2px solid #5627db' : '#4b4b4b',
-								cursor: 'pointer',
-							}}
-							onClick={() => {
-								setSubTabIndex(ind)
+			{/* Main content wrapper */}
+			<>
+				<div
+					style={{
+						borderTop: '1px solid #e1e1e1',
+						backgroundColor: '#ffffff',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'start',
+						padding: '20px 16px',
+						gap: 32,
+						borderEndEndRadius: 10,
+						borderEndStartRadius: 10,
+					}}
+				>
+					{['selfIntroduction', 'skill', 'deliverables', 'credits', 'qa'].map(
+						(item, ind) => (
+							<div
+								key={ind}
+								style={{
+									fontWeight: 500,
+									fontSize: 16,
+									color: subTabIndex === ind ? '#5627db' : '#4b4b4b',
+									borderBottom:
+										subTabIndex === ind ? '2px solid #5627db' : '#4b4b4b',
+									cursor: 'pointer',
+								}}
+								onClick={() => {
+									setSubTabIndex(ind)
+								}}
+							>
+								{t(item)}
+							</div>
+						)
+					)}
+				</div>
+
+				{/* Staff Comment Display Section for Students */}
+				{role === 'Student' &&
+					currentDraft &&
+					currentDraft.comments &&
+					(currentDraft.status === 'resubmission_required' ||
+						currentDraft.status === 'disapproved') && (
+						<Box
+							sx={{
+								my: 2,
+								mx: 2,
+								p: 2,
+								backgroundColor: '#fff3e0',
+								border: '1px solid #ff9800',
+								borderRadius: '8px',
+								borderLeft: '4px solid #ff9800',
 							}}
 						>
-							{t(item)}
-						</div>
-					)
-				)}
-			</div>
+							<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+								<span style={{ fontWeight: 'bold', color: '#e65100' }}>
+									スタッフからのフィードバック
+								</span>
+							</Box>
+							<Box
+								sx={{
+									backgroundColor: '#ffffff',
+									p: 2,
+									borderRadius: '4px',
+									border: '1px solid #ffcc80',
+								}}
+							>
+								<pre
+									style={{
+										whiteSpace: 'pre-wrap',
+										wordWrap: 'break-word',
+										fontFamily: 'inherit',
+										margin: 0,
+										color: '#424242',
+									}}
+								>
+									{currentDraft.comments}
+								</pre>
+							</Box>
+							<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>
+								プロフィールを修正して再度提出してください。
+							</Box>
+						</Box>
+					)}
 
-			{/* Staff Comment Display Section for Students */}
-			{role === 'Student' &&
+				{role === 'Staff' &&
+				!isLoading &&
 				currentDraft &&
-				currentDraft.comments &&
-				(currentDraft.status === 'resubmission_required' ||
-					currentDraft.status === 'disapproved') && (
+				currentDraft.id &&
+				currentDraft.status !== 'checking' &&
+				currentDraft.status !== 'approved' ? (
 					<Box
 						sx={{
 							my: 2,
-							mx: 2,
-							p: 2,
-							backgroundColor: '#fff3e0',
-							border: '1px solid #ff9800',
-							borderRadius: '8px',
-							borderLeft: '4px solid #ff9800',
+							display: 'flex',
+							justifyContent: 'center',
 						}}
 					>
-						<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-							<span style={{ fontWeight: 'bold', color: '#e65100' }}>
-								スタッフからのフィードバック
-							</span>
-						</Box>
-						<Box
-							sx={{
-								backgroundColor: '#ffffff',
-								p: 2,
-								borderRadius: '4px',
-								border: '1px solid #ffcc80',
-							}}
+						<Button
+							onClick={() => updateDraftStatus(currentDraft.id)}
+							variant='contained'
+							color='warning'
+							size='small'
+							sx={{ width: '80%', height: '36px', fontSize: '18px' }}
 						>
-							<pre
+							{t('start_checking')}
+						</Button>
+					</Box>
+				) : null}
+				{/* self introduction */}
+				{subTabIndex === 0 && (
+					<Box my={2}>
+						<TextField
+							title={t('selfIntroduction')}
+							data={student.draft.self_introduction}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							keyName='self_introduction'
+							parentKey='draft'
+							icon={BadgeOutlinedIcon}
+							imageUrl={student.photo}
+						/>
+						<div style={{ display: 'flex', gap: 25 }}>
+							<TextField
+								title={t('hobbies')}
+								data={student.draft.hobbies}
+								editData={editData}
+								editMode={editMode}
+								updateEditData={handleUpdateEditData}
+								keyName='hobbies'
+								parentKey='draft'
+								icon={FavoriteBorderTwoToneIcon}
+								details={['SF映画', '卓球']}
+							/>
+							<TextField
+								title={t('specialSkills')}
+								data={student.draft.other_information || ''}
+								editData={editData}
+								editMode={editMode}
+								updateEditData={handleUpdateEditData}
+								keyName='other_information'
+								parentKey='draft'
+								icon={ElectricBoltIcon}
+								details={['Webデザイン', 'UX/UI設計']}
+							/>
+						</div>
+						<div style={{ display: 'flex', gap: 25 }}>
+							<TextField
+								title={t('origin')}
+								data={student.draft.address || student.address}
+								editData={editData}
+								editMode={editMode}
+								updateEditData={handleUpdateEditData}
+								keyName='address'
+								parentKey='draft'
+								icon={LocationOnOutlinedIcon}
+							/>
+							<TextField
+								title={t('major')}
+								data={student.draft.major || 'ITマネジメント'}
+								editData={editData}
+								editMode={editMode}
+								updateEditData={handleUpdateEditData}
+								keyName='major'
+								parentKey='draft'
+								icon={SchoolOutlinedIcon}
+							/>
+							<TextField
+								title={t('jobType')}
+								data={student.draft.job_type || 'UX/UIデザイナー'}
+								editData={editData}
+								editMode={editMode}
+								updateEditData={handleUpdateEditData}
+								keyName='job_type'
+								parentKey='draft'
+								icon={BusinessCenterOutlinedIcon}
+							/>
+						</div>
+					</Box>
+				)}
+				{/* skills */}
+				{subTabIndex === 1 && (
+					<Box my={2}>
+						<div className={styles.gridBox}>
+							<SkillSelector
+								title={t('itSkills')}
+								headers={{
+									上級: t('threeYearsOrMore'),
+									中級: t('threeYearsOrMore'),
+									初級: t('oneToOneAndHalfYears'),
+								}}
+								data={student.draft}
+								editData={editData}
+								editMode={editMode}
+								updateEditData={handleUpdateEditData}
+								showAutocomplete={true}
+								keyName='it_skills'
+								parentKey='draft'
+								icon={<CodeIcon sx={{ color: '#5627DB' }} />}
+							/>
+							<div className={styles.skillBox}>
+								<div
+									style={{
+										fontSize: 20,
+										fontWeight: 600,
+										display: 'flex',
+										alignItems: 'center',
+										gap: 8,
+									}}
+								>
+									<WorkspacePremiumOutlinedIcon sx={{ color: '#5627DB' }} />
+									{t('qualification')}
+								</div>
+								<div style={{ marginBlock: 30 }}>
+									<div style={{ height: 36 }}>
+										JLPT:
+										{editMode ? (
+											<input
+												type='text'
+												value={
+													editData.draft.jlpt ||
+													getJLPTData(student.jlpt).highest ||
+													''
+												}
+												onChange={e =>
+													handleUpdateEditData('jlpt', e.target.value)
+												}
+												style={{
+													marginLeft: 8,
+													padding: '8px 15px',
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+													width: 120,
+												}}
+											/>
+										) : (
+											<span
+												style={{
+													margin: '0px 10px',
+													padding: '2px 20px',
+													fontWeight: 500,
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+												}}
+											>
+												{editData.draft.jlpt ||
+													getJLPTData(student.jlpt).highest}
+											</span>
+										)}
+									</div>
+									<div style={{ height: 36 }}>
+										{t('jdu_certification')}:{' '}
+										{editMode ? (
+											<input
+												type='text'
+												value={
+													editData.draft.jdu_japanese_certification ||
+													getJLPTData(student.jdu_japanese_certification)
+														.highest ||
+													''
+												}
+												onChange={e =>
+													handleUpdateEditData(
+														'jdu_japanese_certification',
+														e.target.value
+													)
+												}
+												style={{
+													marginLeft: 8,
+													padding: '8px 15px',
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+													width: 120,
+												}}
+											/>
+										) : (
+											<span
+												style={{
+													margin: '0px 10px',
+													padding: '2px 20px',
+													fontWeight: 500,
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+												}}
+											>
+												{editData.draft.jdu_japanese_certification ||
+													getJLPTData(student.jdu_japanese_certification)
+														.highest}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+
+							<SkillSelector
+								title={t('otherSkills')}
+								headers={{
+									上級: '3年間以上',
+									中級: '1年間〜1年間半',
+									初級: '基礎',
+								}}
+								data={student.draft}
+								editMode={editMode}
+								editData={editData}
+								updateEditData={handleUpdateEditData}
+								showAutocomplete={false}
+								showHeaders={false}
+								keyName='skills'
+								parentKey='draft'
+								icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
+							/>
+							<div className={styles.skillBox}>
+								<div
+									style={{
+										fontSize: 20,
+										fontWeight: 600,
+										display: 'flex',
+										alignItems: 'center',
+										gap: 8,
+									}}
+								>
+									<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />
+									{t('otherSkills')}
+								</div>
+								<div style={{ marginBlock: 30 }}>
+									<div style={{ height: 36 }}>
+										{t('japaneseSpeechContest')}:
+										{editMode ? (
+											<input
+												type='text'
+												value={
+													editData.draft.japanese_speech_contest ||
+													getCertificateData(student.japanese_speech_contest)
+														.highest ||
+													''
+												}
+												onChange={e =>
+													handleUpdateEditData(
+														'japanese_speech_contest',
+														e.target.value
+													)
+												}
+												style={{
+													marginLeft: 8,
+													padding: '8px 15px',
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+													width: 120,
+												}}
+											/>
+										) : (
+											<span
+												style={{
+													margin: '0px 10px',
+													padding: '2px 20px',
+													fontWeight: 500,
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+												}}
+											>
+												{editData.draft.japanese_speech_contest ||
+													getCertificateData(student.japanese_speech_contest)
+														.highest}
+											</span>
+										)}
+									</div>
+									<div>
+										{t('itContest')}:
+										{editMode ? (
+											<input
+												type='text'
+												value={
+													editData.draft.it_contest ||
+													getCertificateData(student.it_contest).highest ||
+													''
+												}
+												onChange={e =>
+													handleUpdateEditData('it_contest', e.target.value)
+												}
+												style={{
+													marginLeft: 8,
+													padding: '8px 15px',
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+													width: 120,
+												}}
+											/>
+										) : (
+											<span
+												style={{
+													margin: '0px 10px',
+													padding: '2px 20px',
+													fontWeight: 500,
+													fontSize: 14,
+													border: '1px solid #e0e0e0',
+													borderRadius: 6,
+												}}
+											>
+												{editData.draft.it_contest ||
+													getCertificateData(student.it_contest).highest}
+											</span>
+										)}
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<Box sx={{ my: 2, backgroundColor: '#FFFFFF', padding: 3 }}>
+							<div
 								style={{
-									whiteSpace: 'pre-wrap',
-									wordWrap: 'break-word',
-									fontFamily: 'inherit',
-									margin: 0,
-									color: '#424242',
+									fontSize: 20,
+									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
 								}}
 							>
-								{currentDraft.comments}
-							</pre>
-						</Box>
-						<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>
-							プロフィールを修正して再度提出してください。
+								<TranslateIcon sx={{ color: '#5627DB' }} />{' '}
+								{t('languageSkills')}
+							</div>
+							<div>
+								<div
+									style={{
+										marginTop: 10,
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+									}}
+								>
+									<div>{t('japanese')}</div>
+									<div>
+										{{
+											N5: '20%',
+											N4: '40%',
+											N3: '60%',
+											N2: '80%',
+											N1: '100%',
+										}[
+											student.draft.jlpt || getJLPTData(student.jlpt).highest
+										] || '0%'}
+									</div>
+								</div>
+								<div
+									style={{
+										width: '100%',
+										height: 10,
+										backgroundColor: '#e6dffa',
+										borderRadius: 10,
+										marginTop: 5,
+									}}
+								>
+									<div
+										style={{
+											backgroundColor: '#5627db',
+											borderRadius: 10,
+											height: 10,
+											width:
+												{
+													N5: '20%',
+													N4: '40%',
+													N3: '60%',
+													N2: '80%',
+													N1: '100%',
+												}[
+													student.draft.jlpt ||
+														getJLPTData(student.jlpt).highest
+												] || '0%',
+										}}
+									></div>
+								</div>
+							</div>
 						</Box>
 					</Box>
 				)}
-
-			{role === 'Staff' &&
-			!isLoading &&
-			currentDraft &&
-			currentDraft.id &&
-			currentDraft.status !== 'checking' &&
-			currentDraft.status !== 'approved' ? (
-				<Box
-					sx={{
-						my: 2,
-						display: 'flex',
-						justifyContent: 'center',
-					}}
-				>
-					<Button
-						onClick={() => updateDraftStatus(currentDraft.id)}
-						variant='contained'
-						color='warning'
-						size='small'
-						sx={{ width: '80%', height: '36px', fontSize: '18px' }}
-					>
-						{t('start_checking')}
-					</Button>
-				</Box>
-			) : null}
-			{/* self introduction */}
-			{subTabIndex === 0 && (
-				<Box my={2}>
-					<TextField
-						title={t('selfIntroduction')}
-						data={student.draft.self_introduction}
-						editData={editData}
-						editMode={editMode}
-						updateEditData={handleUpdateEditData}
-						keyName='self_introduction'
-						parentKey='draft'
-						icon={BadgeOutlinedIcon}
-						imageUrl={student.photo}
-					/>
-					<div style={{ display: 'flex', gap: 25 }}>
-						<TextField
-							title={t('hobbies')}
-							data={student.draft.hobbies}
-							editData={editData}
+				{/* deliverables */}
+				{subTabIndex === 2 && (
+					<Box my={2}>
+						<Deliverables
+							data={student.draft.deliverables}
 							editMode={editMode}
+							editData={editData.draft.deliverables}
 							updateEditData={handleUpdateEditData}
-							keyName='hobbies'
-							parentKey='draft'
-							icon={FavoriteBorderTwoToneIcon}
-							details={['SF映画', '卓球']}
+							onImageUpload={handleImageUpload}
+							keyName='deliverables'
+							resetPreviews={resetDeliverablePreviews}
 						/>
-						<TextField
-							title={t('specialSkills')}
-							data={student.draft.other_information || ''}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='other_information'
-							parentKey='draft'
-							icon={ElectricBoltIcon}
-							details={['Webデザイン', 'UX/UI設計']}
-						/>
-					</div>
-					<div style={{ display: 'flex', gap: 25 }}>
-						<TextField
-							title={t('origin')}
-							data={student.draft.address || student.address}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='address'
-							parentKey='draft'
-							icon={LocationOnOutlinedIcon}
-						/>
-						<TextField
-							title={t('major')}
-							data={'ITマネジメント'}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='hobbies'
-							parentKey='draft'
-							icon={SchoolOutlinedIcon}
-						/>
-						<TextField
-							title={t('jobType')}
-							data={'UX/UIデザイナー'}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='hobbies'
-							parentKey='draft'
-							icon={BusinessCenterOutlinedIcon}
-						/>
-					</div>
-				</Box>
-			)}
-			{/* skills */}
-			{subTabIndex === 1 && (
-				<Box my={2}>
-					<div className={styles.gridBox}>
-						<SkillSelector
-							title={t('itSkills')}
-							headers={{
-								上級: t('threeYearsOrMore'),
-								中級: t('threeYearsOrMore'),
-								初級: t('oneToOneAndHalfYears'),
-							}}
-							data={student.draft}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							showAutocomplete={true}
-							keyName='it_skills'
-							parentKey='draft'
-							icon={<CodeIcon sx={{ color: '#5627DB' }} />}
-						/>
-						<div className={styles.skillBox}>
-							<div
-								style={{
-									fontSize: 20,
-									fontWeight: 600,
-									display: 'flex',
-									alignItems: 'center',
-									gap: 8,
-								}}
-							>
-								<WorkspacePremiumOutlinedIcon sx={{ color: '#5627DB' }} />
-								{t('qualification')}
-							</div>
-							<div style={{ marginBlock: 30 }}>
-								<div style={{ height: 36 }}>
-									JLPT:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.jlpt ||
-												getJLPTData(student.jlpt).highest ||
-												''
-											}
-											onChange={e =>
-												handleUpdateEditData('jlpt', e.target.value)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.jlpt || getJLPTData(student.jlpt).highest}
-										</span>
-									)}
-								</div>
-								<div style={{ height: 36 }}>
-									{t('jdu_certification')}:{' '}
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.jdu_japanese_certification ||
-												getJLPTData(student.jdu_japanese_certification)
-													.highest ||
-												''
-											}
-											onChange={e =>
-												handleUpdateEditData(
-													'jdu_japanese_certification',
-													e.target.value
-												)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.jdu_japanese_certification ||
-												getJLPTData(student.jdu_japanese_certification).highest}
-										</span>
-									)}
-								</div>
-							</div>
-						</div>
-
-						<SkillSelector
-							title={t('otherSkills')}
-							headers={{
-								上級: '3年間以上',
-								中級: '1年間〜1年間半',
-								初級: '基礎',
-							}}
-							data={student.draft}
-							editMode={editMode}
-							editData={editData}
-							updateEditData={handleUpdateEditData}
-							showAutocomplete={false}
-							showHeaders={false}
-							keyName='skills'
-							parentKey='draft'
-							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
-						/>
-						<div className={styles.skillBox}>
-							<div
-								style={{
-									fontSize: 20,
-									fontWeight: 600,
-									display: 'flex',
-									alignItems: 'center',
-									gap: 8,
-								}}
-							>
-								<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />
-								{t('otherSkills')}
-							</div>
-							<div style={{ marginBlock: 30 }}>
-								<div style={{ height: 36 }}>
-									{t('japaneseSpeechContest')}:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.japanese_speech_contest ||
-												getCertificateData(student.japanese_speech_contest)
-													.highest ||
-												''
-											}
-											onChange={e =>
-												handleUpdateEditData(
-													'japanese_speech_contest',
-													e.target.value
-												)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.japanese_speech_contest ||
-												getCertificateData(student.japanese_speech_contest)
-													.highest}
-										</span>
-									)}
-								</div>
-								<div>
-									{t('itContest')}:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.it_contest ||
-												getCertificateData(student.it_contest).highest ||
-												''
-											}
-											onChange={e =>
-												handleUpdateEditData('it_contest', e.target.value)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.it_contest ||
-												getCertificateData(student.it_contest).highest}
-										</span>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<Box sx={{ my: 2, backgroundColor: '#FFFFFF', padding: 3 }}>
-						<div
-							style={{
-								fontSize: 20,
-								fontWeight: 600,
-								display: 'flex',
-								alignItems: 'center',
-								gap: 8,
-							}}
-						>
-							<TranslateIcon sx={{ color: '#5627DB' }} /> {t('languageSkills')}
-						</div>
-						<div>
-							<div
-								style={{
-									marginTop: 10,
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-								}}
-							>
-								<div>{t('japanese')}</div>
-								<div>
-									{{
-										N5: '20%',
-										N4: '40%',
-										N3: '60%',
-										N2: '80%',
-										N1: '100%',
-									}[student.draft.jlpt || getJLPTData(student.jlpt).highest] ||
-										'0%'}
-								</div>
-							</div>
-							<div
-								style={{
-									width: '100%',
-									height: 10,
-									backgroundColor: '#e6dffa',
-									borderRadius: 10,
-									marginTop: 5,
-								}}
-							>
-								<div
-									style={{
-										backgroundColor: '#5627db',
-										borderRadius: 10,
-										height: 10,
-										width:
-											{
-												N5: '20%',
-												N4: '40%',
-												N3: '60%',
-												N2: '80%',
-												N1: '100%',
-											}[
-												student.draft.jlpt || getJLPTData(student.jlpt).highest
-											] || '0%',
+					</Box>
+				)}
+				{/* QA */}
+				{subTabIndex === 3 && (
+					<Box my={2} backgroundColor={'#FFFFFF'} padding={3}>
+						<div style={{ display: 'flex', gap: 10 }}>
+							{[
+								'JDU',
+								String(student.partner_university),
+								'University of World Languages',
+							].map((item, ind) => (
+								<Button
+									key={ind}
+									variant={item === activeUniver ? 'contained' : 'outlined'}
+									onClick={() => {
+										setActiveUniver(item)
 									}}
-								></div>
-							</div>
+								>
+									{item}
+								</Button>
+							))}
 						</div>
-					</Box>
-				</Box>
-			)}
-			{/* deliverables */}
-			{subTabIndex === 2 && (
-				<Box my={2}>
-					<Deliverables
-						data={student.draft.deliverables}
-						editMode={editMode}
-						editData={editData.draft.deliverables}
-						updateEditData={handleUpdateEditData}
-						onImageUpload={handleImageUpload}
-						keyName='deliverables'
-						resetPreviews={resetDeliverablePreviews}
-					/>
-				</Box>
-			)}
-			{/* QA */}
-			{subTabIndex === 3 && (
-				<Box my={2} backgroundColor={'#FFFFFF'} padding={3}>
-					<div style={{ display: 'flex', gap: 10 }}>
-						{[
-							'JDU',
-							String(student.partner_university),
-							'University of World Languages',
-						].map((item, ind) => (
-							<Button
-								key={ind}
-								variant={item === activeUniver ? 'contained' : 'outlined'}
-								onClick={() => {
-									setActiveUniver(item)
-								}}
-							>
-								{item}
-							</Button>
-						))}
-					</div>
 
-					<Box
-						sx={{
-							color: '#1E1E1ECC',
-							marginBlock: '20px',
-						}}
-						my={2}
-					>
-						<div>{t('studentCredits')}</div>
-						<div>
-							<span style={{ fontSize: 32, fontWeight: 600, color: 'black' }}>
-								{creditMap[activeUniver] ?? 0}
-							</span>
-							/124
-						</div>
+						<Box
+							sx={{
+								color: '#1E1E1ECC',
+								marginBlock: '20px',
+							}}
+							my={2}
+						>
+							<div>{t('studentCredits')}</div>
+							<div>
+								<span style={{ fontSize: 32, fontWeight: 600, color: 'black' }}>
+									{creditMap[activeUniver] ?? 0}
+								</span>
+								/124
+							</div>
+						</Box>
+						<CreditsProgressBar
+							studentId={student?.student_id}
+							student={{
+								totalCredits: creditMap[activeUniver] ?? 0,
+								semester: student?.semester,
+								university: activeUniver, // Pass university name for target credits calculation
+							}}
+						/>
 					</Box>
-					<CreditsProgressBar
-						studentId={student?.student_id}
-						student={{
-							totalCredits: creditMap[activeUniver] ?? 0,
-							semester: student?.semester,
-							university: activeUniver, // Pass university name for target credits calculation
-						}}
-					/>
-				</Box>
-			)}
-			{subTabIndex === 4 && (
-				<Box my={2}>
-					<QA
-						updateQA={updateQA}
-						data={editData.draft.qa}
-						currentDraft={currentDraft}
-						handleQAUpdate={handleQAUpdate}
-						isFromTopPage={true}
-						topEditMode={editMode}
-						handleDraftUpsert={handleDraftUpsert}
-						isHonban={true}
-						setTopEditMode={setTopEditMode}
-					/>
-				</Box>
-			)}
+				)}
+				{subTabIndex === 4 && (
+					<Box my={2}>
+						<QA
+							updateQA={updateQA}
+							data={editData.draft.qa}
+							currentDraft={currentDraft}
+							handleQAUpdate={handleQAUpdate}
+							isFromTopPage={true}
+							topEditMode={editMode}
+							handleDraftUpsert={handleDraftUpsert}
+							isHonban={true}
+							setTopEditMode={setTopEditMode}
+						/>
+					</Box>
+				)}
+			</>
+
 			<ProfileConfirmDialog
 				open={confirmMode}
 				onClose={toggleConfirmMode}

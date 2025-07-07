@@ -21,9 +21,36 @@ class KintoneController {
 	static async getBy(req, res, next) {
 		try {
 			const { table, col, val } = req.body
+			console.log("🔍 KintoneController.getBy so'rovi:", {
+				table: table,
+				column: col,
+				value: val,
+			})
+
 			const records = await KintoneService.getRecordBy(table, col, val)
+
+			console.log('📊 KintoneService.getRecordBy natijasi:', {
+				table: table,
+				recordsCount: records?.records?.length || 0,
+				sampleRecord: records?.records?.[0]
+					? "Ma'lumot mavjud"
+					: "Ma'lumot yo'q",
+			})
+
+			if (records?.records?.[0]) {
+				console.log(
+					'📝 Birinchi yozuv maydonlari:',
+					Object.keys(records.records[0])
+				)
+				console.log(
+					"📄 Birinchi yozuv to'liq ma'lumoti:",
+					JSON.stringify(records.records[0], null, 2)
+				)
+			}
+
 			res.status(200).json(records)
 		} catch (error) {
+			console.error('❌ KintoneController.getBy xatosi:', error.message)
 			res
 				.status(500)
 				.json({ message: 'Error fetching records', error: error.message })

@@ -13,57 +13,40 @@ class RecruiterService {
 		} catch (error) {
 			throw error // Throw the error for the controller to handle
 		}
-		å
 	}
 
 	// Service method to retrieve all recruiters
 	static async getAllRecruiters(filter) {
 		try {
-			let query = {} // Initialize an empty query object
-			const searchableColumns = [
-				'email',
-				'first_name',
-				'last_name',
-				'company_name',
-				'company_description',
-				'phone',
-				'company_Address',
-				'business_overview',
-				'target_audience',
-				'required_skills',
-				'welcome_skills',
-				'work_location',
-				'work_hours',
-				'salary',
-				'benefits',
-				'selection_process',
-				'company_video_url',
-			] // Example list of searchable columns
+			console.log('🔍 getAllRecruiters called with filter:', filter)
 
-			// Iterate through filter keys
-			Object.keys(filter).forEach(key => {
-				if (filter[key]) {
-					// Handle different types of filter values
-					if (key === 'search') {
-						// Search across all searchable columns
-						query[Op.or] = searchableColumns.map(column => {
-							// Use Op.iLike for case insensitive search on other columns
-							return { [column]: { [Op.iLike]: `%${filter[key]}%` } }
-						})
-					} else if (Array.isArray(filter[key])) {
-						// If filter value is an array, use $in operator
-						query[key] = { [Op.in]: filter[key] }
-					} else if (typeof filter[key] === 'string') {
-						query[key] = { [Op.like]: `%${filter[key]}%` }
-					} else {
-						// Handle other types of filter values as needed
-						query[key] = filter[key]
-					}
-				}
+			let query = {} // Initialize an empty query object
+
+			// Simple search implementation - only search basic text fields
+			if (filter && filter.search && filter.search.trim() !== '') {
+				const searchTerm = filter.search.trim()
+				console.log('🔎 Searching for:', searchTerm)
+
+				query[Op.or] = [
+					{ first_name: { [Op.iLike]: `%${searchTerm}%` } },
+					{ last_name: { [Op.iLike]: `%${searchTerm}%` } },
+					{ company_name: { [Op.iLike]: `%${searchTerm}%` } },
+					{ email: { [Op.iLike]: `%${searchTerm}%` } },
+				]
+			}
+
+			console.log('📋 Query object:', JSON.stringify(query, null, 2))
+
+			const recruiters = await Recruiter.findAll({
+				where: query,
+				attributes: { exclude: ['password'] }, // Don't return passwords
 			})
-			const recruiters = await Recruiter.findAll({ where: query })
+
+			console.log('✅ Found recruiters:', recruiters.length)
 			return recruiters
 		} catch (error) {
+			console.error('❌ Error in getAllRecruiters:', error.message)
+			console.error('Stack:', error.stack)
 			throw error
 		}
 	}

@@ -82,15 +82,33 @@ const CreditsProgressBar = ({ studentId, student }) => {
 			const response = await axios.get(
 				`${import.meta.env.VITE_APP_API_BASE_URL}/students/${studentId}/credit-details`
 			)
+
+			// Check if response has data structure
+			if (!response.data || !response.data.data) {
+				console.error('❌ Invalid response structure:', response.data)
+				throw new Error('Invalid response structure')
+			}
+
 			const data = response.data.data // Get the actual data from response
 
+			console.log('🧪 Debug - Response data keys:', Object.keys(data))
+			console.log('🧪 Debug - credit_details exists:', !!data.credit_details)
+			console.log('🧪 Debug - creditDetails exists:', !!data.creditDetails)
+			console.log(
+				'🧪 Debug - credit_details length:',
+				data.credit_details?.length || 0
+			)
+
 			// Set credit details from Kintone (like Sanno University)
-			setCreditDetails(data.creditDetails || [])
+			// Response contains 'credit_details' field, not 'creditDetails'
+			setCreditDetails(data.credit_details || data.creditDetails || [])
 
 			// Update student total credits from Kintone data
 			if (data.totalCredits !== undefined) {
 				// This will be used by the parent component to update the progress
 				console.log(`📊 Total credits from Kintone: ${data.totalCredits}`)
+			} else if (data.total_credits !== undefined) {
+				console.log(`📊 Total credits from database: ${data.total_credits}`)
 			}
 		} catch (error) {
 			console.error('Error fetching credit details:', error)

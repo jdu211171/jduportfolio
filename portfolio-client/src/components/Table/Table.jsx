@@ -127,7 +127,21 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 			console.log('Fetched data:', response.data)
 			setRows(response.data)
 		} catch (error) {
-			console.error('Error fetching students:', error)
+			// Handle different types of errors
+			if (error.response?.status === 401) {
+				// Authentication error - redirect handled by interceptor
+				console.log('Authentication required')
+			} else if (error.response?.status === 500) {
+				// Server error - silently handle for now
+				console.log('Server temporarily unavailable')
+			} else if (error.code === 'ERR_NETWORK') {
+				// Network error
+				console.log('Network connection issue')
+			} else {
+				// Other errors - log for debugging but don't show to user
+				console.log('Request failed:', error.message)
+			}
+			setRows([]) // Set empty array if fetch fails
 		} finally {
 			setLoading(false)
 		}

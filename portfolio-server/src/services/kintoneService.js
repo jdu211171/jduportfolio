@@ -292,7 +292,18 @@ class KintoneService {
 	// Bu metodlar tashqaridan chaqirilishi mumkinligi uchun saqlab qolindi
 	static async getRecordBy(appName, colName, colValue) {
 		try {
+			console.log('🚀 KintoneService.getRecordBy boshlandi:', {
+				appName: appName,
+				columnName: colName,
+				columnValue: colValue,
+			})
+
 			const { appId, token } = this.getAppConfig(appName)
+			console.log('⚙️ App konfiguratsiyasi:', {
+				appName: appName,
+				appId: appId,
+				token: token ? `${token.substring(0, 8)}...` : 'MAVJUD EMAS',
+			})
 
 			let allRecords = []
 			let offset = 0
@@ -302,6 +313,12 @@ class KintoneService {
 
 			while (hasMoreRecords) {
 				query = `${colName} = "${colValue}" limit 100 offset ${offset}`
+				console.log("🔍 Kintone API so'rovi:", {
+					url: `${this.baseUrl}/k/v1/records.json`,
+					appId: appId,
+					query: query,
+				})
+
 				const response = await axios.get(`${this.baseUrl}/k/v1/records.json`, {
 					headers: {
 						'X-Cybozu-API-Token': token,
@@ -310,6 +327,12 @@ class KintoneService {
 						app: appId,
 						query: query,
 					},
+				})
+
+				console.log('📨 Kintone API javobi:', {
+					status: response.status,
+					recordsCount: response.data.records?.length || 0,
+					totalSoFar: allRecords.length + (response.data.records?.length || 0),
 				})
 
 				// Add the current batch of records to the allRecords array
@@ -321,11 +344,24 @@ class KintoneService {
 				offset += 100
 			}
 
+			console.log('✅ KintoneService.getRecordBy yakunlandi:', {
+				appName: appName,
+				totalRecords: allRecords.length,
+				sampleFields: allRecords[0] ? Object.keys(allRecords[0]) : [],
+			})
+
 			let data = {
 				records: allRecords,
 			}
 			return data
 		} catch (error) {
+			console.error('❌ KintoneService.getRecordBy xatosi:', {
+				appName: appName,
+				error: error.message,
+				errorDetails: error.response
+					? error.response.data
+					: 'Response mavjud emas',
+			})
 			console.error(
 				`Error fetching record by ${colName} from Kintone:`,
 				error.message
