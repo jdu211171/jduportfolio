@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
 	Autocomplete,
 	TextField,
@@ -9,6 +9,7 @@ import {
 	FormControl,
 	InputLabel,
 	IconButton,
+	CircularProgress,
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
@@ -25,68 +26,73 @@ const SkillSelector = ({
 	headers,
 	updateEditData,
 	keyName,
-	parentKey = 'draft',
 	showAutocomplete,
 	showHeaders,
 	icon,
 }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
+	const [isAdding, setIsAdding] = useState(false)
 
 	const { language } = useLanguage()
+
 	const t = key => translations[language][key] || key
 
-	// Get the current skills data
-	const getCurrentSkillsData = () => {
-		if (editMode && editData && editData[parentKey]) {
-			console.log(
-				'🎯 Getting skills from editData:',
-				editData[parentKey][keyName]
-			)
-			return editData[parentKey][keyName] || {}
+	// Get current skills data safely
+	const currentSkillsData = useMemo(() => {
+		if (editMode) {
+			return editData?.[keyName] || {}
 		}
-		console.log('🎯 Getting skills from data:', data?.[keyName])
 		return data?.[keyName] || {}
-	}
+	}, [editMode, editData, data, keyName])
 
-	const handleAddSkill = () => {
-		console.log('� Adding skill - Start:', {
-			selectedSkill,
-			selectedLevel,
-			keyName,
-			parentKey,
-			editMode,
-			currentData: getCurrentSkillsData(),
+	// Reset form when not in edit mode
+	useEffect(() => {
+		if (!editMode) {
+			setSelectedSkill(null)
+			setSelectedLevel('初級')
+		}
+	}, [editMode])
+
+	const handleAddSkill = useCallback(() => {
+		if (!selectedSkill || !selectedSkill.name || !selectedLevel) {
+			return
+		}
+
+		// Trim and validate skill name
+		const skillName = selectedSkill.name.trim()
+		if (!skillName) {
+			return
+		}
+
+		setIsAdding(true)
+
+		const currentEditData = currentSkillsData || {}
+		let skillExists = false
+
+		// Check if skill already exists in any level
+		Object.keys(currentEditData).forEach(level => {
+			if (
+				currentEditData[level] &&
+				Array.isArray(currentEditData[level]) &&
+				currentEditData[level].some(
+					skill => skill.name.toLowerCase() === skillName.toLowerCase()
+				)
+			) {
+				skillExists = true
+			}
 		})
 
-		// Validation
-		if (!selectedSkill?.name?.trim() || !selectedLevel) {
-			console.log('❌ Validation failed:', { selectedSkill, selectedLevel })
+		if (skillExists) {
+			setIsAdding(false)
 			return
 		}
 
-		const skillName = selectedSkill.name.trim()
-		const currentSkillsData = getCurrentSkillsData()
-
-		// Check for duplicates
-		const isDuplicate = Object.values(currentSkillsData).some(
-			levelSkills =>
-				Array.isArray(levelSkills) &&
-				levelSkills.some(
-					skill => skill.name?.toLowerCase() === skillName.toLowerCase()
-				)
-		)
-
-		if (isDuplicate) {
-			alert(`Skill "${skillName}" already exists!`)
-			return
-		}
-
-		// Create updated skills object
+		// Add the new skill
 		const updatedSkills = {
-			...currentSkillsData,
+			...currentEditData,
 			[selectedLevel]: [
-				...(currentSkillsData[selectedLevel] || []),
+				...(currentEditData[selectedLevel] || []),
 				{
 					name: skillName,
 					color: selectedSkill.color || '#5627DB',
@@ -94,55 +100,49 @@ const SkillSelector = ({
 			],
 		}
 
-		console.log('✅ Updating skills:', updatedSkills)
-		console.log('📤 Calling updateEditData with:', {
-			keyName,
-			updatedSkills,
-			parentKey,
-		})
-
-		// Update the data
 		try {
-			updateEditData(keyName, updatedSkills, parentKey)
+			updateEditData(keyName, updatedSkills)
 
-			// Reset form
-			setSelectedSkill(null)
-			setSelectedLevel('初級')
-
-			console.log('✅ Skill added successfully!')
+			// Reset selection after a brief delay to prevent flicker
+			setTimeout(() => {
+				setSelectedSkill(null)
+				setSelectedLevel('初級')
+				setIsAdding(false)
+			}, 100)
 		} catch (error) {
-			console.error('❌ Error adding skill:', error)
+			console.error('Error adding skill:', error)
+			setIsAdding(false)
 		}
-	}
+	}, [selectedSkill, selectedLevel, currentSkillsData, updateEditData, keyName])
 
-	const handleDeleteSkill = (skillToDelete, level) => {
-		console.log('🗑️ Deleting skill:', {
-			skillToDelete,
-			level,
-			keyName,
-			parentKey,
-		})
+	const handleDeleteSkill = useCallback(
+		(skillToDelete, level) => {
+			try {
+				const currentEditData = currentSkillsData || {}
+				const updatedSkills = {
+					...currentEditData,
+					[level]: (currentEditData[level] || []).filter(
+						skill => skill.name !== skillToDelete.name
+					),
+				}
+				updateEditData(keyName, updatedSkills)
+			} catch (error) {
+				console.error('Error deleting skill:', error)
+			}
+		},
+		[currentSkillsData, updateEditData, keyName]
+	)
 
-		const currentSkillsData = getCurrentSkillsData()
-		const updatedSkills = {
-			...currentSkillsData,
-			[level]: (currentSkillsData[level] || []).filter(
-				skill => skill.name !== skillToDelete.name
-			),
-		}
-
-		console.log('✅ Updated skills after delete:', updatedSkills)
-
-		try {
-			updateEditData(keyName, updatedSkills, parentKey)
-			console.log('✅ Skill deleted successfully!')
-		} catch (error) {
-			console.error('❌ Error deleting skill:', error)
-		}
-	}
-
-	const skillsToDisplay = getCurrentSkillsData()
-	console.log('📊 Skills to display:', skillsToDisplay)
+	// Check if add button should be enabled
+	const canAddSkill = useMemo(() => {
+		return (
+			selectedSkill &&
+			selectedSkill.name &&
+			selectedSkill.name.trim() &&
+			selectedLevel &&
+			!isAdding
+		)
+	}, [selectedSkill, selectedLevel, isAdding])
 
 	return (
 		<div className={styles.container}>
@@ -150,21 +150,18 @@ const SkillSelector = ({
 				className={styles.title}
 				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
 			>
-				{icon}
+				{icon ? icon : ''}
 				{title}
 			</div>
-
-			{showHeaders && (
-				<div className={styles.description}>
-					{Object.entries(headers).map(([level, description]) => (
+			<div className={styles.description}>
+				{showHeaders &&
+					Object.entries(headers).map(([level, description]) => (
 						<div key={level}>
 							<span style={{ fontWeight: 800 }}>{t('levels')[level]}</span>:{' '}
 							{description}
 						</div>
 					))}
-				</div>
-			)}
-
+			</div>
 			{editMode && (
 				<Box
 					display='flex'
@@ -180,10 +177,10 @@ const SkillSelector = ({
 							getOptionLabel={option => option.name || ''}
 							value={selectedSkill}
 							onChange={(event, newValue) => {
-								console.log('🎯 Autocomplete changed:', newValue)
 								setSelectedSkill(newValue)
 							}}
 							sx={{ width: 200 }}
+							disabled={isAdding}
 							renderInput={params => (
 								<TextField
 									{...params}
@@ -196,32 +193,29 @@ const SkillSelector = ({
 					) : (
 						<TextField
 							value={selectedSkill?.name || ''}
-							onChange={event => {
-								console.log('🎯 TextField changed:', event.target.value)
-								setSelectedSkill({ name: event.target.value })
-							}}
+							onChange={event => setSelectedSkill({ name: event.target.value })}
 							onKeyPress={event => {
 								if (event.key === 'Enter') {
 									event.preventDefault()
-									handleAddSkill()
+									if (canAddSkill) {
+										handleAddSkill()
+									}
 								}
 							}}
 							label='Skill'
 							variant='outlined'
 							size='small'
 							sx={{ width: 200 }}
+							disabled={isAdding}
 						/>
 					)}
-
 					<FormControl variant='outlined' size='small' sx={{ width: 150 }}>
 						<InputLabel>Level</InputLabel>
 						<Select
 							value={selectedLevel}
-							onChange={event => {
-								console.log('🎯 Level changed:', event.target.value)
-								setSelectedLevel(event.target.value)
-							}}
+							onChange={event => setSelectedLevel(event.target.value)}
 							label='Level'
+							disabled={isAdding}
 						>
 							{Object.keys(headers || {}).map(key => (
 								<MenuItem key={key} value={key}>
@@ -230,11 +224,10 @@ const SkillSelector = ({
 							))}
 						</Select>
 					</FormControl>
-
 					<IconButton
 						onClick={handleAddSkill}
 						color='primary'
-						disabled={!selectedSkill?.name?.trim() || !selectedLevel}
+						disabled={!canAddSkill}
 						sx={{
 							backgroundColor: '#5627DB',
 							color: 'white',
@@ -242,15 +235,18 @@ const SkillSelector = ({
 							'&:disabled': { backgroundColor: '#cccccc', color: '#666666' },
 						}}
 					>
-						<AddIcon />
+						{isAdding ? (
+							<CircularProgress size={20} color='inherit' />
+						) : (
+							<AddIcon />
+						)}
 					</IconButton>
 				</Box>
 			)}
-
 			<div className={styles.data}>
 				<table>
 					<tbody>
-						{Object.entries(skillsToDisplay)
+						{Object.entries(currentSkillsData || {})
 							.filter(
 								([, skills]) =>
 									skills && Array.isArray(skills) && skills.length > 0
@@ -269,7 +265,7 @@ const SkillSelector = ({
 									</td>
 									<td style={{ width: 'auto' }}>
 										<div className={styles.skillChipContainer}>
-											{skills.map((skill, index) => (
+											{(skills || []).map((skill, index) => (
 												<Chip
 													key={`${level}-${index}-${skill.name}`}
 													label={
@@ -314,7 +310,8 @@ const SkillSelector = ({
 									</td>
 								</tr>
 							))}
-						{Object.keys(skillsToDisplay).length === 0 && (
+						{/* Show message if no skills */}
+						{Object.keys(currentSkillsData || {}).length === 0 && (
 							<tr>
 								<td
 									colSpan='2'

@@ -57,8 +57,22 @@ const Top = () => {
 				certificateString === 'undefined'
 			)
 				return { highest: '未提出', list: [] }
-			const parsed = JSON.parse(certificateString)
-			return parsed && parsed.highest ? parsed : { highest: '未提出', list: [] }
+
+			// Check if it's already a string (not JSON)
+			if (typeof certificateString === 'string') {
+				// Try to parse as JSON first
+				try {
+					const parsed = JSON.parse(certificateString)
+					return parsed && parsed.highest
+						? parsed
+						: { highest: certificateString, list: [] }
+				} catch {
+					// If it's not valid JSON, treat it as a plain string
+					return { highest: certificateString, list: [] }
+				}
+			}
+
+			return { highest: '未提出', list: [] }
 		} catch (error) {
 			console.error('Error parsing certificate data:', error)
 			return { highest: '未提出', list: [] }
@@ -359,11 +373,11 @@ const Top = () => {
 		}
 	}
 
-	const handleUpdateEditData = (key, value) => {
+	const handleUpdateEditData = (key, value, parentKey = 'draft') => {
 		setEditData(prevEditData => ({
 			...prevEditData,
-			draft: {
-				...prevEditData.draft,
+			[parentKey]: {
+				...prevEditData[parentKey],
 				[key]: value,
 			},
 		}))
@@ -858,7 +872,7 @@ const Top = () => {
 							keyName='hobbies'
 							parentKey='draft'
 							icon={FavoriteBorderTwoToneIcon}
-							details={['SF映画', '卓球']}
+							details={editData.draft?.hobbies_details || ['SF映画', '卓球']}
 						/>
 						<TextField
 							title={t('specialSkills')}
@@ -869,7 +883,12 @@ const Top = () => {
 							keyName='other_information'
 							parentKey='draft'
 							icon={ElectricBoltIcon}
-							details={['Webデザイン', 'UX/UI設計']}
+							details={
+								editData.draft?.other_information_details || [
+									'Webデザイン',
+									'UX/UI設計',
+								]
+							}
 						/>
 					</div>
 					<div style={{ display: 'flex', gap: 25 }}>
@@ -889,7 +908,7 @@ const Top = () => {
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
-							keyName='hobbies'
+							keyName='major'
 							parentKey='draft'
 							icon={SchoolOutlinedIcon}
 						/>
@@ -899,7 +918,7 @@ const Top = () => {
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
-							keyName='hobbies'
+							keyName='job_type'
 							parentKey='draft'
 							icon={BusinessCenterOutlinedIcon}
 						/>
@@ -910,6 +929,12 @@ const Top = () => {
 			{subTabIndex === 1 && (
 				<Box my={2}>
 					<div className={styles.gridBox}>
+						{console.log('🔍 DEBUG - Student draft data:', student.draft)}
+						{console.log('🔍 DEBUG - Edit data:', editData)}
+						{console.log(
+							'🔍 DEBUG - IT Skills in draft:',
+							student.draft?.it_skills
+						)}
 						<SkillSelector
 							title={t('itSkills')}
 							headers={{

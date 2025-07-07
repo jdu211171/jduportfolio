@@ -24,19 +24,6 @@ const StudentProfile = ({ userId = 0 }) => {
 	const location = useLocation()
 	const [student, setStudent] = useState(null)
 
-	// Helper function to safely parse JLPT data
-	const getJLPTData = jlptString => {
-		try {
-			if (!jlptString || jlptString === 'null' || jlptString === 'undefined')
-				return { highest: 'N/A' }
-			const parsed = JSON.parse(jlptString)
-			return parsed || { highest: 'N/A' }
-		} catch (error) {
-			console.error('Error parsing JLPT data:', error)
-			return { highest: 'N/A' }
-		}
-	}
-
 	useEffect(() => {
 		const fetchStudent = async () => {
 			try {
@@ -145,17 +132,6 @@ const StudentProfile = ({ userId = 0 }) => {
 								</div>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>{t.age}:</div>
-									<div>{calculateAge(student.date_of_birth)}</div>
-								</div>
-							</div>
-							{/* JLPT and sotsugyou */}
-							<div style={{ display: 'flex', gap: 10 }}>
-								<div style={{ display: 'flex' }}>
-									<div style={{ color: '#787878' }}>jlpt tarjima:</div>
-									<div>{getJLPTData(student.jlpt).highest}</div>
-								</div>
-								<div style={{ display: 'flex' }}>
-									<div style={{ color: '#787878' }}>卒業見込み:</div>
 									<div>{calculateAge(student.date_of_birth)}</div>
 								</div>
 							</div>
