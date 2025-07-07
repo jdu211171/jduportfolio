@@ -29,9 +29,32 @@ const Deliverables = ({
 		imageLink: '',
 	})
 
+	// Cleanup function for blob URLs
+	const cleanupBlobUrls = (previewsToClean = imagePreview) => {
+		Object.values(previewsToClean).forEach(url => {
+			if (url && typeof url === 'string' && url.startsWith('blob:')) {
+				try {
+					URL.revokeObjectURL(url)
+				} catch (error) {
+					console.warn('Failed to revoke blob URL:', url, error)
+				}
+			}
+		})
+	}
+
+	// Cleanup on unmount
+	useEffect(() => {
+		return () => {
+			cleanupBlobUrls()
+		}
+	}, [])
+
 	useEffect(() => {
 		setNewData(editData || [])
-		// Clear image previews when editData changes (after save)
+		// Clean up existing blob URLs before setting new previews
+		cleanupBlobUrls()
+
+		// Set new image previews when editData changes (after save)
 		if (editData && editData.length > 0) {
 			const newPreviews = {}
 			editData.forEach((item, index) => {
@@ -41,6 +64,8 @@ const Deliverables = ({
 				}
 			})
 			setImagePreview(newPreviews)
+		} else {
+			setImagePreview({})
 		}
 	}, [editData])
 
@@ -74,6 +99,12 @@ const Deliverables = ({
 	const handleImageUpload = event => {
 		const file = event.target.files[0]
 		if (file) {
+			// Clean up previous blob URL if it exists
+			const previousUrl = imagePreview[activeDeliverable]
+			if (previousUrl && previousUrl.startsWith('blob:')) {
+				URL.revokeObjectURL(previousUrl)
+			}
+
 			// Create preview URL
 			const previewUrl = URL.createObjectURL(file)
 			setImagePreview(prev => ({
@@ -116,9 +147,28 @@ const Deliverables = ({
 	}
 
 	const deleteDeliverable = index => {
+		// Clean up blob URL for the deleted deliverable
+		const urlToClean = imagePreview[index]
+		if (urlToClean && urlToClean.startsWith('blob:')) {
+			URL.revokeObjectURL(urlToClean)
+		}
+
 		const updatedData = newData.filter((_, i) => i !== index)
 		setNewData(updatedData)
 		updateEditData(keyName, updatedData)
+
+		// Remove the preview entry and reindex remaining previews
+		const newPreviews = {}
+		Object.entries(imagePreview).forEach(([key, value]) => {
+			const keyIndex = parseInt(key)
+			if (keyIndex < index) {
+				newPreviews[keyIndex] = value
+			} else if (keyIndex > index) {
+				newPreviews[keyIndex - 1] = value
+			}
+			// Skip the deleted index
+		})
+		setImagePreview(newPreviews)
 		setActiveDeliverable(-1)
 	}
 
@@ -164,6 +214,9 @@ const Deliverables = ({
 	// Reset previews when resetPreviews prop changes
 	useEffect(() => {
 		if (resetPreviews) {
+			// Clean up existing blob URLs first
+			cleanupBlobUrls()
+
 			const newPreviews = {}
 			if (editData && editData.length > 0) {
 				editData.forEach((item, index) => {
@@ -175,6 +228,17 @@ const Deliverables = ({
 			setImagePreview(newPreviews)
 		}
 	}, [resetPreviews, editData])
+
+	// Cleanup blob URLs on unmount to prevent memory leaks
+	useEffect(() => {
+		return () => {
+			Object.values(imagePreview).forEach(url => {
+				if (url && url.startsWith('blob:')) {
+					URL.revokeObjectURL(url)
+				}
+			})
+		}
+	}, [imagePreview])
 	return (
 		<div className={styles.container}>
 			{editMode && (
@@ -462,7 +526,19 @@ const Deliverables = ({
 						>
 							{data.map((item, ind) => (
 								<div key={ind} className={styles.item}>
-									<img src={item.imageLink} alt={item.title} />
+									{item.imageLink && !item.imageLink.startsWith('blob:') && (
+										<img
+											src={item.imageLink}
+											alt={item.title}
+											onError={e => {
+												console.warn(
+													'View mode image failed to load:',
+													item.imageLink
+												)
+												e.target.style.display = 'none'
+											}}
+										/>
+									)}
 									<div style={{ padding: 15 }}>
 										<div className={styles.title}>{item.title}</div>
 										<div className={styles.description}>{item.description}</div>

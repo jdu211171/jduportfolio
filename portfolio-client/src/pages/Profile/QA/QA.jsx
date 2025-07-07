@@ -8,8 +8,10 @@ TODO: Student Resubmission and Staff Workflow Fixes
 - [x] Fixed handleConfirmProfile: Now updates parent currentDraft state to 'submitted' when student submits
 - [x] Added passedDraft synchronization: passedDraft state now stays in sync with currentDraft changes
 - [x] Added debug logging to track state changes and button visibility conditions
-- [ ] Test and verify submit button appears correctly after rejection
-- [ ] Verify IT skills section design is properly restored
+- [x] FIXED: Submit button visibility issue in Top.jsx - added resubmission_required status condition
+- [x] FIXED: Comment input clearing - comment field now clears after staff approval/rejection
+- [x] Test and verify submit button appears correctly after rejection
+- [x] Verify IT skills section design is properly restored
 */
 
 import React, { useState, useEffect, useContext } from 'react'
@@ -231,6 +233,8 @@ const QA = ({
 			}))
 			// Update parent's currentDraft state
 			updateCurrentDraft(value)
+			// Clear comment input after successful submission
+			setComment({ comments: '' })
 			showAlert(t['profileConfirmed'], 'success')
 		} catch (error) {
 			showAlert(t['errorConfirmingProfile'], 'error')
