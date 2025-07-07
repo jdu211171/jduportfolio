@@ -122,6 +122,11 @@
 	background-color: rgba(86, 39, 220, 0.05);
 }
 
+.approved {
+	border-left: 3px solid #4caf50;
+	background-color: rgba(76, 175, 80, 0.05);
+}
+
 .newIndicator {
 	background-color: #5627dc;
 	color: white;
@@ -195,6 +200,12 @@
 	border-radius: 0.5rem;
 	box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 	overflow-wrap: break-word;
+}
+
+.approvedMessageBody {
+	background-color: #f0f9f4 !important;
+	/* Light green background for approved notifications */
+	border: 1px solid #4ade80;
 }
 
 .messageText {
@@ -341,6 +352,17 @@
 	justify-content: space-between;
 	align-items: center;
 	font-weight: bold;
+}
+
+/* Approved notification styling */
+.approved {
+	background-color: #f0f9f4 !important;
+	border-left: 4px solid #4ade80 !important;
+}
+
+.approvedMessageBody {
+	background-color: #f0f9f4 !important;
+	border: 1px solid #4ade80 !important;
 }
 
 /* Media queries */

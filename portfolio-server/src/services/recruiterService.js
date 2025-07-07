@@ -13,58 +13,66 @@ class RecruiterService {
 		} catch (error) {
 			throw error // Throw the error for the controller to handle
 		}
-		å
 	}
 
 	// Service method to retrieve all recruiters
 	static async getAllRecruiters(filter) {
 		try {
-			let query = {} // Initialize an empty query object
-			const searchableColumns = [
-				'email',
-				'first_name',
-				'last_name',
-				'company_name',
-				'company_description',
-				'phone',
-				'company_Address',
-				'business_overview',
-				'target_audience',
-				'required_skills',
-				'welcome_skills',
-				'work_location',
-				'work_hours',
-				'salary',
-				'benefits',
-				'selection_process',
-				'company_video_url',
-			] // Example list of searchable columns
+			let whereCondition = {}
 
-			// Iterate through filter keys
+			// Ensure filter is a valid object
+			if (!filter || typeof filter !== 'object') {
+				filter = {}
+			}
+
+			// Handle search across multiple columns
+			if (filter.search && filter.search.trim() !== '') {
+				const searchValue = String(filter.search).trim()
+				const searchableColumns = [
+					'email',
+					'first_name',
+					'last_name',
+					'company_name',
+					'company_description',
+					'phone',
+					'company_Address',
+				]
+
+				whereCondition[Op.or] = searchableColumns.map(column => ({
+					[column]: { [Op.iLike]: `%${searchValue}%` },
+				}))
+			}
+
+			// Handle other filters
 			Object.keys(filter).forEach(key => {
-				if (filter[key]) {
-					// Handle different types of filter values
-					if (key === 'search') {
-						// Search across all searchable columns
-						query[Op.or] = searchableColumns.map(column => {
-							// Use Op.iLike for case insensitive search on other columns
-							return { [column]: { [Op.iLike]: `%${filter[key]}%` } }
-						})
-					} else if (Array.isArray(filter[key])) {
-						// If filter value is an array, use $in operator
-						query[key] = { [Op.in]: filter[key] }
+				if (key !== 'search' && filter[key]) {
+					if (Array.isArray(filter[key])) {
+						whereCondition[key] = { [Op.in]: filter[key] }
 					} else if (typeof filter[key] === 'string') {
-						query[key] = { [Op.like]: `%${filter[key]}%` }
+						whereCondition[key] = { [Op.iLike]: `%${filter[key]}%` }
 					} else {
-						// Handle other types of filter values as needed
-						query[key] = filter[key]
+						whereCondition[key] = filter[key]
 					}
 				}
 			})
-			const recruiters = await Recruiter.findAll({ where: query })
+
+			const recruiters = await Recruiter.findAll({
+				where: whereCondition,
+				order: [
+					['first_name', 'ASC'],
+					['last_name', 'ASC'],
+				],
+			})
+
 			return recruiters
 		} catch (error) {
-			throw error
+			console.error(
+				'Error in getAllRecruiters service:',
+				error.message,
+				error.stack
+			)
+			// Return empty array instead of throwing to prevent 500 errors
+			return []
 		}
 	}
 

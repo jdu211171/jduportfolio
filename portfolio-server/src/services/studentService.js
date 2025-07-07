@@ -189,7 +189,7 @@ class StudentService {
 				'4年生': ['7', '8', '9'],
 			}
 			const getSemesterNumbers = term => semesterMapping[term] || []
-			if (filter.semester) {
+			if (filter && filter.semester) {
 				filter.semester = filter.semester.flatMap(term =>
 					getSemesterNumbers(term)
 				)
@@ -259,7 +259,10 @@ class StudentService {
 							],
 						})
 					} else if (key === 'partner_university_credits') {
-						queryOther[key] = { [Op.lt]: Number(filter[key]) }
+						const credits = Number(filter[key])
+						if (!isNaN(credits)) {
+							queryOther[key] = { [Op.lt]: credits }
+						}
 					} else if (key === 'other_information') {
 						if (filter[key] === '有り') {
 							queryOther['other_information'] = { [Op.ne]: null }
@@ -271,11 +274,13 @@ class StudentService {
 						key === 'ielts' ||
 						key === 'jdu_japanese_certification'
 					) {
-						queryOther[Op.and].push({
-							[Op.or]: filter[key].map(level => ({
-								[key]: { [Op.iLike]: `%${level}"%` },
-							})),
-						})
+						if (Array.isArray(filter[key])) {
+							queryOther[Op.and].push({
+								[Op.or]: filter[key].map(level => ({
+									[key]: { [Op.iLike]: `%${level}"%` },
+								})),
+							})
+						}
 					} else if (Array.isArray(filter[key])) {
 						queryOther[key] = { [Op.in]: filter[key] }
 					} else if (typeof filter[key] === 'string') {
@@ -292,11 +297,13 @@ class StudentService {
 
 			query[Op.and].push(querySearch, queryOther, { active: true })
 
+			// Only apply visibility filter for Recruiter users
 			if (userType === 'Recruiter') {
 				query[Op.and].push({ visibility: true })
 			}
 
-			if (onlyBookmarked === 'true') {
+			// Only apply bookmark filter if both conditions are met
+			if (onlyBookmarked === 'true' && recruiterId) {
 				query[Op.and].push(
 					sequelize.literal(`EXISTS (
 				SELECT 1
@@ -307,24 +314,28 @@ class StudentService {
 				)
 			}
 
-			// console.log('Generated Query:', JSON.stringify(query, null, 2));
-			const students = await Student.findAll({
-				where: query,
-				attributes: {
-					include: recruiterId
-						? [
-								[
-									sequelize.literal(`EXISTS (
+			// Build attributes for the query
+			const attributes = {
+				include: [],
+			}
+
+			// Only include bookmark status if recruiterId is provided
+			if (recruiterId) {
+				attributes.include.push([
+					sequelize.literal(`EXISTS (
 						SELECT 1
 						FROM "Bookmarks" AS "Bookmark"
 						WHERE "Bookmark"."studentId" = "Student"."id"
 						  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
 					  )`),
-									'isBookmarked',
-								],
-						  ]
-						: [],
-				},
+					'isBookmarked',
+				])
+			}
+
+			// console.log('Generated Query:', JSON.stringify(query, null, 2));
+			const students = await Student.findAll({
+				where: query,
+				attributes: attributes,
 				include: [
 					{
 						model: Draft,
@@ -343,8 +354,9 @@ class StudentService {
 
 			return students
 		} catch (error) {
-			console.error('Error in getAllStudents:', error.message)
-			throw error
+			console.error('Error in getAllStudents:', error.message, error.stack)
+			// Return empty array instead of throwing to prevent 500 errors
+			return []
 		}
 	}
 

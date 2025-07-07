@@ -140,9 +140,9 @@ const translations = {
 		levelInfo:
 			'Advanced: Over 3 years | Intermediate: 1-1.5 years | Beginner: Basic',
 		levels: {
-			上級: 'Ready to work',
-			中級: 'Has basic knowledge',
-			初級: 'Currently learning',
+			上級: 'Advanced: more than 3 years',
+			中級: 'Intermediate: more than 3 years',
+			初級: 'Beginner: 1 to 1.5 years',
 			JLPT: 'JLPT',
 			JDU_JLPT: 'JDU Japanese Certification Test',
 			IELTS: 'IELTS',
@@ -358,9 +358,9 @@ Please make sure that your profile does not fall under any of the prohibited act
 		level: 'レベル',
 		levelInfo: '上級：3年間以上　　　　中級：1年間〜1年間半　　　　初級：基礎',
 		levels: {
+			初級: '初級: 1年間〜1年間半',
+			中級: '中級: 3年間以上',
 			上級: '上級: 3年間以上',
-			中級: '中級: 2年間以外',
-			初級: '初級: 1年間以外',
 			JLPT: 'JLPT',
 			JDU_JLPT: 'JDU日本語認定試験',
 			IELTS: 'IELTS',
@@ -581,7 +581,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		levels: {
 			初級: 'Boshlang‘ich daraja: 1 yildan 1,5 yilgacha',
 			中級: 'O‘rta daraja: 3 yildan ortiq',
-			上級: 'Ishga tayyor',
+			上級: 'Yuqori daraja: 3 yildan ortiq',
 			JLPT: 'JLPT',
 			JDU_JLPT: 'JDU Yapon tili sertifikati',
 			IELTS: 'IELTS',

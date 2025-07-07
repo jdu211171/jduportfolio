@@ -23,6 +23,12 @@ import translations from '../../../locales/translations'
 import QA from '../../../pages/Profile/QA/QA'
 import axios from '../../../utils/axiosUtils'
 import styles from './Top.module.css'
+const breakpoints = [
+	{ point: 30, label: '1年終了' }, // 1st year complete
+	{ point: 60, label: '2年終了' },
+	{ point: 90, label: '3年終了' },
+	{ point: 124, label: '卒業条件' }, // graduation requirement
+]
 
 const Top = () => {
 	let id
@@ -57,22 +63,8 @@ const Top = () => {
 				certificateString === 'undefined'
 			)
 				return { highest: '未提出', list: [] }
-
-			// Check if it's already a string (not JSON)
-			if (typeof certificateString === 'string') {
-				// Try to parse as JSON first
-				try {
-					const parsed = JSON.parse(certificateString)
-					return parsed && parsed.highest
-						? parsed
-						: { highest: certificateString, list: [] }
-				} catch {
-					// If it's not valid JSON, treat it as a plain string
-					return { highest: certificateString, list: [] }
-				}
-			}
-
-			return { highest: '未提出', list: [] }
+			const parsed = JSON.parse(certificateString)
+			return parsed && parsed.highest ? parsed : { highest: '未提出', list: [] }
 		} catch (error) {
 			console.error('Error parsing certificate data:', error)
 			return { highest: '未提出', list: [] }
@@ -373,11 +365,19 @@ const Top = () => {
 		}
 	}
 
-	const handleUpdateEditData = (key, value, parentKey = 'draft') => {
+	// Callback function to update currentDraft from child components
+	const updateCurrentDraft = newStatus => {
+		setCurrentDraft(prevDraft => ({
+			...prevDraft,
+			status: newStatus,
+		}))
+	}
+
+	const handleUpdateEditData = (key, value) => {
 		setEditData(prevEditData => ({
 			...prevEditData,
-			[parentKey]: {
-				...prevEditData[parentKey],
+			draft: {
+				...prevEditData.draft,
 				[key]: value,
 			},
 		}))
@@ -828,8 +828,7 @@ const Top = () => {
 			!isLoading &&
 			currentDraft &&
 			currentDraft.id &&
-			currentDraft.status !== 'checking' &&
-			currentDraft.status !== 'approved' ? (
+			currentDraft.status === 'submitted' ? (
 				<Box
 					sx={{
 						my: 2,
@@ -872,7 +871,7 @@ const Top = () => {
 							keyName='hobbies'
 							parentKey='draft'
 							icon={FavoriteBorderTwoToneIcon}
-							details={editData.draft?.hobbies_details || ['SF映画', '卓球']}
+							details={['SF映画', '卓球']}
 						/>
 						<TextField
 							title={t('specialSkills')}
@@ -883,12 +882,7 @@ const Top = () => {
 							keyName='other_information'
 							parentKey='draft'
 							icon={ElectricBoltIcon}
-							details={
-								editData.draft?.other_information_details || [
-									'Webデザイン',
-									'UX/UI設計',
-								]
-							}
+							details={['Webデザイン', 'UX/UI設計']}
 						/>
 					</div>
 					<div style={{ display: 'flex', gap: 25 }}>
@@ -904,7 +898,7 @@ const Top = () => {
 						/>
 						<TextField
 							title={t('major')}
-							data={'ITマネジメント'}
+							data={student.draft.major || 'ITマネジメント'}
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
@@ -914,7 +908,7 @@ const Top = () => {
 						/>
 						<TextField
 							title={t('jobType')}
-							data={'UX/UIデザイナー'}
+							data={student.draft.job_type || 'UX/UIデザイナー'}
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
@@ -929,12 +923,6 @@ const Top = () => {
 			{subTabIndex === 1 && (
 				<Box my={2}>
 					<div className={styles.gridBox}>
-						{console.log('🔍 DEBUG - Student draft data:', student.draft)}
-						{console.log('🔍 DEBUG - Edit data:', editData)}
-						{console.log(
-							'🔍 DEBUG - IT Skills in draft:',
-							student.draft?.it_skills
-						)}
 						<SkillSelector
 							title={t('itSkills')}
 							headers={{
@@ -1278,12 +1266,10 @@ const Top = () => {
 						</div>
 					</Box>
 					<CreditsProgressBar
-						studentId={student?.student_id}
-						student={{
-							totalCredits: creditMap[activeUniver] ?? 0,
-							semester: student?.semester,
-							university: activeUniver, // Pass university name for target credits calculation
-						}}
+						breakpoints={breakpoints}
+						unit='単位' // credit unit
+						credits={creditMap[activeUniver] ?? 0} // student's earned credits
+						semester={student.semester} // current semester
 					/>
 				</Box>
 			)}
@@ -1297,8 +1283,9 @@ const Top = () => {
 						isFromTopPage={true}
 						topEditMode={editMode}
 						handleDraftUpsert={handleDraftUpsert}
-						isHonban={true}
+						isHonban={currentDraft && currentDraft.status === 'approved'}
 						setTopEditMode={setTopEditMode}
+						updateCurrentDraft={updateCurrentDraft} // Pass the callback function
 					/>
 				</Box>
 			)}

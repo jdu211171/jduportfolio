@@ -797,67 +797,59 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																		style={{
 																			display: 'flex',
 																			alignItems: 'center',
-																			gap: '4px',
-																			backgroundColor: `${color}15`,
-																			padding: '4px 8px',
-																			borderRadius: '12px',
-																			position: 'relative',
+																			gap: '8px',
 																		}}
-																		title={
-																			row.draft?.comments
-																				? `コメント: ${row.draft.comments}`
-																				: ''
-																		}
 																	>
-																		{icon === 'approved' && (
-																			<CheckCircleIcon
-																				sx={{
-																					color: color,
-																					fontSize: '16px',
-																				}}
-																			/>
-																		)}
-																		{icon === 'rejected' && (
-																			<CancelIcon
-																				sx={{
-																					color: color,
-																					fontSize: '16px',
-																				}}
-																			/>
-																		)}
-																		{icon === 'pending' && (
-																			<PendingIcon
-																				sx={{
-																					color: color,
-																					fontSize: '16px',
-																				}}
-																			/>
-																		)}
-																		<span
+																		<div
 																			style={{
-																				color: color,
-																				fontSize: '12px',
-																				fontWeight: '500',
+																				display: 'flex',
+																				alignItems: 'center',
+																				gap: '4px',
+																				backgroundColor: `${color}15`,
+																				padding: '4px 8px',
+																				borderRadius: '12px',
+																				position: 'relative',
 																			}}
+																			title={
+																				row.draft?.comments
+																					? `コメント: ${row.draft.comments}`
+																					: ''
+																			}
 																		>
-																			{text}
-																		</span>
-																		{/* Show comment indicator when there are staff comments */}
-																		{row.draft?.comments &&
-																			(draftStatus === 'disapproved' ||
-																				draftStatus ===
-																					'resubmission_required') && (
-																				<span
-																					style={{
+																			{icon === 'approved' && (
+																				<CheckCircleIcon
+																					sx={{
 																						color: color,
-																						fontSize: '10px',
-																						marginLeft: '2px',
+																						fontSize: '16px',
 																					}}
-																					title={`スタッフコメント: ${row.draft.comments}`}
-																				>
-																					💬
-																				</span>
+																				/>
 																			)}
+																			{icon === 'rejected' && (
+																				<CancelIcon
+																					sx={{
+																						color: color,
+																						fontSize: '16px',
+																					}}
+																				/>
+																			)}
+																			{icon === 'pending' && (
+																				<PendingIcon
+																					sx={{
+																						color: color,
+																						fontSize: '16px',
+																					}}
+																				/>
+																			)}
+																			<span
+																				style={{
+																					color: color,
+																					fontSize: '12px',
+																					fontWeight: '500',
+																				}}
+																			>
+																				{text}
+																			</span>
+																		</div>
 																	</div>
 																)
 															})()}
@@ -874,6 +866,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
+																disabled={header.disabled || false}
 																onChange={async e => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
@@ -1009,6 +1002,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														>
 															<Switch
 																checked={row[header.id] || false}
+																disabled={header.disabled || false}
 																onChange={async e => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
