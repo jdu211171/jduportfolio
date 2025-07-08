@@ -8,6 +8,21 @@ import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import styles from './Stats.module.css'
 
 const Stats = () => {
+	// Helper function to safely parse JSON data
+	const safeParseJSON = (
+		jsonString,
+		fallback = { highest: 'N/A', list: [] }
+	) => {
+		try {
+			if (!jsonString || jsonString === 'null' || jsonString === 'undefined')
+				return fallback
+			const parsed = JSON.parse(jsonString)
+			return parsed || fallback
+		} catch (error) {
+			console.error('Error parsing JSON data:', error)
+			return fallback
+		}
+	}
 	let id
 	const { studentId } = useParams()
 	const location = useLocation()
@@ -47,21 +62,21 @@ const Stats = () => {
 				}
 
 				const fetchCertificates = async () => {
-					setCertificateData('main', 'JLPT', JSON.parse(studentData.jlpt))
+					setCertificateData('main', 'JLPT', safeParseJSON(studentData.jlpt))
 					setCertificateData(
 						'main',
 						'JDU_JLPT',
-						JSON.parse(studentData.jdu_japanese_certification)
+						safeParseJSON(studentData.jdu_japanese_certification)
 					)
 					setCertificateData(
 						'other',
 						'日本語弁論大会学内',
-						JSON.parse(studentData.japanese_speech_contest)
+						safeParseJSON(studentData.japanese_speech_contest)
 					)
 					setCertificateData(
 						'other',
 						'ITコンテスト学内',
-						JSON.parse(studentData.it_contest)
+						safeParseJSON(studentData.it_contest)
 					)
 
 					setStudent(studentData)
