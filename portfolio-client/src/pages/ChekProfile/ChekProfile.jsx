@@ -73,6 +73,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 				t('kyoto_university'),
 				t('otemae_university'),
 				t('niigata_university'),
+				t('sanno_university'),
+				t('forty_credit_model'),
 			],
 			minWidth: '160px',
 		},
