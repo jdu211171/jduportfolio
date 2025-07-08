@@ -244,13 +244,17 @@ const Top = () => {
 
 			console.log('Student data received:', studentData) // Debug log
 
+			// Always parse JSON fields first using mapData
+			const parsedStudentData = mapData(studentData)
+
 			// Admin uchun draft ma'lumotlarini to'g'ri o'rnatish
 			if (studentData.draft && studentData.draft.profile_data) {
 				setCurrentDraft(studentData.draft)
 				setHasDraft(true)
 
+				// Merge parsed base data with draft data
 				const mappedData = {
-					...studentData,
+					...parsedStudentData,
 					draft: studentData.draft.profile_data || {},
 				}
 
@@ -259,10 +263,9 @@ const Top = () => {
 				setStudent(mappedData)
 				setEditData(mappedData)
 			} else {
-				// Agar draft yo'q bo'lsa, oddiy mapping
-				const mappedData = mapData(studentData)
-				setStudent(mappedData)
-				setEditData(mappedData)
+				// Agar draft yo'q bo'lsa, parsed mapping
+				setStudent(parsedStudentData)
+				setEditData(parsedStudentData)
 				setHasDraft(false)
 			}
 
@@ -746,10 +749,15 @@ const Top = () => {
 			)}
 		</Box>
 	)
+
+	// ✅ Safe partner university name with null check
+	const partnerUniversityName =
+		student.partner_university || 'Partner University'
+
 	const creditMap = {
 		JDU: student.japanese_employment_credits,
 		'University of World Languages': student.world_language_university_credits,
-		[String(student.partner_university)]: student.partner_university_credits,
+		[partnerUniversityName]: student.partner_university_credits,
 	}
 	return (
 		<Box mb={2}>
@@ -1607,7 +1615,7 @@ const Top = () => {
 					<div style={{ display: 'flex', gap: 10 }}>
 						{[
 							'JDU',
-							String(student.partner_university),
+							partnerUniversityName,
 							'University of World Languages',
 						].map((item, ind) => (
 							<Button
