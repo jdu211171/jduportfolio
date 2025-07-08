@@ -210,13 +210,16 @@ const Setting = () => {
 
 			if (selectedFile) {
 				const formData = new FormData()
-				formData.append('files', selectedFile)
+				const userId = JSON.parse(sessionStorage.getItem('loginUser')).id
+				formData.append('file', selectedFile) // 'files' o'rniga 'file' ishlatamiz
 				formData.append('imageType', 'avatar')
+				formData.append('role', role) // role qo'shamiz
+				formData.append('id', userId) // id qo'shamiz
 				const fileResponse = await axios.post('/api/files/upload', formData, {
 					headers: { 'Content-Type': 'multipart/form-data' },
 				})
 
-				updateData.photo = fileResponse.data[0].file_url
+				updateData.photo = fileResponse.data.Location // response structure ham o'zgartirildi
 			}
 
 			let updatedData
@@ -248,7 +251,27 @@ const Setting = () => {
 			showAlert(t('profile_update_success'), 'success')
 		} catch (error) {
 			console.error(t('profile_update_failed'), error)
-			if (error.response && error.response.data && error.response.data.error) {
+
+			// File upload error handling
+			if (
+				error.config &&
+				error.config.url &&
+				error.config.url.includes('/api/files/upload')
+			) {
+				console.error('File upload error details:', {
+					status: error.response?.status,
+					data: error.response?.data,
+					message: error.message,
+				})
+				showAlert(
+					'ファイルのアップロードに失敗しました。ファイルサイズやフォーマットを確認してください。',
+					'error'
+				)
+			} else if (
+				error.response &&
+				error.response.data &&
+				error.response.data.error
+			) {
 				setError('currentPassword', {
 					type: 'manual',
 					message: error.response.data.error,
