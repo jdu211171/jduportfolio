@@ -241,12 +241,32 @@ const Top = () => {
 		try {
 			const response = await axios.get(`/api/students/${id}`)
 			const studentData = response.data
-			const mappedData = mapData(studentData)
-			setStudent(mappedData)
-			setEditData(mappedData)
-			SetUpdateQA(!updateQA)
 
-			await fetchDraft(studentData)
+			console.log('Student data received:', studentData) // Debug log
+
+			// Admin uchun draft ma'lumotlarini to'g'ri o'rnatish
+			if (studentData.draft && studentData.draft.profile_data) {
+				setCurrentDraft(studentData.draft)
+				setHasDraft(true)
+
+				const mappedData = {
+					...studentData,
+					draft: studentData.draft.profile_data || {},
+				}
+
+				console.log('Mapped data for admin:', mappedData) // Debug log
+
+				setStudent(mappedData)
+				setEditData(mappedData)
+			} else {
+				// Agar draft yo'q bo'lsa, oddiy mapping
+				const mappedData = mapData(studentData)
+				setStudent(mappedData)
+				setEditData(mappedData)
+				setHasDraft(false)
+			}
+
+			SetUpdateQA(!updateQA)
 		} catch (error) {
 			console.error('Error fetching student data:', error)
 			showAlert('Error fetching student data', 'error')
@@ -894,13 +914,13 @@ const Top = () => {
 										<div
 											style={{ marginBottom: 8, color: '#666', fontSize: 14 }}
 										>
-											趣味についての詳細説明
+											{t('hobbiesDetailDescription')}
 										</div>
 										<MuiTextField
 											fullWidth
 											multiline
 											rows={3}
-											placeholder='趣味について詳しく説明してください'
+											placeholder={t('hobbiesDescriptionPlaceholder')}
 											value={editData.draft.hobbies_description || ''}
 											onChange={e =>
 												handleHobbiesDescriptionUpdate(e.target.value)
@@ -918,7 +938,7 @@ const Top = () => {
 										<div
 											style={{ marginBottom: 10, color: '#666', fontSize: 14 }}
 										>
-											趣味タグ
+											{t('hobbiesTags')}
 										</div>
 										{!showHobbiesInput ? (
 											<Button
@@ -935,7 +955,7 @@ const Top = () => {
 												variant='outlined'
 												size='small'
 											>
-												タグを追加
+												{t('addTag')}
 											</Button>
 										) : (
 											<div
@@ -948,7 +968,7 @@ const Top = () => {
 												<MuiTextField
 													fullWidth
 													size='small'
-													placeholder='趣味タグを入力してください'
+													placeholder={t('hobbiesTagPlaceholder')}
 													value={hobbiesInput}
 													onChange={e => setHobbiesInput(e.target.value)}
 													onKeyPress={e => {
@@ -975,7 +995,7 @@ const Top = () => {
 														}}
 														disabled={!hobbiesInput.trim()}
 													>
-														保存
+														{t('save')}
 													</Button>
 													<Button
 														onClick={cancelAddHobby}
@@ -986,7 +1006,7 @@ const Top = () => {
 															borderColor: '#666',
 														}}
 													>
-														キャンセル
+														{t('cancel')}
 													</Button>
 												</div>
 											</div>
@@ -1081,13 +1101,13 @@ const Top = () => {
 										<div
 											style={{ marginBottom: 8, color: '#666', fontSize: 14 }}
 										>
-											特技についての詳細説明
+											{t('specialSkillsDetailDescription')}
 										</div>
 										<MuiTextField
 											fullWidth
 											multiline
 											rows={3}
-											placeholder='特技について詳しく説明してください'
+											placeholder={t('specialSkillsDescriptionPlaceholder')}
 											value={editData.draft.special_skills_description || ''}
 											onChange={e =>
 												handleSpecialSkillsDescriptionUpdate(e.target.value)
@@ -1105,7 +1125,7 @@ const Top = () => {
 										<div
 											style={{ marginBottom: 10, color: '#666', fontSize: 14 }}
 										>
-											特技タグ
+											{t('specialSkillsTags')}
 										</div>
 										{!showSpecialSkillsInput ? (
 											<Button
@@ -1122,7 +1142,7 @@ const Top = () => {
 												variant='outlined'
 												size='small'
 											>
-												タグを追加
+												{t('addTag')}
 											</Button>
 										) : (
 											<div
@@ -1135,7 +1155,7 @@ const Top = () => {
 												<MuiTextField
 													fullWidth
 													size='small'
-													placeholder='特技タグを入力してください'
+													placeholder={t('specialSkillsTagPlaceholder')}
 													value={specialSkillsInput}
 													onChange={e => setSpecialSkillsInput(e.target.value)}
 													onKeyPress={e => {
@@ -1162,7 +1182,7 @@ const Top = () => {
 														}}
 														disabled={!specialSkillsInput.trim()}
 													>
-														保存
+														{t('save')}
 													</Button>
 													<Button
 														onClick={cancelAddSpecialSkill}
@@ -1173,7 +1193,7 @@ const Top = () => {
 															borderColor: '#666',
 														}}
 													>
-														キャンセル
+														{t('cancel')}
 													</Button>
 												</div>
 											</div>
