@@ -196,6 +196,7 @@ const Stats = () => {
 				<Box my={2}>
 					JDU
 					<CreditsProgressBar
+						studentId={id}
 						breakpoints={breakpoints}
 						unit='単位'
 						credits={
@@ -216,6 +217,7 @@ const Stats = () => {
 				<Box my={2}>
 					{student.partner_university}
 					<CreditsProgressBar
+						studentId={id}
 						breakpoints={breakpoints2}
 						unit='単位'
 						credits={

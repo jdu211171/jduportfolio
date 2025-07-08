@@ -244,7 +244,7 @@ class StudentController {
 	static async getStudentById(req, res, next) {
 		try {
 			const { id } = req.params
-			const student = await StudentService.getStudentById(id)
+			const student = await StudentService.getStudentByStudentId(id)
 			res.status(200).json(student)
 		} catch (error) {
 			if (error.message === 'Student not found') {
