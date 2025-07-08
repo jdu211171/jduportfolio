@@ -120,7 +120,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const navigate = useNavigate()
 
 	const navigateToProfile = student => {
-		navigate(`profile/${student.id}/top`, { state: { student } })
+		navigate(`profile/${student.student_id}/top`, { state: { student } })
 	}
 
 	const updateDraftStatus = async (draftId, status) => {

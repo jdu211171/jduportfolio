@@ -110,7 +110,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const navigate = useNavigate()
 
 	const navigateToProfile = student => {
-		navigate(`profile/${student.id}`)
+		navigate(`profile/${student.student_id}`)
 	}
 
 	const addToBookmark = async student => {
