@@ -1,13 +1,3 @@
-/*
-TODO: Student Profile Submission Button Fix
-- [x] Fixed submit button visibility: Added 'resubmission_required' status condition 
-- [x] Button now appears for both 'draft' and 'resubmission_required' statuses
-- [x] Student can resubmit after staff rejection (承認依頼・同意 button)
-- [x] Consistent with QA.jsx component behavior
-- [x] Fixed comment input clearing in QA.jsx after staff actions
-- [x] Tested with staff rejection workflow
-*/
-
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
 import CodeIcon from '@mui/icons-material/Code'
@@ -18,7 +8,9 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import TranslateIcon from '@mui/icons-material/Translate'
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
-import { Box, Button } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import CloseIcon from '@mui/icons-material/Close'
+import { Box, Button, TextField as MuiTextField, Chip } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import { useLocation, useParams } from 'react-router-dom'
@@ -33,12 +25,6 @@ import translations from '../../../locales/translations'
 import QA from '../../../pages/Profile/QA/QA'
 import axios from '../../../utils/axiosUtils'
 import styles from './Top.module.css'
-const breakpoints = [
-	{ point: 30, label: '1年終了' }, // 1st year complete
-	{ point: 60, label: '2年終了' },
-	{ point: 90, label: '3年終了' },
-	{ point: 124, label: '卒業条件' }, // graduation requirement
-]
 
 const Top = () => {
 	let id
@@ -110,7 +96,6 @@ const Top = () => {
 	const [student, setStudent] = useState(null)
 	const [editData, setEditData] = useState({})
 	const [editMode, setEditMode] = useState(false)
-	const [isChecking, setIsChecking] = useState(false)
 	const [currentDraft, setCurrentDraft] = useState({})
 	const [updateQA, SetUpdateQA] = useState(true)
 	const [newImages, setNewImages] = useState([])
@@ -123,6 +108,12 @@ const Top = () => {
 	const [activeUniver, setActiveUniver] = useState('JDU')
 	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
 		useState(false)
+
+	// ✅ New state for hobbies and special skills tags
+	const [hobbiesInput, setHobbiesInput] = useState('')
+	const [specialSkillsInput, setSpecialSkillsInput] = useState('')
+	const [showHobbiesInput, setShowHobbiesInput] = useState(false)
+	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useState(false)
 
 	// ✅ Portal container state
 	const [portalContainer, setPortalContainer] = useState(null)
@@ -173,9 +164,9 @@ const Top = () => {
 				statedata.draft.status === 'checking' ||
 				statedata.draft.status === 'approved'
 			) {
-				setIsChecking(true)
+				// Status is checking or approved
 			} else {
-				setIsChecking(false)
+				// Status is not checking or approved
 			}
 
 			const mappedData = {
@@ -215,7 +206,7 @@ const Top = () => {
 						draftData.status === 'checking' ||
 						draftData.status === 'approved'
 					) {
-						setIsChecking(true)
+						// Status is checking or approved
 					}
 				}
 
@@ -273,9 +264,9 @@ const Top = () => {
 				const draft = response.data.draft
 
 				if (draft.status === 'checking' || draft.status === 'approved') {
-					setIsChecking(true)
+					// Status is checking or approved
 				} else {
-					setIsChecking(false)
+					// Status is not checking or approved
 				}
 
 				setCurrentDraft(draft)
@@ -386,7 +377,6 @@ const Top = () => {
 		})
 		if (res.status === 200) {
 			showAlert(t('setToChecking'), 'success')
-			setIsChecking(true)
 			// Update the currentDraft state to reflect the new status
 			setCurrentDraft(prevDraft => ({
 				...prevDraft,
@@ -414,6 +404,86 @@ const Top = () => {
 		}))
 	}
 
+	// ✅ Helper functions for description management
+	const handleHobbiesDescriptionUpdate = value => {
+		handleUpdateEditData('hobbies_description', value)
+	}
+
+	const handleSpecialSkillsDescriptionUpdate = value => {
+		handleUpdateEditData('special_skills_description', value)
+	}
+
+	// ✅ Helper functions for tag management
+	const parseTagsFromString = str => {
+		if (!str) return []
+		// Split by common delimiters and filter empty values
+		return str
+			.split(/[,、。・]/g)
+			.map(tag => tag.trim())
+			.filter(tag => tag.length > 0)
+	}
+
+	const handleAddHobby = () => {
+		if (!hobbiesInput.trim()) return
+
+		const currentHobbies = parseTagsFromString(editData.draft.hobbies || '')
+		const newHobbies = [...currentHobbies, hobbiesInput.trim()]
+		handleUpdateEditData('hobbies', newHobbies.join('、'))
+		setHobbiesInput('')
+		setShowHobbiesInput(false) // Hide input after saving
+	}
+
+	const handleRemoveHobby = indexToRemove => {
+		const currentHobbies = parseTagsFromString(editData.draft.hobbies || '')
+		const updatedHobbies = currentHobbies.filter(
+			(_, index) => index !== indexToRemove
+		)
+		handleUpdateEditData('hobbies', updatedHobbies.join('、'))
+	}
+
+	const handleAddSpecialSkill = () => {
+		if (!specialSkillsInput.trim()) return
+
+		const currentSkills = parseTagsFromString(
+			editData.draft.other_information || ''
+		)
+		const newSkills = [...currentSkills, specialSkillsInput.trim()]
+		handleUpdateEditData('other_information', newSkills.join('、'))
+		setSpecialSkillsInput('')
+		setShowSpecialSkillsInput(false) // Hide input after saving
+	}
+
+	const handleRemoveSpecialSkill = indexToRemove => {
+		const currentSkills = parseTagsFromString(
+			editData.draft.other_information || ''
+		)
+		const updatedSkills = currentSkills.filter(
+			(_, index) => index !== indexToRemove
+		)
+		handleUpdateEditData('other_information', updatedSkills.join('、'))
+	}
+
+	// New functions to show input fields
+	const showAddHobbyInput = () => {
+		setShowHobbiesInput(true)
+		setHobbiesInput('')
+	}
+
+	const showAddSpecialSkillInput = () => {
+		setShowSpecialSkillsInput(true)
+		setSpecialSkillsInput('')
+	}
+
+	const cancelAddHobby = () => {
+		setShowHobbiesInput(false)
+		setHobbiesInput('')
+	}
+
+	const cancelAddSpecialSkill = () => {
+		setShowSpecialSkillsInput(false)
+		setSpecialSkillsInput('')
+	}
+
 	const handleQAUpdate = value => {
 		setEditData(prevEditData => {
 			const updatedEditData = {
@@ -428,101 +498,11 @@ const Top = () => {
 		})
 	}
 
-	const handleGalleryUpdate = (
-		files,
-		isNewFiles = false,
-		isDelete = false,
-		parentKey = null
-	) => {
-		if (isNewFiles && !isDelete) {
-			const newFiles = Array.from(files)
-			setNewImages(prevImages => [...prevImages, ...newFiles])
-		} else if (isDelete) {
-			if (isNewFiles) {
-				setNewImages(prevImages => prevImages.filter((_, i) => i !== files))
-			} else {
-				const oldFiles = parentKey
-					? [...editData[parentKey].gallery]
-					: [...editData.draft.gallery]
-				deletedUrls.push(oldFiles[files])
-				oldFiles.splice(files, 1)
-				if (parentKey) {
-					handleUpdateEditData('gallery', oldFiles)
-				} else {
-					handleUpdateEditData('gallery', oldFiles)
-				}
-			}
-		}
-	}
-
 	const handleImageUpload = (activeDeliverable, file) => {
 		setDeliverableImages(prevImages => ({
 			...prevImages,
 			[activeDeliverable]: file,
 		}))
-	}
-
-	const handleSave = async () => {
-		try {
-			const formData = new FormData()
-			newImages.forEach((file, index) => {
-				formData.append(`files[${index}]`, file)
-			})
-			formData.append('role', role)
-			formData.append('imageType', 'Gallery')
-			formData.append('id', id)
-			deletedUrls.forEach((url, index) => {
-				formData.append(`oldFilePath[${index}]`, url)
-			})
-
-			const fileResponse = await axios.post('/api/files/upload', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
-			})
-
-			let oldFiles = editData.draft.gallery
-
-			if (Array.isArray(fileResponse.data)) {
-				fileResponse.data.forEach(file => {
-					oldFiles.push(file.Location)
-				})
-			} else if (fileResponse.data.Location) {
-				oldFiles.push(fileResponse.data.Location)
-			}
-
-			await handleUpdateEditData('gallery', oldFiles)
-
-			for (const [index, file] of Object.entries(deliverableImages)) {
-				if (file) {
-					const deliverableFormData = new FormData()
-					deliverableFormData.append('role', role)
-					deliverableFormData.append('file', file)
-					deliverableFormData.append('imageType', 'Deliverable')
-					deliverableFormData.append('id', id)
-					deliverableFormData.append(
-						'oldFilePath',
-						editData.draft.deliverables[index]?.imageLink || ''
-					)
-					const deliverableFileResponse = await axios.post(
-						'/api/files/upload',
-						deliverableFormData,
-						{ headers: { 'Content-Type': 'multipart/form-data' } }
-					)
-					const deliverableImageLink = deliverableFileResponse.data.Location
-					editData.draft.deliverables[index].imageLink = deliverableImageLink
-				}
-			}
-
-			await axios.put(`/api/students/${id}`, editData)
-
-			setStudent(editData)
-			setNewImages([])
-			setDeletedUrls([])
-			setEditMode(false)
-			showAlert(t('changesSavedSuccessfully'), 'success')
-		} catch (error) {
-			console.error('Error saving student data:', error)
-			showAlert(t('errorSavingChanges'), 'error')
-		}
 	}
 
 	const handleDraftUpsert = async () => {
@@ -679,26 +659,10 @@ const Top = () => {
 	const toggleConfirmMode = () => {
 		setConfirmMode(prev => !prev)
 	}
-	const handleConfirmProfile = async () => {
-		try {
-			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
-			if (res.status == 200) {
-				showAlert(t['profileConfirmed'], 'success')
-			}
-		} catch (error) {
-			showAlert(t['errorConfirmingProfile'], 'error')
-		} finally {
-			setConfirmMode(false)
-		}
-	}
 
 	const handleCancel = () => {
 		setEditData(student)
 		setEditMode(false)
-	}
-
-	const handleSubTabChange = (event, newIndex) => {
-		setSubTabIndex(newIndex)
 	}
 
 	if (isLoading) {
@@ -770,9 +734,11 @@ const Top = () => {
 	return (
 		<Box mb={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student'
-				? createPortal(portalContent, portalContainer)
-				: null}
+			{portalContainer && role === 'Student' ? (
+				createPortal(portalContent, portalContainer)
+			) : (
+				<></>
+			)}
 
 			<div
 				style={{
@@ -894,29 +860,382 @@ const Top = () => {
 						icon={BadgeOutlinedIcon}
 						imageUrl={student.photo}
 					/>
-					<div style={{ display: 'flex', gap: 25 }}>
-						<TextField
-							title={t('hobbies')}
-							data={student.draft.hobbies}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='hobbies'
-							parentKey='draft'
-							icon={FavoriteBorderTwoToneIcon}
-							details={['SF映画', '卓球']}
-						/>
-						<TextField
-							title={t('specialSkills')}
-							data={student.draft.other_information || ''}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='other_information'
-							parentKey='draft'
-							icon={ElectricBoltIcon}
-							details={['Webデザイン', 'UX/UI設計']}
-						/>
+					{/* New Design for Hobbies and Special Skills */}
+					<div style={{ display: 'flex', gap: 25, marginTop: 25 }}>
+						{/* Hobbies Section */}
+						<div
+							style={{
+								flex: 1,
+								backgroundColor: '#ffffff',
+								padding: 20,
+								borderRadius: 10,
+								border: '1px solid #e1e1e1',
+							}}
+						>
+							<div
+								style={{
+									fontSize: 20,
+									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+									marginBottom: 15,
+									color: '#5627DB',
+								}}
+							>
+								<FavoriteBorderTwoToneIcon sx={{ color: '#5627DB' }} />
+								{t('hobbies')}
+							</div>
+
+							{editMode ? (
+								<>
+									{/* Description Input */}
+									<div style={{ marginBottom: 20 }}>
+										<div
+											style={{ marginBottom: 8, color: '#666', fontSize: 14 }}
+										>
+											趣味についての詳細説明
+										</div>
+										<MuiTextField
+											fullWidth
+											multiline
+											rows={3}
+											placeholder='趣味について詳しく説明してください'
+											value={editData.draft.hobbies_description || ''}
+											onChange={e =>
+												handleHobbiesDescriptionUpdate(e.target.value)
+											}
+											sx={{
+												'& .MuiOutlinedInput-root': {
+													borderRadius: 2,
+												},
+											}}
+										/>
+									</div>
+
+									{/* Tag Creation Section */}
+									<div style={{ marginBottom: 20 }}>
+										<div
+											style={{ marginBottom: 10, color: '#666', fontSize: 14 }}
+										>
+											趣味タグ
+										</div>
+										{!showHobbiesInput ? (
+											<Button
+												onClick={showAddHobbyInput}
+												startIcon={<AddIcon />}
+												sx={{
+													color: '#5627DB',
+													borderColor: '#5627DB',
+													'&:hover': {
+														backgroundColor: '#5627DB',
+														color: 'white',
+													},
+												}}
+												variant='outlined'
+												size='small'
+											>
+												タグを追加
+											</Button>
+										) : (
+											<div
+												style={{
+													display: 'flex',
+													flexDirection: 'column',
+													gap: 10,
+												}}
+											>
+												<MuiTextField
+													fullWidth
+													size='small'
+													placeholder='趣味タグを入力してください'
+													value={hobbiesInput}
+													onChange={e => setHobbiesInput(e.target.value)}
+													onKeyPress={e => {
+														if (e.key === 'Enter') {
+															handleAddHobby()
+														}
+													}}
+													sx={{
+														'& .MuiOutlinedInput-root': {
+															borderRadius: 2,
+														},
+													}}
+												/>
+												<div style={{ display: 'flex', gap: 10 }}>
+													<Button
+														onClick={handleAddHobby}
+														variant='contained'
+														size='small'
+														sx={{
+															backgroundColor: '#5627DB',
+															'&:hover': {
+																backgroundColor: '#4520A6',
+															},
+														}}
+														disabled={!hobbiesInput.trim()}
+													>
+														保存
+													</Button>
+													<Button
+														onClick={cancelAddHobby}
+														variant='outlined'
+														size='small'
+														sx={{
+															color: '#666',
+															borderColor: '#666',
+														}}
+													>
+														キャンセル
+													</Button>
+												</div>
+											</div>
+										)}
+
+										<div
+											style={{
+												marginTop: 15,
+												display: 'flex',
+												gap: 8,
+												flexWrap: 'wrap',
+											}}
+										>
+											{parseTagsFromString(editData.draft.hobbies || '').map(
+												(hobby, index) => (
+													<Chip
+														key={index}
+														label={hobby}
+														onDelete={() => handleRemoveHobby(index)}
+														deleteIcon={<CloseIcon />}
+														size='small'
+														sx={{
+															backgroundColor: '#5627DB',
+															color: 'white',
+															'& .MuiChip-deleteIcon': {
+																color: 'white',
+															},
+														}}
+													/>
+												)
+											)}
+										</div>
+									</div>
+								</>
+							) : (
+								<>
+									<div
+										style={{ marginBottom: 15, color: '#666', lineHeight: 1.6 }}
+									>
+										{editData.draft.hobbies_description ||
+											student.draft.hobbies ||
+											'SF映画を見ることです。最近観た映画はインターステラーです。他には卓球を友人とよくやります。'}
+									</div>
+									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+										{parseTagsFromString(
+											student.draft.hobbies || 'SF映画、卓球'
+										).map((hobby, index) => (
+											<Chip
+												key={index}
+												label={hobby}
+												size='small'
+												sx={{
+													backgroundColor: '#5627DB',
+													color: 'white',
+												}}
+											/>
+										))}
+									</div>
+								</>
+							)}
+						</div>
+
+						{/* Special Skills Section */}
+						<div
+							style={{
+								flex: 1,
+								backgroundColor: '#ffffff',
+								padding: 20,
+								borderRadius: 10,
+								border: '1px solid #e1e1e1',
+							}}
+						>
+							<div
+								style={{
+									fontSize: 20,
+									fontWeight: 600,
+									display: 'flex',
+									alignItems: 'center',
+									gap: 8,
+									marginBottom: 15,
+									color: '#5627DB',
+								}}
+							>
+								<ElectricBoltIcon sx={{ color: '#5627DB' }} />
+								{t('specialSkills')}
+							</div>
+
+							{editMode ? (
+								<>
+									{/* Description Input */}
+									<div style={{ marginBottom: 20 }}>
+										<div
+											style={{ marginBottom: 8, color: '#666', fontSize: 14 }}
+										>
+											特技についての詳細説明
+										</div>
+										<MuiTextField
+											fullWidth
+											multiline
+											rows={3}
+											placeholder='特技について詳しく説明してください'
+											value={editData.draft.special_skills_description || ''}
+											onChange={e =>
+												handleSpecialSkillsDescriptionUpdate(e.target.value)
+											}
+											sx={{
+												'& .MuiOutlinedInput-root': {
+													borderRadius: 2,
+												},
+											}}
+										/>
+									</div>
+
+									{/* Tag Creation Section */}
+									<div style={{ marginBottom: 20 }}>
+										<div
+											style={{ marginBottom: 10, color: '#666', fontSize: 14 }}
+										>
+											特技タグ
+										</div>
+										{!showSpecialSkillsInput ? (
+											<Button
+												onClick={showAddSpecialSkillInput}
+												startIcon={<AddIcon />}
+												sx={{
+													color: '#5627DB',
+													borderColor: '#5627DB',
+													'&:hover': {
+														backgroundColor: '#5627DB',
+														color: 'white',
+													},
+												}}
+												variant='outlined'
+												size='small'
+											>
+												タグを追加
+											</Button>
+										) : (
+											<div
+												style={{
+													display: 'flex',
+													flexDirection: 'column',
+													gap: 10,
+												}}
+											>
+												<MuiTextField
+													fullWidth
+													size='small'
+													placeholder='特技タグを入力してください'
+													value={specialSkillsInput}
+													onChange={e => setSpecialSkillsInput(e.target.value)}
+													onKeyPress={e => {
+														if (e.key === 'Enter') {
+															handleAddSpecialSkill()
+														}
+													}}
+													sx={{
+														'& .MuiOutlinedInput-root': {
+															borderRadius: 2,
+														},
+													}}
+												/>
+												<div style={{ display: 'flex', gap: 10 }}>
+													<Button
+														onClick={handleAddSpecialSkill}
+														variant='contained'
+														size='small'
+														sx={{
+															backgroundColor: '#5627DB',
+															'&:hover': {
+																backgroundColor: '#4520A6',
+															},
+														}}
+														disabled={!specialSkillsInput.trim()}
+													>
+														保存
+													</Button>
+													<Button
+														onClick={cancelAddSpecialSkill}
+														variant='outlined'
+														size='small'
+														sx={{
+															color: '#666',
+															borderColor: '#666',
+														}}
+													>
+														キャンセル
+													</Button>
+												</div>
+											</div>
+										)}
+
+										<div
+											style={{
+												marginTop: 15,
+												display: 'flex',
+												gap: 8,
+												flexWrap: 'wrap',
+											}}
+										>
+											{parseTagsFromString(
+												editData.draft.other_information || ''
+											).map((skill, index) => (
+												<Chip
+													key={index}
+													label={skill}
+													onDelete={() => handleRemoveSpecialSkill(index)}
+													deleteIcon={<CloseIcon />}
+													size='small'
+													sx={{
+														backgroundColor: '#5627DB',
+														color: 'white',
+														'& .MuiChip-deleteIcon': {
+															color: 'white',
+														},
+													}}
+												/>
+											))}
+										</div>
+									</div>
+								</>
+							) : (
+								<>
+									<div
+										style={{ marginBottom: 15, color: '#666', lineHeight: 1.6 }}
+									>
+										{editData.draft.special_skills_description ||
+											student.draft.other_information ||
+											'ユーザー視点に立ってWebデザインを考え、機能性と美しさのバランスを取ったデザインに落とし込むのが得意です。'}
+									</div>
+									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+										{parseTagsFromString(
+											student.draft.other_information ||
+												'Webデザイン、UX/UI設計'
+										).map((skill, index) => (
+											<Chip
+												key={index}
+												label={skill}
+												size='small'
+												sx={{
+													backgroundColor: '#5627DB',
+													color: 'white',
+												}}
+											/>
+										))}
+									</div>
+								</>
+							)}
+						</div>
 					</div>
 					<div style={{ display: 'flex', gap: 25 }}>
 						<TextField
