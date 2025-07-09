@@ -86,7 +86,24 @@ const Setting = () => {
 		setIsLoading(true)
 
 		try {
-			const id = JSON.parse(sessionStorage.getItem('loginUser')).id
+			// Get correct ID based on role
+			const loginUser = JSON.parse(sessionStorage.getItem('loginUser'))
+			let id
+
+			if (userRole === 'Student') {
+				// For students, use student_id instead of primary key
+				id = loginUser.studentId
+				console.log('Setting.jsx - Student role using student_id:', id)
+			} else {
+				// For other roles, use primary key id
+				id = loginUser.id
+				console.log('Setting.jsx - Other role using id:', id)
+			}
+
+			if (!id) {
+				throw new Error(`No valid ID found for role: ${userRole}`)
+			}
+
 			let response
 			switch (userRole) {
 				case 'Admin':
@@ -137,7 +154,7 @@ const Setting = () => {
 	// Use effect with proper dependencies
 	useEffect(() => {
 		fetchUser()
-	}, []) // Empty dependency array - only run once on mount
+	}, [fetchUser]) // Include fetchUser in dependencies
 
 	const handleAvatarChange = event => {
 		const file = event.target.files[0]

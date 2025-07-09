@@ -264,7 +264,8 @@ class StudentController {
 
 			console.log('UpdateStudent called with:', { id, studentData })
 
-			const student = await Student.findByPk(id)
+			// Use getStudentByStudentId to be consistent with GET endpoint
+			const student = await StudentService.getStudentByStudentId(id)
 
 			if (!student) {
 				console.log('Student not found:', id)
@@ -300,7 +301,7 @@ class StudentController {
 
 			// Agar parol o'zgartirilayotgan bo'lsa, eski parolni tekshirish
 			if (password) {
-				const studentWithPassword = await StudentService.getStudentById(
+				const studentWithPassword = await StudentService.getStudentByStudentId(
 					req.params.id,
 					true
 				)

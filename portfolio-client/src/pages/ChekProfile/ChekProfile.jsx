@@ -161,15 +161,12 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}
 
-	const setProfileVisibility = async (id, visibility) => {
+	const setProfileVisibility = async (studentId, visibility) => {
 		try {
-			console.log('Setting profile visibility:', { id, visibility })
+			console.log('Setting profile visibility:', { studentId, visibility })
 
 			if (visibility) {
-				const student = await axios.get(`/api/students/${id}`)
-				const studentId = student.data.student_id
-
-				console.log('Student data:', student.data)
+				console.log('Using student_id for API calls:', studentId)
 
 				const draftsResponse = await axios.get(
 					`/api/draft/student/${studentId}`
@@ -188,7 +185,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 						visibility: true,
 					})
 
-					const res = await axios.put(`/api/students/${id}`, {
+					// Use studentId (student_id) for API calls
+					const res = await axios.put(`/api/students/${studentId}`, {
 						...profileData,
 						visibility: true,
 					})
@@ -205,7 +203,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 				} else {
 					console.log('Updating visibility only:', { visibility: true })
 
-					const res = await axios.put(`/api/students/${id}`, {
+					// Use studentId (student_id) for API calls
+					const res = await axios.put(`/api/students/${studentId}`, {
 						visibility: true,
 					})
 
@@ -222,7 +221,11 @@ const Student = ({ OnlyBookmarked = false }) => {
 			} else {
 				console.log('Setting visibility to false:', { visibility: false })
 
-				const res = await axios.put(`/api/students/${id}`, {
+				// For visibility=false, we don't need to get additional data
+				// since we already have studentId parameter
+
+				// Use studentId (student_id) for API calls
+				const res = await axios.put(`/api/students/${studentId}`, {
 					visibility: false,
 				})
 
@@ -325,7 +328,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: '公開状況',
 			minWidth: '100px',
-			onToggle: setProfileVisibility,
+			onToggle: (row, visibility) =>
+				setProfileVisibility(row.student_id, visibility),
 			disabled: role === 'Staff', // Disable for staff users
 		},
 		{

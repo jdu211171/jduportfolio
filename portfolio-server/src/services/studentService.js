@@ -426,14 +426,10 @@ class StudentService {
 				studentData,
 			})
 
-			let student
-			// If it's a numeric ID, use the primary key
-			if (!isNaN(parseInt(studentId))) {
-				student = await Student.findByPk(studentId)
-			} else {
-				// Otherwise use the student_id string
-				student = await Student.findOne({ where: { student_id: studentId } })
-			}
+			// Always use student_id for lookup to be consistent with getStudentByStudentId
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
 
 			if (!student) {
 				throw new Error('Student not found')
