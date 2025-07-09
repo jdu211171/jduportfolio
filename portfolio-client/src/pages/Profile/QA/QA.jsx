@@ -12,6 +12,7 @@ TODO: Student Resubmission and Staff Workflow Fixes
 - [x] FIXED: Comment input clearing - comment field now clears after staff approval/rejection
 - [x] Test and verify submit button appears correctly after rejection
 - [x] Verify IT skills section design is properly restored
+- [x] FIXED: Profile visibility toggle 404 errors - improved ID determination logic to prioritize student_id over primary key
 */
 
 import React, { useState, useEffect, useContext } from 'react'
@@ -97,10 +98,49 @@ const QA = ({
 	const { language } = useContext(UserContext)
 	const t = translations[language] || translations.en
 
-	if (userId != 0 && userId) {
-		id = userId
-	} else {
+	// Helper function to get student_id from login user data
+	const getStudentIdFromLoginUser = () => {
+		try {
+			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
+			return loginUserData?.studentId
+		} catch (e) {
+			console.error('Error parsing login user data:', e)
+			return null
+		}
+	}
+
+	// Determine which student_id to use
+	if (role === 'Student') {
+		// For students, always use their own student_id from session
+		id = getStudentIdFromLoginUser()
+		console.log('QA.jsx - Student role using student_id from session:', id)
+	} else if (studentId) {
+		// For staff/admin, prefer studentId from URL params (this should be student_id)
 		id = studentId
+		console.log(
+			'QA.jsx - Staff/Admin role using studentId from URL params:',
+			id
+		)
+	} else {
+		// Fallback: try to get student data from location.state if available
+		const student = location.state?.student
+		if (student && student.student_id) {
+			id = student.student_id
+			console.log(
+				'QA.jsx - Staff/Admin role using student_id from location.state:',
+				id
+			)
+		} else if (userId !== 0 && userId) {
+			// Last resort: use userId prop (might be primary key, could cause issues)
+			id = userId
+			console.log(
+				'QA.jsx - Staff/Admin role using userId prop (MIGHT BE PRIMARY KEY):',
+				id
+			)
+		} else {
+			console.error('QA.jsx - No valid ID found')
+			id = null
+		}
 	}
 
 	const [studentQA, setStudentQA] = useState(isFromTopPage ? data : {})

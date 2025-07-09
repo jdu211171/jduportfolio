@@ -1,5 +1,6 @@
 import EmailIcon from '@mui/icons-material/Email'
 import { Avatar, Box, IconButton } from '@mui/material'
+import PropTypes from 'prop-types'
 import { useContext, useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import ArrowGoBackIcon from '../../../assets/icons/arrow-go-back-line.svg'
@@ -12,33 +13,86 @@ const StudentProfile = ({ userId = 0 }) => {
 	const { studentId } = useParams()
 	const { language } = useContext(UserContext)
 	const t = translations[language] || translations.en
-	let id
-	if (userId != 0) {
-		id = userId
-	} else {
-		id = studentId
-	}
 	const role = sessionStorage.getItem('role')
+
+	// Helper function to get student_id from login user data
+	const getStudentIdFromLoginUser = () => {
+		try {
+			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
+			return loginUserData?.studentId
+		} catch (e) {
+			console.error('Error parsing login user data:', e)
+			return null
+		}
+	}
+
+	// Determine which student_id to use
+	let id
+	if (role === 'Student') {
+		// For students, ALWAYS use their own student_id from session, ignore userId prop
+		id = getStudentIdFromLoginUser()
+		console.log('Student role - using student_id from session:', id)
+	} else if (studentId) {
+		// For staff/admin, prefer studentId from URL params (this should be student_id)
+		id = studentId
+		console.log('Staff/Admin role - using studentId from URL params:', id)
+	} else if (userId !== 0) {
+		// For staff/admin, fallback to userId prop (but this might be primary key, needs verification)
+		id = userId
+		console.log(
+			'Staff/Admin role - using userId prop (might be primary key):',
+			id
+		)
+	} else {
+		console.error('No valid ID found for student profile')
+		id = null
+	}
 
 	const navigate = useNavigate()
 	const location = useLocation()
 	const [student, setStudent] = useState(null)
+	const [loading, setLoading] = useState(true)
+	const [error, setError] = useState(null)
 
 	useEffect(() => {
 		const fetchStudent = async () => {
+			if (!id) {
+				setError('No valid student ID found')
+				setLoading(false)
+				return
+			}
+
 			try {
+				setLoading(true)
+				setError(null)
+
+				// Debug: check what id value we're using
+				console.log(
+					'StudentProfile fetchStudent - id value:',
+					id,
+					'type:',
+					typeof id
+				)
+				console.log(
+					'StudentProfile fetchStudent - studentId from params:',
+					studentId
+				)
+				console.log('StudentProfile fetchStudent - userId prop:', userId)
+				console.log('StudentProfile fetchStudent - role:', role)
+
+				// Use student_id for API call, not primary key id
 				const response = await axios.get(`/api/students/${id}`)
 				setStudent(response.data)
+				setLoading(false)
 			} catch (error) {
-				// showAlert('Error fetching student data', 'error')
 				console.log('Error fetching student data', error)
+				setError(error.response?.data?.message || 'Error fetching student data')
+				setLoading(false)
 			}
 		}
 
-		if (id) {
-			fetchStudent()
-		}
-	}, [id])
+		fetchStudent()
+	}, [id, studentId, userId, role])
 
 	const handleBackClick = () => {
 		const isRootPath = location.pathname.endsWith('/top')
@@ -69,8 +123,58 @@ const StudentProfile = ({ userId = 0 }) => {
 		return age
 	}
 
+	if (loading) {
+		return (
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					height: '200px',
+					fontSize: '18px',
+				}}
+			>
+				Loading student profile...
+			</Box>
+		)
+	}
+
+	if (error) {
+		return (
+			<Box
+				sx={{
+					display: 'flex',
+					flexDirection: 'column',
+					justifyContent: 'center',
+					alignItems: 'center',
+					height: '200px',
+					fontSize: '18px',
+					color: 'red',
+				}}
+			>
+				<div>Error: {error}</div>
+				<div style={{ fontSize: '14px', marginTop: '10px', color: '#666' }}>
+					Debug info: id={id}, role={role}, studentId={studentId}, userId=
+					{userId}
+				</div>
+			</Box>
+		)
+	}
+
 	if (!student) {
-		return <div>Loading...</div>
+		return (
+			<Box
+				sx={{
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					height: '200px',
+					fontSize: '18px',
+				}}
+			>
+				No student data found
+			</Box>
+		)
 	}
 
 	return (
@@ -128,11 +232,15 @@ const StudentProfile = ({ userId = 0 }) => {
 							<div style={{ display: 'flex', gap: 10 }}>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>{t.student_id}:</div>
-									<div>{student.student_id}</div>
+									<div>{student.student_id || 'N/A'}</div>
 								</div>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>{t.age}:</div>
-									<div>{calculateAge(student.date_of_birth)}</div>
+									<div>
+										{student.date_of_birth
+											? calculateAge(student.date_of_birth)
+											: 'N/A'}
+									</div>
 								</div>
 							</div>
 						</Box>
@@ -160,6 +268,11 @@ const StudentProfile = ({ userId = 0 }) => {
 			<Outlet />
 		</Box>
 	)
+}
+
+// PropTypes validation
+StudentProfile.propTypes = {
+	userId: PropTypes.number,
 }
 
 export default StudentProfile

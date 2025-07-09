@@ -895,10 +895,21 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	// Then call backend
 																	if (header.onToggle) {
 																		try {
-																			const success = await header.onToggle(
-																				row.id,
-																				newValue
-																			)
+																			let success
+																			// Check if onToggle expects (row, newValue) or just (id, newValue)
+																			if (header.onToggle.length === 2) {
+																				// New signature: (row, newValue)
+																				success = await header.onToggle(
+																					row,
+																					newValue
+																				)
+																			} else {
+																				// Legacy signature: (id, newValue)
+																				success = await header.onToggle(
+																					row.id,
+																					newValue
+																				)
+																			}
 																			console.log('Toggle result:', success)
 
 																			if (!success) {
