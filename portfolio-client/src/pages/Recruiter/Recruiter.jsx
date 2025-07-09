@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Box } from '@mui/material'
@@ -12,6 +12,7 @@ const Recruiter = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const navigate = useNavigate()
+
 	const navigateToCompanyProfile = recruiter => {
 		navigate(`/companyprofile`, {
 			state: { recruiterId: recruiter.id }, // passing state

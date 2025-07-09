@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    purpose: {
+    imageType: { // 'purpose' -> 'imageType'
         type: DataTypes.STRING,
         allowNull: false,
     },

@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
-      purpose: {
+      imageType: {
         type: Sequelize.STRING,
         allowNull: false,
         comment: "masalan: 'profile_photo', 'gallery', 'resume'"
