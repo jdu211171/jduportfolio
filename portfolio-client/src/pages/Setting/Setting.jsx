@@ -87,6 +87,7 @@ const Setting = () => {
 
 		try {
 			// Get correct ID based on role
+			// Get correct ID based on role
 			const loginUser = JSON.parse(sessionStorage.getItem('loginUser'))
 			let id
 
@@ -209,7 +210,12 @@ const Setting = () => {
 			return
 		}
 		try {
-			const id = activeUser.id
+			let id
+			if (role === 'Student') {
+				id = activeUser.studentId // Use student_id for Student API calls
+			} else {
+				id = activeUser.id // Use primary key for other roles
+			}
 			const updateData = {
 				last_name: data.last_name,
 				first_name: data.first_name,

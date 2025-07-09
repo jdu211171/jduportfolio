@@ -95,14 +95,15 @@ const QA = ({
 	const location = useLocation()
 	const { userId } = location.state || {}
 
-	const { language } = useContext(UserContext)
+	const { language, activeUser } = useContext(UserContext)
 	const t = translations[language] || translations.en
 
 	// Helper function to get student_id from login user data
 	const getStudentIdFromLoginUser = () => {
 		try {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
-			return loginUserData?.studentId
+			// Try different possible field names for student ID
+			return loginUserData?.student_id || loginUserData?.studentId || loginUserData?.id
 		} catch (e) {
 			console.error('Error parsing login user data:', e)
 			return null
@@ -111,9 +112,10 @@ const QA = ({
 
 	// Determine which student_id to use
 	if (role === 'Student') {
-		// For students, always use their own student_id from session
-		id = getStudentIdFromLoginUser()
-		console.log('QA.jsx - Student role using student_id from session:', id)
+		// For students, try multiple sources
+		id = getStudentIdFromLoginUser() || activeUser?.studentId || activeUser?.id
+		console.log('QA.jsx - Student role using student_id:', id)
+		console.log('QA.jsx - activeUser:', activeUser)
 	} else if (studentId) {
 		// For staff/admin, prefer studentId from URL params (this should be student_id)
 		id = studentId
@@ -138,18 +140,22 @@ const QA = ({
 				id
 			)
 		} else {
-			console.error('QA.jsx - No valid ID found')
+			// Don't log error for Admin on QA management page
+			if (!(role === 'Admin' && window.location.pathname === '/student-qa')) {
+				console.error('QA.jsx - No valid ID found')
+			}
 			id = null
 		}
 	}
 
-	const [studentQA, setStudentQA] = useState(isFromTopPage ? data : {})
-	const [editData, setEditData] = useState(isFromTopPage ? data : {})
+	const [studentQA, setStudentQA] = useState(isFromTopPage && data ? data : null)
+	const [editData, setEditData] = useState(isFromTopPage && data ? data : null)
 	const [editMode, setEditMode] = useState(topEditMode)
 	const [isFirstTime, setIsFirstTime] = useState(false)
+	const [isDataLoaded, setIsDataLoaded] = useState(false)
 
 	const [confirmMode, setConfirmMode] = useState(false)
-	const [comment, setComment] = useState('test')
+	const [comment, setComment] = useState({ comments: '' })
 	const [reviewMode, setReviewMode] = useState(
 		!currentDraft || Object.keys(currentDraft).length === 0
 	)
@@ -175,37 +181,100 @@ const QA = ({
 	}, [currentDraft])
 
 	const fetchStudent = async () => {
+		// Prevent fetching if already loaded
+		if (isDataLoaded) return
+		
 		try {
-			if (!(Object.keys(data).length > 0)) {
-				let answers
+			// Only fetch if we don't have data from props
+			if (isFromTopPage && data && Object.keys(data).length > 0) {
+				// Use data from props
+				setStudentQA(data)
+				setEditData(data)
+				setIsDataLoaded(true)
+				return
+			}
+			
+			// Fetch data if not from top page or no data provided
+			if (!studentQA) {
+				// Always fetch questions
+				const questionsResponse = await axios.get('/api/settings/studentQA')
+				const questions = JSON.parse(questionsResponse.data.value)
+				
+				let answers = null
+				// Only fetch answers if we have a student ID
 				if (id) {
-					answers = (await axios.get(`/api/qa/student/${id}`)).data
+					try {
+						answers = (await axios.get(`/api/qa/student/${id}`)).data
+					} catch (err) {
+						console.log('No existing answers found for student:', id)
+					}
 				}
 
-				const questions = JSON.parse(
-					(await axios.get('/api/settings/studentQA')).data.value
-				)
 				let response
-				if (answers) {
-					response = combineQuestionsAndAnswers(questions, answers)
+				if (id && answers && answers.idList) {
+					// Student view with answers
+					const combinedData = {}
+					let firsttime = !answers || !answers.idList || Object.keys(answers.idList).length === 0
+					if (firsttime) {
+						setIsFirstTime(true)
+					}
+					for (const category in questions) {
+						if (category == 'idList') {
+							combinedData[category] = (answers && answers[category]) || {}
+						} else {
+							combinedData[category] = {}
+							for (const key in questions[category]) {
+								combinedData[category][key] = {
+									question: questions[category][key].question || '',
+									answer: firsttime
+										? ''
+										: !answers || !answers[category] || !answers[category][key]
+											? ''
+											: answers[category][key].answer || '',
+								}
+							}
+						}
+					}
+					response = combinedData
+				} else if (id) {
+					// Student view without answers (first time)
+					response = { ...questions, idList: {} }
+					setIsFirstTime(true)
 				} else {
+					// Admin view - just questions, no answers needed
 					response = questions
 				}
 
 				setStudentQA(response)
 				setEditData(response)
+				setIsDataLoaded(true)
 			}
 		} catch (error) {
-			console.error('Error fetching student data:', error)
+			console.error('Error fetching data:', error)
+			// Initialize with empty structure on error
+			setStudentQA({ idList: {} })
+			setEditData({ idList: {} })
+			setIsDataLoaded(true)
 		}
 	}
 
 	useEffect(() => {
-		fetchStudent()
-	}, [id, updateQA])
+		if (role && !isDataLoaded) {
+			fetchStudent()
+		}
+	}, [role, isDataLoaded])
+	
+	// Reset data loaded flag when updateQA changes
+	useEffect(() => {
+		if (updateQA) {
+			setIsDataLoaded(false)
+		}
+	}, [updateQA])
 
 	useEffect(() => {
-		setEditData(isFromTopPage ? data : {})
+		if (isFromTopPage && data && Object.keys(data).length > 0) {
+			setEditData(data)
+		}
 	}, [updateQA])
 
 	useEffect(() => {
@@ -418,23 +487,24 @@ const QA = ({
 
 	const combineQuestionsAndAnswers = (questions, answers) => {
 		const combinedData = {}
-		let firsttime = Object.keys(answers.idList).length === 0
+		// Check if answers exist and have idList
+		let firsttime = !answers || !answers.idList || Object.keys(answers.idList).length === 0
 		if (firsttime) {
 			setIsFirstTime(true)
 		}
 		for (const category in questions) {
 			if (category == 'idList') {
-				combinedData[category] = answers[category]
+				combinedData[category] = (answers && answers[category]) || {}
 			} else {
 				combinedData[category] = {}
 				for (const key in questions[category]) {
 					combinedData[category][key] = {
-						question: questions[category][key].question,
+						question: questions[category][key].question || '',
 						answer: firsttime
 							? ''
-							: !answers[category][key]
+							: !answers || !answers[category] || !answers[category][key]
 								? ''
-								: answers[category][key].answer,
+								: answers[category][key].answer || '',
 					}
 				}
 			}
@@ -464,7 +534,7 @@ const QA = ({
 
 	const getCategoryData = index => {
 		const category = labels[index]
-		return editData[category] || {}
+		return (editData && editData[category]) || {}
 	}
 
 	// Debug logging to understand the state
@@ -480,15 +550,33 @@ const QA = ({
 				currentDraft.status === 'resubmission_required'),
 	})
 
-	console.log(studentQA)
-
-	if (!studentQA) {
+	// For Admin viewing QA management, we don't need an ID
+	if (role === 'Admin' && !studentId && !userId) {
+		// Admin can view/edit questions without a student ID
+		if (!studentQA) {
+			return <div>Loading questions...</div>
+		}
+	} else if (!studentQA) {
+		// Still loading data
 		return <div>Loading...</div>
+	} else if (!id && role === 'Student') {
+		// Student needs an ID but doesn't have one
+		return <div>Error: Student ID not found. Please log in again.</div>
 	}
 
-	const portalContent = (
+	// Debug logging
+	console.log('QA Render Debug:', {
+		id,
+		role,
+		isFromTopPage,
+		hasData: !!data && Object.keys(data).length > 0,
+		location: window.location.pathname
+	})
+
+	// Don't render buttons if component is used from Top page
+	const portalContent = !isFromTopPage ? (
 		<Box className={styles.buttonsContainer}>
-			{(role == 'Student') | (role == 'Admin') && (
+			{(role == 'Student' || role == 'Admin') && (
 				<>
 					{editMode ? (
 						<>
@@ -512,7 +600,7 @@ const QA = ({
 									{t['updateDraft']}
 								</Button>
 							)}
-							{role == 'Student' && (
+							{role == 'Student' && id && (
 								<Button
 									onClick={() => handleDraftUpsert(false)}
 									variant='contained'
@@ -570,23 +658,26 @@ const QA = ({
 				</>
 			)}
 		</Box>
-	)
+	) : null
 
 	return (
 		<Box mb={2}>
-			{!id && (
+			{/* Only render save button container for Admin on QA management page */}
+			{!id && role === 'Admin' && (
 				<Box className={styles.topControlButtons} mb={2} px={2}>
 					<Box id='saveButton'>{portalContent}</Box>
 				</Box>
 			)}
 
-			{/* <>
-				{id &&
-					ReactDOM.createPortal(
-						portalContent,
-						document.getElementById('saveButton')
-					)}
-			> */}
+			{/* For other cases, use portal if saveButton exists and not from Top page */}
+			{id &&
+				!isFromTopPage &&
+				portalContent &&
+				document.getElementById('saveButton') &&
+				ReactDOM.createPortal(
+					portalContent,
+					document.getElementById('saveButton')
+				)}
 
 			<div
 				style={{
@@ -601,7 +692,7 @@ const QA = ({
 						key={ind}
 						className={styles.qaBox}
 						style={{
-							backgroundColor: subTabIndex === ind && '#d8e1f0',
+							backgroundColor: subTabIndex === ind ? '#d8e1f0' : 'transparent',
 						}}
 						onClick={() => {
 							setSubTabIndex(ind)
@@ -618,7 +709,7 @@ const QA = ({
 						<div
 							style={{
 								fontSize: 14,
-								color: subTabIndex === ind && item.iconColor,
+								color: subTabIndex === ind ? item.iconColor : 'inherit',
 							}}
 						>
 							{item.label}
@@ -697,14 +788,14 @@ const QA = ({
 				onClose={toggleConfirmMode}
 				onConfirm={handleConfirmProfile}
 			/>
-			{(role == 'Staff' || role == 'Admin') && !reviewMode && (
+			{(role == 'Staff' || role == 'Admin') && !reviewMode && id && (
 				<Box
 					sx={{
 						borderRadius: '10px',
 						padding: 2,
 					}}
 				>
-					{passedDraft.status != 'approved' ? (
+					{passedDraft && passedDraft.status != 'approved' ? (
 						<>
 							<TextField
 								title='コメント'
