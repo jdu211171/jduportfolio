@@ -142,11 +142,11 @@ const translations = {
 		skill: 'Skill',
 		level: 'Level',
 		levelInfo:
-			'Advanced: Over 3 years | Intermediate: 2 years or less | Beginner: 1 year or less',
+			'Advanced: Over 3 years | Intermediate: Less than 3 years | Beginner: Less than 1 year',
 		levels: {
 			上級: 'Advanced: more than 3 years',
-			中級: 'Intermediate: 2 years or less',
-			初級: 'Beginner: 1 year or less',
+			中級: 'Intermediate: less than 3 years',
+			初級: 'Beginner: less than 1 year',
 			JLPT: 'JLPT',
 			JDU_JLPT: 'JDU Japanese Certification Test',
 			IELTS: 'IELTS',
@@ -259,12 +259,15 @@ Please make sure that your profile does not fall under any of the prohibited act
 		confirmation_status: 'Confirmation Status',
 		unconfirmed: 'Unconfirmed',
 		confirmed: 'Confirmed',
-		company_video_url_placeholder: 'e.g., https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
+		company_video_url_placeholder:
+			'e.g., https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		save_button: 'Save',
 		no_video_set: 'No video has been set',
-		company_introduction_video_description: 'You can view the company introduction video provided by the employer',
+		company_introduction_video_description:
+			'You can view the company introduction video provided by the employer',
 		new_target_audience_add: 'Add new target audience',
-		required_skills_placeholder: 'e.g., Practical experience with HTML/CSS/JavaScript (3+ years)',
+		required_skills_placeholder:
+			'e.g., Practical experience with HTML/CSS/JavaScript (3+ years)',
 		preferred_skills_placeholder: 'e.g., Practical experience with TypeScript',
 		// CompanyProfile page translations
 		business_overview: 'Business Overview',
@@ -453,11 +456,11 @@ Please make sure that your profile does not fall under any of the prohibited act
 		selectSkill: 'スキルを選択',
 		skill: 'スキル',
 		level: 'レベル',
-		levelInfo: '上級：3年間以上　　　　中級：2年間以下　　　　初級：1年間以下',
+		levelInfo: '上級：3年以上　　　　中級：3年未満　　　　初級：1年未満',
 		levels: {
-			初級: '初級: 1年間以下',
-			中級: '中級: 2年間以下',
-			上級: '上級: 3年間以上',
+			上級: '上級: 3年以上',
+			中級: '中級: 3年未満',
+			初級: '初級: 1年未満',
 			JLPT: 'JLPT',
 			JDU_JLPT: 'JDU日本語認定試験',
 			IELTS: 'IELTS',
@@ -556,10 +559,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		confirmation_status: '確認状況',
 		unconfirmed: '未確認',
 		confirmed: '確認済',
-		company_video_url_placeholder: '例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
+		company_video_url_placeholder:
+			'例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		save_button: '保存',
 		no_video_set: '動画が設定されていません',
-		company_introduction_video_description: '雇用主から提供された企業紹介動画をご覧いただけます',
+		company_introduction_video_description:
+			'雇用主から提供された企業紹介動画をご覧いただけます',
 		new_target_audience_add: '新しい対象者を追加',
 		required_skills_placeholder: '例: HTML/CSS/JavaScriptの実務経験（3年以上）',
 		preferred_skills_placeholder: '例: TypeScriptの実務経験',
@@ -741,7 +746,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		skill: "Ko'nikma",
 		level: 'Daraja',
 		levelInfo:
-			"Yuqori: 3 yildan ortiq | O'rtacha: 2 yildan kam | Boshlang'ich: 1 yildan kam",
+			"Yuqori: 3 yildan ortiq | O'rtacha: 3 yildan kam | Boshlang'ich: 1 yildan kam",
 		notifications: 'Bildirishnomalar',
 		mark_all_read: "Barchasini o'qish",
 		all: 'Hammasi',
@@ -755,7 +760,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		delete: 'O‘chirish',
 		levels: {
 			上級: 'Yuqori daraja: 3 yildan ortiq',
-			中級: 'O‘rta daraja: 2 yildan kam',
+			中級: 'O‘rta daraja: 3 yildan kam',
 			初級: 'Boshlang‘ich daraja: 1 yildan kam',
 			JLPT: 'JLPT',
 			JDU_JLPT: 'JDU Yapon tili sertifikati',
@@ -851,13 +856,16 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		confirmation_status: 'Tasdiqlash holati',
 		unconfirmed: 'Tasdiqlanmagan',
 		confirmed: 'Tasdiqlangan',
-		company_video_url_placeholder: "masalan: https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5",
+		company_video_url_placeholder:
+			'masalan: https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		save_button: 'Saqlash',
 		no_video_set: "Video o'rnatilmagan",
-		company_introduction_video_description: "Ish beruvchi tomonidan taqdim etilgan kompaniya tanishtiruv videosini ko'rishingiz mumkin",
+		company_introduction_video_description:
+			"Ish beruvchi tomonidan taqdim etilgan kompaniya tanishtiruv videosini ko'rishingiz mumkin",
 		new_target_audience_add: "Yangi maqsadli auditoriya qo'shish",
-		required_skills_placeholder: "masalan: HTML/CSS/JavaScript bilan amaliy tajriba (3+ yil)",
-		preferred_skills_placeholder: "masalan: TypeScript bilan amaliy tajriba",
+		required_skills_placeholder:
+			'masalan: HTML/CSS/JavaScript bilan amaliy tajriba (3+ yil)',
+		preferred_skills_placeholder: 'masalan: TypeScript bilan amaliy tajriba',
 		// CompanyProfile page translations
 		business_overview: 'Biznes haqida umumiy maʼlumot',
 		business_content_placeholder: 'Biznes mazmunini kiriting',
