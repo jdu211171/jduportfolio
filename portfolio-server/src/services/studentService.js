@@ -1021,7 +1021,7 @@ class StudentService {
 				)
 
 				return {
-					...updatedStudent.toJSON(),
+					...updatedStudent,
 					totalCredits,
 					creditDetails: updatedStudent.credit_details || [],
 				}
@@ -1033,7 +1033,7 @@ class StudentService {
 			)
 
 			return {
-				...student.toJSON(),
+				...student,
 				totalCredits,
 				creditDetails: student.credit_details || [],
 			}
