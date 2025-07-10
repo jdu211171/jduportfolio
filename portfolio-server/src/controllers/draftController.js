@@ -132,6 +132,13 @@ class DraftController {
 			}
 
 			draft.profile_data = req.body.profile_data
+			
+			// If status is provided in the request, update it
+			// This is used by frontend to set status back to 'draft' when editing
+			if (req.body.status) {
+				draft.status = req.body.status
+			}
+			
 			await draft.save()
 
 			return res
@@ -247,6 +254,35 @@ class DraftController {
 			if (previousStatus === 'approved' && status !== 'approved') {
 				await Student.update({ visibility: false }, { where: { student_id } })
 			}
+			
+			// If status is being set to 'approved', update student profile with draft data
+			if (status === 'approved' && draft.profile_data) {
+				const updateData = {}
+				const fieldsToUpdate = [
+					'deliverables',
+					'gallery',
+					'self_introduction',
+					'hobbies',
+					'hobbies_description',
+					'special_skills_description',
+					'other_information',
+					'it_skills',
+					'skills'
+				]
+				
+				// Extract fields from draft profile_data
+				fieldsToUpdate.forEach(field => {
+					if (draft.profile_data[field] !== undefined) {
+						updateData[field] = draft.profile_data[field]
+					}
+				})
+				
+				// Update student record with approved draft data
+				if (Object.keys(updateData).length > 0) {
+					await Student.update(updateData, { where: { student_id } })
+				}
+			}
+			
 			// Note: When status becomes 'approved', visibility should NOT be automatically set to true
 			// Only admin should manually control visibility via separate endpoint
 

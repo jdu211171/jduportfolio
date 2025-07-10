@@ -113,7 +113,6 @@ const Layout = () => {
 	const { activeUser } = useContext(UserContext)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
-	const [, setUserData] = useState({})
 	const [role] = useState(sessionStorage.getItem('role'))
 
 	const [japanTime, setJapanTime] = useState('')
@@ -143,7 +142,6 @@ const Layout = () => {
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize)
-		setUserData(JSON.parse(sessionStorage.getItem('loginUser')))
 		handleResize()
 		updateTime()
 		const intervalId = setInterval(updateTime, 60000)

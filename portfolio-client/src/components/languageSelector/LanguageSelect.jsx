@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 import './language.css'
 
 export const LanguageSelect = (props) => {
@@ -23,4 +24,8 @@ export const LanguageSelect = (props) => {
 			<option value='uz'>O‘zbek</option>
 		</select>
 	)
+}
+
+LanguageSelect.propTypes = {
+	style: PropTypes.object,
 }

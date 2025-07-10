@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
 	Autocomplete,
 	TextField,
@@ -13,6 +13,7 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
+import PropTypes from 'prop-types'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
@@ -335,6 +336,20 @@ const SkillSelector = ({
 			</div>
 		</div>
 	)
+}
+
+SkillSelector.propTypes = {
+	title: PropTypes.string.isRequired,
+	data: PropTypes.object,
+	editData: PropTypes.object,
+	editMode: PropTypes.bool,
+	headers: PropTypes.object,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string.isRequired,
+	parentKey: PropTypes.string,
+	showAutocomplete: PropTypes.bool,
+	showHeaders: PropTypes.bool,
+	icon: PropTypes.node,
 }
 
 export default SkillSelector

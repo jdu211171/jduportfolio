@@ -2,7 +2,8 @@ import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternate
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import LaunchIcon from '@mui/icons-material/Launch'
 import { Button, IconButton } from '@mui/material'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import PropTypes from 'prop-types'
 import styles from './Deliverables.module.css'
 
 const Deliverables = ({
@@ -30,7 +31,7 @@ const Deliverables = ({
 	})
 
 	// Cleanup function for blob URLs
-	const cleanupBlobUrls = (previewsToClean = imagePreview) => {
+	const cleanupBlobUrls = useCallback((previewsToClean = imagePreview) => {
 		Object.values(previewsToClean).forEach(url => {
 			if (url && typeof url === 'string' && url.startsWith('blob:')) {
 				try {
@@ -40,7 +41,7 @@ const Deliverables = ({
 				}
 			}
 		})
-	}
+	}, [imagePreview])
 
 	// Cleanup on unmount
 	useEffect(() => {
@@ -209,7 +210,7 @@ const Deliverables = ({
 		if (editData && editData.length === 0 && editMode) {
 			addNewDeliverable()
 		}
-	}, [editMode])
+	}, [editMode, editData])
 
 	// Reset previews when resetPreviews prop changes
 	useEffect(() => {
@@ -607,6 +608,35 @@ const Deliverables = ({
 			)}
 		</div>
 	)
+}
+
+Deliverables.propTypes = {
+	data: PropTypes.arrayOf(
+		PropTypes.shape({
+			title: PropTypes.string,
+			description: PropTypes.string,
+			link: PropTypes.string,
+			role: PropTypes.arrayOf(PropTypes.string),
+			codeLink: PropTypes.string,
+			imageLink: PropTypes.string,
+		})
+	),
+	editData: PropTypes.arrayOf(
+		PropTypes.shape({
+			title: PropTypes.string,
+			description: PropTypes.string,
+			link: PropTypes.string,
+			role: PropTypes.arrayOf(PropTypes.string),
+			codeLink: PropTypes.string,
+			imageLink: PropTypes.string,
+		})
+	),
+	editMode: PropTypes.bool,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string,
+	updateEditMode: PropTypes.func,
+	onImageUpload: PropTypes.func,
+	resetPreviews: PropTypes.bool,
 }
 
 export default Deliverables

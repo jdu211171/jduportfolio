@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useLocation, useParams, Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useLocation, useParams, Link } from 'react-router-dom'
 import axios from '../../../utils/axiosUtils'
 import certificateColors from '../../../utils/certificates'
 import { Box, Tabs, Tab, Snackbar, Alert } from '@mui/material'
@@ -36,7 +36,7 @@ const Stats = () => {
 
 	const [student, setStudent] = useState(null)
 	const [kintoneData, setKintoneData] = useState({})
-	const [editData, setEditData] = useState({})
+	const [editData] = useState({})
 	const [certificates, setCertificates] = useState({})
 	const [subTabIndex, setSubTabIndex] = useState(0)
 	const [alert, setAlert] = useState({
@@ -89,7 +89,7 @@ const Stats = () => {
 		}
 
 		fetchStudentData()
-	}, [studentId])
+	}, [id])
 
 	const setCertificateData = (key, type, data) => {
 		let temp = []
@@ -136,27 +136,13 @@ const Stats = () => {
 
 		const studentData = JSON.stringify(tempStudent)
 
-		const newWindow = window.open(
+		window.open(
 			`/credit-details?student=${encodeURIComponent(studentData)}`,
 			'_blank',
 			'width=600,height=400'
 		)
 	}
 
-	function base64EncodeUnicode(str) {
-		return btoa(
-			encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) =>
-				String.fromCharCode('0x' + p1)
-			)
-		)
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=+$/, '')
-	}
-
-	const showAlert = (message, severity) => {
-		setAlert({ open: true, message, severity })
-	}
 
 	const handleCloseAlert = () => {
 		setAlert({ open: false, message: '', severity: '' })

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import { useState, useEffect, useContext, useCallback } from 'react'
 import axios from '../../utils/axiosUtils'
 import {
 	Container,
@@ -21,7 +21,6 @@ import {
 } from '@mui/icons-material'
 import { useForm, Controller } from 'react-hook-form'
 import { UserContext } from '../../contexts/UserContext'
-import jduLogo from '../../assets/logo.png'
 import SettingStyle from './Setting.module.css'
 import { useAlert } from '../../contexts/AlertContext'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -68,8 +67,6 @@ const Setting = () => {
 	const {
 		control,
 		handleSubmit,
-		watch,
-		setValue,
 		setError,
 		clearErrors,
 		formState: { errors },

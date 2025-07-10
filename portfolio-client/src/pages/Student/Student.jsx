@@ -1,6 +1,7 @@
 import { Box } from '@mui/material'
-import React, { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import Filter from '../../components/Filter/Filter'
 import Table from '../../components/Table/Table'
 
@@ -34,7 +35,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 	}
 
 	const [filterState, setFilterState] = useState(initialFilterState)
-	const [students, setStudents] = useState([])
 	const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
 	const [updatedBookmark, setUpdatedBookmark] = useState({
 		studentId: null,
@@ -217,6 +217,10 @@ const Student = ({ OnlyBookmarked = false }) => {
 			/>
 		</div>
 	)
+}
+
+Student.propTypes = {
+	OnlyBookmarked: PropTypes.bool,
 }
 
 export default Student

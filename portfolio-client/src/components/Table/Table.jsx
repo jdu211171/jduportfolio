@@ -83,7 +83,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		}
 	}, [rowsPerPage])
 
-	const open = Boolean(anchorEls)
 	const handleClick = (event, rowId) => {
 		setAnchorEls(prev => ({
 			...prev,

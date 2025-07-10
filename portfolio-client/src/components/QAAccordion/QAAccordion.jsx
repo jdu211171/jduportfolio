@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import {
 	Accordion,
 	AccordionSummary,
@@ -7,10 +7,11 @@ import {
 } from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { styled } from '@mui/material/styles'
+import PropTypes from 'prop-types'
 import styles from './QAAccordion.module.css'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
-const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
+const StyledAccordionSummary = styled(AccordionSummary)(() => ({
 	'.MuiAccordionSummary-expandIcon': {
 		order: -1,
 	},
@@ -64,6 +65,12 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 			</Accordion>
 		</div>
 	)
+}
+
+QAAccordion.propTypes = {
+	question: PropTypes.string.isRequired,
+	answer: PropTypes.string.isRequired,
+	notExpand: PropTypes.bool,
 }
 
 export default QAAccordion
