@@ -66,15 +66,6 @@ const Filter = ({
 	// IMPORTANT: Call parent immediately on mount with saved filter state
 	useEffect(() => {
 		if (isInitialMount.current) {
-			// Check if there's any saved filter state that needs to be applied
-			const hasActiveFilters = Object.entries(localFilterState).some(
-				([key, value]) => {
-					if (key === 'search' && value) return true
-					if (Array.isArray(value) && value.length > 0) return true
-					if (!Array.isArray(value) && value && value !== '') return true
-					return false
-				}
-			)
 
 			// Always call parent with current state (whether empty or with filters)
 			onFilterChange(localFilterState)
@@ -156,7 +147,6 @@ const Filter = ({
 
 	// Create suggestions based on input
 	const [suggestions, setSuggestions] = useState([])
-	const [loadingSuggestions, setLoadingSuggestions] = useState(false)
 
 	// Function to fetch student ID suggestions
 	const fetchStudentIdSuggestions = useCallback(
@@ -164,7 +154,6 @@ const Filter = ({
 			if (!searchTerm.trim() || disableStudentIdSearch) return []
 
 			try {
-				setLoadingSuggestions(true)
 				const response = await axios.get(
 					`/api/students/ids?search=${encodeURIComponent(searchTerm)}`
 				)
@@ -178,8 +167,6 @@ const Filter = ({
 			} catch (error) {
 				console.error('Error fetching student ID suggestions:', error)
 				return []
-			} finally {
-				setLoadingSuggestions(false)
 			}
 		},
 		[disableStudentIdSearch]
@@ -292,7 +279,10 @@ const Filter = ({
 					if (selectedSuggestionIndex >= 0) {
 						handleSuggestionClick(suggestions[selectedSuggestionIndex])
 					} else {
-						handleSubmit(e)
+						// Submit form directly instead of calling handleSubmit
+						userChangedFilter.current = true
+						onFilterChange(localFilterState)
+						setShowSuggestions(false)
 					}
 					break
 				case 'Escape':
@@ -306,6 +296,8 @@ const Filter = ({
 			suggestions,
 			selectedSuggestionIndex,
 			handleSuggestionClick,
+			onFilterChange,
+			localFilterState,
 		]
 	)
 
@@ -467,7 +459,7 @@ const Filter = ({
 					return null
 			}
 		},
-		[tempFilterState, handleTempFilterChange, t]
+		[tempFilterState, handleTempFilterChange, t, fields]
 	)
 
 	return (

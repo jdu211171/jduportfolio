@@ -346,13 +346,46 @@ class StudentService {
 							'submit_count',
 							'created_at',
 							'updated_at',
+							'profile_data', // Include profile_data to get draft information
 						],
 						required: false, // LEFT JOIN so students without drafts are still included
 					},
 				],
 			})
 
-			return students
+			// Merge draft data with student data if draft exists and is NOT in 'draft' status
+			const studentsWithDraftData = students.map(student => {
+				const studentJson = student.toJSON()
+				
+				// Only merge draft data if it exists and status is NOT 'draft'
+				// Draft status data should only be visible to the student themselves
+				if (studentJson.draft && studentJson.draft.profile_data && studentJson.draft.status !== 'draft') {
+					const draftData = studentJson.draft.profile_data
+					
+					// Merge draft fields into the main student object
+					const fieldsToMerge = [
+						'deliverables',
+						'gallery',
+						'self_introduction',
+						'hobbies',
+						'hobbies_description',
+						'special_skills_description',
+						'other_information',
+						'it_skills',
+						'skills'
+					]
+					
+					fieldsToMerge.forEach(field => {
+						if (draftData[field] !== undefined) {
+							studentJson[field] = draftData[field]
+						}
+					})
+				}
+				
+				return studentJson
+			})
+
+			return studentsWithDraftData
 		} catch (error) {
 			console.error('Error in getAllStudents:', error.message, error.stack)
 			// Return empty array instead of throwing to prevent 500 errors
@@ -361,7 +394,7 @@ class StudentService {
 	}
 
 	// Service method to retrieve a student by ID
-	static async getStudentById(studentId, password = false) {
+	static async getStudentById(studentId, password = false, requesterId = null, requesterRole = null) {
 		try {
 			let excluded = ['createdAt', 'updatedAt']
 			if (!password) {
@@ -369,18 +402,90 @@ class StudentService {
 			}
 			const student = await Student.findByPk(studentId, {
 				attributes: { exclude: excluded },
+				include: [
+					{
+						model: Draft,
+						as: 'draft',
+						attributes: [
+							'id',
+							'status',
+							'submit_count',
+							'created_at',
+							'updated_at',
+							'profile_data', // Include profile_data to get draft information
+						],
+						required: false, // LEFT JOIN so students without drafts are still included
+					},
+				],
 			})
 			if (!student) {
 				throw new Error('Student not found')
 			}
-			return student
+			
+			// Convert to JSON
+			const studentJson = student.toJSON()
+			
+			// Determine if draft data should be merged
+			let shouldMergeDraft = false
+			
+			if (studentJson.draft && studentJson.draft.profile_data) {
+				// Check if draft should be visible based on status and requester
+				if (studentJson.draft.status === 'draft') {
+					// Draft status: only visible to the student themselves
+					// This includes when an approved profile is edited but not yet submitted
+					// Debug: Check if this is the student viewing their own profile
+					console.log('Draft visibility check:', {
+						requesterRole,
+						requesterId,
+						studentDbId: student.id,
+						isMatch: requesterId === student.id
+					})
+					
+					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
+						shouldMergeDraft = true
+					}
+					// Other users (Staff, Admin, Recruiter) cannot see draft changes
+				} else if (studentJson.draft.status === 'submitted' || 
+						   studentJson.draft.status === 'approved' || 
+						   studentJson.draft.status === 'disapproved' ||
+						   studentJson.draft.status === 'resubmission_required') {
+					// Non-draft statuses: visible to authorized users
+					shouldMergeDraft = true
+				}
+			}
+			
+			// Merge draft data if conditions are met
+			if (shouldMergeDraft) {
+				const draftData = studentJson.draft.profile_data
+				
+				// Merge draft fields into the main student object
+				const fieldsToMerge = [
+					'deliverables',
+					'gallery',
+					'self_introduction',
+					'hobbies',
+					'hobbies_description',
+					'special_skills_description',
+					'other_information',
+					'it_skills',
+					'skills'
+				]
+				
+				fieldsToMerge.forEach(field => {
+					if (draftData[field] !== undefined) {
+						studentJson[field] = draftData[field]
+					}
+				})
+			}
+			
+			return studentJson
 		} catch (error) {
 			throw error
 		}
 	}
 
 	// Service method to retrieve a student by student_id
-	static async getStudentByStudentId(studentId, password = false) {
+	static async getStudentByStudentId(studentId, password = false, requesterId = null, requesterRole = null) {
 		try {
 			let excluded = ['createdAt', 'updatedAt']
 			if (!password) {
@@ -390,13 +495,84 @@ class StudentService {
 			const student = await Student.findOne({
 				where: { student_id: studentId }, // Search by student_id instead of id
 				attributes: { exclude: excluded },
+				include: [
+					{
+						model: Draft,
+						as: 'draft',
+						attributes: [
+							'id',
+							'status',
+							'submit_count',
+							'created_at',
+							'updated_at',
+							'profile_data', // Include profile_data to get draft information
+						],
+						required: false, // LEFT JOIN so students without drafts are still included
+					},
+				],
 			})
 
 			if (!student) {
 				throw new Error('Student not found')
 			}
 
-			return student
+			// Convert to JSON
+			const studentJson = student.toJSON()
+			
+			// Determine if draft data should be merged
+			let shouldMergeDraft = false
+			
+			if (studentJson.draft && studentJson.draft.profile_data) {
+				// Check if draft should be visible based on status and requester
+				if (studentJson.draft.status === 'draft') {
+					// Draft status: only visible to the student themselves
+					// This includes when an approved profile is edited but not yet submitted
+					// Debug: Check if this is the student viewing their own profile
+					console.log('Draft visibility check:', {
+						requesterRole,
+						requesterId,
+						studentDbId: student.id,
+						isMatch: requesterId === student.id
+					})
+					
+					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
+						shouldMergeDraft = true
+					}
+					// Other users (Staff, Admin, Recruiter) cannot see draft changes
+				} else if (studentJson.draft.status === 'submitted' || 
+						   studentJson.draft.status === 'approved' || 
+						   studentJson.draft.status === 'disapproved' ||
+						   studentJson.draft.status === 'resubmission_required') {
+					// Non-draft statuses: visible to authorized users
+					shouldMergeDraft = true
+				}
+			}
+			
+			// Merge draft data if conditions are met
+			if (shouldMergeDraft) {
+				const draftData = studentJson.draft.profile_data
+				
+				// Merge draft fields into the main student object
+				const fieldsToMerge = [
+					'deliverables',
+					'gallery',
+					'self_introduction',
+					'hobbies',
+					'hobbies_description',
+					'special_skills_description',
+					'other_information',
+					'it_skills',
+					'skills'
+				]
+				
+				fieldsToMerge.forEach(field => {
+					if (draftData[field] !== undefined) {
+						studentJson[field] = draftData[field]
+					}
+				})
+			}
+
+			return studentJson
 		} catch (error) {
 			throw error
 		}

@@ -244,7 +244,10 @@ class StudentController {
 	static async getStudentById(req, res, next) {
 		try {
 			const { id } = req.params
-			const student = await StudentService.getStudentByStudentId(id)
+			// Pass requester info to service method
+			const requesterId = req.user?.id
+			const requesterRole = req.user?.userType
+			const student = await StudentService.getStudentByStudentId(id, false, requesterId, requesterRole)
 			res.status(200).json(student)
 		} catch (error) {
 			if (error.message === 'Student not found') {

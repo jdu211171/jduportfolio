@@ -1,4 +1,3 @@
- 
 import React, {
 	useEffect,
 	useState,
@@ -596,7 +595,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									}
 									multiline
 									placeholder={
-										t.business_content_placeholder || 'Enter business content'
+										t.business_content_placeholder
 									}
 									fieldKey={`business_overview_${index}`}
 									inputRef={createInputRef(`business_overview_${index}`)}
@@ -630,7 +629,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 							}
 							multiline
 							placeholder={
-								t.business_content_placeholder || 'Enter business content'
+								t.business_content_placeholder
 							}
 							fieldKey='newBusinessOverview'
 							inputRef={createInputRef('newBusinessOverview')}
@@ -684,7 +683,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 	if (!company) {
 		return (
 			<Box className={styles.loadingContainer}>
-				<Typography>{t.loading || 'Loading...'}</Typography>
+				<Typography>{t.loading}</Typography>
 			</Box>
 		)
 	}
@@ -730,7 +729,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											size='small'
 											disabled={loading}
 										>
-											{t.cancel || 'Cancel'}
+											{t.cancel}
 										</Button>
 										<Button
 											onClick={handleSave}
@@ -739,7 +738,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											size='small'
 											disabled={loading}
 										>
-											{loading ? t.saving || 'Saving...' : t.save || 'Save'}
+											{loading ? t.saving : t.save}
 										</Button>
 									</>
 								) : (
@@ -757,7 +756,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 										}
 										className={styles.editButton}
 									>
-										{t.edit || 'Edit'}
+										{t.edit}
 									</Button>
 								)}
 							</Box>
@@ -770,7 +769,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 					<Box className={styles.companyInfoContainer}>
 						<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
 							<Typography variant='subtitle1' className={styles.label}>
-								{t.location || 'Location'}
+								{t.location}
 							</Typography>
 							<Box className={styles.value}>
 								{editMode ? (
@@ -779,7 +778,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 										onChange={e =>
 											handleUpdateEditData('company_Address', e.target.value)
 										}
-										placeholder={t.location_placeholder || 'Enter location'}
+										placeholder={t.location_placeholder}
 										fieldKey='company_Address'
 										inputRef={createInputRef('company_Address')}
 									/>
@@ -793,7 +792,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 						<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
 							<Typography variant='subtitle1' className={styles.label}>
-								{t.established || 'Established'}
+								{t.established}
 							</Typography>
 							<Box className={styles.value}>
 								{editMode ? (
@@ -803,7 +802,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											handleUpdateEditData('established_Date', e.target.value)
 										}
 										placeholder={
-											t.established_placeholder || 'Enter established date'
+											t.established_placeholder
 										}
 										fieldKey='established_Date'
 										inputRef={createInputRef('established_Date')}
@@ -818,7 +817,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 						<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
 							<Typography variant='subtitle1' className={styles.label}>
-								{t.employee_count || 'Employee Count'}
+								{t.employee_count}
 							</Typography>
 							<Box className={styles.value}>
 								{editMode ? (
@@ -828,7 +827,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											handleUpdateEditData('employee_Count', e.target.value)
 										}
 										placeholder={
-											t.employee_count_placeholder || 'Enter employee count'
+											t.employee_count_placeholder
 										}
 										fieldKey='employee_Count'
 										inputRef={createInputRef('employee_Count')}
@@ -855,7 +854,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 						className={styles.sectionTitle}
 						sx={{ fontWeight: 600 }}
 					>
-						{t.company_introduction_video || '会社紹介動画'}
+						{t.company_introduction_video}
 					</Typography>
 				</Box>
 				{editMode ? (
@@ -873,8 +872,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 												handleUpdateEditData('company_video_url', newArray)
 											}}
 											placeholder={
-												t.company_video_url_placeholder ||
-												'例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5'
+												t.company_video_url_placeholder
 											}
 											fieldKey={`company_video_url_${index}`}
 											inputRef={createInputRef(`company_video_url_${index}`)}
@@ -937,8 +935,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									handleUpdateEditData('newVideoUrl', e.target.value)
 								}
 								placeholder={
-									t.company_video_url_placeholder ||
-									'例：https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5'
+									t.company_video_url_placeholder
 								}
 								fieldKey='newVideoUrl'
 								inputRef={createInputRef('newVideoUrl')}
@@ -963,7 +960,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									}
 								}}
 							>
-								保存
+								{t.save_button}
 							</button>
 						</Box>
 					</Box>
@@ -977,8 +974,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									className={styles.videoDescription}
 									style={{ textAlign: 'center', marginBottom: '16px' }}
 								>
-									{t.company_introduction_video_description ||
-										'雇用主から提供された企業紹介動画をご覧いただけます'}
+									{t.company_introduction_video_description}
 								</Typography>
 								{company.company_video_url.length === 1 ? (
 									// Single video - display directly
@@ -1041,7 +1037,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								className={styles.videoPlaceholder}
 								style={{ textAlign: 'center' }}
 							>
-								動画が設定されていません
+								{t.no_video_set}
 							</Box>
 						)}
 					</Box>
@@ -1052,7 +1048,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 			<ContentBox>
 				<SectionHeader
 					icon={DescriptionIcon}
-					title={t.company_overview || 'Company Overview'}
+					title={t.company_overview}
 				/>
 				{editMode ? (
 					<CustomTextField
@@ -1063,7 +1059,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 						multiline
 						minRows={6}
 						placeholder={
-							t.company_description_placeholder || 'Enter company description'
+							t.company_description_placeholder
 						}
 						fieldKey='company_description'
 						inputRef={createInputRef('company_description')}
@@ -1079,7 +1075,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 			<ContentBox>
 				<SectionHeader
 					icon={BusinessIcon}
-					title={t.business_overview || 'Business Overview'}
+					title={t.business_overview}
 				/>
 				<Box>{renderBusinessOverview()}</Box>
 			</ContentBox>
@@ -1088,14 +1084,14 @@ const CompanyProfile = ({ userId = 0 }) => {
 			<ContentBox>
 				<SectionHeader
 					icon={WorkIcon}
-					title={t.recruitment_requirements || 'Recruitment Requirements'}
+					title={t.recruitment_requirements}
 				/>
 				{editMode ? (
 					<Grid container spacing={3}>
 						{/* Required Skills Column */}
 						<Grid item xs={12} md={6}>
 							<Typography variant='subtitle1' className={styles.fieldLabel}>
-								{t.required_skills || 'Required Skills'}
+								{t.required_skills}
 							</Typography>
 							<Box className={styles.recruitmentEditColumn}>
 								{/* CHANGED: Editable saved items */}
@@ -1123,7 +1119,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 															e.target.value
 														)
 													}
-													placeholder='例: HTML/CSS/JavaScriptの実務経験（3年以上）'
+													placeholder={t.required_skills_placeholder}
 													fieldKey={`required_skills_${index}`}
 													inputRef={createInputRef(`required_skills_${index}`)}
 												/>
@@ -1158,7 +1154,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 										onChange={e =>
 											handleUpdateEditData('newRequiredSkill', e.target.value)
 										}
-										placeholder='例: HTML/CSS/JavaScriptの実務経験（3年以上）'
+										placeholder={t.required_skills_placeholder}
 										fieldKey='newRequiredSkill'
 										inputRef={createInputRef('newRequiredSkill')}
 									/>
@@ -1182,7 +1178,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											}
 										}}
 									>
-										{t.save || 'Save'}
+										{t.save}
 									</button>
 								</Box>
 							</Box>
@@ -1191,7 +1187,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 						{/* Welcome Skills Column */}
 						<Grid item xs={12} md={6}>
 							<Typography variant='subtitle1' className={styles.fieldLabel}>
-								{t.welcome_skills || 'Welcome Skills'}
+								{t.welcome_skills}
 							</Typography>
 							<Box className={styles.recruitmentEditColumn}>
 								{/* CHANGED: Editable saved items */}
@@ -1218,7 +1214,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 														e.target.value
 													)
 												}
-												placeholder='例: TypeScriptの実務経験'
+												placeholder={t.preferred_skills_placeholder}
 												fieldKey={`welcome_skills_${index}`}
 												inputRef={createInputRef(`welcome_skills_${index}`)}
 											/>
@@ -1252,7 +1248,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 										onChange={e =>
 											handleUpdateEditData('newWelcomeSkill', e.target.value)
 										}
-										placeholder='例: TypeScriptの実務経験'
+										placeholder={t.preferred_skills_placeholder}
 										fieldKey='newWelcomeSkill'
 										inputRef={createInputRef('newWelcomeSkill')}
 									/>
@@ -1274,7 +1270,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											}
 										}}
 									>
-										{t.save || 'Save'}
+										{t.save}
 									</button>
 								</Box>
 							</Box>
@@ -1295,7 +1291,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									className={styles.fieldLabel}
 									sx={{ marginBottom: '16px', fontWeight: '600' }}
 								>
-									{t.required_skills || 'Required Skills'}
+									{t.required_skills}
 								</Typography>
 								{safeArrayRender(company.required_skills).map((item, index) => (
 									<Box
@@ -1328,7 +1324,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									className={styles.fieldLabel}
 									sx={{ marginBottom: '16px', fontWeight: '600' }}
 								>
-									{t.welcome_skills || 'Welcome Skills'}
+									{t.welcome_skills}
 								</Typography>
 								{safeArrayRender(company.welcome_skills).map((item, index) => (
 									<Box
@@ -1359,7 +1355,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 			<ContentBox>
 				<SectionHeader
 					icon={PersonIcon}
-					title={t.target_audience || 'Target Audience'}
+					title={t.target_audience}
 				/>
 				{editMode ? (
 					<Box>
@@ -1373,7 +1369,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								color: 'text.primary',
 							}}
 						>
-							{t.target_person || 'Target Person'}
+							{t.target_person}
 						</Typography>
 						<Grid container spacing={2}>
 							{safeArrayRender(editData.target_audience).map((item, index) => (
@@ -1411,7 +1407,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 											// multiline
 											minRows={2}
 											placeholder={
-												t.target_audience_placeholder || 'Enter target audience'
+												t.target_audience_placeholder
 											}
 											fieldKey={`target_audience_${index}`}
 											inputRef={createInputRef(`target_audience_${index}`)}
@@ -1430,7 +1426,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								handleUpdateEditData('target_audience', [...currentArray, ''])
 							}}
 						>
-							新しい対象者を追加
+							{t.new_target_audience_add}
 						</Button>
 					</Box>
 				) : (
@@ -1446,7 +1442,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								color: 'text.primary',
 							}}
 						>
-							{t.target_person || 'Target Person'}
+							{t.target_person}
 						</Typography>
 						<Grid container spacing={2}>
 							{safeArrayRender(company.target_audience).map((item, index) => (
@@ -1463,35 +1459,34 @@ const CompanyProfile = ({ userId = 0 }) => {
 			<ContentBox>
 				<SectionHeader
 					icon={InfoIcon}
-					title={t.additional_info || 'Additional Information'}
+					title={t.additional_info}
 				/>
 				<Grid>
 					{[
 						{
 							key: 'work_location',
-							label: t.work_location || 'Work Location',
-							placeholder: t.work_location_placeholder || 'Enter work location',
+							label: t.work_location,
+							placeholder: t.work_location_placeholder,
 						},
 						{
 							key: 'work_hours',
-							label: t.work_hours || 'Work Hours',
-							placeholder: t.work_hours_placeholder || 'Enter work hours',
+							label: t.work_hours,
+							placeholder: t.work_hours_placeholder,
 						},
 						{
 							key: 'salary',
-							label: t.salary || 'Salary',
-							placeholder: t.salary_placeholder || 'Enter salary',
+							label: t.salary,
+							placeholder: t.salary_placeholder,
 						},
 						{
 							key: 'benefits',
-							label: t.benefits || 'Benefits',
-							placeholder: t.benefits_placeholder || 'Enter benefits',
+							label: t.benefits,
+							placeholder: t.benefits_placeholder,
 						},
 						{
 							key: 'selection_process',
-							label: t.selection_process || 'Selection Process',
-							placeholder:
-								t.selection_process_placeholder || 'Enter selection process',
+							label: t.selection_process,
+							placeholder: t.selection_process_placeholder,
 						},
 					].map(({ key, label, placeholder }) => (
 						<Grid item xs={12} md={6} key={key}>

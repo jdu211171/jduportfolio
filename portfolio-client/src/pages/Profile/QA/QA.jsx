@@ -372,7 +372,7 @@ const QA = ({
 
 				const updatedValue = JSON.stringify(questions)
 
-				const response = await axios.put(`/api/settings/studentQA`, {
+				await axios.put(`/api/settings/studentQA`, {
 					value: updatedValue,
 				})
 				showAlert('Changes saved successfully!', 'success')
@@ -473,7 +473,7 @@ const QA = ({
 						typeof obj[key][subKey] === 'object' &&
 						obj[key][subKey] !== null
 					) {
-						const { [excludeKey]: excluded, ...rest } = obj[key][subKey]
+						const { [excludeKey]: _, ...rest } = obj[key][subKey]
 						newObj[key][subKey] = rest
 					}
 				}
@@ -485,33 +485,33 @@ const QA = ({
 		return newObj
 	}
 
-	const combineQuestionsAndAnswers = (questions, answers) => {
-		const combinedData = {}
-		// Check if answers exist and have idList
-		let firsttime = !answers || !answers.idList || Object.keys(answers.idList).length === 0
-		if (firsttime) {
-			setIsFirstTime(true)
-		}
-		for (const category in questions) {
-			if (category == 'idList') {
-				combinedData[category] = (answers && answers[category]) || {}
-			} else {
-				combinedData[category] = {}
-				for (const key in questions[category]) {
-					combinedData[category][key] = {
-						question: questions[category][key].question || '',
-						answer: firsttime
-							? ''
-							: !answers || !answers[category] || !answers[category][key]
-								? ''
-								: answers[category][key].answer || '',
-					}
-				}
-			}
-		}
+	// const combineQuestionsAndAnswers = (questions, answers) => {
+	// 	const combinedData = {}
+	// 	// Check if answers exist and have idList
+	// 	let firsttime = !answers || !answers.idList || Object.keys(answers.idList).length === 0
+	// 	if (firsttime) {
+	// 		setIsFirstTime(true)
+	// 	}
+	// 	for (const category in questions) {
+	// 		if (category == 'idList') {
+	// 			combinedData[category] = (answers && answers[category]) || {}
+	// 		} else {
+	// 			combinedData[category] = {}
+	// 			for (const key in questions[category]) {
+	// 				combinedData[category][key] = {
+	// 					question: questions[category][key].question || '',
+	// 					answer: firsttime
+	// 						? ''
+	// 						: !answers || !answers[category] || !answers[category][key]
+	// 							? ''
+	// 							: answers[category][key].answer || '',
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
-		return combinedData
-	}
+	// 	return combinedData
+	// }
 
 	const [subTabIndex, setSubTabIndex] = useState(0)
 	const [alert, setAlert] = useState({
@@ -520,9 +520,9 @@ const QA = ({
 		severity: '',
 	})
 
-	const handleSubTabChange = (event, newIndex) => {
-		setSubTabIndex(newIndex)
-	}
+	// const handleSubTabChange = (event, newIndex) => {
+	// 	setSubTabIndex(newIndex)
+	// }
 
 	const showAlert = (message, severity) => {
 		setAlert({ open: true, message, severity })
@@ -733,7 +733,7 @@ const QA = ({
 			<Box my={2}>
 				{editMode &&
 					Object.entries(getCategoryData(subTabIndex)).map(
-						([key, { question, answer }]) => (
+						([key, { question }]) => (
 							<QATextField
 								key={key}
 								data={studentQA}

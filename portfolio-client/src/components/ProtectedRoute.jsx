@@ -1,6 +1,6 @@
-import React from 'react'
 import Cookies from 'js-cookie'
 import { Navigate } from 'react-router-dom'
+import PropTypes from 'prop-types'
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
 	const token = Cookies.get('token')
@@ -13,6 +13,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 	} else {
 		return children
 	}
+}
+
+ProtectedRoute.propTypes = {
+	children: PropTypes.node.isRequired,
+	allowedRoles: PropTypes.arrayOf(PropTypes.string),
 }
 
 export default ProtectedRoute

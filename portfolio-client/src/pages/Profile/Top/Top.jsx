@@ -11,7 +11,7 @@ import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOu
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import { Box, Button, TextField as MuiTextField, Chip } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import { useLocation, useParams } from 'react-router-dom'
 import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
@@ -155,7 +155,7 @@ const Top = () => {
 		}
 
 		loadData()
-	}, [id, role])
+	}, [id, role, statedata])
 
 	const handleStateData = () => {
 		if (statedata.draft) {
@@ -731,10 +731,7 @@ const Top = () => {
 						{t('editProfile')}
 					</Button>
 
-					{hasDraft &&
-					currentDraft &&
-					(currentDraft.status === 'draft' ||
-						currentDraft.status === 'resubmission_required') ? (
+					{hasDraft && currentDraft && (
 						<Button
 							onClick={toggleConfirmMode}
 							variant='contained'
@@ -744,7 +741,7 @@ const Top = () => {
 						>
 							{t('submitAgree')}
 						</Button>
-					) : null}
+					)}
 				</>
 			)}
 		</Box>
