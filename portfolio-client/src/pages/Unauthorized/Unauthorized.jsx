@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { Box, Typography, Button, Container } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { UserContext } from '../../contexts/UserContext'

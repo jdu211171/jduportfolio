@@ -1,5 +1,5 @@
-import React from 'react'
 import { Outlet } from 'react-router-dom'
+import PropTypes from 'prop-types'
 import ProtectedRoute from './ProtectedRoute'
 
 const ProtectedLayout = ({ allowedRoles }) => {
@@ -8,6 +8,10 @@ const ProtectedLayout = ({ allowedRoles }) => {
 			<Outlet />
 		</ProtectedRoute>
 	)
+}
+
+ProtectedLayout.propTypes = {
+	allowedRoles: PropTypes.arrayOf(PropTypes.string),
 }
 
 export default ProtectedLayout

@@ -57,6 +57,12 @@ const configureRoutes = app => {
 	// Auth routes
 	app.use('/api/auth', authRoute)
 
+	// Public routes
+	app.get(
+		'/api/students/:studentId/credit-details',
+		require('./controllers/studentController').getStudentWithCreditDetails
+	)
+
 	// Protected routes
 	app.use('/api/admin', adminRoute)
 	app.use('/api/recruiters', authMiddleware, recruiterRoute)
@@ -72,9 +78,8 @@ const configureRoutes = app => {
 	app.use('/api/log', logRoute)
 	app.use('/api/images', imageRoutes)
 	app.use('/api/notification', authMiddleware, notificationRoute)
-	app.use('/api/news' , newsRoute)
+	app.use('/api/news', newsRoute)
 	app.use('/api/file-records', authMiddleware, fileRecordRoute)
 }
 
 module.exports = configureRoutes
-
