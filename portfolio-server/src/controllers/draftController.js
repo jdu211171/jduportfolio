@@ -66,6 +66,13 @@ class DraftController {
 					'other_information',
 					'it_skills',
 					'skills',
+					'address',
+					'jlpt',
+					'jdu_japanese_certification',
+					'japanese_speech_contest',
+					'it_contest',
+					'hobbies_description',
+					'special_skills_description'
 				]
 
 				const defaultDraftData = draftKeys.reduce((acc, key) => {
