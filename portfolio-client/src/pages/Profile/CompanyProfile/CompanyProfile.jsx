@@ -7,6 +7,7 @@ import React, {
 } from 'react'
 import PropTypes from 'prop-types'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useFormPersistence } from '../../../hooks/useFormPersistence'
 import axios from '../../../utils/axiosUtils'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
@@ -18,7 +19,16 @@ import {
 	Grid,
 	Button,
 	TextField,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Snackbar,
+	Alert,
+	LinearProgress,
 } from '@mui/material'
+import SaveIcon from '@mui/icons-material/Save'
+import RestoreIcon from '@mui/icons-material/Restore'
 // Swiper imports
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
@@ -225,7 +235,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 	const location = useLocation()
 	const { recruiterId } = location.state || {}
 	const { language } = useContext(UserContext)
-	const { language: langContext } = useLanguage()
+	const { language: langContext, pendingLanguageChange, confirmLanguageChange, cancelLanguageChange } = useLanguage()
 	const showAlert = useAlert()
 	const currentLanguage = language || langContext || 'en'
 	const t = translations[currentLanguage] || translations.en
@@ -236,8 +246,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 	const [loading, setLoading] = useState(false)
 	const [editMode, setEditMode] = useState(false)
 
-	// Properly initialized editData state
-	const [editData, setEditData] = useState({
+	// Initial editData state
+	const initialEditData = {
 		newBusinessOverview: '',
 		newRequiredSkill: '',
 		newWelcomeSkill: '',
@@ -260,11 +270,218 @@ const CompanyProfile = ({ userId = 0 }) => {
 		last_name: '',
 		company_name: '',
 		photo: '',
+	}
+
+	const [editData, setEditData] = useState(initialEditData)
+
+	// Navigation and persistence state
+	const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+	const [pendingNavigation, setPendingNavigation] = useState(null)
+	const [showRecoveryDialog, setShowRecoveryDialog] = useState(false)
+	const [saveStatus, setSaveStatus] = useState({
+		isSaving: false,
+		lastSaved: null,
+		hasUnsavedChanges: false,
+	})
+	const [persistedData, setPersistedData] = useState({
+		exists: false,
+		data: null,
+		timestamp: null,
+	})
+
+	// Form persistence setup
+	const formPersistenceKey = `company_profile_edit_${id || 'unknown'}_${role}`
+	const {
+		loadFromStorage,
+		saveToStorage,
+		saveToStorageIfChanged,
+		clearStorage,
+		hasUnsavedChanges,
+		hasChangesFromOriginal,
+		immediateSave,
+		immediateSaveIfChanged,
+		updateOriginalData,
+	} = useFormPersistence(formPersistenceKey, initialEditData, {
+		debounceMs: 2000,
+		enabled: role === 'Recruiter' && editMode,
+		originalData: company ? {
+			...company,
+			newBusinessOverview: '',
+			newRequiredSkill: '',
+			newWelcomeSkill: '',
+			newVideoUrl: '',
+		} : null,
+		onSaveStart: () => {
+			console.log('Starting save to localStorage')
+			setSaveStatus(prev => ({ ...prev, isSaving: true }))
+		},
+		onSaveComplete: () => {
+			console.log('Save to localStorage complete')
+			setSaveStatus(prev => ({
+				...prev,
+				isSaving: false,
+				lastSaved: new Date().toISOString(),
+			}))
+		},
+		onLoadComplete: (data) => {
+			console.log('Loaded data from localStorage:', data)
+			setPersistedData({
+				exists: true,
+				data: data,
+				timestamp: new Date().toISOString(),
+			})
+		},
 	})
 
 	// Refs for maintaining focus
 	const inputRefs = useRef({})
 	const scrollPositionRef = useRef(0)
+
+	// Warn before leaving page with unsaved changes
+	useEffect(() => {
+		const handleBeforeUnload = (e) => {
+			if (editMode && role === 'Recruiter') {
+				e.preventDefault()
+				e.returnValue = ''
+			}
+		}
+
+		window.addEventListener('beforeunload', handleBeforeUnload)
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload)
+		}
+	}, [editMode, role])
+
+	// Track navigation attempts when in edit mode
+	useEffect(() => {
+		if (!editMode || role !== 'Recruiter') return
+
+		let isNavigating = false
+		let navigationBlocked = false
+
+		// Override history methods to intercept navigation
+		const originalPushState = window.history.pushState
+		const originalReplaceState = window.history.replaceState
+
+		const handleNavigation = (url) => {
+			// Skip if we're already handling navigation or if edit mode is false
+			if (isNavigating || navigationBlocked || !editMode) return true
+			
+			if (url && url !== window.location.pathname) {
+				console.log('Navigation intercepted to:', url)
+				isNavigating = true
+				navigationBlocked = true
+				setPendingNavigation({ pathname: url })
+				setShowUnsavedWarning(true)
+				// Prevent the navigation by staying on current page
+				setTimeout(() => {
+					window.history.pushState(null, '', location.pathname)
+					isNavigating = false
+				}, 0)
+				return false
+			}
+			return true
+		}
+
+		window.history.pushState = function(state, title, url) {
+			if (handleNavigation(url)) {
+				originalPushState.apply(window.history, arguments)
+			}
+		}
+
+		window.history.replaceState = function(state, title, url) {
+			if (handleNavigation(url)) {
+				originalReplaceState.apply(window.history, arguments)
+			}
+		}
+
+		const handlePopState = (e) => {
+			if (editMode && !navigationBlocked) {
+				e.preventDefault()
+				navigationBlocked = true
+				window.history.pushState(null, '', location.pathname)
+				setShowUnsavedWarning(true)
+			}
+		}
+
+		window.addEventListener('popstate', handlePopState)
+
+		return () => {
+			window.history.pushState = originalPushState
+			window.history.replaceState = originalReplaceState
+			window.removeEventListener('popstate', handlePopState)
+		}
+	}, [editMode, role, location.pathname])
+
+	// Handle language change with unsaved changes check
+	useEffect(() => {
+		const handleCheckUnsavedChanges = (e) => {
+			console.log('checkUnsavedChanges event received:', { 
+				editMode, 
+				role, 
+				eventDetail: e.detail,
+				shouldPrevent: editMode && role === 'Recruiter' 
+			})
+			if (editMode && role === 'Recruiter') {
+				// Always show warning in edit mode for Recruiters
+				e.preventDefault()
+				setShowUnsavedWarning(true)
+				return false
+			}
+		}
+
+		window.addEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
+		return () => {
+			window.removeEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
+		}
+	}, [editMode, role])
+
+	// Auto-save effect with change detection
+	useEffect(() => {
+		if (editMode && role === 'Recruiter' && editData && company) {
+			const hasChanges = hasChangesFromOriginal(editData)
+			console.log('Auto-save check:', { editMode, role, hasData: !!editData, hasChanges })
+			
+			if (hasChanges) {
+				console.log('Changes detected, saving to localStorage')
+				saveToStorageIfChanged(editData)
+				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: true }))
+			} else {
+				console.log('No changes detected, skipping auto-save')
+				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: false }))
+			}
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [editData, editMode, role, company])
+
+	// Clear navigation flags on unmount
+	useEffect(() => {
+		return () => {
+			// Clean up flags when component unmounts
+			localStorage.removeItem('isNavigatingAfterSave')
+		}
+	}, [])
+
+	// Clear any stale localStorage on component mount
+	useEffect(() => {
+		if (role === 'Recruiter' && id) {
+			try {
+				// Clear all possible localStorage keys that might exist
+				const keys = Object.keys(localStorage)
+				const keysToRemove = keys.filter(key => 
+					key.includes('profileEditDraft') && 
+					key.includes('company_profile_edit') &&
+					key.includes(String(id))
+				)
+				keysToRemove.forEach(key => {
+					localStorage.removeItem(key)
+					console.log('Removed stale localStorage key:', key)
+				})
+			} catch (error) {
+				console.error('Error clearing stale localStorage:', error)
+			}
+		}
+	}, [role, id])
 
 	// Fetch company data with proper error handling
 	useEffect(() => {
@@ -287,13 +504,29 @@ const CompanyProfile = ({ userId = 0 }) => {
 				}
 
 				setCompany(processedData)
-				setEditData({
+				const editDataWithNew = {
 					...processedData,
 					newBusinessOverview: '',
 					newRequiredSkill: '',
 					newWelcomeSkill: '',
 					newVideoUrl: '',
-				})
+				}
+				setEditData(editDataWithNew)
+				
+				// Update the original data reference for change detection
+				updateOriginalData(editDataWithNew)
+				
+				// Clear any stale localStorage data that might exist
+				clearStorage()
+				
+				// Additional manual cleanup for any persisted data
+				try {
+					const storageKey = `profileEditDraft_company_profile_edit_${id || 'unknown'}_${role}`
+					localStorage.removeItem(storageKey)
+					console.log('Manually cleared localStorage with key:', storageKey)
+				} catch (error) {
+					console.error('Error clearing localStorage manually:', error)
+				}
 			} catch (error) {
 				console.error('Error fetching company data:', error)
 				setCompany(null)
@@ -302,6 +535,61 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 		fetchCompany()
 	}, [id])
+
+	// Check for persisted data when entering edit mode
+	useEffect(() => {
+		// Add a small delay to ensure original data reference is updated
+		const checkRecovery = () => {
+			if (role === 'Recruiter' && editMode && company) {
+				// Check if we just switched languages or navigated back
+				const isLanguageSwitching = localStorage.getItem('isLanguageSwitching')
+				const isNavigatingAfterSave = localStorage.getItem('isNavigatingAfterSave')
+				
+				if (isLanguageSwitching === 'true') {
+					localStorage.removeItem('isLanguageSwitching')
+					// Force load the saved data
+					const persistedEditData = loadFromStorage()
+					if (persistedEditData && Object.keys(persistedEditData).length > 0) {
+						console.log('Found saved data after language change:', persistedEditData)
+						setPersistedData({
+							exists: true,
+							data: persistedEditData,
+							timestamp: new Date().toISOString(),
+						})
+						setShowRecoveryDialog(true)
+					}
+				} else if (isNavigatingAfterSave === 'true') {
+					localStorage.removeItem('isNavigatingAfterSave')
+					// Check if there's saved data to restore
+					const persistedEditData = loadFromStorage()
+					if (persistedEditData && Object.keys(persistedEditData).length > 0) {
+						console.log('Found saved data after navigation:', persistedEditData)
+						setPersistedData({
+							exists: true,
+							data: persistedEditData,
+							timestamp: new Date().toISOString(),
+						})
+						setShowRecoveryDialog(true)
+					}
+				} else {
+					// For normal edit mode entry, don't show recovery dialog
+					// Only show recovery for specific cases (language switch or navigation return)
+					console.log('Normal edit mode entry - no recovery check needed')
+					
+					// Clear any existing localStorage to prevent future false positives
+					clearStorage()
+				}
+			}
+		}
+		
+		// Small delay to ensure original data reference is properly updated
+		const timeoutId = setTimeout(checkRecovery, 100)
+		
+		return () => {
+			clearTimeout(timeoutId)
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [role, editMode, company])
 
 	// Prevent scroll on edit mode
 	useEffect(() => {
@@ -332,6 +620,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 	const handleSave = async () => {
 		if (!id) return
+
+		console.log('🔄 SAVE STARTED - editData:', editData)
+		console.log('🔄 SAVE STARTED - company (current):', company)
 
 		setLoading(true)
 		try {
@@ -372,7 +663,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 				? cleanedData.company_video_url
 				: []
 
-			// Only include non-empty fields to avoid validation errors
+			// Include all fields, even empty ones, to allow clearing data
 			Object.keys(cleanedData).forEach(key => {
 				const value = cleanedData[key]
 
@@ -381,35 +672,50 @@ const CompanyProfile = ({ userId = 0 }) => {
 					return
 				}
 
-				if (value !== null && value !== undefined && value !== '') {
-					// Handle phone_number validation (must be numeric string)
+				// Always include the field, even if it's empty (to allow clearing)
+				if (value !== null && value !== undefined) {
+					// Handle phone_number validation (must be numeric string or null to clear)
 					if (key === 'phone_number') {
 						const phoneStr = String(value).replace(/\D/g, '') // Remove non-digits
-						if (phoneStr) {
+						if (phoneStr === '') {
+							dataToSave[key] = null // Send null to clear the field
+						} else {
 							dataToSave[key] = phoneStr
 						}
 					}
-					// Handle date_of_birth validation (must be ISO8601 format)
+					// Handle date_of_birth validation (must be ISO8601 format or null to clear)
 					else if (key === 'date_of_birth') {
-						if (value instanceof Date || typeof value === 'string') {
+						if (value === '') {
+							dataToSave[key] = null // Send null to clear date
+						} else if (value instanceof Date || typeof value === 'string') {
 							try {
 								const date = new Date(value)
 								if (!isNaN(date.getTime())) {
 									dataToSave[key] = date.toISOString().split('T')[0] // YYYY-MM-DD format
+								} else {
+									dataToSave[key] = null // Invalid date becomes null
 								}
 							} catch (e) {
 								console.warn('Invalid date_of_birth:', value)
+								dataToSave[key] = null // Invalid date becomes null
 							}
 						}
 					}
-					// Handle email validation
+					// Handle email validation (must be valid email or null to clear)
 					else if (key === 'email') {
-						const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-						if (emailRegex.test(value)) {
-							dataToSave[key] = value
+						if (value === '') {
+							dataToSave[key] = null // Send null to clear email
+						} else {
+							const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+							if (emailRegex.test(value)) {
+								dataToSave[key] = value
+							} else {
+								console.warn('Invalid email format:', value)
+								dataToSave[key] = String(value) // Keep invalid email as-is for user to fix
+							}
 						}
 					}
-					// Include other fields as strings
+					// Include other fields as strings (empty strings are allowed for these)
 					else {
 						dataToSave[key] = String(value)
 					}
@@ -418,15 +724,12 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 			// Debug: Log the data being sent
 			console.log('💾 Data being sent to server:', dataToSave)
-			console.log(
-				'💾 Company video URLs being sent:',
-				dataToSave.company_video_url
-			)
+			console.log('💾 Company video URLs being sent:', dataToSave.company_video_url)
 			console.log('💾 Video URLs count:', dataToSave.company_video_url?.length)
 			console.log('💾 Recruiter ID:', id)
 
-			await axios.put(`/api/recruiters/${id}`, dataToSave)
-			console.log('💾 Successfully saved to backend')
+			const saveResponse = await axios.put(`/api/recruiters/${id}`, dataToSave)
+			console.log('💾 Successfully saved to backend, response:', saveResponse.data)
 
 			// Fetch fresh data from backend to ensure consistency
 			try {
@@ -444,20 +747,27 @@ const CompanyProfile = ({ userId = 0 }) => {
 						: [],
 				}
 
-				console.log(
-					'💾 Fresh data from backend after save:',
-					processedFreshData.company_video_url
-				)
+				console.log('💾 Fresh data from backend after save:', processedFreshData)
+				console.log('💾 Fresh company_video_url:', processedFreshData.company_video_url)
 				setCompany(processedFreshData)
 
 				// Also update editData to keep it in sync
-				setEditData({
+				const freshEditData = {
 					...processedFreshData,
 					newBusinessOverview: '',
 					newRequiredSkill: '',
 					newWelcomeSkill: '',
 					newVideoUrl: '',
-				})
+				}
+				setEditData(freshEditData)
+				
+				// Update the original data reference with fresh data from server
+				if (role === 'Recruiter') {
+					updateOriginalData(freshEditData)
+				}
+				
+				console.log('💾 Final editData after fresh data:', freshEditData)
+				console.log('💾 Original data reference updated to:', freshEditData)
 			} catch (fetchError) {
 				console.warn('Could not fetch fresh data after save:', fetchError)
 				// Fallback to local data
@@ -470,16 +780,32 @@ const CompanyProfile = ({ userId = 0 }) => {
 				setCompany(updatedCompany)
 
 				// Also update editData in fallback case
-				setEditData({
+				const fallbackEditData = {
 					...updatedCompany,
 					newBusinessOverview: '',
 					newRequiredSkill: '',
 					newWelcomeSkill: '',
 					newVideoUrl: '',
-				})
+				}
+				setEditData(fallbackEditData)
+				
+				// Update the original data reference with fallback data
+				if (role === 'Recruiter') {
+					updateOriginalData(fallbackEditData)
+				}
 			}
 
 			setEditMode(false)
+			
+			// Clear localStorage after successful save
+			if (role === 'Recruiter') {
+				clearStorage()
+				setSaveStatus({
+					isSaving: false,
+					lastSaved: null,
+					hasUnsavedChanges: false,
+				})
+			}
 
 			// Show success notification
 			showAlert(t.changes_saved || 'Changes saved successfully!', 'success')
@@ -502,16 +828,158 @@ const CompanyProfile = ({ userId = 0 }) => {
 	}
 
 	const handleCancel = () => {
-		if (company) {
-			setEditData({
-				...company,
-				newBusinessOverview: '',
-				newRequiredSkill: '',
-				newWelcomeSkill: '',
-				newVideoUrl: '',
+		if (editMode && role === 'Recruiter') {
+			// Only show warning if there are actual changes
+			if (hasChangesFromOriginal(editData)) {
+				setShowUnsavedWarning(true)
+			} else {
+				// No changes, just exit edit mode
+				setEditMode(false)
+				clearStorage()
+				setSaveStatus({
+					isSaving: false,
+					lastSaved: null,
+					hasUnsavedChanges: false,
+				})
+			}
+		} else {
+			if (company) {
+				const restoredData = {
+					...company,
+					newBusinessOverview: '',
+					newRequiredSkill: '',
+					newWelcomeSkill: '',
+					newVideoUrl: '',
+				}
+				setEditData(restoredData)
+				// Update original data reference when restoring from company data
+				if (role === 'Recruiter') {
+					updateOriginalData(restoredData)
+				}
+			}
+			setEditMode(false)
+			if (role === 'Recruiter') {
+				clearStorage()
+				setSaveStatus({
+					isSaving: false,
+					lastSaved: null,
+					hasUnsavedChanges: false,
+				})
+			}
+		}
+	}
+
+	const handleConfirmCancel = () => {
+		// Save data before proceeding if there's a pending language change
+		if (pendingLanguageChange) {
+			console.log('Saving data before language change:', editData)
+			// Save the data immediately only if there are changes
+			const saved = immediateSaveIfChanged(editData)
+			if (saved) {
+				// Set a flag to indicate we're switching languages after save
+				localStorage.setItem('isLanguageSwitching', 'true')
+			}
+			// Clear edit mode to prevent browser warning
+			setEditMode(false)
+			// Small delay to ensure localStorage writes complete
+			setTimeout(() => {
+				confirmLanguageChange()
+			}, 100)
+		} else if (pendingNavigation) {
+			// Handle navigation with discard
+			console.log('Discarding changes and navigating to:', pendingNavigation.pathname)
+			if (company) {
+				const restoredData = {
+					...company,
+					newBusinessOverview: '',
+					newRequiredSkill: '',
+					newWelcomeSkill: '',
+					newVideoUrl: '',
+				}
+				setEditData(restoredData)
+				// Update original data reference when restoring from company data
+				if (role === 'Recruiter') {
+					updateOriginalData(restoredData)
+				}
+			}
+			setEditMode(false)
+			clearStorage()
+			setSaveStatus({
+				isSaving: false,
+				lastSaved: null,
+				hasUnsavedChanges: false,
+			})
+			// Small delay to ensure state updates
+			setTimeout(() => {
+				if (pendingNavigation) {
+					// Use window.location for a clean navigation
+					window.location.href = pendingNavigation.pathname
+				}
+				setPendingNavigation(null)
+			}, 100)
+		} else {
+			if (company) {
+				const restoredData = {
+					...company,
+					newBusinessOverview: '',
+					newRequiredSkill: '',
+					newWelcomeSkill: '',
+					newVideoUrl: '',
+				}
+				setEditData(restoredData)
+				// Update original data reference when restoring from company data
+				if (role === 'Recruiter') {
+					updateOriginalData(restoredData)
+				}
+			}
+			setEditMode(false)
+			clearStorage()
+			setSaveStatus({
+				isSaving: false,
+				lastSaved: null,
+				hasUnsavedChanges: false,
 			})
 		}
+		setShowUnsavedWarning(false)
+	}
+
+	const handleSaveAndNavigate = () => {
+		console.log('Saving data before navigation:', editData)
+		// Save the data immediately only if there are changes
+		const saved = immediateSaveIfChanged(editData)
+		if (saved) {
+			// Set a flag to indicate we're navigating after save
+			localStorage.setItem('isNavigatingAfterSave', 'true')
+		}
+		// Exit edit mode to allow navigation
 		setEditMode(false)
+		// Clear the warning dialog
+		setShowUnsavedWarning(false)
+		// Small delay to ensure state updates and localStorage writes complete
+		setTimeout(() => {
+			if (pendingNavigation) {
+				console.log('Navigating to:', pendingNavigation.pathname)
+				// Use window.location for a clean navigation
+				window.location.href = pendingNavigation.pathname
+			}
+			setPendingNavigation(null)
+		}, 100)
+	}
+
+	const handleRecoverData = () => {
+		if (persistedData?.data) {
+			console.log('Recovering data:', persistedData.data)
+			setEditData(persistedData.data)
+			setEditMode(true)
+			showAlert(t.dataRecovered || 'Data recovered successfully', 'success')
+		}
+		setShowRecoveryDialog(false)
+	}
+
+	const handleDiscardRecovery = () => {
+		clearStorage()
+		setShowRecoveryDialog(false)
+		setPersistedData({ exists: false, data: null, timestamp: null })
 	}
 
 	// Optimized state update to prevent unnecessary re-renders
@@ -743,7 +1211,14 @@ const CompanyProfile = ({ userId = 0 }) => {
 									</>
 								) : (
 									<Button
-										onClick={() => setEditMode(true)}
+										onClick={() => {
+											// Clear any stale localStorage before entering edit mode
+											clearStorage()
+											console.log('🔄 ENTERING EDIT MODE')
+											console.log('🔄 Current company data:', company)
+											console.log('🔄 Current editData before entering edit:', editData)
+											setEditMode(true)
+										}}
 										variant='contained'
 										color='primary'
 										size='small'
@@ -1518,6 +1993,156 @@ const CompanyProfile = ({ userId = 0 }) => {
 					))}
 				</Grid>
 			</ContentBox>
+
+			{/* Auto-save indicator */}
+			{editMode && role === 'Recruiter' && (
+				<Snackbar
+					open={saveStatus.isSaving || !!saveStatus.lastSaved}
+					autoHideDuration={saveStatus.isSaving ? null : 2000}
+					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+					onClose={() => setSaveStatus(prev => ({ ...prev, lastSaved: null }))}
+				>
+					<Alert
+						severity="info"
+						icon={saveStatus.isSaving ? <SaveIcon /> : <SaveIcon />}
+						sx={{ alignItems: 'center' }}
+					>
+						{saveStatus.isSaving ? (t.savingChanges || 'Saving...') : (t.changesSaved || 'Changes saved')}
+						{saveStatus.isSaving && (
+							<LinearProgress
+								color="inherit"
+								sx={{ ml: 2, width: 100 }}
+							/>
+						)}
+					</Alert>
+				</Snackbar>
+			)}
+
+			{/* Recovery dialog */}
+			<Dialog open={showRecoveryDialog} onClose={() => setShowRecoveryDialog(false)}>
+				<DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+					<RestoreIcon color="info" />
+					{t.recoverUnsavedChanges || 'Recover Unsaved Changes?'}
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						{t.unsavedChangesFound || 'We found unsaved changes from your previous editing session. Would you like to restore them?'}
+					</Typography>
+					{persistedData.timestamp && (
+						<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+							{t.lastModified || 'Last modified'}: {new Date(persistedData.timestamp).toLocaleString()}
+						</Typography>
+					)}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleDiscardRecovery} color="error">
+						{t.discard || 'Discard'}
+					</Button>
+					<Button onClick={handleRecoverData} variant="contained" startIcon={<RestoreIcon />}>
+						{t.restore || 'Restore'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Unsaved changes warning */}
+			<Dialog open={showUnsavedWarning} onClose={() => {
+				setShowUnsavedWarning(false)
+				if (pendingLanguageChange) {
+					cancelLanguageChange()
+				}
+				if (pendingNavigation) {
+					setPendingNavigation(null)
+				}
+			}}>
+				<DialogTitle>
+					{pendingLanguageChange 
+						? (t.unsavedChangesLanguageTitle || 'Save changes before switching language?')
+						: pendingNavigation
+						? (t.unsavedChangesNavigationTitle || 'Save changes before leaving?')
+						: (t.unsavedChangesTitle || 'Unsaved Changes')
+					}
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						{pendingLanguageChange
+							? (t.unsavedChangesLanguageMessage || 'You have unsaved changes. Would you like to save them before changing the language?')
+							: pendingNavigation
+							? (t.unsavedChangesNavigationMessage || 'You have unsaved changes. Would you like to save them before leaving this page?')
+							: (t.unsavedChangesMessage || 'You have unsaved changes. Are you sure you want to discard them?')
+						}
+					</Typography>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => {
+						setShowUnsavedWarning(false)
+						if (pendingLanguageChange) {
+							cancelLanguageChange()
+						}
+						if (pendingNavigation) {
+							setPendingNavigation(null)
+						}
+					}}>
+						{t.continueEditing || 'Continue Editing'}
+					</Button>
+					{pendingLanguageChange ? (
+						<>
+							<Button 
+								onClick={() => {
+									// Discard changes and switch language
+									if (company) {
+										const restoredData = {
+											...company,
+											newBusinessOverview: '',
+											newRequiredSkill: '',
+											newWelcomeSkill: '',
+											newVideoUrl: '',
+										}
+										setEditData(restoredData)
+										// Update original data reference when restoring from company data
+										if (role === 'Recruiter') {
+											updateOriginalData(restoredData)
+										}
+									}
+									setEditMode(false)
+									clearStorage()
+									setShowUnsavedWarning(false)
+									confirmLanguageChange()
+								}} 
+								color="error"
+							>
+								{t.discardAndSwitch || 'Discard & Switch'}
+							</Button>
+							<Button 
+								onClick={handleConfirmCancel} 
+								variant="contained"
+								color="primary"
+							>
+								{t.saveAndSwitch || 'Save & Switch'}
+							</Button>
+						</>
+					) : pendingNavigation ? (
+						<>
+							<Button 
+								onClick={handleConfirmCancel}
+								color="error"
+							>
+								{t.discardAndLeave || 'Discard & Leave'}
+							</Button>
+							<Button 
+								onClick={handleSaveAndNavigate}
+								variant="contained"
+								color="primary"
+							>
+								{t.saveAndLeave || 'Save & Leave'}
+							</Button>
+						</>
+					) : (
+						<Button onClick={handleConfirmCancel} color="error" variant="contained">
+							{t.discardChanges || 'Discard Changes'}
+						</Button>
+					)}
+				</DialogActions>
+			</Dialog>
 		</Box>
 	)
 }

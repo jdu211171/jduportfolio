@@ -10,10 +10,30 @@ import TranslateIcon from '@mui/icons-material/Translate'
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
 import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
-import { Box, Button, TextField as MuiTextField, Chip } from '@mui/material'
+import SaveIcon from '@mui/icons-material/Save'
+import RestoreIcon from '@mui/icons-material/Restore'
+import { Box, Button, TextField as MuiTextField, Chip, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Typography, LinearProgress } from '@mui/material'
 import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams, useNavigate } from 'react-router-dom'
+import { useAtom } from 'jotai'
+import { useFormPersistence } from '../../../hooks/useFormPersistence'
+import {
+	editModeAtom,
+	editDataAtom,
+	saveStatusAtom,
+	persistedDataAtom,
+	hobbiesInputAtom,
+	specialSkillsInputAtom,
+	showHobbiesInputAtom,
+	showSpecialSkillsInputAtom,
+	deliverableImagesAtom,
+	newImagesAtom,
+	deletedUrlsAtom,
+	activeUniverAtom,
+	subTabIndexAtom,
+	updateQAAtom,
+} from '../../../atoms/profileEditAtoms'
 import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
@@ -33,8 +53,9 @@ const Top = () => {
 	const location = useLocation()
 	const { userId } = location.state || {}
 	const statedata = location.state?.student
-	const { language } = useLanguage()
+	const { language, pendingLanguageChange, confirmLanguageChange, cancelLanguageChange } = useLanguage()
 	const showAlert = useAlert()
+	const navigate = useNavigate()
 
 	const t = key => translations[language][key] || key
 
@@ -94,29 +115,74 @@ const Top = () => {
 		id = studentId
 	}
 	const [student, setStudent] = useState(null)
-	const [editData, setEditData] = useState({})
-	const [editMode, setEditMode] = useState(false)
+	const [editData, setEditData] = useAtom(editDataAtom)
+	const [editMode, setEditMode] = useAtom(editModeAtom)
 	const [currentDraft, setCurrentDraft] = useState({})
-	const [updateQA, SetUpdateQA] = useState(true)
-	const [newImages, setNewImages] = useState([])
-	const [deletedUrls, setDeletedUrls] = useState([])
-	const [deliverableImages, setDeliverableImages] = useState({})
-	const [subTabIndex, setSubTabIndex] = useState(0)
+	const [updateQA, SetUpdateQA] = useAtom(updateQAAtom)
+	const [newImages, setNewImages] = useAtom(newImagesAtom)
+	const [deletedUrls, setDeletedUrls] = useAtom(deletedUrlsAtom)
+	const [deliverableImages, setDeliverableImages] = useAtom(deliverableImagesAtom)
+	const [subTabIndex, setSubTabIndex] = useAtom(subTabIndexAtom)
 	const [hasDraft, setHasDraft] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 	const [confirmMode, setConfirmMode] = useState(false)
-	const [activeUniver, setActiveUniver] = useState('JDU')
+	const [activeUniver, setActiveUniver] = useAtom(activeUniverAtom)
 	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
 		useState(false)
 
 	// ✅ New state for hobbies and special skills tags
-	const [hobbiesInput, setHobbiesInput] = useState('')
-	const [specialSkillsInput, setSpecialSkillsInput] = useState('')
-	const [showHobbiesInput, setShowHobbiesInput] = useState(false)
-	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useState(false)
+	const [hobbiesInput, setHobbiesInput] = useAtom(hobbiesInputAtom)
+	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(specialSkillsInputAtom)
+	const [showHobbiesInput, setShowHobbiesInput] = useAtom(showHobbiesInputAtom)
+	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useAtom(showSpecialSkillsInputAtom)
+
+	// Persistence state
+	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
+	const [persistedData, setPersistedData] = useAtom(persistedDataAtom)
+	const [showRecoveryDialog, setShowRecoveryDialog] = useState(false)
+	const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
+	const [pendingNavigation, setPendingNavigation] = useState(null)
 
 	// ✅ Portal container state
 	const [portalContainer, setPortalContainer] = useState(null)
+
+	// Form persistence setup
+	const formPersistenceKey = `profile_edit_${id || 'unknown'}_${role}`
+	const {
+		loadFromStorage,
+		saveToStorage,
+		saveToStorageIfChanged,
+		clearStorage,
+		hasUnsavedChanges,
+		hasChangesFromOriginal,
+		immediateSave,
+		immediateSaveIfChanged,
+		updateOriginalData,
+	} = useFormPersistence(formPersistenceKey, editData, {
+		debounceMs: 2000,
+		enabled: role === 'Student', // Always enabled for Students
+		originalData: student,
+		onSaveStart: () => {
+			console.log('Starting save to localStorage')
+			setSaveStatus(prev => ({ ...prev, isSaving: true }))
+		},
+		onSaveComplete: () => {
+			console.log('Save to localStorage complete')
+			setSaveStatus(prev => ({
+				...prev,
+				isSaving: false,
+				lastSaved: new Date().toISOString(),
+			}))
+		},
+		onLoadComplete: (data) => {
+			console.log('Loaded data from localStorage:', data)
+			setPersistedData({
+				exists: true,
+				data: data,
+				timestamp: new Date().toISOString(),
+			})
+		},
+	})
 
 	// ✅ Portal container check effect
 	useEffect(() => {
@@ -133,6 +199,118 @@ const Top = () => {
 		checkPortalContainer()
 	}, [])
 
+	// Handle language change event to save data before reload
+	useEffect(() => {
+		const handleBeforeLanguageChange = (e) => {
+			console.log('beforeLanguageChange event received', { editMode, role, editData })
+			// No need to save here as handleConfirmCancel already saves
+		}
+
+		window.addEventListener('beforeLanguageChange', handleBeforeLanguageChange)
+		return () => {
+			window.removeEventListener('beforeLanguageChange', handleBeforeLanguageChange)
+		}
+	}, [editMode, role])
+
+	// Warn before leaving page with unsaved changes
+	useEffect(() => {
+		const handleBeforeUnload = (e) => {
+			if (editMode && role === 'Student') {
+				e.preventDefault()
+				e.returnValue = ''
+			}
+		}
+
+		window.addEventListener('beforeunload', handleBeforeUnload)
+		return () => {
+			window.removeEventListener('beforeunload', handleBeforeUnload)
+		}
+	}, [editMode, role])
+
+	// Track navigation attempts when in edit mode
+	useEffect(() => {
+		if (!editMode || role !== 'Student') return
+
+		let isNavigating = false
+		let navigationBlocked = false
+
+		// Override history methods to intercept navigation
+		const originalPushState = window.history.pushState
+		const originalReplaceState = window.history.replaceState
+
+		const handleNavigation = (url) => {
+			// Skip if we're already handling navigation or if edit mode is false
+			if (isNavigating || navigationBlocked || !editMode) return true
+			
+			if (url && url !== window.location.pathname) {
+				console.log('Navigation intercepted to:', url)
+				isNavigating = true
+				navigationBlocked = true
+				setPendingNavigation({ pathname: url })
+				setShowUnsavedWarning(true)
+				// Prevent the navigation by staying on current page
+				setTimeout(() => {
+					window.history.pushState(null, '', location.pathname)
+					isNavigating = false
+				}, 0)
+				return false
+			}
+			return true
+		}
+
+		window.history.pushState = function(state, title, url) {
+			if (handleNavigation(url)) {
+				originalPushState.apply(window.history, arguments)
+			}
+		}
+
+		window.history.replaceState = function(state, title, url) {
+			if (handleNavigation(url)) {
+				originalReplaceState.apply(window.history, arguments)
+			}
+		}
+
+		const handlePopState = (e) => {
+			if (editMode && !navigationBlocked) {
+				e.preventDefault()
+				navigationBlocked = true
+				window.history.pushState(null, '', location.pathname)
+				setShowUnsavedWarning(true)
+			}
+		}
+
+		window.addEventListener('popstate', handlePopState)
+
+		return () => {
+			window.history.pushState = originalPushState
+			window.history.replaceState = originalReplaceState
+			window.removeEventListener('popstate', handlePopState)
+		}
+	}, [editMode, role, location.pathname])
+
+	// Handle language change with unsaved changes check
+	useEffect(() => {
+		const handleCheckUnsavedChanges = (e) => {
+			console.log('checkUnsavedChanges event received:', { 
+				editMode, 
+				role, 
+				eventDetail: e.detail,
+				shouldPrevent: editMode && role === 'Student' 
+			})
+			if (editMode && role === 'Student') {
+				// Always show warning in edit mode for Students
+				e.preventDefault()
+				setShowUnsavedWarning(true)
+				return false
+			}
+		}
+
+		window.addEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
+		return () => {
+			window.removeEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
+		}
+	}, [editMode, role])
+
 	useEffect(() => {
 		const loadData = async () => {
 			setIsLoading(true)
@@ -144,6 +322,50 @@ const Top = () => {
 						await fetchDraftData()
 					} else {
 						await fetchStudentData()
+					}
+				}
+
+				// Check for persisted data after loading
+				if (role === 'Student' && !editMode) {
+					// Check if we just switched languages or navigated back
+					const isLanguageSwitching = localStorage.getItem('isLanguageSwitching')
+					const isNavigatingAfterSave = localStorage.getItem('isNavigatingAfterSave')
+					
+					if (isLanguageSwitching === 'true') {
+						localStorage.removeItem('isLanguageSwitching')
+						// Force load the saved data
+						const persistedEditData = loadFromStorage()
+						if (persistedEditData && persistedEditData.draft) {
+							console.log('Auto-restoring data after language switch:', persistedEditData)
+							// Automatically restore without dialog
+							setEditData(persistedEditData)
+							setEditMode(true)
+							showAlert(t('dataRestoredAfterLanguageSwitch') || 'Your data has been restored after language switch', 'success')
+							// Clear the saved data since we've restored it
+							setTimeout(() => {
+								immediateSave(persistedEditData)
+							}, 500)
+						}
+					} else if (isNavigatingAfterSave === 'true') {
+						localStorage.removeItem('isNavigatingAfterSave')
+						// Check if there's saved data to restore
+						const persistedEditData = loadFromStorage()
+						if (persistedEditData && persistedEditData.draft) {
+							console.log('Found saved data after navigation:', persistedEditData)
+							setPersistedData({
+								exists: true,
+								data: persistedEditData,
+								timestamp: new Date().toISOString(),
+							})
+							setShowRecoveryDialog(true)
+						}
+					} else {
+						// For normal edit mode entry, don't show recovery dialog
+						// Only show recovery for specific cases (language switch or navigation return)
+						console.log('Normal student edit mode entry - no recovery check needed')
+						
+						// Clear any existing localStorage to prevent future false positives
+						clearStorage()
 					}
 				}
 			} catch (error) {
@@ -169,13 +391,21 @@ const Top = () => {
 				// Status is not checking or approved
 			}
 
+			// Parse certificate fields properly
+			const parsedStateData = mapData(statedata)
+			
 			const mappedData = {
-				...statedata,
+				...parsedStateData,
 				draft: statedata.draft.profile_data || {},
 			}
 
 			setStudent(mappedData)
 			setEditData(mappedData)
+			// Update the original data reference for change detection
+			updateOriginalData(mappedData)
+			
+			// Clear any stale localStorage data that might exist
+			clearStorage()
 			setHasDraft(true)
 			SetUpdateQA(!updateQA)
 		}
@@ -217,6 +447,11 @@ const Top = () => {
 
 				setStudent(mappedData)
 				setEditData(mappedData)
+				// Update the original data reference for change detection
+				updateOriginalData(mappedData)
+				
+				// Clear any stale localStorage data that might exist
+				clearStorage()
 				SetUpdateQA(!updateQA)
 			} else {
 				showAlert('No data found', 'error')
@@ -262,10 +497,20 @@ const Top = () => {
 
 				setStudent(mappedData)
 				setEditData(mappedData)
+				// Update the original data reference for change detection
+				updateOriginalData(mappedData)
+				
+				// Clear any stale localStorage data that might exist
+				clearStorage()
 			} else {
 				// Agar draft yo'q bo'lsa, parsed mapping
 				setStudent(parsedStudentData)
 				setEditData(parsedStudentData)
+				// Update the original data reference for change detection
+				updateOriginalData(parsedStudentData)
+				
+				// Clear any stale localStorage data that might exist
+				clearStorage()
 				setHasDraft(false)
 			}
 
@@ -418,14 +663,43 @@ const Top = () => {
 	}
 
 	const handleUpdateEditData = (key, value) => {
-		setEditData(prevEditData => ({
-			...prevEditData,
-			draft: {
-				...prevEditData.draft,
-				[key]: value,
-			},
-		}))
+		setEditData(prevEditData => {
+			const updatedData = {
+				...prevEditData,
+				draft: {
+					...prevEditData.draft,
+					[key]: value,
+				},
+			}
+			return updatedData
+		})
 	}
+
+	// Auto-save effect with change detection
+	useEffect(() => {
+		if (editMode && role === 'Student' && editData?.draft && student) {
+			const hasChanges = hasChangesFromOriginal(editData)
+			console.log('Auto-save check:', { editMode, role, hasData: !!editData?.draft, hasChanges })
+			
+			if (hasChanges) {
+				console.log('Changes detected, saving to localStorage')
+				saveToStorageIfChanged(editData)
+				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: true }))
+			} else {
+				console.log('No changes detected, skipping auto-save')
+				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: false }))
+			}
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [editData, editMode, role, student])
+
+	// Clear navigation flags on unmount
+	useEffect(() => {
+		return () => {
+			// Clean up flags when component unmounts
+			localStorage.removeItem('isNavigatingAfterSave')
+		}
+	}, [])
 
 	// ✅ Helper functions for description management
 	const handleHobbiesDescriptionUpdate = value => {
@@ -530,6 +804,11 @@ const Top = () => {
 
 	const handleDraftUpsert = async () => {
 		try {
+			// Save immediately before processing
+			if (role === 'Student') {
+				immediateSave(editData)
+			}
+			
 			console.log('Starting draft upsert...')
 			console.log('Deliverable images:', deliverableImages)
 			console.log('Edit data deliverables:', editData.draft.deliverables)
@@ -672,6 +951,17 @@ const Top = () => {
 			setDeliverableImages({})
 			setResetDeliverablePreviews(prev => !prev) // Trigger reset
 			setEditMode(false)
+			// Clear persisted data after successful save and update original data reference
+			if (role === 'Student') {
+				clearStorage()
+				setSaveStatus({
+					isSaving: false,
+					lastSaved: null,
+					hasUnsavedChanges: false,
+				})
+				// Update the original data reference to the newly saved data
+				updateOriginalData(updatedStudent)
+			}
 			showAlert(t('changesSavedSuccessfully'), 'success')
 		} catch (error) {
 			console.error('Error saving draft:', error)
@@ -684,8 +974,130 @@ const Top = () => {
 	}
 
 	const handleCancel = () => {
-		setEditData(student)
+		if (editMode && role === 'Student') {
+			// Only show warning if there are actual changes
+			if (hasChangesFromOriginal(editData)) {
+				setShowUnsavedWarning(true)
+			} else {
+				// No changes, just exit edit mode
+				setEditData(student)
+				setEditMode(false)
+				clearStorage()
+				setSaveStatus({
+					isSaving: false,
+					lastSaved: null,
+					hasUnsavedChanges: false,
+				})
+			}
+		} else {
+			setEditData(student)
+			setEditMode(false)
+			if (role === 'Student') {
+				clearStorage()
+				setSaveStatus({
+					isSaving: false,
+					lastSaved: null,
+					hasUnsavedChanges: false,
+				})
+			}
+		}
+	}
+
+	const handleRecoverData = () => {
+		if (persistedData?.data) {
+			console.log('Recovering data:', persistedData.data)
+			setEditData(persistedData.data)
+			setEditMode(true)
+			showAlert(t('dataRecovered') || 'Data recovered successfully', 'success')
+			// Update all related states
+			if (persistedData.data.draft?.hobbies) {
+				// Ensure tag inputs are reset
+				setHobbiesInput('')
+				setShowHobbiesInput(false)
+			}
+			if (persistedData.data.draft?.other_information) {
+				setSpecialSkillsInput('')
+				setShowSpecialSkillsInput(false)
+			}
+		}
+		setShowRecoveryDialog(false)
+	}
+
+	const handleDiscardRecovery = () => {
+		clearStorage()
+		setShowRecoveryDialog(false)
+		setPersistedData({ exists: false, data: null, timestamp: null })
+	}
+
+	const handleConfirmCancel = () => {
+		// Save data before proceeding if there's a pending language change
+		if (pendingLanguageChange) {
+			console.log('Saving data before language change:', editData)
+			// Save the data immediately only if there are changes
+			const saved = immediateSaveIfChanged(editData)
+			if (saved) {
+				// Set a flag to indicate we're switching languages after save
+				localStorage.setItem('isLanguageSwitching', 'true')
+			}
+			// Clear edit mode to prevent browser warning
+			setEditMode(false)
+			// Small delay to ensure localStorage writes complete
+			setTimeout(() => {
+				confirmLanguageChange()
+			}, 100)
+		} else if (pendingNavigation) {
+			// Handle navigation with discard
+			console.log('Discarding changes and navigating to:', pendingNavigation.pathname)
+			setEditData(student)
+			setEditMode(false)
+			clearStorage()
+			setSaveStatus({
+				isSaving: false,
+				lastSaved: null,
+				hasUnsavedChanges: false,
+			})
+			// Small delay to ensure state updates
+			setTimeout(() => {
+				if (pendingNavigation) {
+					// Use window.location for a clean navigation
+					window.location.href = pendingNavigation.pathname
+				}
+				setPendingNavigation(null)
+			}, 100)
+		} else {
+			setEditData(student)
+			setEditMode(false)
+			clearStorage()
+			setSaveStatus({
+				isSaving: false,
+				lastSaved: null,
+				hasUnsavedChanges: false,
+			})
+		}
+		setShowUnsavedWarning(false)
+	}
+
+	const handleSaveAndNavigate = () => {
+		console.log('Saving data before navigation:', editData)
+		// Save the data immediately only if there are changes
+		const saved = immediateSaveIfChanged(editData)
+		if (saved) {
+			// Set a flag to indicate we're navigating after save
+			localStorage.setItem('isNavigatingAfterSave', 'true')
+		}
+		// Exit edit mode to allow navigation
 		setEditMode(false)
+		// Clear the warning dialog
+		setShowUnsavedWarning(false)
+		// Small delay to ensure state updates and localStorage writes complete
+		setTimeout(() => {
+			if (pendingNavigation) {
+				console.log('Navigating to:', pendingNavigation.pathname)
+				// Use window.location for a clean navigation
+				window.location.href = pendingNavigation.pathname
+			}
+			setPendingNavigation(null)
+		}, 100)
 	}
 
 	if (isLoading) {
@@ -722,7 +1134,17 @@ const Top = () => {
 				<>
 					<Button
 						onClick={() => {
-							setEditMode(prev => !prev)
+							// Clear any stale localStorage before entering edit mode
+							clearStorage()
+							setEditMode(true)
+							// Clear any old save status when entering edit mode
+							if (role === 'Student' || role === 'Recruiter') {
+								setSaveStatus({
+									isSaving: false,
+									lastSaved: null,
+									hasUnsavedChanges: false,
+								})
+							}
 						}}
 						variant='contained'
 						color='primary'
@@ -1674,6 +2096,143 @@ const Top = () => {
 				onClose={toggleConfirmMode}
 				onConfirm={handleSubmitDraft}
 			/>
+
+			{/* Auto-save indicator */}
+			{editMode && role === 'Student' && (
+				<Snackbar
+					open={saveStatus.isSaving || !!saveStatus.lastSaved}
+					autoHideDuration={saveStatus.isSaving ? null : 2000}
+					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+					onClose={() => setSaveStatus(prev => ({ ...prev, lastSaved: null }))}
+				>
+					<Alert
+						severity="info"
+						icon={saveStatus.isSaving ? <SaveIcon /> : <SaveIcon />}
+						sx={{ alignItems: 'center' }}
+					>
+						{saveStatus.isSaving ? t('savingChanges') || 'Saving...' : t('changesSaved') || 'Changes saved'}
+						{saveStatus.isSaving && (
+							<LinearProgress
+								color="inherit"
+								sx={{ ml: 2, width: 100 }}
+							/>
+						)}
+					</Alert>
+				</Snackbar>
+			)}
+
+			{/* Recovery dialog */}
+			<Dialog open={showRecoveryDialog} onClose={() => setShowRecoveryDialog(false)}>
+				<DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+					<RestoreIcon color="info" />
+					{t('recoverUnsavedChanges') || 'Recover Unsaved Changes?'}
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						{t('unsavedChangesFound') || 'We found unsaved changes from your previous editing session. Would you like to restore them?'}
+					</Typography>
+					{persistedData.timestamp && (
+						<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+							{t('lastModified') || 'Last modified'}: {new Date(persistedData.timestamp).toLocaleString()}
+						</Typography>
+					)}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleDiscardRecovery} color="error">
+						{t('discard') || 'Discard'}
+					</Button>
+					<Button onClick={handleRecoverData} variant="contained" startIcon={<RestoreIcon />}>
+						{t('restore') || 'Restore'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Unsaved changes warning */}
+			<Dialog open={showUnsavedWarning} onClose={() => {
+				setShowUnsavedWarning(false)
+				if (pendingLanguageChange) {
+					cancelLanguageChange()
+				}
+				if (pendingNavigation) {
+					setPendingNavigation(null)
+				}
+			}}>
+				<DialogTitle>
+					{pendingLanguageChange 
+						? (t('unsavedChangesLanguageTitle') || 'Save changes before switching language?')
+						: pendingNavigation
+						? (t('unsavedChangesNavigationTitle') || 'Save changes before leaving?')
+						: (t('unsavedChangesTitle') || 'Unsaved Changes')
+					}
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						{pendingLanguageChange
+							? (t('unsavedChangesLanguageMessage') || 'You have unsaved changes. Would you like to save them before changing the language?')
+							: pendingNavigation
+							? (t('unsavedChangesNavigationMessage') || 'You have unsaved changes. Would you like to save them before leaving this page?')
+							: (t('unsavedChangesMessage') || 'You have unsaved changes. Are you sure you want to discard them?')
+						}
+					</Typography>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => {
+						setShowUnsavedWarning(false)
+						if (pendingLanguageChange) {
+							cancelLanguageChange()
+						}
+						if (pendingNavigation) {
+							setPendingNavigation(null)
+						}
+					}}>
+						{t('continueEditing') || 'Continue Editing'}
+					</Button>
+					{pendingLanguageChange ? (
+						<>
+							<Button 
+								onClick={() => {
+									// Discard changes and switch language
+									setEditData(student)
+									setEditMode(false)
+									clearStorage()
+									setShowUnsavedWarning(false)
+									confirmLanguageChange()
+								}} 
+								color="error"
+							>
+								{t('discardAndSwitch') || 'Discard & Switch'}
+							</Button>
+							<Button 
+								onClick={handleConfirmCancel} 
+								variant="contained"
+								color="primary"
+							>
+								{t('saveAndSwitch') || 'Save & Switch'}
+							</Button>
+						</>
+					) : pendingNavigation ? (
+						<>
+							<Button 
+								onClick={handleConfirmCancel}
+								color="error"
+							>
+								{t('discardAndLeave') || 'Discard & Leave'}
+							</Button>
+							<Button 
+								onClick={handleSaveAndNavigate}
+								variant="contained"
+								color="primary"
+							>
+								{t('saveAndLeave') || 'Save & Leave'}
+							</Button>
+						</>
+					) : (
+						<Button onClick={handleConfirmCancel} color="error" variant="contained">
+							{t('discardChanges') || 'Discard Changes'}
+						</Button>
+					)}
+				</DialogActions>
+			</Dialog>
 		</Box>
 	)
 }
