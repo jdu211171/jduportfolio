@@ -192,6 +192,9 @@ class DraftService {
 
 			const students = await Student.findAll({
 				where: query,
+				attributes: {
+					include: ['credit_details'] // Explicitly include credit_details field
+				},
 				include: [
 					{
 						model: Draft,
