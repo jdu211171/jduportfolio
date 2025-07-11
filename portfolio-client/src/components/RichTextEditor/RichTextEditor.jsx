@@ -1,5 +1,6 @@
-import React, { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import Quill from 'quill'
+import PropTypes from 'prop-types'
 import 'quill/dist/quill.snow.css'
 import './RichTextEditor.css'
 
@@ -47,12 +48,12 @@ const RichTextEditor = ({ value, onChange }) => {
 		}
 	}, [value])
 
-	const handleContentChange = () => {
+	const handleContentChange = useCallback(() => {
 		if (quillInstanceRef.current) {
 			const html = quillInstanceRef.current.root.innerHTML
 			onChange(html)
 		}
-	}
+	}, [onChange])
 
 	useEffect(() => {
 		if (quillInstanceRef.current) {
@@ -63,9 +64,14 @@ const RichTextEditor = ({ value, onChange }) => {
 				quillInstanceRef.current.off('text-change', handleContentChange)
 			}
 		}
-	}, [])
+	}, [handleContentChange])
 
 	return <div ref={editorRef} />
+}
+
+RichTextEditor.propTypes = {
+	value: PropTypes.string.isRequired,
+	onChange: PropTypes.func.isRequired,
 }
 
 export default RichTextEditor

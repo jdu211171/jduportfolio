@@ -1,41 +1,22 @@
-const { UserFile } = require('../models'); // index.js orqali import qilish
-const { deleteFile } = require('../utils/storageService'); // S3 dan o'chirish logikasi
+// src/controllers/fileRecordController.js
+
+const { UserFile } = require('../models');
+const { deleteFile } = require('../utils/storageService');
 
 class FileRecordController {
 
-
-    static async createFileRecord(req, res) {
-        const { file_url, object_name, original_filename, purpose } = req.body;
-        const { id: owner_id, userType: owner_type } = req.user;
-
-        if (!file_url || !object_name || !purpose) {
-            return res.status(400).json({ error: 'file_url, object_name, and purpose are required.' });
-        }
-
-        try {
-            const newRecord = await UserFile.create({
-                file_url,
-                object_name,
-                original_filename,
-                purpose,
-                owner_id,
-                owner_type,
-            });
-            return res.status(201).json(newRecord);
-        } catch (error) {
-            console.error('Error creating file record:', error);
-            return res.status(500).json({ error: 'Failed to create file record' });
-        }
-    }
-
+    /**
+     * Foydalanuvchining o'ziga tegishli fayllarini olish
+     */
     static async getMyFiles(req, res) {
-        const { id: owner_id, userType: owner_type } = req.user;
-        const { purpose } = req.query; // Query orqali filterlash (masalan: ?purpose=gallery)
+        // authMiddleware orqali kelgan foydalanuvchi ma'lumotlari
+        const { id: owner_id, userType: owner_type } = req.user; 
+        const { imageType  } = req.query; // So'rovdan 'purpose' olinadi (masalan: ?purpose=photo)
 
         try {
             const whereClause = { owner_id, owner_type };
-            if (purpose) {
-                whereClause.purpose = purpose;
+            if (imageType ) {
+                whereClause.imageType  = imageType ;
             }
             
             const files = await UserFile.findAll({
@@ -45,28 +26,30 @@ class FileRecordController {
             
             return res.status(200).json(files);
         } catch (error) {
-            console.error('Error fetching user files:', error);
-            return res.status(500).json({ error: 'Failed to fetch files' });
+            console.error('Foydalanuvchi fayllarini olishda xatolik:', error);
+            return res.status(500).json({ error: 'Fayllarni olib bo‘lmadi' });
         }
     }
 
+    /**
+     * Faylni S3'dan va ma'lumotlar bazasidan o'chirish
+     */
     static async deleteFileRecord(req, res) {
-    const { fileId } = req.params;
-    // Token'dan olingan user ma'lumotlari
-    const { id: owner_id, userType: owner_type } = req.user; 
+        const { fileId } = req.params;
+        const { id: owner_id, userType: owner_type } = req.user; 
+
         try {
-            // So'rov endi owner_type'ni ham tekshiradi
+            // Fayl joriy foydalanuvchiga tegishli ekanligini tekshirish
             const fileRecord = await UserFile.findOne({
                 where: {
                     id: fileId,
                     owner_id: owner_id,
-                    owner_type: owner_type // <<< QO'SHILGAN ENG MUHIM SHART
+                    owner_type: owner_type 
                 }
             });
 
             if (!fileRecord) {
-                // Endi bu xabar yanada aniqroq: "Fayl topilmadi yoki bu faylni o'chirishga sizning haqqingiz yo'q"
-                return res.status(404).json({ error: 'File not found or you do not have permission to delete it.' });
+                return res.status(404).json({ error: 'Fayl topilmadi yoki uni o\'chirishga ruxsatingiz yo\'q.' });
             }
 
             // 1. Faylni S3 omboridan o'chirish
@@ -75,10 +58,10 @@ class FileRecordController {
             // 2. Ma'lumotlar bazasidan yozuvni o'chirish
             await fileRecord.destroy();
 
-            return res.status(200).json({ message: 'File deleted successfully' });
+            return res.status(200).json({ message: 'Fayl muvaffaqiyatli o\'chirildi' });
         } catch (error) {
-            console.error('Error deleting file:', error);
-            return res.status(500).json({ error: 'Failed to delete file' });
+            console.error('Faylni o\'chirishda xatolik:', error);
+            return res.status(500).json({ error: 'Faylni o\'chirib bo‘lmadi' });
         }
     }
 }

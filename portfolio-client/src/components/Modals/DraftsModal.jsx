@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Box, Button, Modal, Typography, Chip, Stack } from '@mui/material'
+import PropTypes from 'prop-types'
 import axios from '../../utils/axiosUtils'
 
 import styles from './DraftsModal.module.css'
@@ -154,6 +155,12 @@ const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
 			</Modal>
 		</Box>
 	)
+}
+
+DraftsModal.propTypes = {
+	id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+	handleSettingtoHonban: PropTypes.func.isRequired,
+	handleSettingDraft: PropTypes.func.isRequired,
 }
 
 export default DraftsModal

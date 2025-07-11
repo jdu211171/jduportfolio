@@ -1,7 +1,11 @@
 .container {
 	padding: 16px;
+	padding-bottom: 0;
 	display: flex;
 	align-items: start;
+	background-color: #ffffff;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
 }
 
 .avatarContainer {
@@ -9,13 +13,6 @@
 	align-items: center;
 	margin-bottom: 16px;
 }
-
-/*.topControlButtons {*/
-/*	display: flex;*/
-/*	align-items: center;*/
-/*	justify-content: space-between;*/
-/*	gap: 10px;*/
-/*}*/
 
 .infoContainer {
 	margin-top: 8px;
@@ -28,22 +25,17 @@
 
 .nameEmailContainer {
 	display: flex;
-	align-items: center;
+	align-items: start;
 	justify-content: space-between;
 	width: 100%;
 	flex-wrap: wrap;
 }
 
-.mainTitle {
-	display: flex;
-	align-items: center;
-}
-
 .email {
-	color: #0094ff;
+	color: #787878;
 	text-decoration: none;
 	display: flex;
-	align-items: center;
+	justify-content: end;
 	font-size: 14px;
 	width: 100%;
 }
@@ -56,7 +48,6 @@
 .chipContainer {
 	display: flex;
 	gap: 8px;
-	margin-top: 8px;
 	flex-wrap: wrap;
 }
 
