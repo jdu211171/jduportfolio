@@ -12,7 +12,20 @@ import AddIcon from '@mui/icons-material/Add'
 import CloseIcon from '@mui/icons-material/Close'
 import SaveIcon from '@mui/icons-material/Save'
 import RestoreIcon from '@mui/icons-material/Restore'
-import { Box, Button, TextField as MuiTextField, Chip, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Typography, LinearProgress } from '@mui/material'
+import {
+	Box,
+	Button,
+	TextField as MuiTextField,
+	Chip,
+	Snackbar,
+	Alert,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Typography,
+	LinearProgress,
+} from '@mui/material'
 import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import { useLocation, useParams, useNavigate } from 'react-router-dom'
@@ -53,7 +66,12 @@ const Top = () => {
 	const location = useLocation()
 	const { userId } = location.state || {}
 	const statedata = location.state?.student
-	const { language, pendingLanguageChange, confirmLanguageChange, cancelLanguageChange } = useLanguage()
+	const {
+		language,
+		pendingLanguageChange,
+		confirmLanguageChange,
+		cancelLanguageChange,
+	} = useLanguage()
 	const showAlert = useAlert()
 	const navigate = useNavigate()
 
@@ -121,7 +139,9 @@ const Top = () => {
 	const [updateQA, SetUpdateQA] = useAtom(updateQAAtom)
 	const [newImages, setNewImages] = useAtom(newImagesAtom)
 	const [deletedUrls, setDeletedUrls] = useAtom(deletedUrlsAtom)
-	const [deliverableImages, setDeliverableImages] = useAtom(deliverableImagesAtom)
+	const [deliverableImages, setDeliverableImages] = useAtom(
+		deliverableImagesAtom
+	)
 	const [subTabIndex, setSubTabIndex] = useAtom(subTabIndexAtom)
 	const [hasDraft, setHasDraft] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
@@ -132,9 +152,13 @@ const Top = () => {
 
 	// ✅ New state for hobbies and special skills tags
 	const [hobbiesInput, setHobbiesInput] = useAtom(hobbiesInputAtom)
-	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(specialSkillsInputAtom)
+	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(
+		specialSkillsInputAtom
+	)
 	const [showHobbiesInput, setShowHobbiesInput] = useAtom(showHobbiesInputAtom)
-	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useAtom(showSpecialSkillsInputAtom)
+	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useAtom(
+		showSpecialSkillsInputAtom
+	)
 
 	// Persistence state
 	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
@@ -174,7 +198,7 @@ const Top = () => {
 				lastSaved: new Date().toISOString(),
 			}))
 		},
-		onLoadComplete: (data) => {
+		onLoadComplete: data => {
 			console.log('Loaded data from localStorage:', data)
 			setPersistedData({
 				exists: true,
@@ -201,20 +225,27 @@ const Top = () => {
 
 	// Handle language change event to save data before reload
 	useEffect(() => {
-		const handleBeforeLanguageChange = (e) => {
-			console.log('beforeLanguageChange event received', { editMode, role, editData })
+		const handleBeforeLanguageChange = e => {
+			console.log('beforeLanguageChange event received', {
+				editMode,
+				role,
+				editData,
+			})
 			// No need to save here as handleConfirmCancel already saves
 		}
 
 		window.addEventListener('beforeLanguageChange', handleBeforeLanguageChange)
 		return () => {
-			window.removeEventListener('beforeLanguageChange', handleBeforeLanguageChange)
+			window.removeEventListener(
+				'beforeLanguageChange',
+				handleBeforeLanguageChange
+			)
 		}
 	}, [editMode, role])
 
 	// Warn before leaving page with unsaved changes
 	useEffect(() => {
-		const handleBeforeUnload = (e) => {
+		const handleBeforeUnload = e => {
 			if (editMode && role === 'Student') {
 				e.preventDefault()
 				e.returnValue = ''
@@ -238,10 +269,10 @@ const Top = () => {
 		const originalPushState = window.history.pushState
 		const originalReplaceState = window.history.replaceState
 
-		const handleNavigation = (url) => {
+		const handleNavigation = url => {
 			// Skip if we're already handling navigation or if edit mode is false
 			if (isNavigating || navigationBlocked || !editMode) return true
-			
+
 			if (url && url !== window.location.pathname) {
 				console.log('Navigation intercepted to:', url)
 				isNavigating = true
@@ -258,19 +289,19 @@ const Top = () => {
 			return true
 		}
 
-		window.history.pushState = function(state, title, url) {
+		window.history.pushState = function (state, title, url) {
 			if (handleNavigation(url)) {
 				originalPushState.apply(window.history, arguments)
 			}
 		}
 
-		window.history.replaceState = function(state, title, url) {
+		window.history.replaceState = function (state, title, url) {
 			if (handleNavigation(url)) {
 				originalReplaceState.apply(window.history, arguments)
 			}
 		}
 
-		const handlePopState = (e) => {
+		const handlePopState = e => {
 			if (editMode && !navigationBlocked) {
 				e.preventDefault()
 				navigationBlocked = true
@@ -290,12 +321,12 @@ const Top = () => {
 
 	// Handle language change with unsaved changes check
 	useEffect(() => {
-		const handleCheckUnsavedChanges = (e) => {
-			console.log('checkUnsavedChanges event received:', { 
-				editMode, 
-				role, 
+		const handleCheckUnsavedChanges = e => {
+			console.log('checkUnsavedChanges event received:', {
+				editMode,
+				role,
 				eventDetail: e.detail,
-				shouldPrevent: editMode && role === 'Student' 
+				shouldPrevent: editMode && role === 'Student',
 			})
 			if (editMode && role === 'Student') {
 				// Always show warning in edit mode for Students
@@ -307,7 +338,10 @@ const Top = () => {
 
 		window.addEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
 		return () => {
-			window.removeEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
+			window.removeEventListener(
+				'checkUnsavedChanges',
+				handleCheckUnsavedChanges
+			)
 		}
 	}, [editMode, role])
 
@@ -328,19 +362,30 @@ const Top = () => {
 				// Check for persisted data after loading
 				if (role === 'Student' && !editMode) {
 					// Check if we just switched languages or navigated back
-					const isLanguageSwitching = localStorage.getItem('isLanguageSwitching')
-					const isNavigatingAfterSave = localStorage.getItem('isNavigatingAfterSave')
-					
+					const isLanguageSwitching = localStorage.getItem(
+						'isLanguageSwitching'
+					)
+					const isNavigatingAfterSave = localStorage.getItem(
+						'isNavigatingAfterSave'
+					)
+
 					if (isLanguageSwitching === 'true') {
 						localStorage.removeItem('isLanguageSwitching')
 						// Force load the saved data
 						const persistedEditData = loadFromStorage()
 						if (persistedEditData && persistedEditData.draft) {
-							console.log('Auto-restoring data after language switch:', persistedEditData)
+							console.log(
+								'Auto-restoring data after language switch:',
+								persistedEditData
+							)
 							// Automatically restore without dialog
 							setEditData(persistedEditData)
 							setEditMode(true)
-							showAlert(t('dataRestoredAfterLanguageSwitch') || 'Your data has been restored after language switch', 'success')
+							showAlert(
+								t('dataRestoredAfterLanguageSwitch') ||
+									'Your data has been restored after language switch',
+								'success'
+							)
 							// Clear the saved data since we've restored it
 							setTimeout(() => {
 								immediateSave(persistedEditData)
@@ -351,7 +396,10 @@ const Top = () => {
 						// Check if there's saved data to restore
 						const persistedEditData = loadFromStorage()
 						if (persistedEditData && persistedEditData.draft) {
-							console.log('Found saved data after navigation:', persistedEditData)
+							console.log(
+								'Found saved data after navigation:',
+								persistedEditData
+							)
 							setPersistedData({
 								exists: true,
 								data: persistedEditData,
@@ -362,8 +410,10 @@ const Top = () => {
 					} else {
 						// For normal edit mode entry, don't show recovery dialog
 						// Only show recovery for specific cases (language switch or navigation return)
-						console.log('Normal student edit mode entry - no recovery check needed')
-						
+						console.log(
+							'Normal student edit mode entry - no recovery check needed'
+						)
+
 						// Clear any existing localStorage to prevent future false positives
 						clearStorage()
 					}
@@ -393,7 +443,7 @@ const Top = () => {
 
 			// Parse certificate fields properly
 			const parsedStateData = mapData(statedata)
-			
+
 			const mappedData = {
 				...parsedStateData,
 				draft: statedata.draft.profile_data || {},
@@ -403,7 +453,7 @@ const Top = () => {
 			setEditData(mappedData)
 			// Update the original data reference for change detection
 			updateOriginalData(mappedData)
-			
+
 			// Clear any stale localStorage data that might exist
 			clearStorage()
 			setHasDraft(true)
@@ -449,7 +499,7 @@ const Top = () => {
 				setEditData(mappedData)
 				// Update the original data reference for change detection
 				updateOriginalData(mappedData)
-				
+
 				// Clear any stale localStorage data that might exist
 				clearStorage()
 				SetUpdateQA(!updateQA)
@@ -499,7 +549,7 @@ const Top = () => {
 				setEditData(mappedData)
 				// Update the original data reference for change detection
 				updateOriginalData(mappedData)
-				
+
 				// Clear any stale localStorage data that might exist
 				clearStorage()
 			} else {
@@ -508,7 +558,7 @@ const Top = () => {
 				setEditData(parsedStudentData)
 				// Update the original data reference for change detection
 				updateOriginalData(parsedStudentData)
-				
+
 				// Clear any stale localStorage data that might exist
 				clearStorage()
 				setHasDraft(false)
@@ -574,6 +624,7 @@ const Top = () => {
 			'jdu_japanese_certification',
 			'japanese_speech_contest',
 			'it_contest',
+			'qa',
 		]
 		return {
 			...data,
@@ -679,8 +730,13 @@ const Top = () => {
 	useEffect(() => {
 		if (editMode && role === 'Student' && editData?.draft && student) {
 			const hasChanges = hasChangesFromOriginal(editData)
-			console.log('Auto-save check:', { editMode, role, hasData: !!editData?.draft, hasChanges })
-			
+			console.log('Auto-save check:', {
+				editMode,
+				role,
+				hasData: !!editData?.draft,
+				hasChanges,
+			})
+
 			if (hasChanges) {
 				console.log('Changes detected, saving to localStorage')
 				saveToStorageIfChanged(editData)
@@ -690,7 +746,7 @@ const Top = () => {
 				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: false }))
 			}
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editData, editMode, role, student])
 
 	// Clear navigation flags on unmount
@@ -808,7 +864,7 @@ const Top = () => {
 			if (role === 'Student') {
 				immediateSave(editData)
 			}
-			
+
 			console.log('Starting draft upsert...')
 			console.log('Deliverable images:', deliverableImages)
 			console.log('Edit data deliverables:', editData.draft.deliverables)
@@ -1047,7 +1103,10 @@ const Top = () => {
 			}, 100)
 		} else if (pendingNavigation) {
 			// Handle navigation with discard
-			console.log('Discarding changes and navigating to:', pendingNavigation.pathname)
+			console.log(
+				'Discarding changes and navigating to:',
+				pendingNavigation.pathname
+			)
 			setEditData(student)
 			setEditMode(false)
 			clearStorage()
@@ -2077,9 +2136,15 @@ const Top = () => {
 			)}
 			{subTabIndex === 4 && (
 				<Box my={2}>
+					{/* Debug qo'shing */}
+					{console.log('=== TOP.JSX QA DEBUG ===')}
+					{console.log('editData:', editData)}
+					{console.log('editData.draft:', editData.draft)}
+					{console.log('editData.draft.qa:', editData.draft?.qa)}
+					{console.log('typeof qa:', typeof editData.draft?.qa)}
 					<QA
 						updateQA={updateQA}
-						data={editData.draft.qa}
+						data={editData.draft?.qa || {}}
 						currentDraft={currentDraft}
 						handleQAUpdate={handleQAUpdate}
 						isFromTopPage={true}
@@ -2087,7 +2152,8 @@ const Top = () => {
 						handleDraftUpsert={handleDraftUpsert}
 						isHonban={currentDraft && currentDraft.status === 'approved'}
 						setTopEditMode={setTopEditMode}
-						updateCurrentDraft={updateCurrentDraft} // Pass the callback function
+						updateCurrentDraft={updateCurrentDraft}
+						studentId={student?.student_id || id}
 					/>
 				</Box>
 			)}
@@ -2106,90 +2172,110 @@ const Top = () => {
 					onClose={() => setSaveStatus(prev => ({ ...prev, lastSaved: null }))}
 				>
 					<Alert
-						severity="info"
+						severity='info'
 						icon={saveStatus.isSaving ? <SaveIcon /> : <SaveIcon />}
 						sx={{ alignItems: 'center' }}
 					>
-						{saveStatus.isSaving ? t('savingChanges') || 'Saving...' : t('changesSaved') || 'Changes saved'}
+						{saveStatus.isSaving
+							? t('savingChanges') || 'Saving...'
+							: t('changesSaved') || 'Changes saved'}
 						{saveStatus.isSaving && (
-							<LinearProgress
-								color="inherit"
-								sx={{ ml: 2, width: 100 }}
-							/>
+							<LinearProgress color='inherit' sx={{ ml: 2, width: 100 }} />
 						)}
 					</Alert>
 				</Snackbar>
 			)}
 
 			{/* Recovery dialog */}
-			<Dialog open={showRecoveryDialog} onClose={() => setShowRecoveryDialog(false)}>
+			<Dialog
+				open={showRecoveryDialog}
+				onClose={() => setShowRecoveryDialog(false)}
+			>
 				<DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-					<RestoreIcon color="info" />
+					<RestoreIcon color='info' />
 					{t('recoverUnsavedChanges') || 'Recover Unsaved Changes?'}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
-						{t('unsavedChangesFound') || 'We found unsaved changes from your previous editing session. Would you like to restore them?'}
+						{t('unsavedChangesFound') ||
+							'We found unsaved changes from your previous editing session. Would you like to restore them?'}
 					</Typography>
 					{persistedData.timestamp && (
-						<Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-							{t('lastModified') || 'Last modified'}: {new Date(persistedData.timestamp).toLocaleString()}
+						<Typography
+							variant='caption'
+							color='text.secondary'
+							sx={{ mt: 1, display: 'block' }}
+						>
+							{t('lastModified') || 'Last modified'}:{' '}
+							{new Date(persistedData.timestamp).toLocaleString()}
 						</Typography>
 					)}
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleDiscardRecovery} color="error">
+					<Button onClick={handleDiscardRecovery} color='error'>
 						{t('discard') || 'Discard'}
 					</Button>
-					<Button onClick={handleRecoverData} variant="contained" startIcon={<RestoreIcon />}>
+					<Button
+						onClick={handleRecoverData}
+						variant='contained'
+						startIcon={<RestoreIcon />}
+					>
 						{t('restore') || 'Restore'}
 					</Button>
 				</DialogActions>
 			</Dialog>
 
 			{/* Unsaved changes warning */}
-			<Dialog open={showUnsavedWarning} onClose={() => {
-				setShowUnsavedWarning(false)
-				if (pendingLanguageChange) {
-					cancelLanguageChange()
-				}
-				if (pendingNavigation) {
-					setPendingNavigation(null)
-				}
-			}}>
-				<DialogTitle>
-					{pendingLanguageChange 
-						? (t('unsavedChangesLanguageTitle') || 'Save changes before switching language?')
-						: pendingNavigation
-						? (t('unsavedChangesNavigationTitle') || 'Save changes before leaving?')
-						: (t('unsavedChangesTitle') || 'Unsaved Changes')
+			<Dialog
+				open={showUnsavedWarning}
+				onClose={() => {
+					setShowUnsavedWarning(false)
+					if (pendingLanguageChange) {
+						cancelLanguageChange()
 					}
+					if (pendingNavigation) {
+						setPendingNavigation(null)
+					}
+				}}
+			>
+				<DialogTitle>
+					{pendingLanguageChange
+						? t('unsavedChangesLanguageTitle') ||
+							'Save changes before switching language?'
+						: pendingNavigation
+							? t('unsavedChangesNavigationTitle') ||
+								'Save changes before leaving?'
+							: t('unsavedChangesTitle') || 'Unsaved Changes'}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
 						{pendingLanguageChange
-							? (t('unsavedChangesLanguageMessage') || 'You have unsaved changes. Would you like to save them before changing the language?')
+							? t('unsavedChangesLanguageMessage') ||
+								'You have unsaved changes. Would you like to save them before changing the language?'
 							: pendingNavigation
-							? (t('unsavedChangesNavigationMessage') || 'You have unsaved changes. Would you like to save them before leaving this page?')
-							: (t('unsavedChangesMessage') || 'You have unsaved changes. Are you sure you want to discard them?')
-						}
+								? t('unsavedChangesNavigationMessage') ||
+									'You have unsaved changes. Would you like to save them before leaving this page?'
+								: t('unsavedChangesMessage') ||
+									'You have unsaved changes. Are you sure you want to discard them?'}
 					</Typography>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => {
-						setShowUnsavedWarning(false)
-						if (pendingLanguageChange) {
-							cancelLanguageChange()
-						}
-						if (pendingNavigation) {
-							setPendingNavigation(null)
-						}
-					}}>
+					<Button
+						onClick={() => {
+							setShowUnsavedWarning(false)
+							if (pendingLanguageChange) {
+								cancelLanguageChange()
+							}
+							if (pendingNavigation) {
+								setPendingNavigation(null)
+							}
+						}}
+					>
 						{t('continueEditing') || 'Continue Editing'}
 					</Button>
 					{pendingLanguageChange ? (
 						<>
-							<Button 
+							<Button
 								onClick={() => {
 									// Discard changes and switch language
 									setEditData(student)
@@ -2197,37 +2283,38 @@ const Top = () => {
 									clearStorage()
 									setShowUnsavedWarning(false)
 									confirmLanguageChange()
-								}} 
-								color="error"
+								}}
+								color='error'
 							>
 								{t('discardAndSwitch') || 'Discard & Switch'}
 							</Button>
-							<Button 
-								onClick={handleConfirmCancel} 
-								variant="contained"
-								color="primary"
+							<Button
+								onClick={handleConfirmCancel}
+								variant='contained'
+								color='primary'
 							>
 								{t('saveAndSwitch') || 'Save & Switch'}
 							</Button>
 						</>
 					) : pendingNavigation ? (
 						<>
-							<Button 
-								onClick={handleConfirmCancel}
-								color="error"
-							>
+							<Button onClick={handleConfirmCancel} color='error'>
 								{t('discardAndLeave') || 'Discard & Leave'}
 							</Button>
-							<Button 
+							<Button
 								onClick={handleSaveAndNavigate}
-								variant="contained"
-								color="primary"
+								variant='contained'
+								color='primary'
 							>
 								{t('saveAndLeave') || 'Save & Leave'}
 							</Button>
 						</>
 					) : (
-						<Button onClick={handleConfirmCancel} color="error" variant="contained">
+						<Button
+							onClick={handleConfirmCancel}
+							color='error'
+							variant='contained'
+						>
 							{t('discardChanges') || 'Discard Changes'}
 						</Button>
 					)}

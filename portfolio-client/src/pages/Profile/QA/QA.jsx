@@ -103,7 +103,11 @@ const QA = ({
 		try {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
 			// Try different possible field names for student ID
-			return loginUserData?.student_id || loginUserData?.studentId || loginUserData?.id
+			return (
+				loginUserData?.student_id ||
+				loginUserData?.studentId ||
+				loginUserData?.id
+			)
 		} catch (e) {
 			console.error('Error parsing login user data:', e)
 			return null
@@ -148,7 +152,9 @@ const QA = ({
 		}
 	}
 
-	const [studentQA, setStudentQA] = useState(isFromTopPage && data ? data : null)
+	const [studentQA, setStudentQA] = useState(
+		isFromTopPage && data ? data : null
+	)
 	const [editData, setEditData] = useState(isFromTopPage && data ? data : null)
 	const [editMode, setEditMode] = useState(topEditMode)
 	const [isFirstTime, setIsFirstTime] = useState(false)
@@ -183,7 +189,7 @@ const QA = ({
 	const fetchStudent = async () => {
 		// Prevent fetching if already loaded
 		if (isDataLoaded) return
-		
+
 		try {
 			// Only fetch if we don't have data from props
 			if (isFromTopPage && data && Object.keys(data).length > 0) {
@@ -193,13 +199,13 @@ const QA = ({
 				setIsDataLoaded(true)
 				return
 			}
-			
+
 			// Fetch data if not from top page or no data provided
 			if (!studentQA) {
 				// Always fetch questions
 				const questionsResponse = await axios.get('/api/settings/studentQA')
 				const questions = JSON.parse(questionsResponse.data.value)
-				
+
 				let answers = null
 				// Only fetch answers if we have a student ID
 				if (id) {
@@ -214,7 +220,10 @@ const QA = ({
 				if (id && answers && answers.idList) {
 					// Student view with answers
 					const combinedData = {}
-					let firsttime = !answers || !answers.idList || Object.keys(answers.idList).length === 0
+					let firsttime =
+						!answers ||
+						!answers.idList ||
+						Object.keys(answers.idList).length === 0
 					if (firsttime) {
 						setIsFirstTime(true)
 					}
@@ -263,7 +272,7 @@ const QA = ({
 			fetchStudent()
 		}
 	}, [role, isDataLoaded])
-	
+
 	// Reset data loaded flag when updateQA changes
 	useEffect(() => {
 		if (updateQA) {
@@ -570,7 +579,7 @@ const QA = ({
 		role,
 		isFromTopPage,
 		hasData: !!data && Object.keys(data).length > 0,
-		location: window.location.pathname
+		location: window.location.pathname,
 	})
 
 	// Don't render buttons if component is used from Top page
