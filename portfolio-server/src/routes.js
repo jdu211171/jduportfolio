@@ -19,6 +19,7 @@ const fileRoutes = require('./routes/file-routes')
 const imageRoutes = require('./routes/image-routes')
 const kintoneRoutes = require('./routes/kintone-routes')
 const webhookRoutes = require('./routes/webhook-routes')
+const itSkillRoutes = require('./routes/itSkillRoutes')
 
 /**
  * @swagger
@@ -80,6 +81,7 @@ const configureRoutes = app => {
 	app.use('/api/notification', authMiddleware, notificationRoute)
 	app.use('/api/news', newsRoute)
 	app.use('/api/file-records', authMiddleware, fileRecordRoute)
+	app.use('/api/itskills', authMiddleware, itSkillRoutes)
 }
 
 module.exports = configureRoutes
