@@ -39,6 +39,11 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.JSONB,
 				allowNull: false,
 			},
+			changed_fields: {
+                type: DataTypes.JSONB,
+                allowNull: true,
+                defaultValue: [],
+            },
 			status: {
 				type: DataTypes.ENUM(
 					'draft',
