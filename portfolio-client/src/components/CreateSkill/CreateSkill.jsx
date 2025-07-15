@@ -1,0 +1,502 @@
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import {
+	Container,
+	Typography,
+	Box,
+	Button,
+	TextField,
+	Card,
+	CardContent,
+	Chip,
+	Grid,
+	IconButton,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Alert,
+	Snackbar,
+	InputAdornment,
+	CircularProgress,
+	Paper
+} from '@mui/material'
+import {
+	Add as AddIcon,
+	Edit as EditIcon,
+	Delete as DeleteIcon,
+	Search as SearchIcon,
+	Palette as PaletteIcon,
+	Code as CodeIcon
+} from '@mui/icons-material'
+import './CreateSkill.css'
+
+export const CreateSkill = () => {
+	// State management
+	const [skills, setSkills] = useState([])
+	const [loading, setLoading] = useState(true)
+	const [searchTerm, setSearchTerm] = useState('')
+	const [filteredSkills, setFilteredSkills] = useState([])
+	
+	// Form states
+	const [formData, setFormData] = useState({ name: '', color: '#4caf50' })
+	const [editingSkill, setEditingSkill] = useState(null)
+	const [isModalOpen, setIsModalOpen] = useState(false)
+	
+	// UI states
+	const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
+	const [deleteConfirm, setDeleteConfirm] = useState({ open: false, skillId: null })
+	
+	// Predefined colors for skills
+	const colorOptions = [
+		'#4caf50', '#2196f3', '#ff9800', '#f44336', '#9c27b0',
+		'#3f51b5', '#00bcd4', '#ff5722', '#795548', '#607d8b',
+		'#e91e63', '#cddc39', '#ffeb3b', '#009688', '#8bc34a'
+	]
+
+	// Fetch skills from API
+	const fetchSkills = async (search = '') => {
+		try {
+			setLoading(true)
+			// const response = await axios.get(`/api/itskills${search ? `?search=${search}` : ''}`)
+			const response = await axios.get(`/api/itskills/`)
+			console.log(response);
+			
+			setSkills(response.data)
+			setFilteredSkills(response.data)
+		} catch (error) {
+			console.error('Error fetching skills:', error)
+			showSnackbar('Failed to fetch skills', 'error')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// Filter skills based on search term
+	useEffect(() => {
+		if (searchTerm) {
+			const filtered = skills.filter(skill =>
+				skill.name.toLowerCase().includes(searchTerm.toLowerCase())
+			)
+			setFilteredSkills(filtered)
+		} else {
+			setFilteredSkills(skills)
+		}
+	}, [searchTerm, skills])
+
+	// Initial load
+	useEffect(() => {
+		fetchSkills()
+	}, [])
+
+	// Show snackbar notification
+	const showSnackbar = (message, severity = 'success') => {
+		setSnackbar({ open: true, message, severity })
+	}
+
+	// Handle form submission
+	const handleSubmit = async (e) => {
+		e.preventDefault()
+		
+		if (!formData.name.trim()) {
+			showSnackbar('Skill name is required', 'error')
+			return
+		}
+
+		try {
+			if (editingSkill) {
+				// Update existing skill
+				await axios.patch(`/api/itskills/${editingSkill.id}`, formData)
+				showSnackbar('Skill updated successfully', 'success')
+			} else {
+				// Create new skill
+				await axios.post('/api/itskills', formData)
+				showSnackbar('Skill created successfully', 'success')
+			}
+			
+			// Reset form and refresh data
+			resetForm()
+			fetchSkills()
+		} catch (error) {
+			console.error('Error saving skill:', error)
+			const errorMessage = error.response?.data?.error || 'Failed to save skill'
+			showSnackbar(errorMessage, 'error')
+		}
+	}
+
+	// Handle delete skill
+	const handleDelete = async (skillId) => {
+		try {
+			await axios.delete(`/api/itskills/${skillId}`)
+			showSnackbar('Skill deleted successfully', 'warning')
+			fetchSkills()
+		} catch (error) {
+			console.error('Error deleting skill:', error)
+			showSnackbar('Failed to delete skill', 'error')
+		}
+		setDeleteConfirm({ open: false, skillId: null })
+	}
+
+	// Start editing a skill
+	const startEdit = (skill) => {
+		setFormData({ name: skill.name, color: skill.color })
+		setEditingSkill(skill)
+		setIsModalOpen(true)
+	}
+
+	// Reset form
+	const resetForm = () => {
+		setFormData({ name: '', color: '#4caf50' })
+		setEditingSkill(null)
+		setIsModalOpen(false)
+	}
+
+	// Handle search with API call
+	const handleSearch = async () => {
+		await fetchSkills(searchTerm)
+	}
+
+	return (
+		<Container maxWidth="lg" sx={{ py: 4 }}>
+			{/* Header */}
+			<Box sx={{ mb: 4, textAlign: 'center' }}>
+				<Typography variant="h3" component="h1" gutterBottom sx={{ 
+					fontWeight: 'bold', 
+					color: '#333',
+					mb: 2,
+					alignItems:'center',
+					justifyContent:'center',
+					display:'flex'
+				}}>
+					<CodeIcon sx={{ fontSize: '3rem', mr: 2, color: '#5627DC' }} />
+					IT Skills Manager
+				</Typography>
+				<Typography variant="h6" color="text.secondary">
+					Manage and organize IT skills used throughout the platform
+				</Typography>
+			</Box>
+
+			{/* Action Bar */}
+			<Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
+				<Grid container spacing={2} alignItems="center">
+					<Grid item xs={12} md={8}>
+						<TextField
+							fullWidth
+							placeholder="Search skills..."
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position="start">
+										<SearchIcon color="action" />
+									</InputAdornment>
+								),
+								endAdornment: searchTerm && (
+									<InputAdornment position="end">
+										<Button
+											size="small"
+											onClick={handleSearch}
+											sx={{ minWidth: 'auto' }}
+										>
+											Search
+										</Button>
+									</InputAdornment>
+								)
+							}}
+							sx={{
+								'& .MuiOutlinedInput-root': {
+									borderRadius: 2,
+									backgroundColor: '#fafafa'
+								}
+							}}
+						/>
+					</Grid>
+					<Grid item xs={12} md={4}>
+						<Button
+							variant="contained"
+							startIcon={<AddIcon />}
+							onClick={() => setIsModalOpen(true)}
+							fullWidth
+							sx={{
+								bgcolor: '#5627DC',
+								py: 1.5,
+								borderRadius: 2,
+								textTransform: 'none',
+								fontSize: '1rem',
+								fontWeight: 600,
+								'&:hover': {
+									bgcolor: '#4520b8'
+								}
+							}}
+						>
+							Add New Skill
+						</Button>
+					</Grid>
+				</Grid>
+			</Paper>
+
+			{/* Skills List */}
+			<Box>
+				<Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+					Skills ({filteredSkills.length})
+				</Typography>
+
+				{loading ? (
+					<Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+						<CircularProgress size={60} sx={{ color: '#5627DC' }} />
+					</Box>
+				) : filteredSkills.length === 0 ? (
+					<Paper elevation={1} sx={{ p: 8, textAlign: 'center', borderRadius: 2 }}>
+						<CodeIcon sx={{ fontSize: '4rem', color: '#ccc', mb: 2 }} />
+						<Typography variant="h6" color="text.secondary" gutterBottom>
+							{searchTerm ? 'No skills found' : 'No skills available'}
+						</Typography>
+						<Typography color="text.secondary">
+							{searchTerm ? 'Try adjusting your search terms' : 'Start by adding your first IT skill'}
+						</Typography>
+					</Paper>
+				) : (
+					<Grid container spacing={2}>
+						{filteredSkills.map((skill) => (
+							<Grid item xs={12} sm={6} md={4} lg={3} key={skill.id}>
+								<Card 
+									elevation={3}
+									sx={{ 
+										borderRadius: 2,
+										transition: 'all 0.3s ease',
+										'&:hover': {
+											transform: 'translateY(-4px)',
+											boxShadow: 6
+										}
+									}}
+								>
+									<CardContent sx={{ p: 3 }}>
+										<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+											<Box
+												sx={{
+													width: 16,
+													height: 16,
+													borderRadius: '50%',
+													backgroundColor: skill.color,
+													mr: 1.5,
+													flexShrink: 0
+												}}
+											/>
+											<Typography 
+												variant="h6" 
+												sx={{ 
+													fontWeight: 600,
+													fontSize: '1.1rem',
+													wordBreak: 'break-word'
+												}}
+											>
+												{skill.name}
+											</Typography>
+										</Box>
+										
+										<Chip
+											label={skill.color}
+											size="small"
+											sx={{
+												bgcolor: skill.color + '20',
+												color: skill.color,
+												fontFamily: 'monospace',
+												mb: 2
+											}}
+										/>
+										
+										<Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+											<IconButton
+												size="small"
+												onClick={() => startEdit(skill)}
+												sx={{
+													bgcolor: '#e3f2fd',
+													color: '#1976d2',
+													'&:hover': { bgcolor: '#bbdefb' }
+												}}
+											>
+												<EditIcon fontSize="small" />
+											</IconButton>
+											<IconButton
+												size="small"
+												onClick={() => setDeleteConfirm({ open: true, skillId: skill.id })}
+												sx={{
+													bgcolor: '#ffebee',
+													color: '#d32f2f',
+													'&:hover': { bgcolor: '#ffcdd2' }
+												}}
+											>
+												<DeleteIcon fontSize="small" />
+											</IconButton>
+										</Box>
+									</CardContent>
+								</Card>
+							</Grid>
+						))}
+					</Grid>
+				)}
+			</Box>
+
+			{/* Add/Edit Modal */}
+			<Dialog 
+				open={isModalOpen} 
+				onClose={resetForm}
+				maxWidth="sm"
+				fullWidth
+				PaperProps={{
+					sx: { borderRadius: 2 }
+				}}
+			>
+				<DialogTitle sx={{ 
+					bgcolor: '#5627DC', 
+					color: 'white',
+					display: 'flex',
+					alignItems: 'center',
+					gap: 1
+				}}>
+					<PaletteIcon />
+					{editingSkill ? 'Edit Skill' : 'Add New Skill'}
+				</DialogTitle>
+				<form onSubmit={handleSubmit}>
+					<DialogContent sx={{ p: 3 }}>
+						<TextField
+							autoFocus
+							margin="normal"
+							label="Skill Name"
+							fullWidth
+							required
+							value={formData.name}
+							onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+							sx={{ mb: 3 }}
+						/>
+						
+						<Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+							Choose Color
+						</Typography>
+						
+						{/* Color Preview */}
+						<Box sx={{ 
+							display: 'flex', 
+							alignItems: 'center', 
+							gap: 2, 
+							mb: 3,
+							p: 2,
+							bgcolor: '#f5f5f5',
+							borderRadius: 1
+						}}>
+							<Box
+								sx={{
+									width: 32,
+									height: 32,
+									borderRadius: '50%',
+									backgroundColor: formData.color,
+									border: '2px solid #ddd'
+								}}
+							/>
+							<TextField
+								label="Color Code"
+								value={formData.color}
+								onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
+								size="small"
+								sx={{ flexGrow: 1 }}
+							/>
+						</Box>
+						
+						{/* Color Options */}
+						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+							{colorOptions.map((color) => (
+								<Box
+									key={color}
+									onClick={() => setFormData(prev => ({ ...prev, color }))}
+									sx={{
+										width: 40,
+										height: 40,
+										borderRadius: '50%',
+										backgroundColor: color,
+										cursor: 'pointer',
+										border: formData.color === color ? '3px solid #333' : '2px solid #ddd',
+										transition: 'all 0.2s ease',
+										'&:hover': {
+											transform: 'scale(1.1)',
+											boxShadow: 2
+										}
+									}}
+								/>
+							))}
+						</Box>
+					</DialogContent>
+					<DialogActions sx={{ p: 3, gap: 1 }}>
+						<Button 
+							onClick={resetForm}
+							variant="outlined"
+							sx={{ borderRadius: 2 }}
+						>
+							Cancel
+						</Button>
+						<Button 
+							type="submit" 
+							variant="contained"
+							sx={{ 
+								bgcolor: '#5627DC',
+								borderRadius: 2,
+								'&:hover': { bgcolor: '#4520b8' }
+							}}
+						>
+							{editingSkill ? 'Update' : 'Create'} Skill
+						</Button>
+					</DialogActions>
+				</form>
+			</Dialog>
+
+			{/* Delete Confirmation Dialog */}
+			<Dialog 
+				open={deleteConfirm.open} 
+				onClose={() => setDeleteConfirm({ open: false, skillId: null })}
+				PaperProps={{ sx: { borderRadius: 2 } }}
+			>
+				<DialogTitle sx={{ color: '#d32f2f' }}>
+					Confirm Delete
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						Are you sure you want to delete this skill? This action cannot be undone.
+					</Typography>
+				</DialogContent>
+				<DialogActions sx={{ p: 3, gap: 1 }}>
+					<Button 
+						onClick={() => setDeleteConfirm({ open: false, skillId: null })}
+						variant="outlined"
+						sx={{ borderRadius: 2 }}
+					>
+						Cancel
+					</Button>
+					<Button 
+						onClick={() => handleDelete(deleteConfirm.skillId)}
+						variant="contained"
+						color="error"
+						sx={{ borderRadius: 2 }}
+					>
+						Delete
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Snackbar Notifications */}
+			<Snackbar
+				open={snackbar.open}
+				autoHideDuration={4000}
+				onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+			>
+				<Alert 
+					onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} 
+					severity={snackbar.severity}
+					sx={{ borderRadius: 2 }}
+				>
+					{snackbar.message}
+				</Alert>
+			</Snackbar>
+		</Container>
+	)
+}

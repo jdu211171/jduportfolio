@@ -18,7 +18,7 @@ import { ReactComponent as UserPlusIcon } from '../../assets/icons/user-add-line
 import { ReactComponent as StudentIcon } from '../../assets/icons/user-follow-line.svg'
 import { ReactComponent as SearchIcon } from '../../assets/icons/user-search-line.svg'
 import { ReactComponent as SettingsIcon } from '../../assets/icons/settings-3-line.svg'
-
+import TuneIcon from '@mui/icons-material/Tune';
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
 import logo from '/src/assets/logo40.png'
@@ -105,6 +105,12 @@ const Layout = () => {
 					icon: <QuestionIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_qa'),
 					roles: ['Admin'],
+				},
+					{
+					to: '/create-skill',
+					icon: <TuneIcon style={{ width: '24px', height: '24px' }} />,
+					label: t('studetentSkillManagment'),
+					roles: ['Admin', 'Staff'],
 				},
 			],
 		},
