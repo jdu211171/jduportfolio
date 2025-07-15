@@ -8,7 +8,7 @@ const kintoneCreditDetailsService = require('./kintoneCreditDetailsService')
 
 const { formatStudentWelcomeEmail } = require('../utils/emailToStudent')
 const { sendBulkEmails } = require('../utils/emailService')
-
+	
 class StudentService {
 	// Service method to create a new student
 	static async createStudent(studentData) {

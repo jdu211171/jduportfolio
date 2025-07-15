@@ -30,6 +30,14 @@ module.exports = (sequelize, DataTypes) => {
 			student_id: { type: DataTypes.STRING, allowNull: false, unique: true },
 			first_name: { type: DataTypes.STRING, allowNull: false },
 			last_name: { type: DataTypes.STRING, allowNull: false },
+			first_name_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			last_name_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
 			date_of_birth: { type: DataTypes.DATEONLY, allowNull: true },
 			phone: { type: DataTypes.STRING, allowNull: true },
 			photo: { type: DataTypes.STRING, allowNull: true },
