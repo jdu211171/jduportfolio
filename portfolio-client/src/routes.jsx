@@ -29,7 +29,7 @@ import NotFound from './pages/NotFound/NotFound'
 import Unauthorized from './pages/Unauthorized/Unauthorized'
 import LogOut from './components/LogOut'
 import GoogleAuthCallback from './pages/GoogleAuthCallback.jsx'
-import { CreateSkill } from './components/CreateSkill/CreateSkill.jsx'
+import { CreateSkill } from './pages/CreateSkill/CreateSkill.jsx'
 const AppRoutes = () => {
 	const { role, userId, updateUser, language } = useContext(UserContext)
 

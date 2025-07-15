@@ -159,8 +159,8 @@ export const CreateSkill = () => {
 	return (
 		<Container maxWidth="lg" sx={{ py: 4 }}>
 			{/* Header */}
-			<Box sx={{ mb: 4, textAlign: 'center' }}>
-				<Typography variant="h3" component="h1" gutterBottom sx={{ 
+			<Box sx={{ mb: 4, }}>
+				<Typography variant="h3" component="h3" gutterBottom sx={{ 
 					fontWeight: 'bold', 
 					color: '#333',
 					mb: 2,
@@ -170,9 +170,6 @@ export const CreateSkill = () => {
 				}}>
 					<CodeIcon sx={{ fontSize: '3rem', mr: 2, color: '#5627DC' }} />
 					IT Skills Manager
-				</Typography>
-				<Typography variant="h6" color="text.secondary">
-					Manage and organize IT skills used throughout the platform
 				</Typography>
 			</Box>
 
