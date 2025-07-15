@@ -15,6 +15,7 @@ const Deliverables = ({
 	updateEditMode,
 	onImageUpload,
 	resetPreviews, // Add this prop to reset previews when needed
+	isChanged = false,
 }) => {
 	const textFieldRef = useRef(null)
 	const fileInputRef = useRef(null)
@@ -241,7 +242,28 @@ const Deliverables = ({
 		}
 	}, [imagePreview])
 	return (
-		<div className={styles.container}>
+		<div className={styles.container} style={{
+			backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
+			border: isChanged ? '2px solid #ffc107' : '1px solid #f0f0f0',
+			borderRadius: isChanged ? '8px' : '12px',
+			padding: isChanged ? '28px' : '20px',
+			position: 'relative',
+		}}>
+			{isChanged && (
+				<div style={{
+					position: 'absolute',
+					top: -10,
+					right: 10,
+					backgroundColor: '#ffc107',
+					color: '#fff',
+					padding: '2px 8px',
+					borderRadius: '4px',
+					fontSize: '12px',
+					fontWeight: 'bold',
+				}}>
+					変更あり
+				</div>
+			)}
 			{editMode && (
 				<div style={{ marginBottom: 20 }}>
 					{/* Add New Deliverable Button */}
