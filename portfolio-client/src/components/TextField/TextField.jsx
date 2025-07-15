@@ -14,13 +14,35 @@ const TextField = ({
 	iconColor = '#7049e1',
 	imageUrl,
 	details = null,
+	isChanged = false,
 }) => {
 	const handleChange = e => {
 		updateEditData(keyName, e.target.value)
 	}
 
 	return (
-		<div className={styles.container}>
+		<div className={styles.container} style={{
+			backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
+			border: isChanged ? '2px solid #ffc107' : '1px solid #f0f0f0',
+			borderRadius: isChanged ? '8px' : '12px',
+			padding: isChanged ? '28px' : '20px',
+			position: 'relative',
+		}}>
+			{isChanged && (
+				<div style={{
+					position: 'absolute',
+					top: -10,
+					right: 10,
+					backgroundColor: '#ffc107',
+					color: '#fff',
+					padding: '2px 8px',
+					borderRadius: '4px',
+					fontSize: '12px',
+					fontWeight: 'bold',
+				}}>
+					変更あり
+				</div>
+			)}
 			<div className={styles.title}>
 				{Icon && <Icon sx={{ color: iconColor }} />}
 				{title}

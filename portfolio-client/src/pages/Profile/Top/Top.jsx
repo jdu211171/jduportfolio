@@ -967,23 +967,12 @@ const Top = () => {
 					...editData.draft,
 					deliverables: updatedDeliverables,
 				},
-				status: 'draft',
-				submit_count: currentDraft.submit_count || 0,
 			}
 
 			console.log('Saving draft with data:', draftData)
 
-			let res
-			if (currentDraft.id) {
-				// Update existing draft
-				res = await axios.put(`/api/draft/${currentDraft.id}`, {
-					profile_data: draftData.profile_data,
-					status: draftData.status,
-				})
-			} else {
-				// Create new draft
-				res = await axios.post(`/api/draft`, draftData)
-			}
+			// Always use PUT for upsert approach (backend uses PUT method)
+			const res = await axios.put(`/api/draft`, draftData)
 
 			console.log('Draft save response:', res.data)
 
@@ -1365,6 +1354,10 @@ const Top = () => {
 						parentKey='draft'
 						icon={BadgeOutlinedIcon}
 						imageUrl={student.photo}
+						isChanged={
+							role === 'Staff' &&
+							currentDraft?.changed_fields?.includes('self_introduction')
+						}
 					/>
 					{/* New Design for Hobbies and Special Skills */}
 					<div style={{ display: 'flex', gap: 25, marginTop: 25 }}>
@@ -1372,12 +1365,48 @@ const Top = () => {
 						<div
 							style={{
 								flex: 1,
-								backgroundColor: '#ffffff',
+								backgroundColor:
+									role === 'Staff' &&
+									(currentDraft?.changed_fields?.includes('hobbies') ||
+										currentDraft?.changed_fields?.includes(
+											'hobbies_description'
+										))
+										? '#fff3cd'
+										: '#ffffff',
 								padding: 20,
 								borderRadius: 10,
-								border: '1px solid #e1e1e1',
+								border:
+									role === 'Staff' &&
+									(currentDraft?.changed_fields?.includes('hobbies') ||
+										currentDraft?.changed_fields?.includes(
+											'hobbies_description'
+										))
+										? '2px solid #ffc107'
+										: '1px solid #e1e1e1',
+								position: 'relative',
 							}}
 						>
+							{role === 'Staff' &&
+								(currentDraft?.changed_fields?.includes('hobbies') ||
+									currentDraft?.changed_fields?.includes(
+										'hobbies_description'
+									)) && (
+									<div
+										style={{
+											position: 'absolute',
+											top: -10,
+											right: 10,
+											backgroundColor: '#ffc107',
+											color: '#fff',
+											padding: '2px 8px',
+											borderRadius: '4px',
+											fontSize: '12px',
+											fontWeight: 'bold',
+										}}
+									>
+										変更あり
+									</div>
+								)}
 							<div
 								style={{
 									fontSize: 20,
@@ -1559,12 +1588,48 @@ const Top = () => {
 						<div
 							style={{
 								flex: 1,
-								backgroundColor: '#ffffff',
+								backgroundColor:
+									role === 'Staff' &&
+									(currentDraft?.changed_fields?.includes('special_skills') ||
+										currentDraft?.changed_fields?.includes(
+											'special_skills_description'
+										))
+										? '#fff3cd'
+										: '#ffffff',
 								padding: 20,
 								borderRadius: 10,
-								border: '1px solid #e1e1e1',
+								border:
+									role === 'Staff' &&
+									(currentDraft?.changed_fields?.includes('special_skills') ||
+										currentDraft?.changed_fields?.includes(
+											'special_skills_description'
+										))
+										? '2px solid #ffc107'
+										: '1px solid #e1e1e1',
+								position: 'relative',
 							}}
 						>
+							{role === 'Staff' &&
+								(currentDraft?.changed_fields?.includes('special_skills') ||
+									currentDraft?.changed_fields?.includes(
+										'special_skills_description'
+									)) && (
+									<div
+										style={{
+											position: 'absolute',
+											top: -10,
+											right: 10,
+											backgroundColor: '#ffc107',
+											color: '#fff',
+											padding: '2px 8px',
+											borderRadius: '4px',
+											fontSize: '12px',
+											fontWeight: 'bold',
+										}}
+									>
+										変更あり
+									</div>
+								)}
 							<div
 								style={{
 									fontSize: 20,
@@ -1796,6 +1861,10 @@ const Top = () => {
 							keyName='it_skills'
 							parentKey='draft'
 							icon={<CodeIcon sx={{ color: '#5627DB' }} />}
+							isChanged={
+								role === 'Staff' &&
+								currentDraft?.changed_fields?.includes('it_skills')
+							}
 						/>
 						<div className={styles.skillBox}>
 							<div
@@ -1909,6 +1978,10 @@ const Top = () => {
 							keyName='skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
+							isChanged={
+								role === 'Staff' &&
+								currentDraft?.changed_fields?.includes('skills')
+							}
 						/>
 						<div className={styles.skillBox}>
 							<div
@@ -2084,6 +2157,10 @@ const Top = () => {
 						onImageUpload={handleImageUpload}
 						keyName='deliverables'
 						resetPreviews={resetDeliverablePreviews}
+						isChanged={
+							role === 'Staff' &&
+							currentDraft?.changed_fields?.includes('deliverables')
+						}
 					/>
 				</Box>
 			)}

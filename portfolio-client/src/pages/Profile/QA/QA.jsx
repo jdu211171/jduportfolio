@@ -332,7 +332,12 @@ const QA = ({
 				showAlert(t['profileConfirmed'], 'success')
 			}
 		} catch (error) {
-			showAlert(t['errorConfirmingProfile'], 'error')
+			// Backend'dan kelgan yangi xatolik xabarini handle qilamiz
+			if (error.response?.data?.error?.includes('allaqachon tekshiruvga yuborilgan')) {
+				showAlert(t['draftAlreadySubmitted'] || 'Avvalgi so\'rovingiz hali ko\'rib chiqilmagan. Yangisini yuborish uchun natijani kuting.', 'warning')
+			} else {
+				showAlert(t['errorConfirmingProfile'], 'error')
+			}
 		} finally {
 			setConfirmMode(false)
 		}
@@ -340,10 +345,19 @@ const QA = ({
 
 	const approveProfile = async value => {
 		try {
+			console.log('Approving profile with:', {
+				draftId: currentDraft.id,
+				status: value,
+				comments: comment.comments,
+			})
+			
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
 				comments: comment.comments,
 			})
+			
+			console.log('Approval response:', res.data)
+			
 			// Update local draft status to reflect the change
 			setPassedDraft(prevDraft => ({
 				...prevDraft,

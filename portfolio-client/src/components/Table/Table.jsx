@@ -38,6 +38,7 @@ import DeleteIcon from '../../assets/icons/delete-bin-3-line.svg'
 import { stableSort, getComparator } from './TableUtils'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
+import ChangedFieldsModal from '../ChangedFieldsModal/ChangedFieldsModal'
 
 // localStorage dan qiymat o'qish yoki default qiymat
 const getInitialRowsPerPage = () => {
@@ -73,6 +74,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		itemId: null,
 		deleteAction: null,
 	})
+	const [selectedChangedFields, setSelectedChangedFields] = useState(null)
 
 	// localStorage ga saqlash
 	useEffect(() => {
@@ -746,6 +748,43 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																)
 															})()}
 														</div>
+													) : header.type === 'changed_fields' ? (
+														<div>
+															{(() => {
+																const changedFields = header.subkey 
+																	? row[header.id] ? row[header.id][header.subkey] : []
+																	: row[header.id] || []
+																if (!changedFields || changedFields.length === 0) {
+																	return <span style={{ color: '#999', fontSize: '12px' }}>変更なし</span>
+																}
+																
+																return (
+																	<Button
+																		size="small"
+																		variant="text"
+																		onClick={(e) => {
+																			e.stopPropagation()
+																			setSelectedChangedFields({
+																				fields: changedFields,
+																				studentName: `${row.first_name} ${row.last_name}`,
+																				studentId: row.student_id
+																			})
+																		}}
+																		sx={{
+																			textTransform: 'none',
+																			padding: '4px 8px',
+																			fontSize: '12px',
+																			color: '#1976d2',
+																			'&:hover': {
+																				backgroundColor: '#e3f2fd',
+																			}
+																		}}
+																	>
+																		{changedFields.length}件の変更
+																	</Button>
+																)
+															})()}
+														</div>
 													) : header.type === 'confirmation_status' ? (
 														<div
 															style={{
@@ -1409,6 +1448,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					</Box>
 				</Box>
 			</Modal>
+
+			{/* Changed Fields Modal */}
+			<ChangedFieldsModal
+				open={Boolean(selectedChangedFields)}
+				onClose={() => setSelectedChangedFields(null)}
+				data={selectedChangedFields}
+			/>
 		</Box>
 	)
 }

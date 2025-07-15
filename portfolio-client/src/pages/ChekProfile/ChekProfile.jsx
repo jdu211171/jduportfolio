@@ -294,6 +294,15 @@ const Student = ({ OnlyBookmarked = false }) => {
 		},
 		{
 			id: 'draft',
+			subkey: 'changed_fields',
+			type: 'changed_fields',
+			numeric: false,
+			disablePadding: false,
+			label: '変更項目',
+			minWidth: '120px',
+		},
+		{
+			id: 'draft',
 			subkey: 'status',
 			type: 'status_icon',
 			numeric: false,
