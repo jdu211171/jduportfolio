@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/logo.png'
 import universityImage from '../../assets/university.png'
 import { LanguageSelect } from '../../components/languageSelector/LanguageSelect'
+import LanguageSelectionModal from '../../components/LanguageSelectionModal/LanguageSelectionModal'
 import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
@@ -25,6 +26,7 @@ const Login = () => {
 	const [showPassword, setShowPassword] = useState(false)
 	const [error, setError] = useState('')
 	const [loginMode, setLoginMode] = useState(true)
+	const [showLanguageModal, setShowLanguageModal] = useState(false)
 
 	const handleLogin = async e => {
 		e.preventDefault()
@@ -45,7 +47,14 @@ const Login = () => {
 			sessionStorage.setItem('role', userType)
 			sessionStorage.setItem('loginUser', JSON.stringify(userData))
 			updateUser()
-			navigate('/')
+			
+			// Check if user has selected a language before
+			const hasSelectedLanguage = localStorage.getItem('hasSelectedLanguage')
+			if (!hasSelectedLanguage) {
+				setShowLanguageModal(true)
+			} else {
+				navigate('/')
+			}
 		} catch (err) {
 			setError(err.response?.data?.error || 'Login failed')
 		}
@@ -203,6 +212,13 @@ const Login = () => {
 			<div className={styles['login-image']}>
 				<img src={universityImage} alt='University' />
 			</div>
+			<LanguageSelectionModal
+				open={showLanguageModal}
+				onClose={() => {
+					setShowLanguageModal(false)
+					navigate('/')
+				}}
+			/>
 		</div>
 	)
 }

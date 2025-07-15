@@ -317,6 +317,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		location_placeholder: 'Enter location',
 		company_description_placeholder: 'Enter company description',
 		saving: 'Saving...',
+		// Language settings translations
+		unsaved_changes_title: 'Unsaved Changes',
+		language_change_unsaved_message: 'You have unsaved changes. Would you like to save them before changing the language?',
+		save_and_continue: 'Save and Continue',
+		discard_changes: 'Discard Changes',
+		display_language: 'Display Language',
+		language_settings: 'Language Settings',
+		language_change_notice: 'This will change the application display language',
 	},
 	ja: {
 		origin: '出身',
@@ -637,6 +645,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		location_placeholder: '場所を入力してください',
 		company_description_placeholder: '企業の説明を入力してください',
 		saving: '保存中...',
+		// Language settings translations
+		unsaved_changes_title: '未保存の変更',
+		language_change_unsaved_message: '未保存の変更があります。言語を変更する前に保存しますか？',
+		save_and_continue: '保存して続行',
+		discard_changes: '変更を破棄',
+		display_language: '表示言語',
+		language_settings: '言語設定',
+		language_change_notice: 'アプリケーションの表示言語を変更します',
 	},
 	uz: {
 		studentCredits: 'Talabaning kreditlar soni',
@@ -956,6 +972,14 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		location_placeholder: 'Manzilni kiriting',
 		company_description_placeholder: 'Kompaniya tavsifini kiriting',
 		saving: 'Saqlanmoqda...',
+		// Language settings translations
+		unsaved_changes_title: "Saqlanmagan o'zgarishlar",
+		language_change_unsaved_message: "Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
+		save_and_continue: 'Saqlash va davom etish',
+		discard_changes: "O'zgarishlarni bekor qilish",
+		display_language: 'Displey tili',
+		language_settings: 'Til sozlamalari',
+		language_change_notice: "Bu ilovaning displey tilini o'zgartiradi",
 	},
 }
 

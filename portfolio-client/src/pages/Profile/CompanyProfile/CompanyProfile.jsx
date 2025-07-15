@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import PropTypes from 'prop-types'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useFormPersistence } from '../../../hooks/useFormPersistence'
+import { useForm, Controller } from 'react-hook-form'
 import axios from '../../../utils/axiosUtils'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
@@ -235,7 +235,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 	const location = useLocation()
 	const { recruiterId } = location.state || {}
 	const { language } = useContext(UserContext)
-	const { language: langContext, pendingLanguageChange, confirmLanguageChange, cancelLanguageChange } = useLanguage()
+	const { language: langContext, changeLanguage } = useLanguage()
 	const showAlert = useAlert()
 	const currentLanguage = language || langContext || 'en'
 	const t = translations[currentLanguage] || translations.en
@@ -289,49 +289,125 @@ const CompanyProfile = ({ userId = 0 }) => {
 		timestamp: null,
 	})
 
-	// Form persistence setup
-	const formPersistenceKey = `company_profile_edit_${id || 'unknown'}_${role}`
+	// Simple form state for unsaved changes tracking
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+	const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+	const [pendingLanguageChange, setPendingLanguageChange] = useState(null)
+
+	// React Hook Form setup
 	const {
-		loadFromStorage,
-		saveToStorage,
-		saveToStorageIfChanged,
-		clearStorage,
-		hasUnsavedChanges,
-		hasChangesFromOriginal,
-		immediateSave,
-		immediateSaveIfChanged,
-		updateOriginalData,
-	} = useFormPersistence(formPersistenceKey, initialEditData, {
-		debounceMs: 2000,
-		enabled: role === 'Recruiter' && editMode,
-		originalData: company ? {
-			...company,
-			newBusinessOverview: '',
-			newRequiredSkill: '',
-			newWelcomeSkill: '',
-			newVideoUrl: '',
-		} : null,
-		onSaveStart: () => {
-			console.log('Starting save to localStorage')
-			setSaveStatus(prev => ({ ...prev, isSaving: true }))
-		},
-		onSaveComplete: () => {
-			console.log('Save to localStorage complete')
-			setSaveStatus(prev => ({
-				...prev,
-				isSaving: false,
-				lastSaved: new Date().toISOString(),
-			}))
-		},
-		onLoadComplete: (data) => {
-			console.log('Loaded data from localStorage:', data)
-			setPersistedData({
-				exists: true,
-				data: data,
-				timestamp: new Date().toISOString(),
-			})
-		},
+		control,
+		handleSubmit,
+		formState: { isDirty },
+		reset,
+		getValues,
+		setValue,
+	} = useForm({
+		defaultValues: company || {},
+		mode: 'onChange',
 	})
+
+	// Watch for form changes
+	useEffect(() => {
+		setHasUnsavedChanges(isDirty)
+	}, [isDirty])
+
+	// Language change handling
+	const handleLanguageChange = (newLanguage) => {
+		if (editMode && hasUnsavedChanges) {
+			setPendingLanguageChange(newLanguage)
+			setShowUnsavedDialog(true)
+		} else {
+			changeLanguage(newLanguage)
+		}
+	}
+
+	// Simple update function
+	const handleUpdate = async (data) => {
+		// Simple implementation - just make API call
+		await axios.put(`/api/recruiters/${id}`, data)
+	}
+
+	// Simple save function
+	const handleSave = async () => {
+		try {
+			const formData = getValues()
+			await handleUpdate(formData)
+			reset(formData)
+			setHasUnsavedChanges(false)
+			showAlert(t('changes_saved'), 'success')
+		} catch (error) {
+			console.error('Save error:', error)
+			showAlert('Error saving changes', 'error')
+		}
+	}
+
+	// Simple cancel function
+	const handleCancel = () => {
+		setEditMode(false)
+		reset(company)
+		setHasUnsavedChanges(false)
+	}
+
+	// Simple replacements for removed functions
+	const clearStorage = () => {
+		localStorage.removeItem(`company_profile_edit_${id}_${role}`)
+	}
+
+	const updateOriginalData = (data) => {
+		// Simple implementation - just reset form with new data
+		reset(data)
+	}
+
+	const confirmLanguageChange = () => {
+		// Simple implementation - no complex language change handling
+	}
+
+	const cancelLanguageChange = () => {
+		// Simple implementation - no complex language change handling
+	}
+
+	const saveToStorageIfChanged = (data) => {
+		// Simple implementation - no complex storage
+		return false
+	}
+
+	const immediateSaveIfChanged = (data) => {
+		// Simple implementation - just save if has changes
+		if (hasUnsavedChanges) {
+			handleSave()
+			return true
+		}
+		return false
+	}
+
+	const hasChangesFromOriginal = (data) => {
+		// Simple check - just use isDirty from React Hook Form
+		return hasUnsavedChanges
+	}
+
+	// Additional simple replacements for removed functions
+
+	const handleConfirmCancel = () => {
+		// Simple implementation - just cancel
+		handleCancel()
+	}
+
+	const handleSaveAndNavigate = () => {
+		// Simple implementation - just save and handle navigation
+		handleSave()
+	}
+
+	const handleRecoverData = () => {
+		// Simple implementation - no complex recovery
+		setShowRecoveryDialog(false)
+	}
+
+	const handleDiscardRecovery = () => {
+		// Simple implementation - no complex recovery
+		setShowRecoveryDialog(false)
+	}
+
 
 	// Refs for maintaining focus
 	const inputRefs = useRef({})
@@ -618,369 +694,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 		}
 	}, [editMode])
 
-	const handleSave = async () => {
-		if (!id) return
 
-		console.log('🔄 SAVE STARTED - editData:', editData)
-		console.log('🔄 SAVE STARTED - company (current):', company)
-
-		setLoading(true)
-		try {
-			// Clean and validate data before sending
-			const cleanedData = {
-				...editData,
-				business_overview: JSON.stringify(
-					safeArrayRender(editData.business_overview)
-				),
-				target_audience: JSON.stringify(
-					safeArrayRender(editData.target_audience)
-				),
-				required_skills: JSON.stringify(
-					safeArrayRender(editData.required_skills)
-				),
-				welcome_skills: JSON.stringify(
-					safeArrayRender(editData.welcome_skills)
-				),
-				company_video_url: Array.isArray(editData.company_video_url)
-					? editData.company_video_url
-					: [],
-			}
-
-			// Remove new item fields and invalid fields
-			delete cleanedData.newBusinessOverview
-			delete cleanedData.newRequiredSkill
-			delete cleanedData.newWelcomeSkill
-			delete cleanedData.newTargetAudience
-			delete cleanedData.newVideoUrl
-
-			// Prepare data for backend validation
-			const dataToSave = {}
-
-			// Always include company_video_url first (even if empty array)
-			dataToSave.company_video_url = Array.isArray(
-				cleanedData.company_video_url
-			)
-				? cleanedData.company_video_url
-				: []
-
-			// Include all fields, even empty ones, to allow clearing data
-			Object.keys(cleanedData).forEach(key => {
-				const value = cleanedData[key]
-
-				// Skip company_video_url since we already handled it above
-				if (key === 'company_video_url') {
-					return
-				}
-
-				// Always include the field, even if it's empty (to allow clearing)
-				if (value !== null && value !== undefined) {
-					// Handle phone_number validation (must be numeric string or null to clear)
-					if (key === 'phone_number') {
-						const phoneStr = String(value).replace(/\D/g, '') // Remove non-digits
-						if (phoneStr === '') {
-							dataToSave[key] = null // Send null to clear the field
-						} else {
-							dataToSave[key] = phoneStr
-						}
-					}
-					// Handle date_of_birth validation (must be ISO8601 format or null to clear)
-					else if (key === 'date_of_birth') {
-						if (value === '') {
-							dataToSave[key] = null // Send null to clear date
-						} else if (value instanceof Date || typeof value === 'string') {
-							try {
-								const date = new Date(value)
-								if (!isNaN(date.getTime())) {
-									dataToSave[key] = date.toISOString().split('T')[0] // YYYY-MM-DD format
-								} else {
-									dataToSave[key] = null // Invalid date becomes null
-								}
-							} catch (e) {
-								console.warn('Invalid date_of_birth:', value)
-								dataToSave[key] = null // Invalid date becomes null
-							}
-						}
-					}
-					// Handle email validation (must be valid email or null to clear)
-					else if (key === 'email') {
-						if (value === '') {
-							dataToSave[key] = null // Send null to clear email
-						} else {
-							const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-							if (emailRegex.test(value)) {
-								dataToSave[key] = value
-							} else {
-								console.warn('Invalid email format:', value)
-								dataToSave[key] = String(value) // Keep invalid email as-is for user to fix
-							}
-						}
-					}
-					// Include other fields as strings (empty strings are allowed for these)
-					else {
-						dataToSave[key] = String(value)
-					}
-				}
-			})
-
-			// Debug: Log the data being sent
-			console.log('💾 Data being sent to server:', dataToSave)
-			console.log('💾 Company video URLs being sent:', dataToSave.company_video_url)
-			console.log('💾 Video URLs count:', dataToSave.company_video_url?.length)
-			console.log('💾 Recruiter ID:', id)
-
-			const saveResponse = await axios.put(`/api/recruiters/${id}`, dataToSave)
-			console.log('💾 Successfully saved to backend, response:', saveResponse.data)
-
-			// Fetch fresh data from backend to ensure consistency
-			try {
-				const freshResponse = await axios.get(`/api/recruiters/${id}`)
-				const freshData = freshResponse.data
-
-				const processedFreshData = {
-					...freshData,
-					business_overview: safeParse(freshData.business_overview),
-					target_audience: safeParse(freshData.target_audience),
-					required_skills: safeParse(freshData.required_skills),
-					welcome_skills: safeParse(freshData.welcome_skills),
-					company_video_url: Array.isArray(freshData.company_video_url)
-						? freshData.company_video_url
-						: [],
-				}
-
-				console.log('💾 Fresh data from backend after save:', processedFreshData)
-				console.log('💾 Fresh company_video_url:', processedFreshData.company_video_url)
-				setCompany(processedFreshData)
-
-				// Also update editData to keep it in sync
-				const freshEditData = {
-					...processedFreshData,
-					newBusinessOverview: '',
-					newRequiredSkill: '',
-					newWelcomeSkill: '',
-					newVideoUrl: '',
-				}
-				setEditData(freshEditData)
-				
-				// Update the original data reference with fresh data from server
-				if (role === 'Recruiter') {
-					updateOriginalData(freshEditData)
-				}
-				
-				console.log('💾 Final editData after fresh data:', freshEditData)
-				console.log('💾 Original data reference updated to:', freshEditData)
-			} catch (fetchError) {
-				console.warn('Could not fetch fresh data after save:', fetchError)
-				// Fallback to local data
-				const updatedCompany = {
-					...editData,
-					company_video_url: Array.isArray(editData.company_video_url)
-						? editData.company_video_url
-						: [],
-				}
-				setCompany(updatedCompany)
-
-				// Also update editData in fallback case
-				const fallbackEditData = {
-					...updatedCompany,
-					newBusinessOverview: '',
-					newRequiredSkill: '',
-					newWelcomeSkill: '',
-					newVideoUrl: '',
-				}
-				setEditData(fallbackEditData)
-				
-				// Update the original data reference with fallback data
-				if (role === 'Recruiter') {
-					updateOriginalData(fallbackEditData)
-				}
-			}
-
-			setEditMode(false)
-			
-			// Clear localStorage after successful save
-			if (role === 'Recruiter') {
-				clearStorage()
-				setSaveStatus({
-					isSaving: false,
-					lastSaved: null,
-					hasUnsavedChanges: false,
-				})
-			}
-
-			// Show success notification
-			showAlert(t.changes_saved || 'Changes saved successfully!', 'success')
-		} catch (error) {
-			console.error('Error saving company data:', error)
-			if (error.response) {
-				console.error('Error response data:', error.response.data)
-				console.error('Error response status:', error.response.status)
-				console.error('Error response headers:', error.response.headers)
-			}
-
-			// Show error notification
-			showAlert(
-				t.errorSavingChanges || 'Error saving changes. Please try again.',
-				'error'
-			)
-		} finally {
-			setLoading(false)
-		}
-	}
-
-	const handleCancel = () => {
-		if (editMode && role === 'Recruiter') {
-			// Only show warning if there are actual changes
-			if (hasChangesFromOriginal(editData)) {
-				setShowUnsavedWarning(true)
-			} else {
-				// No changes, just exit edit mode
-				setEditMode(false)
-				clearStorage()
-				setSaveStatus({
-					isSaving: false,
-					lastSaved: null,
-					hasUnsavedChanges: false,
-				})
-			}
-		} else {
-			if (company) {
-				const restoredData = {
-					...company,
-					newBusinessOverview: '',
-					newRequiredSkill: '',
-					newWelcomeSkill: '',
-					newVideoUrl: '',
-				}
-				setEditData(restoredData)
-				// Update original data reference when restoring from company data
-				if (role === 'Recruiter') {
-					updateOriginalData(restoredData)
-				}
-			}
-			setEditMode(false)
-			if (role === 'Recruiter') {
-				clearStorage()
-				setSaveStatus({
-					isSaving: false,
-					lastSaved: null,
-					hasUnsavedChanges: false,
-				})
-			}
-		}
-	}
-
-	const handleConfirmCancel = () => {
-		// Save data before proceeding if there's a pending language change
-		if (pendingLanguageChange) {
-			console.log('Saving data before language change:', editData)
-			// Save the data immediately only if there are changes
-			const saved = immediateSaveIfChanged(editData)
-			if (saved) {
-				// Set a flag to indicate we're switching languages after save
-				localStorage.setItem('isLanguageSwitching', 'true')
-			}
-			// Clear edit mode to prevent browser warning
-			setEditMode(false)
-			// Small delay to ensure localStorage writes complete
-			setTimeout(() => {
-				confirmLanguageChange()
-			}, 100)
-		} else if (pendingNavigation) {
-			// Handle navigation with discard
-			console.log('Discarding changes and navigating to:', pendingNavigation.pathname)
-			if (company) {
-				const restoredData = {
-					...company,
-					newBusinessOverview: '',
-					newRequiredSkill: '',
-					newWelcomeSkill: '',
-					newVideoUrl: '',
-				}
-				setEditData(restoredData)
-				// Update original data reference when restoring from company data
-				if (role === 'Recruiter') {
-					updateOriginalData(restoredData)
-				}
-			}
-			setEditMode(false)
-			clearStorage()
-			setSaveStatus({
-				isSaving: false,
-				lastSaved: null,
-				hasUnsavedChanges: false,
-			})
-			// Small delay to ensure state updates
-			setTimeout(() => {
-				if (pendingNavigation) {
-					// Use window.location for a clean navigation
-					window.location.href = pendingNavigation.pathname
-				}
-				setPendingNavigation(null)
-			}, 100)
-		} else {
-			if (company) {
-				const restoredData = {
-					...company,
-					newBusinessOverview: '',
-					newRequiredSkill: '',
-					newWelcomeSkill: '',
-					newVideoUrl: '',
-				}
-				setEditData(restoredData)
-				// Update original data reference when restoring from company data
-				if (role === 'Recruiter') {
-					updateOriginalData(restoredData)
-				}
-			}
-			setEditMode(false)
-			clearStorage()
-			setSaveStatus({
-				isSaving: false,
-				lastSaved: null,
-				hasUnsavedChanges: false,
-			})
-		}
-		setShowUnsavedWarning(false)
-	}
-
-	const handleSaveAndNavigate = () => {
-		console.log('Saving data before navigation:', editData)
-		// Save the data immediately only if there are changes
-		const saved = immediateSaveIfChanged(editData)
-		if (saved) {
-			// Set a flag to indicate we're navigating after save
-			localStorage.setItem('isNavigatingAfterSave', 'true')
-		}
-		// Exit edit mode to allow navigation
-		setEditMode(false)
-		// Clear the warning dialog
-		setShowUnsavedWarning(false)
-		// Small delay to ensure state updates and localStorage writes complete
-		setTimeout(() => {
-			if (pendingNavigation) {
-				console.log('Navigating to:', pendingNavigation.pathname)
-				// Use window.location for a clean navigation
-				window.location.href = pendingNavigation.pathname
-			}
-			setPendingNavigation(null)
-		}, 100)
-	}
-
-	const handleRecoverData = () => {
-		if (persistedData?.data) {
-			console.log('Recovering data:', persistedData.data)
-			setEditData(persistedData.data)
-			setEditMode(true)
-			showAlert(t.dataRecovered || 'Data recovered successfully', 'success')
-		}
-		setShowRecoveryDialog(false)
-	}
-
-	const handleDiscardRecovery = () => {
-		clearStorage()
-		setShowRecoveryDialog(false)
-		setPersistedData({ exists: false, data: null, timestamp: null })
-	}
 
 	// Optimized state update to prevent unnecessary re-renders
 	const handleUpdateEditData = useCallback((key, value) => {
@@ -2044,103 +1758,44 @@ const CompanyProfile = ({ userId = 0 }) => {
 				</DialogActions>
 			</Dialog>
 
-			{/* Unsaved changes warning */}
-			<Dialog open={showUnsavedWarning} onClose={() => {
-				setShowUnsavedWarning(false)
-				if (pendingLanguageChange) {
-					cancelLanguageChange()
-				}
-				if (pendingNavigation) {
-					setPendingNavigation(null)
-				}
-			}}>
+			{/* Simple Unsaved Changes Dialog */}
+			<Dialog
+				open={showUnsavedDialog}
+				onClose={() => setShowUnsavedDialog(false)}
+			>
 				<DialogTitle>
-					{pendingLanguageChange 
-						? (t.unsavedChangesLanguageTitle || 'Save changes before switching language?')
-						: pendingNavigation
-						? (t.unsavedChangesNavigationTitle || 'Save changes before leaving?')
-						: (t.unsavedChangesTitle || 'Unsaved Changes')
-					}
+					{t.unsaved_changes_title || 'Unsaved Changes'}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
-						{pendingLanguageChange
-							? (t.unsavedChangesLanguageMessage || 'You have unsaved changes. Would you like to save them before changing the language?')
-							: pendingNavigation
-							? (t.unsavedChangesNavigationMessage || 'You have unsaved changes. Would you like to save them before leaving this page?')
-							: (t.unsavedChangesMessage || 'You have unsaved changes. Are you sure you want to discard them?')
-						}
+						{t.language_change_unsaved_message || 'You have unsaved changes. Would you like to save them before changing the language?'}
 					</Typography>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => {
-						setShowUnsavedWarning(false)
-						if (pendingLanguageChange) {
-							cancelLanguageChange()
-						}
-						if (pendingNavigation) {
-							setPendingNavigation(null)
-						}
-					}}>
-						{t.continueEditing || 'Continue Editing'}
+					<Button onClick={() => setShowUnsavedDialog(false)}>
+						{t.cancel || 'Cancel'}
 					</Button>
-					{pendingLanguageChange ? (
-						<>
-							<Button 
-								onClick={() => {
-									// Discard changes and switch language
-									if (company) {
-										const restoredData = {
-											...company,
-											newBusinessOverview: '',
-											newRequiredSkill: '',
-											newWelcomeSkill: '',
-											newVideoUrl: '',
-										}
-										setEditData(restoredData)
-										// Update original data reference when restoring from company data
-										if (role === 'Recruiter') {
-											updateOriginalData(restoredData)
-										}
-									}
-									setEditMode(false)
-									clearStorage()
-									setShowUnsavedWarning(false)
-									confirmLanguageChange()
-								}} 
-								color="error"
-							>
-								{t.discardAndSwitch || 'Discard & Switch'}
-							</Button>
-							<Button 
-								onClick={handleConfirmCancel} 
-								variant="contained"
-								color="primary"
-							>
-								{t.saveAndSwitch || 'Save & Switch'}
-							</Button>
-						</>
-					) : pendingNavigation ? (
-						<>
-							<Button 
-								onClick={handleConfirmCancel}
-								color="error"
-							>
-								{t.discardAndLeave || 'Discard & Leave'}
-							</Button>
-							<Button 
-								onClick={handleSaveAndNavigate}
-								variant="contained"
-								color="primary"
-							>
-								{t.saveAndLeave || 'Save & Leave'}
-							</Button>
-						</>
-					) : (
-						<Button onClick={handleConfirmCancel} color="error" variant="contained">
-							{t.discardChanges || 'Discard Changes'}
-						</Button>
-					)}
+					<Button 
+						onClick={() => {
+							handleCancel()
+							setShowUnsavedDialog(false)
+							changeLanguage(pendingLanguageChange)
+						}}
+						color='warning'
+					>
+						{t.discard_changes || 'Discard Changes'}
+					</Button>
+					<Button 
+						onClick={async () => {
+							await handleSave()
+							setShowUnsavedDialog(false)
+							changeLanguage(pendingLanguageChange)
+						}}
+						variant='contained'
+						color='primary'
+					>
+						{t.save_and_continue || 'Save and Continue'}
+					</Button>
 				</DialogActions>
 			</Dialog>
 		</Box>

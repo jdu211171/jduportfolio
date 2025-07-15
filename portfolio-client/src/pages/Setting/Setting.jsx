@@ -12,12 +12,20 @@ import {
 	Card,
 	CardContent,
 	Typography,
+	FormControl,
+	Select,
+	MenuItem,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
 } from '@mui/material'
 import {
 	PhotoCamera,
 	Visibility,
 	VisibilityOff,
 	Business,
+	Translate as TranslateIcon,
 } from '@mui/icons-material'
 import { useForm, Controller } from 'react-hook-form'
 import { UserContext } from '../../contexts/UserContext'
@@ -33,7 +41,7 @@ import IdCardIcon from '../../assets/icons/id-card-line.svg'
 
 const Setting = () => {
 	const { activeUser, updateUser } = useContext(UserContext)
-	const { language } = useLanguage()
+	const { language, changeLanguage } = useLanguage()
 	const showAlert = useAlert()
 
 	// Move t function outside or memoize it
@@ -48,6 +56,11 @@ const Setting = () => {
 	const [isEditing, setIsEditing] = useState(false)
 	const [selectedFile, setSelectedFile] = useState(null)
 	const [isLoading, setIsLoading] = useState(true)
+	
+	// Language change confirmation state
+	const [showLanguageConfirm, setShowLanguageConfirm] = useState(false)
+	const [pendingLanguage, setPendingLanguage] = useState(null)
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
 	// Default values with empty strings to prevent undefined
 	const defaultValues = {
@@ -69,12 +82,18 @@ const Setting = () => {
 		handleSubmit,
 		setError,
 		clearErrors,
-		formState: { errors },
+		formState: { errors, isDirty },
 		reset,
+		watch,
 	} = useForm({
 		defaultValues,
 		mode: 'onChange',
 	})
+	
+	// Watch for form changes
+	useEffect(() => {
+		setHasUnsavedChanges(isDirty)
+	}, [isDirty])
 
 	// Fetch user function with useCallback to prevent recreation
 	const fetchUser = useCallback(async () => {
@@ -268,6 +287,7 @@ const Setting = () => {
 			sessionStorage.setItem('loginUser', JSON.stringify(tempUser))
 			updateUser()
 			setIsEditing(false)
+			setHasUnsavedChanges(false)
 			showAlert(t('profile_update_success'), 'success')
 		} catch (error) {
 			console.error(t('profile_update_failed'), error)
@@ -753,6 +773,76 @@ const Setting = () => {
 					</CardContent>
 				</Card>
 
+				{/* Language Settings Card */}
+				<Card
+					className={SettingStyle.sectionCard}
+					sx={{
+						boxShadow: `
+							0 1px 3px rgba(0, 0, 0, 0.04),
+							0 1px 2px rgba(0, 0, 0, 0.03)
+						`,
+						transition: 'box-shadow 0.3s ease',
+						'&:hover': {
+							boxShadow: `
+								0 2px 4px rgba(0, 0, 0, 0.06),
+								0 4px 8px rgba(0, 0, 0, 0.04)
+							`,
+						},
+					}}
+				>
+					<CardContent>
+						<Box className={SettingStyle.sectionHeader}>
+							<TranslateIcon className={SettingStyle.sectionIcon} />
+							<Typography variant='h6' className={SettingStyle.sectionTitle}>
+								{t('language_settings') || '言語設定'}
+							</Typography>
+						</Box>
+						<Grid container spacing={3} className={SettingStyle.formGrid}>
+							<Grid item xs={12}>
+								<Typography variant='body2' className={SettingStyle.fieldLabel}>
+									{t('display_language') || '表示言語'}
+								</Typography>
+								<FormControl variant='outlined' fullWidth>
+									<Select
+										value={language}
+										onChange={(e) => {
+											if (isEditing && hasUnsavedChanges) {
+												setPendingLanguage(e.target.value)
+												setShowLanguageConfirm(true)
+											} else {
+												changeLanguage(e.target.value)
+											}
+										}}
+										className={SettingStyle.textField}
+									>
+										<MenuItem value='ja'>
+											<Box display='flex' alignItems='center' gap={1}>
+												<span>🇯🇵</span>
+												<span>日本語</span>
+											</Box>
+										</MenuItem>
+										<MenuItem value='en'>
+											<Box display='flex' alignItems='center' gap={1}>
+												<span>🇺🇸</span>
+												<span>English</span>
+											</Box>
+										</MenuItem>
+										<MenuItem value='uz'>
+											<Box display='flex' alignItems='center' gap={1}>
+												<span>🇺🇿</span>
+												<span>O'zbek</span>
+											</Box>
+										</MenuItem>
+									</Select>
+								</FormControl>
+								<Typography variant='caption' color='textSecondary' sx={{ mt: 1, display: 'block' }}>
+									{t('language_change_notice') || 'アプリケーションの表示言語を変更します'}
+								</Typography>
+							</Grid>
+						</Grid>
+					</CardContent>
+				</Card>
+
 				{/* Admin Contact Information Card */}
 				{role === 'Admin' && (
 					<Card
@@ -872,6 +962,47 @@ const Setting = () => {
 					</Card>
 				)}
 			</form>
+			
+			{/* Language Change Confirmation Dialog */}
+			<Dialog
+				open={showLanguageConfirm}
+				onClose={() => setShowLanguageConfirm(false)}
+			>
+				<DialogTitle>
+					{t('unsaved_changes_title') || 'O\'zgarishlar saqlanmagan'}
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						{t('language_change_unsaved_message') || 'Til o\'zgartirishdan oldin o\'zgarishlarni saqlaysizmi?'}
+					</Typography>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setShowLanguageConfirm(false)}>
+						{t('cancel') || 'Bekor qilish'}
+					</Button>
+					<Button 
+						onClick={() => {
+							handleCancel()
+							setShowLanguageConfirm(false)
+							changeLanguage(pendingLanguage)
+						}}
+						color='warning'
+					>
+						{t('discard_changes') || 'Saqlamasdan davom etish'}
+					</Button>
+					<Button 
+						onClick={async () => {
+							await handleSubmit(onSubmit)()
+							setShowLanguageConfirm(false)
+							changeLanguage(pendingLanguage)
+						}}
+						variant='contained'
+						color='primary'
+					>
+						{t('save_and_continue') || 'Saqlash va davom etish'}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</Container>
 	)
 }
