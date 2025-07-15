@@ -30,7 +30,7 @@ const checkRole = (role, allowedRoles) => {
 
 const Layout = () => {
 	const [openLogoutModal, setOpenLogoutModal] = useState(false)
-	const { language, changeLanguage } = useLanguage()
+	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
 	const handleLogout = () => {
@@ -155,10 +155,6 @@ const Layout = () => {
 		setIsMenuOpen(prevState => !prevState)
 	}
 
-	const handleChangeLanguage = lng => {
-		changeLanguage(lng)
-	}
-
 	return (
 		<div className={isMenuOpen ? style.menuOpen : style.menuClose}>
 			<div className={style.topBar}>
@@ -196,18 +192,6 @@ const Layout = () => {
 								<div style={{ fontWeight: 600 }}>{japanTime}</div>/
 								<div style={{ fontWeight: 600 }}>{uzbekistanTime}</div>
 							</div>
-						</div>
-						{/* language selector */}
-						<div className={style.languageSelector}>
-							<select
-								value={language}
-								onChange={e => handleChangeLanguage(e.target.value)}
-								className={style.languageDropdown}
-							>
-								<option value='ja'>JP</option>
-								<option value='en'>EN</option>
-								<option value='uz'>UZ</option>
-							</select>
 						</div>
 
 						{/* notifications */}

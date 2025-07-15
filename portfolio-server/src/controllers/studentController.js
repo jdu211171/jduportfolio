@@ -281,10 +281,11 @@ class StudentController {
 
 			// visibility true bo'lsa, draft borligini va u 'approved' statusida ekanligini tekshirish
 			if (studentData.visibility === true) {
-				const studentDraft = await DraftService.getDraftByStudentId(
+				const studentWithDraft = await DraftService.getStudentWithDraft(
 					student.student_id
 				)
 
+				const studentDraft = studentWithDraft?.draft
 				console.log('Draft data for student:', studentDraft)
 
 				if (studentDraft && studentDraft.status === 'approved') {
