@@ -39,6 +39,11 @@ import {
 	Button,
 	Snackbar,
 	Alert,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Typography,
 	// IconButton,
 } from '@mui/material'
 
@@ -159,6 +164,11 @@ const QA = ({
 	const [editMode, setEditMode] = useState(topEditMode)
 	const [isFirstTime, setIsFirstTime] = useState(false)
 	const [isDataLoaded, setIsDataLoaded] = useState(false)
+	const [isSaving, setIsSaving] = useState(false)
+	const [deleteConfirmation, setDeleteConfirmation] = useState({ 
+		open: false, 
+		itemToDelete: null 
+	})
 
 	const [confirmMode, setConfirmMode] = useState(false)
 	const [comment, setComment] = useState({ comments: '' })
@@ -189,6 +199,14 @@ const QA = ({
 	const fetchStudent = async () => {
 		// Prevent fetching if already loaded
 		if (isDataLoaded) return
+
+		// If called from Top page and data is provided, use that data
+		if (isFromTopPage && data && Object.keys(data).length > 0) {
+			setStudentQA(data)
+			setEditData(data)
+			setIsDataLoaded(true)
+			return
+		}
 
 		try {
 			// Always fetch questions to get the latest admin-added questions
@@ -290,11 +308,15 @@ const QA = ({
 					},
 				}
 			}
+			
+			// If called from Top page, update parent with the latest data
+			if (isFromTopPage && handleQAUpdate) {
+				// Use the updated data, not the stale editData
+				handleQAUpdate(updatedEditData)
+			}
+			
 			return updatedEditData
 		})
-		if (isFromTopPage) {
-			handleQAUpdate(editData)
-		}
 	}
 
 	const updateComment = (key, value) => {
@@ -385,7 +407,16 @@ const QA = ({
 	}
 
 	const handleSave = async () => {
+		if (isSaving) return // Prevent multiple simultaneous saves
+		
+		setIsSaving(true)
 		try {
+			console.log('=== QA Save Debug ===')
+			console.log('Role:', role)
+			console.log('isFirstTime:', isFirstTime)
+			console.log('editData:', editData)
+			console.log('id:', id)
+
 			if (role == 'Admin') {
 				let questions = removeKey(editData, 'answer')
 
@@ -399,28 +430,86 @@ const QA = ({
 				setTopEditMode(false)
 			} else {
 				let answers = removeKey(editData, 'question')
+				console.log('Prepared answers data:', answers)
+
 				let res
 				if (isFirstTime) {
-					res = await axios.post('/api/qa/', { studentId: id, data: answers })
+					console.log('Creating new QA entry...')
+					const requestData = { studentId: id, data: answers }
+					console.log('POST request data:', requestData)
+
+					res = await axios.post('/api/qa/', requestData)
+					console.log('Create response:', res.data)
 				} else {
-					res = await axios.put(`/api/qa/${id}`, { data: answers })
+					console.log('Updating existing QA entry...')
+					const updateData = { data: answers }
+					console.log('PUT request data:', updateData)
+
+					res = await axios.put(`/api/qa/${id}`, updateData)
+					console.log('Update response:', res.data)
 				}
+
+				// Update local state with server response
 				setStudentQA(res.data)
+				
+				// Sync editData with the latest server data
+				const updatedEditData = { ...editData }
+				
+				// Update editData with the response data
+				Object.keys(res.data).forEach(category => {
+					if (category !== 'idList') {
+						updatedEditData[category] = res.data[category]
+					}
+				})
+				if (res.data.idList) {
+					updatedEditData.idList = res.data.idList
+				}
+				
+				setEditData(updatedEditData)
+
+				// If called from Top page, update parent component
+				if (isFromTopPage && handleQAUpdate) {
+					console.log('Updating parent with:', res.data)
+					handleQAUpdate(res.data)
+				}
+
 				setEditMode(false)
 				setTopEditMode(false)
 			}
 
 			showAlert('Changes saved successfully!', 'success')
 		} catch (error) {
-			console.error('Error saving student data:', error)
-			showAlert('Error saving changes.', 'error')
+			console.error('Error saving Q&A data:', error)
+			const errorMessage =
+				error.response?.data?.message ||
+				error.response?.data?.error ||
+				"Q&A javoblarini saqlashda xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring."
+			showAlert(errorMessage, 'error')
+		} finally {
+			setIsSaving(false)
 		}
 	}
 
 	const handleCancel = () => {
-		fetchStudent()
-		setEditMode(false)
-		setTopEditMode(false)
+		try {
+			// Reset to last known good state
+			setEditData(studentQA)
+			setEditMode(false)
+			setTopEditMode(false)
+			
+			// If called from Top page, sync with parent
+			if (isFromTopPage && handleQAUpdate) {
+				handleQAUpdate(studentQA)
+			}
+			
+			showAlert('Changes cancelled', 'info')
+		} catch (error) {
+			console.error('Error cancelling changes:', error)
+			// Fallback: re-fetch from server
+			fetchStudent()
+			setEditMode(false)
+			setTopEditMode(false)
+		}
 	}
 
 	const handleAdd = async () => {
@@ -463,20 +552,61 @@ const QA = ({
 		// )
 	}
 
-	const handleDelete = indexToDelete => {
-		setEditData(prevEditData => {
-			const updatedEditData = { ...prevEditData }
-			const category = labels[subTabIndex]
+	const showDeleteConfirmation = (indexToDelete) => {
+		setDeleteConfirmation({
+			open: true,
+			itemToDelete: indexToDelete
+		})
+	}
 
-			if (
-				updatedEditData[category] &&
-				updatedEditData[category][indexToDelete]
-			) {
-				delete updatedEditData[category][indexToDelete]
+	const handleDeleteConfirm = async () => {
+		const indexToDelete = deleteConfirmation.itemToDelete
+		setDeleteConfirmation({ open: false, itemToDelete: null })
+		
+		await handleDelete(indexToDelete)
+	}
+
+	const handleDeleteCancel = () => {
+		setDeleteConfirmation({ open: false, itemToDelete: null })
+	}
+
+	const handleDelete = async indexToDelete => {
+		try {
+			console.log('Deleting QA item:', indexToDelete, 'from category:', labels[subTabIndex])
+			
+			// Optimistic update: immediately update local state
+			setEditData(prevEditData => {
+				const updatedEditData = { ...prevEditData }
+				const category = labels[subTabIndex]
+
+				if (
+					updatedEditData[category] &&
+					updatedEditData[category][indexToDelete]
+				) {
+					delete updatedEditData[category][indexToDelete]
+				}
+
+				return updatedEditData
+			})
+
+			// If called from Top page, update parent immediately
+			if (isFromTopPage && handleQAUpdate) {
+				const updatedData = { ...editData }
+				const category = labels[subTabIndex]
+				if (updatedData[category] && updatedData[category][indexToDelete]) {
+					delete updatedData[category][indexToDelete]
+				}
+				handleQAUpdate(updatedData)
 			}
 
-			return updatedEditData
-		})
+			showAlert('Item deleted successfully!', 'success')
+		} catch (error) {
+			console.error('Error deleting QA item:', error)
+			showAlert('Error deleting item. Please try again.', 'error')
+			
+			// Rollback optimistic update on error
+			fetchStudent()
+		}
 	}
 
 	const removeKey = (obj, excludeKey) => {
@@ -635,8 +765,9 @@ const QA = ({
 									variant='contained'
 									color='primary'
 									size='small'
+									disabled={isSaving}
 								>
-									{t['save']}
+									{isSaving ? 'Saving...' : t['save']}
 								</Button>
 							)}
 							<Button
@@ -763,7 +894,7 @@ const QA = ({
 								aEdit={role == 'Admin'}
 								qEdit={role == 'Student'}
 								updateEditData={handleUpdate}
-								DeleteQA={handleDelete}
+								DeleteQA={showDeleteConfirmation}
 							/>
 						)
 					)}
@@ -807,6 +938,31 @@ const QA = ({
 				onClose={toggleConfirmMode}
 				onConfirm={handleConfirmProfile}
 			/>
+			
+			{/* ---- DELETE CONFIRMATION DIALOG ---- */}
+			<Dialog
+				open={deleteConfirmation.open}
+				onClose={handleDeleteCancel}
+				maxWidth="sm"
+				fullWidth
+			>
+				<DialogTitle>
+					{t['confirmDelete'] || 'Confirm Delete'}
+				</DialogTitle>
+				<DialogContent>
+					<Typography>
+						{t['confirmDeleteMessage'] || 'Are you sure you want to delete this Q&A item? This action cannot be undone.'}
+					</Typography>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleDeleteCancel} color="primary">
+						{t['cancel'] || 'Cancel'}
+					</Button>
+					<Button onClick={handleDeleteConfirm} color="error" variant="contained">
+						{t['delete'] || 'Delete'}
+					</Button>
+				</DialogActions>
+			</Dialog>
 			{(role == 'Staff' || role == 'Admin') && !reviewMode && id && (
 				<Box
 					sx={{

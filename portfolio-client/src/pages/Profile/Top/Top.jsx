@@ -153,8 +153,34 @@ const Top = () => {
 	const getJLPTData = jlptString => {
 		try {
 			if (!jlptString) return { highest: 'なし' }
-			const parsed = JSON.parse(jlptString)
-			return parsed || { highest: 'なし' }
+			
+			// If it's already a plain string (not JSON), return it as highest value
+			if (typeof jlptString === 'string') {
+				// First, try to parse as JSON
+				try {
+					const parsed = JSON.parse(jlptString)
+					// If it's a valid JSON object with highest property, return it
+					if (parsed && typeof parsed === 'object' && parsed.highest) {
+						console.log('JLPT JSON parsed successfully:', parsed)
+						return parsed
+					}
+					// If it's a valid JSON but not the expected structure, treat as plain string
+					console.log('JLPT JSON parsed but no highest property, treating as string:', jlptString)
+					return { highest: jlptString }
+				} catch (jsonError) {
+					// If JSON parsing fails, it's a plain string, return it as highest value
+					console.log('JLPT treating as plain string:', jlptString)
+					return { highest: jlptString }
+				}
+			}
+			
+			// If it's already an object, return it
+			if (typeof jlptString === 'object' && jlptString !== null) {
+				console.log('JLPT already an object:', jlptString)
+				return jlptString.highest ? jlptString : { highest: 'なし' }
+			}
+			
+			return { highest: 'なし' }
 		} catch (error) {
 			console.error('Error parsing JLPT data:', error)
 			return { highest: 'なし' }
@@ -186,6 +212,11 @@ const Top = () => {
 					// If JSON parsing fails, it's a plain string, return it as highest value
 					return { highest: certificateString, list: [] }
 				}
+			}
+
+			// If it's already an object, return it
+			if (typeof certificateString === 'object' && certificateString !== null) {
+				return certificateString.highest ? certificateString : { highest: '未提出', list: [] }
 			}
 
 			return { highest: '未提出', list: [] }
@@ -676,12 +707,17 @@ const Top = () => {
 		return {
 			...data,
 			draft: draftKeys.reduce((acc, key) => {
-				// For certificate fields, parse JSON and extract highest value
-				if (key === 'jlpt' || key === 'jdu_japanese_certification') {
-					acc[key] = getJLPTData(data[key]).highest
-				} else if (key === 'japanese_speech_contest' || key === 'it_contest') {
-					acc[key] = getCertificateData(data[key]).highest
-				} else {
+				try {
+					// For certificate fields, parse JSON and extract highest value
+					if (key === 'jlpt' || key === 'jdu_japanese_certification') {
+						acc[key] = getJLPTData(data[key]).highest
+					} else if (key === 'japanese_speech_contest' || key === 'it_contest') {
+						acc[key] = getCertificateData(data[key]).highest
+					} else {
+						acc[key] = data[key] || ''
+					}
+				} catch (error) {
+					console.error(`Error processing field ${key}:`, error)
 					acc[key] = data[key] || ''
 				}
 				return acc
@@ -1817,9 +1853,7 @@ const Top = () => {
 										<input
 											type='text'
 											value={
-												editData.draft.jlpt ||
-												getJLPTData(student.jlpt).highest ||
-												''
+												editData.draft.jlpt ? getJLPTData(editData.draft.jlpt).highest : getJLPTData(student.jlpt).highest || ''
 											}
 											onChange={e =>
 												handleUpdateEditData('jlpt', e.target.value)
@@ -1844,7 +1878,7 @@ const Top = () => {
 												borderRadius: 6,
 											}}
 										>
-											{editData.draft.jlpt || getJLPTData(student.jlpt).highest}
+											{editData.draft.jlpt ? getJLPTData(editData.draft.jlpt).highest : getJLPTData(student.jlpt).highest}
 										</span>
 									)}
 								</div>
@@ -1854,10 +1888,7 @@ const Top = () => {
 										<input
 											type='text'
 											value={
-												editData.draft.jdu_japanese_certification ||
-												getJLPTData(student.jdu_japanese_certification)
-													.highest ||
-												''
+												editData.draft.jdu_japanese_certification ? getJLPTData(editData.draft.jdu_japanese_certification).highest : getJLPTData(student.jdu_japanese_certification).highest || ''
 											}
 											onChange={e =>
 												handleUpdateEditData(
@@ -1885,8 +1916,7 @@ const Top = () => {
 												borderRadius: 6,
 											}}
 										>
-											{editData.draft.jdu_japanese_certification ||
-												getJLPTData(student.jdu_japanese_certification).highest}
+											{editData.draft.jdu_japanese_certification ? getJLPTData(editData.draft.jdu_japanese_certification).highest : getJLPTData(student.jdu_japanese_certification).highest}
 										</span>
 									)}
 								</div>
@@ -1934,10 +1964,7 @@ const Top = () => {
 										<input
 											type='text'
 											value={
-												editData.draft.japanese_speech_contest ||
-												getCertificateData(student.japanese_speech_contest)
-													.highest ||
-												''
+												editData.draft.japanese_speech_contest ? getCertificateData(editData.draft.japanese_speech_contest).highest : getCertificateData(student.japanese_speech_contest).highest || ''
 											}
 											onChange={e =>
 												handleUpdateEditData(
@@ -1965,9 +1992,7 @@ const Top = () => {
 												borderRadius: 6,
 											}}
 										>
-											{editData.draft.japanese_speech_contest ||
-												getCertificateData(student.japanese_speech_contest)
-													.highest}
+											{editData.draft.japanese_speech_contest ? getCertificateData(editData.draft.japanese_speech_contest).highest : getCertificateData(student.japanese_speech_contest).highest}
 										</span>
 									)}
 								</div>
@@ -1977,9 +2002,7 @@ const Top = () => {
 										<input
 											type='text'
 											value={
-												editData.draft.it_contest ||
-												getCertificateData(student.it_contest).highest ||
-												''
+												editData.draft.it_contest ? getCertificateData(editData.draft.it_contest).highest : getCertificateData(student.it_contest).highest || ''
 											}
 											onChange={e =>
 												handleUpdateEditData('it_contest', e.target.value)
@@ -2004,8 +2027,7 @@ const Top = () => {
 												borderRadius: 6,
 											}}
 										>
-											{editData.draft.it_contest ||
-												getCertificateData(student.it_contest).highest}
+											{editData.draft.it_contest ? getCertificateData(editData.draft.it_contest).highest : getCertificateData(student.it_contest).highest}
 										</span>
 									)}
 								</div>
@@ -2042,7 +2064,7 @@ const Top = () => {
 										N3: '60%',
 										N2: '80%',
 										N1: '100%',
-									}[student.draft.jlpt || getJLPTData(student.jlpt).highest] ||
+									}[student.draft.jlpt ? getJLPTData(student.draft.jlpt).highest : getJLPTData(student.jlpt).highest] ||
 										'0%'}
 								</div>
 							</div>
@@ -2068,7 +2090,7 @@ const Top = () => {
 												N2: '80%',
 												N1: '100%',
 											}[
-												student.draft.jlpt || getJLPTData(student.jlpt).highest
+												student.draft.jlpt ? getJLPTData(student.draft.jlpt).highest : getJLPTData(student.jlpt).highest
 											] || '0%',
 									}}
 								></div>
