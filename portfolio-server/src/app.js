@@ -72,6 +72,9 @@ app.use(express.json())
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }))
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+
 // app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
 const allowedOrigins = [

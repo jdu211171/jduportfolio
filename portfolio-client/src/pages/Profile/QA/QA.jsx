@@ -191,73 +191,61 @@ const QA = ({
 		if (isDataLoaded) return
 
 		try {
-			// Only fetch if we don't have data from props
-			if (isFromTopPage && data && Object.keys(data).length > 0) {
-				// Use data from props
-				setStudentQA(data)
-				setEditData(data)
-				setIsDataLoaded(true)
-				return
+			// Always fetch questions to get the latest admin-added questions
+			const questionsResponse = await axios.get('/api/settings/studentQA')
+			const questions = JSON.parse(questionsResponse.data.value)
+
+			let answers = null
+			// Only fetch answers if we have a student ID
+			if (id) {
+				try {
+					answers = (await axios.get(`/api/qa/student/${id}`)).data
+				} catch (err) {
+					console.log('No existing answers found for student:', id)
+				}
 			}
 
-			// Fetch data if not from top page or no data provided
-			if (!studentQA) {
-				// Always fetch questions
-				const questionsResponse = await axios.get('/api/settings/studentQA')
-				const questions = JSON.parse(questionsResponse.data.value)
-
-				let answers = null
-				// Only fetch answers if we have a student ID
-				if (id) {
-					try {
-						answers = (await axios.get(`/api/qa/student/${id}`)).data
-					} catch (err) {
-						console.log('No existing answers found for student:', id)
-					}
+			let response
+			if (id && answers && answers.idList) {
+				// Student view with answers
+				const combinedData = {}
+				let firsttime =
+					!answers ||
+					!answers.idList ||
+					Object.keys(answers.idList).length === 0
+				if (firsttime) {
+					setIsFirstTime(true)
 				}
-
-				let response
-				if (id && answers && answers.idList) {
-					// Student view with answers
-					const combinedData = {}
-					let firsttime =
-						!answers ||
-						!answers.idList ||
-						Object.keys(answers.idList).length === 0
-					if (firsttime) {
-						setIsFirstTime(true)
-					}
-					for (const category in questions) {
-						if (category == 'idList') {
-							combinedData[category] = (answers && answers[category]) || {}
-						} else {
-							combinedData[category] = {}
-							for (const key in questions[category]) {
-								combinedData[category][key] = {
-									question: questions[category][key].question || '',
-									answer: firsttime
+				for (const category in questions) {
+					if (category == 'idList') {
+						combinedData[category] = (answers && answers[category]) || {}
+					} else {
+						combinedData[category] = {}
+						for (const key in questions[category]) {
+							combinedData[category][key] = {
+								question: questions[category][key].question || '',
+								answer: firsttime
+									? ''
+									: !answers || !answers[category] || !answers[category][key]
 										? ''
-										: !answers || !answers[category] || !answers[category][key]
-											? ''
-											: answers[category][key].answer || '',
-								}
+										: answers[category][key].answer || '',
 							}
 						}
 					}
-					response = combinedData
-				} else if (id) {
-					// Student view without answers (first time)
-					response = { ...questions, idList: {} }
-					setIsFirstTime(true)
-				} else {
-					// Admin view - just questions, no answers needed
-					response = questions
 				}
-
-				setStudentQA(response)
-				setEditData(response)
-				setIsDataLoaded(true)
+				response = combinedData
+			} else if (id) {
+				// Student view without answers (first time)
+				response = { ...questions, idList: {} }
+				setIsFirstTime(true)
+			} else {
+				// Admin view - just questions, no answers needed
+				response = questions
 			}
+
+			setStudentQA(response)
+			setEditData(response)
+			setIsDataLoaded(true)
 		} catch (error) {
 			console.error('Error fetching data:', error)
 			// Initialize with empty structure on error

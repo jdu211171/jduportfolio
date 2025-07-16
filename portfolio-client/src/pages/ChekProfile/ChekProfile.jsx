@@ -272,7 +272,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			numeric: true,
 			disablePadding: false,
 			label: '年齢',
-			minWidth: '80px',
+			minWidth: '80px !important',
 			suffix: ' 歳',
 		},
 		{
@@ -290,7 +290,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			numeric: true,
 			disablePadding: false,
 			label: '申請回数',
-			minWidth: '80px',
+			minWidth: '100px',
 		},
 		{
 			id: 'draft',

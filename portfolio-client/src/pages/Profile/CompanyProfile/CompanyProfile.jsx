@@ -65,15 +65,19 @@ const safeStringValue = value => {
 }
 
 const safeParse = data => {
+	if (!data) return []
+	if (Array.isArray(data)) return data
 	if (typeof data === 'string') {
+		// Try JSON parse first
 		try {
 			const parsed = JSON.parse(data)
 			return Array.isArray(parsed) ? parsed : []
 		} catch {
-			return []
+			// If JSON parse fails, treat as comma-separated string
+			return data.split(',').map(item => item.trim()).filter(item => item)
 		}
 	}
-	return Array.isArray(data) ? data : []
+	return []
 }
 
 // Helper function to extract YouTube video ID from URL
@@ -324,18 +328,65 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 	// Simple update function
 	const handleUpdate = async (data) => {
+		// Process the data correctly
+		const processedData = {
+			...data,
+			// Convert null to empty strings for text fields
+			company_Address: data.company_Address || '',
+			established_Date: data.established_Date || '',
+			employee_Count: data.employee_Count || '',
+			work_location: data.work_location || '',
+			work_hours: data.work_hours || '',
+			salary: data.salary || '',
+			benefits: data.benefits || '',
+			selection_process: data.selection_process || '',
+			
+			// These should be strings (TEXT in database)
+			business_overview: Array.isArray(data.business_overview) ? data.business_overview.join(', ') : data.business_overview || '',
+			target_audience: Array.isArray(data.target_audience) ? data.target_audience.join(', ') : data.target_audience || '',
+			required_skills: Array.isArray(data.required_skills) ? data.required_skills.join(', ') : data.required_skills || '',
+			welcome_skills: Array.isArray(data.welcome_skills) ? data.welcome_skills.join(', ') : data.welcome_skills || '',
+			
+			// These should remain as arrays (JSONB in database)
+			gallery: Array.isArray(data.gallery) ? data.gallery : [],
+			company_video_url: Array.isArray(data.company_video_url) ? data.company_video_url : []
+		}
+		
+		// Remove any temporary fields that shouldn't be sent to backend
+		delete processedData.newBusinessOverview;
+		delete processedData.newRequiredSkill;
+		delete processedData.newWelcomeSkill;
+		delete processedData.newVideoUrl;
+		
+		console.log('Processed data being sent to backend:', processedData) // Debug log
+		
 		// Simple implementation - just make API call
-		await axios.put(`/api/recruiters/${id}`, data)
+		await axios.put(`/api/recruiters/${id}`, processedData)
 	}
 
 	// Simple save function
 	const handleSave = async () => {
 		try {
-			const formData = getValues()
+			// Use editData instead of getValues() since this component uses state, not React Hook Form
+			const formData = editData
+			console.log('Form data before update:', formData) // Debug log
+			
 			await handleUpdate(formData)
-			reset(formData)
+			
+			// Refresh data from backend to ensure consistency
+			await fetchCompany()
+			
+			// Exit edit mode
+			setEditMode(false)
+			
+			// Clear unsaved changes flag
 			setHasUnsavedChanges(false)
-			showAlert(t('changes_saved'), 'success')
+			
+			// Clear any saved drafts
+			clearStorage()
+			
+			// Show success message
+			showAlert(t.changes_saved || 'Changes saved successfully!', 'success')
 		} catch (error) {
 			console.error('Save error:', error)
 			showAlert('Error saving changes', 'error')
@@ -349,9 +400,34 @@ const CompanyProfile = ({ userId = 0 }) => {
 		setHasUnsavedChanges(false)
 	}
 
-	// Simple replacements for removed functions
+	// localStorage functions
+	const loadFromStorage = () => {
+		try {
+			const storageKey = `company_profile_edit_${id}_${role}`
+			const savedData = localStorage.getItem(storageKey)
+			return savedData ? JSON.parse(savedData) : null
+		} catch (error) {
+			console.error('Error loading from storage:', error)
+			return null
+		}
+	}
+
+	const saveToStorage = (data) => {
+		try {
+			const storageKey = `company_profile_edit_${id}_${role}`
+			localStorage.setItem(storageKey, JSON.stringify(data))
+		} catch (error) {
+			console.error('Error saving to storage:', error)
+		}
+	}
+
 	const clearStorage = () => {
-		localStorage.removeItem(`company_profile_edit_${id}_${role}`)
+		try {
+			const storageKey = `company_profile_edit_${id}_${role}`
+			localStorage.removeItem(storageKey)
+		} catch (error) {
+			console.error('Error clearing storage:', error)
+		}
 	}
 
 	const updateOriginalData = (data) => {
@@ -368,7 +444,11 @@ const CompanyProfile = ({ userId = 0 }) => {
 	}
 
 	const saveToStorageIfChanged = (data) => {
-		// Simple implementation - no complex storage
+		// Auto-save drafts when editing
+		if (editMode && data) {
+			saveToStorage(data)
+			return true
+		}
 		return false
 	}
 
@@ -559,56 +639,57 @@ const CompanyProfile = ({ userId = 0 }) => {
 		}
 	}, [role, id])
 
+	// Fetch company data function
+	const fetchCompany = async () => {
+		if (!id) return
+
+		try {
+			const response = await axios.get(`/api/recruiters/${id}`)
+			const companyData = response.data
+
+			const processedData = {
+				...companyData,
+				business_overview: safeParse(companyData.business_overview),
+				target_audience: safeParse(companyData.target_audience),
+				required_skills: safeParse(companyData.required_skills),
+				welcome_skills: safeParse(companyData.welcome_skills),
+				company_video_url: Array.isArray(companyData.company_video_url)
+					? companyData.company_video_url
+					: [],
+			}
+
+			setCompany(processedData)
+			const editDataWithNew = {
+				...processedData,
+				newBusinessOverview: '',
+				newRequiredSkill: '',
+				newWelcomeSkill: '',
+				newVideoUrl: '',
+			}
+			setEditData(editDataWithNew)
+			
+			// Update the original data reference for change detection
+			updateOriginalData(editDataWithNew)
+			
+			// Clear any stale localStorage data that might exist
+			clearStorage()
+			
+			// Additional manual cleanup for any persisted data
+			try {
+				const storageKey = `profileEditDraft_company_profile_edit_${id || 'unknown'}_${role}`
+				localStorage.removeItem(storageKey)
+				console.log('Manually cleared localStorage with key:', storageKey)
+			} catch (error) {
+				console.error('Error clearing localStorage manually:', error)
+			}
+		} catch (error) {
+			console.error('Error fetching company data:', error)
+			setCompany(null)
+		}
+	}
+
 	// Fetch company data with proper error handling
 	useEffect(() => {
-		const fetchCompany = async () => {
-			if (!id) return
-
-			try {
-				const response = await axios.get(`/api/recruiters/${id}`)
-				const companyData = response.data
-
-				const processedData = {
-					...companyData,
-					business_overview: safeParse(companyData.business_overview),
-					target_audience: safeParse(companyData.target_audience),
-					required_skills: safeParse(companyData.required_skills),
-					welcome_skills: safeParse(companyData.welcome_skills),
-					company_video_url: Array.isArray(companyData.company_video_url)
-						? companyData.company_video_url
-						: [],
-				}
-
-				setCompany(processedData)
-				const editDataWithNew = {
-					...processedData,
-					newBusinessOverview: '',
-					newRequiredSkill: '',
-					newWelcomeSkill: '',
-					newVideoUrl: '',
-				}
-				setEditData(editDataWithNew)
-				
-				// Update the original data reference for change detection
-				updateOriginalData(editDataWithNew)
-				
-				// Clear any stale localStorage data that might exist
-				clearStorage()
-				
-				// Additional manual cleanup for any persisted data
-				try {
-					const storageKey = `profileEditDraft_company_profile_edit_${id || 'unknown'}_${role}`
-					localStorage.removeItem(storageKey)
-					console.log('Manually cleared localStorage with key:', storageKey)
-				} catch (error) {
-					console.error('Error clearing localStorage manually:', error)
-				}
-			} catch (error) {
-				console.error('Error fetching company data:', error)
-				setCompany(null)
-			}
-		}
-
 		fetchCompany()
 	}, [id])
 
@@ -1033,19 +1114,20 @@ const CompanyProfile = ({ userId = 0 }) => {
 			</HeaderContentBox>
 
 			{/* Company Introduction Video */}
-			<ContentBox>
-				<Box
-					className={styles.sectionHeader}
-					style={{ justifyContent: 'center', textAlign: 'center' }}
-				>
-					<Typography
-						variant='h6'
-						className={styles.sectionTitle}
-						sx={{ fontWeight: 600 }}
+			{(company?.company_video_url?.length > 0 || role === 'Recruiter') && (
+				<ContentBox>
+					<Box
+						className={styles.sectionHeader}
+						style={{ justifyContent: 'center', textAlign: 'center' }}
 					>
-						{t.company_introduction_video}
-					</Typography>
-				</Box>
+						<Typography
+							variant='h6'
+							className={styles.sectionTitle}
+							sx={{ fontWeight: 600 }}
+						>
+							{t.company_introduction_video}
+						</Typography>
+					</Box>
 				{editMode ? (
 					<Box>
 						{/* Existing videos */}
@@ -1232,6 +1314,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 					</Box>
 				)}
 			</ContentBox>
+			)}
 
 			{/* Company Overview */}
 			<ContentBox>

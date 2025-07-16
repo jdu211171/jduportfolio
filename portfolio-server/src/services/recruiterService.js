@@ -114,41 +114,48 @@ class RecruiterService {
 				throw new Error('Recruiter not found')
 			}
 
-			const updatedData = {
-				first_name: data.first_name,
-				last_name: data.last_name,
-				first_name_furigana: data.first_name_furigana, // QO'SHILDI
-            	last_name_furigana: data.last_name_furigana,   // QO'SHILDI
-				phone: data.phone,
-				email: data.email,
-				company_name: data.company_name,
-				company_description: data.company_description,
-				gallery: data.gallery,
-				photo: data.photo,
-				date_of_birth: data.date_of_birth,
-				active: data.active,
-				kintone_id: data.kintone_id,
-				company_Address: data.company_Address,
-				established_Date: data.established_Date,
-				employee_Count: data.employee_Count,
-				business_overview: data.business_overview,
-				target_audience: data.target_audience,
-				required_skills: data.required_skills,
-				welcome_skills: data.welcome_skills,
-				work_location: data.work_location,
-				work_hours: data.work_hours,
-				salary: data.salary,
-				benefits: data.benefits,
-				selection_process: data.selection_process,
-				company_video_url: data.company_video_url,
-			}
+			// Only include fields that are actually provided (not undefined)
+			const updatedData = {}
+			const fields = [
+				'first_name', 'last_name', 'first_name_furigana', 'last_name_furigana',
+				'phone', 'email', 'company_name', 'company_description', 'gallery',
+				'photo', 'date_of_birth', 'active', 'kintone_id', 'company_Address',
+				'established_Date', 'employee_Count', 'business_overview', 'target_audience',
+				'required_skills', 'welcome_skills', 'work_location', 'work_hours',
+				'salary', 'benefits', 'selection_process', 'company_video_url'
+			]
+			
+			fields.forEach(field => {
+				if (data[field] !== undefined) {
+					updatedData[field] = data[field]
+				}
+			})
 
-			if (data.password) {
+			// Handle password separately with verification
+			if (data.currentPassword && data.password) {
+				const bcrypt = require('bcrypt')
+				const isValidPassword = await bcrypt.compare(
+					data.currentPassword,
+					recruiter.password
+				)
+				if (!isValidPassword) {
+					throw new Error('Current password is incorrect')
+				}
+				updatedData.password = await bcrypt.hash(data.password, 10)
+			} else if (data.password && !data.currentPassword) {
+				// Direct password update (for admin or initial setup)
 				updatedData.password = data.password
 			}
 
-			return await recruiter.update(updatedData)
+			console.log('Update request data:', data)
+			console.log('Constructed update data:', updatedData)
+			
+			const result = await recruiter.update(updatedData)
+			console.log('Update result:', result.toJSON())
+			
+			return result
 		} catch (error) {
+			console.error('Update recruiter error:', error)
 			throw error
 		}
 	}
