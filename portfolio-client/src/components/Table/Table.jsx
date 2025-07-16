@@ -246,18 +246,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 										height: '56px',
 									}}
 								/>
-								{/* Age - Avatar tagida */}
-								<Typography
-									variant='body2'
-									sx={{
-										fontSize: '14px',
-										color: '#666',
-										lineHeight: 1.2,
-										mt: 0.5,
-									}}
-								>
-									{/* 年齢: {row.age || 'N/A'} */}
-								</Typography>
 							</Box>
 
 							{/* Bookmark */}
@@ -565,7 +553,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 															// Set specific minWidth based on column label
 															switch (header.label) {
 																case '年齢':
-																	return '65px'
+																	return '70px'
 																case '申請回数':
 																	return '90px'
 																case '承認状況':
