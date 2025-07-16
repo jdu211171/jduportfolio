@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
 	Autocomplete,
 	TextField,
@@ -13,6 +13,7 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
+import axios from 'axios'
 import PropTypes from 'prop-types'
 
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -34,9 +35,44 @@ const SkillSelector = ({
 }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
+	const [databaseSkills, setDatabaseSkills] = useState([])
+	const [loadingSkills, setLoadingSkills] = useState(false)
 
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+
+	// Fetch skills from database when showAutocomplete is true
+	useEffect(() => {
+		if (showAutocomplete) {
+			fetchSkillsFromDatabase()
+		}
+	}, [showAutocomplete])
+
+	const fetchSkillsFromDatabase = async (search = '') => {
+		try {
+			setLoadingSkills(true)
+			const url = search 
+				? `/api/itskills?search=${encodeURIComponent(search)}` 
+				: '/api/itskills'
+			const response = await axios.get(url)
+			console.log('Fetched database skills:', response.data)
+			setDatabaseSkills(response.data || [])
+		} catch (error) {
+			console.error('Error fetching skills from database:', error)
+			// Fallback to local skills if database fails
+			setDatabaseSkills([])
+		} finally {
+			setLoadingSkills(false)
+		}
+	}
+
+	// Get skills to use in autocomplete (database skills if available, otherwise local skills)
+	const getSkillsForAutocomplete = () => {
+		if (showAutocomplete && databaseSkills.length > 0) {
+			return databaseSkills
+		}
+		return skills
+	}
 
 	// Get the current skills data
 	const getCurrentSkillsData = () => {
@@ -199,13 +235,20 @@ const SkillSelector = ({
 				>
 					{showAutocomplete ? (
 						<Autocomplete
-							options={skills}
+							options={getSkillsForAutocomplete()}
 							getOptionLabel={option => option.name || ''}
 							value={selectedSkill}
 							onChange={(event, newValue) => {
 								console.log('🎯 Autocomplete changed:', newValue)
 								setSelectedSkill(newValue)
 							}}
+							onInputChange={(event, newInputValue) => {
+								// Search skills when user types
+								if (newInputValue && newInputValue.length > 0) {
+									fetchSkillsFromDatabase(newInputValue)
+								}
+							}}
+							loading={loadingSkills}
 							sx={{ width: 200 }}
 							renderInput={params => (
 								<TextField

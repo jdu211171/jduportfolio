@@ -1,5 +1,6 @@
 const translations = {
 	en: {
+		studetentSkillManagment: 'Student skill management',
 		studentCredits: "Student's number of credits",
 		origin: 'origin',
 		major: 'Field of study',
@@ -327,6 +328,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		language_change_notice: 'This will change the application display language',
 	},
 	ja: {
+		studetentSkillManagment: '学生スキル管理',
 		origin: '出身',
 		major: '専攻',
 		jobType: '希望職種',
@@ -655,6 +657,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		language_change_notice: 'アプリケーションの表示言語を変更します',
 	},
 	uz: {
+		studetentSkillManagment: 'Talaba ko‘nikmalarini boshqarish',
 		studentCredits: 'Talabaning kreditlar soni',
 		major: 'Mutaxassislik',
 		origin: 'Kelib chiqish',
