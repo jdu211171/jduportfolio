@@ -234,7 +234,12 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 								<UserAvatar
 									photo={row.photo}
 									name={row.first_name + ' ' + row.last_name}
-									studentId={row.kana_name || 'N/A'}
+									studentId={
+										row.first_name_furigana || row.last_name_furigana
+											? `${row.last_name_furigana || ''} ${row.first_name_furigana || ''}`.trim()
+											: row.kana_name || null
+									}
+									age={row.age}
 									isGridMode={viewMode === 'grid'}
 									style={{
 										width: '56px',
@@ -251,7 +256,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 										mt: 0.5,
 									}}
 								>
-									年齢: {row.age || 'N/A'}
+									{/* 年齢: {row.age || 'N/A'} */}
 								</Typography>
 							</Box>
 
@@ -652,7 +657,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														<UserAvatar
 															photo={row.photo}
 															name={row.first_name + ' ' + row.last_name}
-															studentId={row.kana_name || 'N/A'}
+															studentId={
+																row.first_name_furigana ||
+																row.last_name_furigana
+																	? `${row.last_name_furigana || ''} ${row.first_name_furigana || ''}`.trim()
+																	: row.kana_name || null
+															}
+															age={row.age}
 														/>
 													) : header.type === 'status' ? (
 														<div
@@ -751,23 +762,37 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													) : header.type === 'changed_fields' ? (
 														<div>
 															{(() => {
-																const changedFields = header.subkey 
-																	? row[header.id] ? row[header.id][header.subkey] : []
+																const changedFields = header.subkey
+																	? row[header.id]
+																		? row[header.id][header.subkey]
+																		: []
 																	: row[header.id] || []
-																if (!changedFields || changedFields.length === 0) {
-																	return <span style={{ color: '#999', fontSize: '12px' }}>変更なし</span>
+																if (
+																	!changedFields ||
+																	changedFields.length === 0
+																) {
+																	return (
+																		<span
+																			style={{
+																				color: '#999',
+																				fontSize: '12px',
+																			}}
+																		>
+																			変更なし
+																		</span>
+																	)
 																}
-																
+
 																return (
 																	<Button
-																		size="small"
-																		variant="text"
-																		onClick={(e) => {
+																		size='small'
+																		variant='text'
+																		onClick={e => {
 																			e.stopPropagation()
 																			setSelectedChangedFields({
 																				fields: changedFields,
 																				studentName: `${row.first_name} ${row.last_name}`,
-																				studentId: row.student_id
+																				studentId: row.student_id,
 																			})
 																		}}
 																		sx={{
@@ -777,7 +802,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																			color: '#1976d2',
 																			'&:hover': {
 																				backgroundColor: '#e3f2fd',
-																			}
+																			},
 																		}}
 																	>
 																		{changedFields.length}件の変更

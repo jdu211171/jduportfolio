@@ -69,6 +69,8 @@ const Setting = () => {
 		confirmPassword: '',
 		last_name: '',
 		first_name: '',
+		first_name_furigana: '',
+		last_name_furigana: '',
 		phone: '',
 		email: '',
 		contactEmail: '',
@@ -150,6 +152,8 @@ const Setting = () => {
 				confirmPassword: '',
 				first_name: userData.first_name || '',
 				last_name: userData.last_name || '',
+				first_name_furigana: userData.first_name_furigana || '',
+				last_name_furigana: userData.last_name_furigana || '',
 				phone: userData.phone || '',
 				email: userData.email || '',
 				contactEmail: userData.contactEmail || 'test@jdu.uz',
@@ -235,6 +239,8 @@ const Setting = () => {
 			const updateData = {
 				last_name: data.last_name,
 				first_name: data.first_name,
+				first_name_furigana: data.first_name_furigana,
+				last_name_furigana: data.last_name_furigana,
 				phone: data.phone,
 				email: data.email,
 				contactEmail: data.contactEmail,
@@ -345,6 +351,8 @@ const Setting = () => {
 			confirmPassword: '',
 			last_name: user.last_name || '',
 			first_name: user.first_name || '',
+			first_name_furigana: user.first_name_furigana || '',
+			last_name_furigana: user.last_name_furigana || '',
 			phone: user.phone || '',
 			email: user.email || '',
 			contactEmail: user.contactEmail || 'test@jdu.uz',
@@ -556,6 +564,26 @@ const Setting = () => {
 							</Grid>
 							<Grid item xs={12} sm={6}>
 								<Typography variant='body2' className={SettingStyle.fieldLabel}>
+									{t('first_name_furigana') || '名 (ふりがな)'}
+								</Typography>
+								<Controller
+									name='first_name_furigana'
+									control={control}
+									render={({ field }) => (
+										<TextField
+											{...field}
+											value={field.value || ''} // Ensure never undefined
+											variant='outlined'
+											fullWidth
+											disabled={!isEditing}
+											className={SettingStyle.textField}
+											placeholder={t('furigana_help')}
+										/>
+									)}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={6}>
+								<Typography variant='body2' className={SettingStyle.fieldLabel}>
 									{t('last_name') || '姓'}
 								</Typography>
 								<Controller
@@ -569,6 +597,26 @@ const Setting = () => {
 											fullWidth
 											disabled={!isEditing}
 											className={SettingStyle.textField}
+										/>
+									)}
+								/>
+							</Grid>
+							<Grid item xs={12} sm={6}>
+								<Typography variant='body2' className={SettingStyle.fieldLabel}>
+									{t('last_name_furigana') || '姓 (ふりがな)'}
+								</Typography>
+								<Controller
+									name='last_name_furigana'
+									control={control}
+									render={({ field }) => (
+										<TextField
+											{...field}
+											value={field.value || ''} // Ensure never undefined
+											variant='outlined'
+											fullWidth
+											disabled={!isEditing}
+											className={SettingStyle.textField}
+											placeholder={t('furigana_help')}
 										/>
 									)}
 								/>

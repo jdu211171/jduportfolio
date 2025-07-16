@@ -15,7 +15,7 @@ TODO: Student Resubmission and Staff Workflow Fixes
 - [x] FIXED: Profile visibility toggle 404 errors - improved ID determination logic to prioritize student_id over primary key
 */
 
-import React, { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import ReactDOM from 'react-dom'
 import { useLocation, useParams } from 'react-router-dom'
 import styles from './QA.module.css'
@@ -25,21 +25,21 @@ import TextField from '../../../components/TextField/TextField'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 
 import {
-	School,
-	AutoStories,
-	Face,
-	WorkHistory,
+	// School,
+	// AutoStories,
+	// Face,
+	// WorkHistory,
 	TrendingUp,
 } from '@mui/icons-material'
 import axios from '../../../utils/axiosUtils'
 import {
 	Box,
-	Tabs,
-	Tab,
+	// Tabs,
+	// Tab,
 	Button,
 	Snackbar,
 	Alert,
-	IconButton,
+	// IconButton,
 } from '@mui/material'
 
 import translations from '../../../locales/translations'
@@ -333,8 +333,16 @@ const QA = ({
 			}
 		} catch (error) {
 			// Backend'dan kelgan yangi xatolik xabarini handle qilamiz
-			if (error.response?.data?.error?.includes('allaqachon tekshiruvga yuborilgan')) {
-				showAlert(t['draftAlreadySubmitted'] || 'Avvalgi so\'rovingiz hali ko\'rib chiqilmagan. Yangisini yuborish uchun natijani kuting.', 'warning')
+			if (
+				error.response?.data?.error?.includes(
+					'allaqachon tekshiruvga yuborilgan'
+				)
+			) {
+				showAlert(
+					t['draftAlreadySubmitted'] ||
+						"Avvalgi so'rovingiz hali ko'rib chiqilmagan. Yangisini yuborish uchun natijani kuting.",
+					'warning'
+				)
 			} else {
 				showAlert(t['errorConfirmingProfile'], 'error')
 			}
@@ -350,14 +358,14 @@ const QA = ({
 				status: value,
 				comments: comment.comments,
 			})
-			
+
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
 				comments: comment.comments,
 			})
-			
+
 			console.log('Approval response:', res.data)
-			
+
 			// Update local draft status to reflect the change
 			setPassedDraft(prevDraft => ({
 				...prevDraft,
