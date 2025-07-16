@@ -228,6 +228,12 @@ const StudentProfile = ({ userId = 0 }) => {
 							<div style={{ fontSize: 20, fontWeight: 500 }}>
 								{student.first_name} {student.last_name}
 							</div>
+							{/* furigana */}
+							{(student.first_name_furigana || student.last_name_furigana) && (
+								<div style={{ fontSize: 14, color: '#666' }}>
+									{student.last_name_furigana || ''} {student.first_name_furigana || ''}
+								</div>
+							)}
 							{/* student id and birthday */}
 							<div style={{ display: 'flex', gap: 10 }}>
 								<div style={{ display: 'flex' }}>

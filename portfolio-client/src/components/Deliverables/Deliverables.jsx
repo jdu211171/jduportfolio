@@ -313,7 +313,6 @@ const Deliverables = ({
 									backgroundSize: 'cover',
 									backgroundPosition: 'center',
 								}}
-								onClick={() => fileInputRef.current?.click()}
 							>
 								{!imagePreview[activeDeliverable] && !formData.imageLink && (
 									<>
