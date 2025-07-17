@@ -152,6 +152,28 @@ router.get('/:id/credit-details', StudentController.getCreditDetails)
 
 /**
  * @swagger
+ * /api/students/{id}/sync-credit-details:
+ *   post:
+ *     tags: [Students]
+ *     summary: Sync credit details for a student from Kintone
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student ID
+ *     responses:
+ *       200:
+ *         description: Credit details synced successfully
+ *       404:
+ *         description: Student not found
+ */
+// POST /api/students/:id/sync-credit-details
+router.post('/:id/sync-credit-details', StudentController.syncStudentCreditDetails)
+
+/**
+ * @swagger
  * /api/students/{id}:
  *   put:
  *     tags: [Students]

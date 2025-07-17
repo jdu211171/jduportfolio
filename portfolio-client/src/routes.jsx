@@ -157,7 +157,7 @@ const AppRoutes = () => {
 					</Route>
 					<Route path='/unauthorized' element={<Unauthorized />} />
 				</Route>
-				<Route path='/credit-details' element={<CreditDetails />} />
+				<Route path='/credit-details/:studentId' element={<CreditDetails />} />
 				<Route path='*' element={<NotFound lang={language} />} />
 				<Route path='/login' element={<Login />} />
 				<Route path='/logout' element={<LogOut updateUser={updateUser} />} />

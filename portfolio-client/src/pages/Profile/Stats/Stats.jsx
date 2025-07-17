@@ -30,9 +30,12 @@ const Stats = () => {
 
 	if (userId != 0 && userId) {
 		id = userId
+		console.log('Stats.jsx - Using userId:', id)
 	} else {
 		id = studentId
+		console.log('Stats.jsx - Using studentId:', id)
 	}
+	console.log('Stats.jsx - Final ID determined:', id)
 
 	const [student, setStudent] = useState(null)
 	const [kintoneData, setKintoneData] = useState({})
@@ -48,8 +51,10 @@ const Stats = () => {
 	useEffect(() => {
 		const fetchStudentData = async () => {
 			try {
+				console.log('Stats.jsx - Making API request for student ID:', id)
 				const studentResponse = await axios.get(`/api/students/${id}`)
 				const studentData = studentResponse.data
+				console.log('Stats.jsx - Student data received:', studentData)
 
 				const kintoneResponse = await axios.post(`/api/kintone/getby`, {
 					table: 'student_credits',
@@ -88,7 +93,12 @@ const Stats = () => {
 			}
 		}
 
-		fetchStudentData()
+		console.log('Stats.jsx - useEffect triggered with id:', id)
+		if (id) {
+			fetchStudentData()
+		} else {
+			console.log('Stats.jsx - No ID available, skipping API call')
+		}
 	}, [id])
 
 	const setCertificateData = (key, type, data) => {
@@ -127,17 +137,9 @@ const Stats = () => {
 
 	const openCreditDetails = event => {
 		event.preventDefault()
-		let tempStudent = {
-			student_id: student.student_id,
-			first_name: student.first_name,
-			last_name: student.last_name,
-			partner_university: student.partner_university,
-		}
-
-		const studentData = JSON.stringify(tempStudent)
-
+		// Use student_id as the URL parameter for CreditDetails route
 		window.open(
-			`/credit-details?student=${encodeURIComponent(studentData)}`,
+			`/credit-details/${student.student_id}`,
 			'_blank',
 			'width=600,height=400'
 		)

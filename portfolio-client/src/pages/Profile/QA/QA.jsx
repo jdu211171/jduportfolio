@@ -108,9 +108,10 @@ const QA = ({
 		try {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
 			// Try different possible field names for student ID
+			// Backend always returns studentId (camelCase), so check it first
 			return (
-				loginUserData?.student_id ||
 				loginUserData?.studentId ||
+				loginUserData?.student_id ||
 				loginUserData?.id
 			)
 		} catch (e) {
@@ -197,56 +198,61 @@ const QA = ({
 	}, [currentDraft])
 
 	const fetchStudent = async () => {
-		// Prevent fetching if already loaded
-		if (isDataLoaded) return
-
-		// If called from Top page and data is provided, use that data
-		if (isFromTopPage && data && Object.keys(data).length > 0) {
-			setStudentQA(data)
-			setEditData(data)
-			setIsDataLoaded(true)
-			return
-		}
+		console.log('fetchStudent called - role:', role, 'id:', id, 'isFromTopPage:', isFromTopPage)
+		
+		// Prevent fetching if already loaded (only for non-student roles)
+		if (isDataLoaded && role !== 'Student') return
 
 		try {
 			// Always fetch questions to get the latest admin-added questions
+			console.log('Fetching admin questions from /api/settings/studentQA')
 			const questionsResponse = await axios.get('/api/settings/studentQA')
 			const questions = JSON.parse(questionsResponse.data.value)
+			console.log('Admin questions fetched:', questions)
 
 			let answers = null
-			// Only fetch answers if we have a student ID
-			if (id) {
+			
+			// For Top page, use provided data as answers
+			if (isFromTopPage && data && Object.keys(data).length > 0) {
+				console.log('Using answers from Top page data')
+				answers = data
+			} else if (id) {
+				// Otherwise fetch answers from API
 				try {
+					console.log('Fetching answers for student:', id)
 					answers = (await axios.get(`/api/qa/student/${id}`)).data
+					console.log('Answers fetched:', answers)
 				} catch (err) {
 					console.log('No existing answers found for student:', id)
 				}
 			}
 
 			let response
-			if (id && answers && answers.idList) {
+			if (id && answers) {
 				// Student view with answers
 				const combinedData = {}
-				let firsttime =
-					!answers ||
-					!answers.idList ||
-					Object.keys(answers.idList).length === 0
+				// Check if this is first time or has idList
+				let firsttime = !answers.idList || Object.keys(answers.idList || {}).length === 0
 				if (firsttime) {
 					setIsFirstTime(true)
 				}
+				
+				// Add idList if missing (for Top page data)
+				if (!answers.idList) {
+					answers.idList = {}
+				}
+				
 				for (const category in questions) {
 					if (category == 'idList') {
-						combinedData[category] = (answers && answers[category]) || {}
+						combinedData[category] = answers[category] || {}
 					} else {
 						combinedData[category] = {}
 						for (const key in questions[category]) {
 							combinedData[category][key] = {
 								question: questions[category][key].question || '',
-								answer: firsttime
+								answer: !answers[category] || !answers[category][key]
 									? ''
-									: !answers || !answers[category] || !answers[category][key]
-										? ''
-										: answers[category][key].answer || '',
+									: answers[category][key].answer || '',
 							}
 						}
 					}
@@ -274,10 +280,21 @@ const QA = ({
 	}
 
 	useEffect(() => {
-		if (role && !isDataLoaded) {
-			fetchStudent()
+		if (role && (id || role === 'Admin')) {
+			console.log('QA useEffect - role:', role, 'id:', id, 'isFromTopPage:', isFromTopPage)
+			// Always fetch for students to get latest admin questions
+			if (role === 'Student') {
+				console.log('Student role - calling fetchStudent')
+				fetchStudent()
+			} else {
+				// For other roles, only fetch if not loaded
+				if (!isDataLoaded) {
+					console.log('Non-student role - calling fetchStudent')
+					fetchStudent()
+				}
+			}
 		}
-	}, [role, isDataLoaded])
+	}, [role, id, isFromTopPage])
 
 	// Reset data loaded flag when updateQA changes
 	useEffect(() => {
@@ -451,6 +468,11 @@ const QA = ({
 
 				// Update local state with server response
 				setStudentQA(res.data)
+				
+				// Set isFirstTime to false after successful save
+				if (isFirstTime && res.data.idList) {
+					setIsFirstTime(false)
+				}
 				
 				// Sync editData with the latest server data
 				const updatedEditData = { ...editData }
