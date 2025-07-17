@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 import {
 	Container,
 	Typography,
@@ -32,6 +34,10 @@ import {
 import './CreateSkill.css'
 
 export const CreateSkill = () => {
+	// Translation setup
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
+	
 	// State management
 	const [skills, setSkills] = useState([])
 	const [loading, setLoading] = useState(true)
@@ -66,7 +72,7 @@ export const CreateSkill = () => {
 			setFilteredSkills(response.data)
 		} catch (error) {
 			console.error('Error fetching skills:', error)
-			showSnackbar('Failed to fetch skills', 'error')
+			showSnackbar(t('failed_fetch_skills'), 'error')
 		} finally {
 			setLoading(false)
 		}
@@ -99,7 +105,7 @@ export const CreateSkill = () => {
 		e.preventDefault()
 		
 		if (!formData.name.trim()) {
-			showSnackbar('Skill name is required', 'error')
+			showSnackbar(t('skill_name_required'), 'error')
 			return
 		}
 
@@ -107,11 +113,11 @@ export const CreateSkill = () => {
 			if (editingSkill) {
 				// Update existing skill
 				await axios.patch(`/api/itskills/${editingSkill.id}`, formData)
-				showSnackbar('Skill updated successfully', 'success')
+				showSnackbar(t('skill_updated_success'), 'success')
 			} else {
 				// Create new skill
 				await axios.post('/api/itskills', formData)
-				showSnackbar('Skill created successfully', 'success')
+				showSnackbar(t('skill_created_success'), 'success')
 			}
 			
 			// Reset form and refresh data
@@ -119,7 +125,7 @@ export const CreateSkill = () => {
 			fetchSkills()
 		} catch (error) {
 			console.error('Error saving skill:', error)
-			const errorMessage = error.response?.data?.error || 'Failed to save skill'
+			const errorMessage = error.response?.data?.error || t('failed_save_skill')
 			showSnackbar(errorMessage, 'error')
 		}
 	}
@@ -128,11 +134,11 @@ export const CreateSkill = () => {
 	const handleDelete = async (skillId) => {
 		try {
 			await axios.delete(`/api/itskills/${skillId}`)
-			showSnackbar('Skill deleted successfully', 'warning')
+			showSnackbar(t('skill_deleted_success'), 'warning')
 			fetchSkills()
 		} catch (error) {
 			console.error('Error deleting skill:', error)
-			showSnackbar('Failed to delete skill', 'error')
+			showSnackbar(t('failed_delete_skill'), 'error')
 		}
 		setDeleteConfirm({ open: false, skillId: null })
 	}
@@ -169,7 +175,7 @@ export const CreateSkill = () => {
 					display:'flex'
 				}}>
 					<CodeIcon sx={{ fontSize: '3rem', mr: 2, color: '#5627DC' }} />
-					IT Skills Manager
+					{t('it_skills_manager')}
 				</Typography>
 			</Box>
 
@@ -179,7 +185,7 @@ export const CreateSkill = () => {
 					<Grid item xs={12} md={8}>
 						<TextField
 							fullWidth
-							placeholder="Search skills..."
+							placeholder={t('search_skills')}
 							value={searchTerm}
 							onChange={(e) => setSearchTerm(e.target.value)}
 							onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -196,7 +202,7 @@ export const CreateSkill = () => {
 											onClick={handleSearch}
 											sx={{ minWidth: 'auto' }}
 										>
-											Search
+											{t('search')}
 										</Button>
 									</InputAdornment>
 								)
@@ -227,7 +233,7 @@ export const CreateSkill = () => {
 								}
 							}}
 						>
-							Add New Skill
+							{t('add_new_skill')}
 						</Button>
 					</Grid>
 				</Grid>
@@ -236,7 +242,7 @@ export const CreateSkill = () => {
 			{/* Skills List */}
 			<Box>
 				<Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
-					Skills ({filteredSkills.length})
+					{t('skills')} ({filteredSkills.length})
 				</Typography>
 
 				{loading ? (
@@ -247,10 +253,10 @@ export const CreateSkill = () => {
 					<Paper elevation={1} sx={{ p: 8, textAlign: 'center', borderRadius: 2 }}>
 						<CodeIcon sx={{ fontSize: '4rem', color: '#ccc', mb: 2 }} />
 						<Typography variant="h6" color="text.secondary" gutterBottom>
-							{searchTerm ? 'No skills found' : 'No skills available'}
+							{searchTerm ? t('no_skills_found') : t('no_skills_available')}
 						</Typography>
 						<Typography color="text.secondary">
-							{searchTerm ? 'Try adjusting your search terms' : 'Start by adding your first IT skill'}
+							{searchTerm ? t('try_adjusting_search') : t('start_adding_skill')}
 						</Typography>
 					</Paper>
 				) : (
@@ -353,14 +359,14 @@ export const CreateSkill = () => {
 					gap: 1
 				}}>
 					<PaletteIcon />
-					{editingSkill ? 'Edit Skill' : 'Add New Skill'}
+					{editingSkill ? t('edit_skill') : t('add_new_skill')}
 				</DialogTitle>
 				<form onSubmit={handleSubmit}>
 					<DialogContent sx={{ p: 3 }}>
 						<TextField
 							autoFocus
 							margin="normal"
-							label="Skill Name"
+							label={t('skill_name')}
 							fullWidth
 							required
 							value={formData.name}
@@ -369,7 +375,7 @@ export const CreateSkill = () => {
 						/>
 						
 						<Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
-							Choose Color
+							{t('choose_color')}
 						</Typography>
 						
 						{/* Color Preview */}
@@ -392,7 +398,7 @@ export const CreateSkill = () => {
 								}}
 							/>
 							<TextField
-								label="Color Code"
+								label={t('color_code')}
 								value={formData.color}
 								onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
 								size="small"
@@ -429,7 +435,7 @@ export const CreateSkill = () => {
 							variant="outlined"
 							sx={{ borderRadius: 2 }}
 						>
-							Cancel
+							{t('cancel')}
 						</Button>
 						<Button 
 							type="submit" 
@@ -440,7 +446,7 @@ export const CreateSkill = () => {
 								'&:hover': { bgcolor: '#4520b8' }
 							}}
 						>
-							{editingSkill ? 'Update' : 'Create'} Skill
+							{editingSkill ? t('update') : t('create')} {t('skill')}
 						</Button>
 					</DialogActions>
 				</form>
@@ -453,11 +459,11 @@ export const CreateSkill = () => {
 				PaperProps={{ sx: { borderRadius: 2 } }}
 			>
 				<DialogTitle sx={{ color: '#d32f2f' }}>
-					Confirm Delete
+					{t('confirm_delete')}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
-						Are you sure you want to delete this skill? This action cannot be undone.
+						{t('delete_skill_confirmation')}
 					</Typography>
 				</DialogContent>
 				<DialogActions sx={{ p: 3, gap: 1 }}>
@@ -474,7 +480,7 @@ export const CreateSkill = () => {
 						color="error"
 						sx={{ borderRadius: 2 }}
 					>
-						Delete
+						{t('delete')}
 					</Button>
 				</DialogActions>
 			</Dialog>
