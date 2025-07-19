@@ -1,50 +1,49 @@
+import AddIcon from '@mui/icons-material/Add'
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
+import CloseIcon from '@mui/icons-material/Close'
 import CodeIcon from '@mui/icons-material/Code'
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined'
 import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone'
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
-import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
-import TranslateIcon from '@mui/icons-material/Translate'
-import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
-import AddIcon from '@mui/icons-material/Add'
-import CloseIcon from '@mui/icons-material/Close'
-import SaveIcon from '@mui/icons-material/Save'
 import RestoreIcon from '@mui/icons-material/Restore'
+import SaveIcon from '@mui/icons-material/Save'
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
+import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
 import {
+	Alert,
 	Box,
 	Button,
-	TextField as MuiTextField,
 	Chip,
-	Snackbar,
-	Alert,
 	Dialog,
-	DialogTitle,
-	DialogContent,
 	DialogActions,
-	Typography,
+	DialogContent,
+	DialogTitle,
 	LinearProgress,
+	TextField as MuiTextField,
+	Snackbar,
+	Typography,
 } from '@mui/material'
-import { useEffect, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
-import { useLocation, useParams, useNavigate } from 'react-router-dom'
 import { useAtom } from 'jotai'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
+import { useForm } from 'react-hook-form'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
-	editModeAtom,
+	activeUniverAtom,
+	deletedUrlsAtom,
+	deliverableImagesAtom,
 	editDataAtom,
+	editModeAtom,
 	hobbiesInputAtom,
-	specialSkillsInputAtom,
+	newImagesAtom,
 	showHobbiesInputAtom,
 	showSpecialSkillsInputAtom,
-	deliverableImagesAtom,
-	newImagesAtom,
-	deletedUrlsAtom,
-	activeUniverAtom,
+	specialSkillsInputAtom,
 	subTabIndexAtom,
 	updateQAAtom,
 } from '../../../atoms/profileEditAtoms'
-import { useForm, Controller } from 'react-hook-form'
 import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
@@ -65,7 +64,7 @@ const Top = () => {
 	const { userId } = location.state || {}
 	const statedata = location.state?.student
 	const { language, changeLanguage } = useLanguage()
-	
+
 	// Early state declaration for saveStatus
 	const [saveStatus, setSaveStatus] = useState({
 		isSaving: false,
@@ -1833,7 +1832,15 @@ const Top = () => {
 								currentDraft?.changed_fields?.includes('it_skills')
 							}
 						/>
-						<div className={styles.skillBox}>
+						<div
+							style={{
+								padding: '20px',
+								backgroundColor: '#ffffff',
+								borderRadius: '12px',
+								boxShadow: '0 2px 12px rgba(0, 0, 0, 0.05)',
+								maxHeight:346
+							}}
+						>
 							<div
 								style={{
 									fontSize: 20,
@@ -1841,54 +1848,76 @@ const Top = () => {
 									display: 'flex',
 									alignItems: 'center',
 									gap: 8,
+									marginBottom: 20,
 								}}
 							>
 								<WorkspacePremiumOutlinedIcon sx={{ color: '#5627DB' }} />
-								{t('qualification')}
+								{t('Qualifications')}
 							</div>
-							<div style={{ marginBlock: 30 }}>
-								<div style={{ height: 36 }}>
-									JLPT:
+
+							<div
+								style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
+							>
+								{/* JLPT */}
+								<div
+									style={{ display: 'flex', alignItems: 'center', height: 36 }}
+								>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>JLPT:</span>
 									{editMode ? (
 										<input
 											type='text'
 											value={
-												editData.draft.jlpt ? getJLPTData(editData.draft.jlpt).highest : getJLPTData(student.jlpt).highest || ''
+												editData.draft.jlpt
+													? getJLPTData(editData.draft.jlpt).highest
+													: getJLPTData(student.jlpt).highest || ''
 											}
 											onChange={e =>
 												handleUpdateEditData('jlpt', e.target.value)
 											}
 											style={{
-												marginLeft: 8,
 												padding: '8px 15px',
 												fontSize: 14,
-												border: '1px solid #e0e0e0',
+												border: '1px solid #ccc',
 												borderRadius: 6,
-												width: 120,
+												width: 160,
+												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
 											}}
 										/>
 									) : (
 										<span
 											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
+												padding: '6px 20px',
 												fontWeight: 500,
 												fontSize: 14,
 												border: '1px solid #e0e0e0',
 												borderRadius: 6,
+												background: '#fff',
 											}}
 										>
-											{editData.draft.jlpt ? getJLPTData(editData.draft.jlpt).highest : getJLPTData(student.jlpt).highest}
+											{editData.draft.jlpt
+												? getJLPTData(editData.draft.jlpt).highest
+												: getJLPTData(student.jlpt).highest}
 										</span>
 									)}
 								</div>
-								<div style={{ height: 36 }}>
-									{t('jdu_certification')}:{' '}
+
+								{/* JDU Certification */}
+								<div
+									style={{ display: 'flex', alignItems: 'center', height: 36 }}
+								>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>
+										{t('jdu_certification')}:
+									</span>
 									{editMode ? (
 										<input
 											type='text'
 											value={
-												editData.draft.jdu_japanese_certification ? getJLPTData(editData.draft.jdu_japanese_certification).highest : getJLPTData(student.jdu_japanese_certification).highest || ''
+												editData.draft.jdu_japanese_certification
+													? getJLPTData(
+															editData.draft.jdu_japanese_certification
+														).highest
+													: getJLPTData(student.jdu_japanese_certification)
+															.highest || ''
 											}
 											onChange={e =>
 												handleUpdateEditData(
@@ -1897,26 +1926,130 @@ const Top = () => {
 												)
 											}
 											style={{
-												marginLeft: 8,
 												padding: '8px 15px',
 												fontSize: 14,
-												border: '1px solid #e0e0e0',
+												border: '1px solid #ccc',
 												borderRadius: 6,
-												width: 120,
+												width: 160,
+												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
 											}}
 										/>
 									) : (
 										<span
 											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
+												padding: '6px 20px',
 												fontWeight: 500,
 												fontSize: 14,
 												border: '1px solid #e0e0e0',
 												borderRadius: 6,
+												background: '#fff',
 											}}
 										>
-											{editData.draft.jdu_japanese_certification ? getJLPTData(editData.draft.jdu_japanese_certification).highest : getJLPTData(student.jdu_japanese_certification).highest}
+											{editData.draft.jdu_japanese_certification
+												? getJLPTData(editData.draft.jdu_japanese_certification)
+														.highest
+												: getJLPTData(student.jdu_japanese_certification)
+														.highest}
+										</span>
+									)}
+								</div>
+
+								{/* Japanese Speech Contest */}
+								<div
+									style={{ display: 'flex', alignItems: 'center', height: 36 }}
+								>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>
+										{t('japaneseSpeechContest')}:
+									</span>
+									{editMode ? (
+										<input
+											type='text'
+											value={
+												editData.draft.japanese_speech_contest
+													? getCertificateData(
+															editData.draft.japanese_speech_contest
+														).highest
+													: getCertificateData(student.japanese_speech_contest)
+															.highest || ''
+											}
+											onChange={e =>
+												handleUpdateEditData(
+													'japanese_speech_contest',
+													e.target.value
+												)
+											}
+											style={{
+												padding: '8px 15px',
+												fontSize: 14,
+												border: '1px solid #ccc',
+												borderRadius: 6,
+												width: 160,
+												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
+											}}
+										/>
+									) : (
+										<span
+											style={{
+												padding: '6px 20px',
+												fontWeight: 500,
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+												background: '#fff',
+											}}
+										>
+											{editData.draft.japanese_speech_contest
+												? getCertificateData(
+														editData.draft.japanese_speech_contest
+													).highest
+												: getCertificateData(student.japanese_speech_contest)
+														.highest}
+										</span>
+									)}
+								</div>
+
+								{/* IT Contest */}
+								<div
+									style={{ display: 'flex', alignItems: 'center', height: 36 }}
+								>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>
+										{t('itContest')}:
+									</span>
+									{editMode ? (
+										<input
+											type='text'
+											value={
+												editData.draft.it_contest
+													? getCertificateData(editData.draft.it_contest)
+															.highest
+													: getCertificateData(student.it_contest).highest || ''
+											}
+											onChange={e =>
+												handleUpdateEditData('it_contest', e.target.value)
+											}
+											style={{
+												padding: '8px 15px',
+												fontSize: 14,
+												border: '1px solid #ccc',
+												borderRadius: 6,
+												width: 160,
+												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
+											}}
+										/>
+									) : (
+										<span
+											style={{
+												padding: '6px 20px',
+												fontWeight: 500,
+												fontSize: 14,
+												border: '1px solid #e0e0e0',
+												borderRadius: 6,
+												background: '#fff',
+											}}
+										>
+											{editData.draft.it_contest
+												? getCertificateData(editData.draft.it_contest).highest
+												: getCertificateData(student.it_contest).highest}
 										</span>
 									)}
 								</div>
@@ -1924,7 +2057,7 @@ const Top = () => {
 						</div>
 
 						<SkillSelector
-							title={t('otherSkills')}
+							title={t('languageSkills')}
 							headers={{
 								上級: '3年間以上',
 								中級: '1年間〜1年間半',
@@ -1944,159 +2077,29 @@ const Top = () => {
 								currentDraft?.changed_fields?.includes('skills')
 							}
 						/>
-						<div className={styles.skillBox}>
-							<div
-								style={{
-									fontSize: 20,
-									fontWeight: 600,
-									display: 'flex',
-									alignItems: 'center',
-									gap: 8,
-								}}
-							>
-								<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />
-								{t('otherSkills')}
-							</div>
-							<div style={{ marginBlock: 30 }}>
-								<div style={{ height: 36 }}>
-									{t('japaneseSpeechContest')}:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.japanese_speech_contest ? getCertificateData(editData.draft.japanese_speech_contest).highest : getCertificateData(student.japanese_speech_contest).highest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData(
-													'japanese_speech_contest',
-													e.target.value
-												)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.japanese_speech_contest ? getCertificateData(editData.draft.japanese_speech_contest).highest : getCertificateData(student.japanese_speech_contest).highest}
-										</span>
-									)}
-								</div>
-								<div>
-									{t('itContest')}:
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.it_contest ? getCertificateData(editData.draft.it_contest).highest : getCertificateData(student.it_contest).highest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData('it_contest', e.target.value)
-											}
-											style={{
-												marginLeft: 8,
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												width: 120,
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												margin: '0px 10px',
-												padding: '2px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-											}}
-										>
-											{editData.draft.it_contest ? getCertificateData(editData.draft.it_contest).highest : getCertificateData(student.it_contest).highest}
-										</span>
-									)}
-								</div>
-							</div>
-						</div>
-					</div>
 
-					<Box sx={{ my: 2, backgroundColor: '#FFFFFF', padding: 3 }}>
-						<div
-							style={{
-								fontSize: 20,
-								fontWeight: 600,
-								display: 'flex',
-								alignItems: 'center',
-								gap: 8,
+						<SkillSelector
+							title={t('otherSkills')}
+							headers={{
+								上級: '3年間以上',
+								中級: '1年間〜1年間半',
+								初級: '基礎',
 							}}
-						>
-							<TranslateIcon sx={{ color: '#5627DB' }} /> {t('languageSkills')}
-						</div>
-						<div>
-							<div
-								style={{
-									marginTop: 10,
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'space-between',
-								}}
-							>
-								<div>{t('japanese')}</div>
-								<div>
-									{{
-										N5: '20%',
-										N4: '40%',
-										N3: '60%',
-										N2: '80%',
-										N1: '100%',
-									}[student.draft.jlpt ? getJLPTData(student.draft.jlpt).highest : getJLPTData(student.jlpt).highest] ||
-										'0%'}
-								</div>
-							</div>
-							<div
-								style={{
-									width: '100%',
-									height: 10,
-									backgroundColor: '#e6dffa',
-									borderRadius: 10,
-									marginTop: 5,
-								}}
-							>
-								<div
-									style={{
-										backgroundColor: '#5627db',
-										borderRadius: 10,
-										height: 10,
-										width:
-											{
-												N5: '20%',
-												N4: '40%',
-												N3: '60%',
-												N2: '80%',
-												N1: '100%',
-											}[
-												student.draft.jlpt ? getJLPTData(student.draft.jlpt).highest : getJLPTData(student.jlpt).highest
-											] || '0%',
-									}}
-								></div>
-							</div>
-						</div>
-					</Box>
+							data={student.draft}
+							editData={editData}
+							editMode={editMode}
+							updateEditData={handleUpdateEditData}
+							showAutocomplete={false}
+							showHeaders={false}
+							keyName='other_skills'
+							parentKey='draft'
+							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
+							isChanged={
+								role === 'Staff' &&
+								currentDraft?.changed_fields?.includes('other_skills')
+							}
+						/>
+					</div>
 				</Box>
 			)}
 			{/* deliverables */}
