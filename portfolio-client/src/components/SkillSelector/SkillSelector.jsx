@@ -253,7 +253,7 @@ const SkillSelector = ({
 							renderInput={params => (
 								<TextField
 									{...params}
-									label='Select Skill'
+									label={t('selectSkill')}
 									variant='outlined'
 									size='small'
 								/>
@@ -272,7 +272,7 @@ const SkillSelector = ({
 									handleAddSkill()
 								}
 							}}
-							label='Skill'
+							label={t('skill')}
 							variant='outlined'
 							size='small'
 							sx={{ width: 200 }}
@@ -280,7 +280,7 @@ const SkillSelector = ({
 					)}
 
 					<FormControl variant='outlined' size='small' sx={{ width: 150 }}>
-						<InputLabel>Level</InputLabel>
+						<InputLabel>{t('level')}</InputLabel>
 						<Select
 							value={selectedLevel}
 							onChange={event => {
