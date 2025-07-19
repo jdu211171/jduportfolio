@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
 	Box,
 	Dialog,
@@ -13,12 +13,12 @@ import {
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import DeleteIcon from '@mui/icons-material/Delete'
+import PropTypes from 'prop-types'
 import styles from './Gallery.module.css'
 
 const Gallery = ({
 	galleryUrls,
 	newImages,
-	deletedUrls,
 	editMode,
 	updateEditData,
 	keyName,
@@ -205,6 +205,18 @@ const Gallery = ({
 			/>
 		</Box>
 	)
+}
+
+Gallery.propTypes = {
+	galleryUrls: PropTypes.oneOfType([
+		PropTypes.object,
+		PropTypes.arrayOf(PropTypes.string)
+	]).isRequired,
+	newImages: PropTypes.arrayOf(PropTypes.object).isRequired,
+	editMode: PropTypes.bool.isRequired,
+	updateEditData: PropTypes.func.isRequired,
+	keyName: PropTypes.string.isRequired,
+	parentKey: PropTypes.string,
 }
 
 export default Gallery

@@ -1,26 +1,27 @@
-import { useState, useEffect, useContext } from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
-import { UserContext } from '../../contexts/UserContext'
-import UserAvatar from '../Table/Avatar/UserAvatar'
-import translations from '../../locales/translations'
-import { useLanguage } from '../../contexts/LanguageContext'
 import { Modal } from '@mui/material'
+import { useContext, useEffect, useState } from 'react'
+import { NavLink, Outlet } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { UserContext } from '../../contexts/UserContext'
+import translations from '../../locales/translations'
+import UserAvatar from '../Table/Avatar/UserAvatar'
 // icons
-import { ReactComponent as NavButtonIcon } from '../../assets/icons/navButton.svg'
-import { ReactComponent as HomeIcon } from '../../assets/icons/home.svg'
-import { ReactComponent as StudentIcon } from '../../assets/icons/student.svg'
-import { ReactComponent as UserPlusIcon } from '../../assets/icons/userPlus.svg'
-import { ReactComponent as SettingsIcon } from '../../assets/icons/settings.svg'
-import { ReactComponent as HelpIcon } from '../../assets/icons/help.svg'
-import { ReactComponent as LogOutIcon } from '../../assets/icons/logOut.svg'
 import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
-
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
-
-import logo from '/src/assets/logo.png'
-import style from './Layout.module.css'
+import { ReactComponent as MenuIcon } from '../../assets/icons/menuIcon.svg'
+import { ReactComponent as HomeIcon } from '../../assets/icons/home-8-line.svg'
+import { ReactComponent as GroupIcon } from '../../assets/icons/group-line.svg'
+import { ReactComponent as HelpIcon } from '../../assets/icons/question-line.svg'
+import { ReactComponent as QuestionIcon } from '../../assets/icons/question-answer-line.svg'
+import { ReactComponent as LogoutIcon } from '../../assets/icons/login-circle-line.svg'
+import { ReactComponent as UserPlusIcon } from '../../assets/icons/user-add-line.svg'
+import { ReactComponent as StudentIcon } from '../../assets/icons/user-follow-line.svg'
+import { ReactComponent as SearchIcon } from '../../assets/icons/user-search-line.svg'
+import { ReactComponent as SettingsIcon } from '../../assets/icons/settings-3-line.svg'
+import TuneIcon from '@mui/icons-material/Tune'
 import Notifications from '../Notification/Notifications.jsx'
+import style from './Layout.module.css'
+import logo from '/src/assets/logo40.png'
 
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
@@ -29,85 +30,85 @@ const checkRole = (role, allowedRoles) => {
 
 const Layout = () => {
 	const [openLogoutModal, setOpenLogoutModal] = useState(false)
-	const { language, changeLanguage } = useLanguage()
+	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
-	
+
 	const handleLogout = () => {
 		sessionStorage.clear()
 		window.location.href = '/login'
 	}
 	const navItems = [
 		{
-			section: 'GENERAL', // Оставляем статичным
 			items: [
 				{
 					to: '/',
-					icon: <HomeIcon />,
+					icon: <HomeIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('home'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
 				{
 					to: '/companyprofile',
-					icon: <ProfileIcon />,
+					icon: <ProfileIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('profile'),
 					roles: ['Recruiter'],
 				},
 				{
 					to: '/student',
-					icon: <StudentIcon />,
+					icon: <SearchIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_search'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
 				},
 				{
 					to: '/checkprofile',
-					icon: <StudentIcon />,
+					icon: <StudentIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_check'),
 					roles: ['Admin', 'Staff'],
 				},
 				{
+					to: '/create-skill',
+					icon: <TuneIcon style={{ width: '24px', height: '24px' }} />,
+					label: t('studetentSkillManagment'),
+					roles: ['Admin', 'Staff'],
+				},
+				{
 					to: '/staff',
-					icon: <UserPlusIcon />,
+					icon: <GroupIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('staff'),
 					roles: ['Admin'],
 				},
 				{
 					to: '/profile',
-					icon: <ProfileIcon />,
+					icon: <ProfileIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('profile'),
 					roles: ['Student'],
 				},
 				{
 					to: '/recruiter',
-					icon: <UserPlusIcon />,
+					icon: <UserPlusIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('recruiter'),
 					roles: ['Admin', 'Staff', 'Student'],
 				},
 				{
 					to: '/bookmarked',
-					icon: <BookmarkIcon />,
+					icon: <BookmarkIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('bookmarked'),
 					roles: ['Recruiter'],
 				},
-			],
-		},
-		{
-			section: 'GENERAL', // Оставляем статичным
-			items: [
 				{
 					to: '/settings',
-					icon: <SettingsIcon />,
+					icon: <SettingsIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('settings'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/help',
-					icon: <HelpIcon />,
+					icon: <HelpIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('help'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/student-qa',
-					icon: <QuestionAnswerIcon sx={{ height: '18px', width: '18px' }} />,
+					icon: <QuestionIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('student_qa'),
 					roles: ['Admin'],
 				},
@@ -118,8 +119,7 @@ const Layout = () => {
 	const { activeUser } = useContext(UserContext)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
-	const [, setUserData] = useState({})
-	const [role, ] = useState(sessionStorage.getItem('role')) // Get role from sessionStorage
+	const [role] = useState(sessionStorage.getItem('role'))
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
@@ -148,8 +148,6 @@ const Layout = () => {
 
 	useEffect(() => {
 		window.addEventListener('resize', handleResize)
-		setUserData(JSON.parse(sessionStorage.getItem('loginUser')))
-		// Initial check
 		handleResize()
 		updateTime()
 		const intervalId = setInterval(updateTime, 60000)
@@ -163,30 +161,24 @@ const Layout = () => {
 		setIsMenuOpen(prevState => !prevState)
 	}
 
-	const handleChangeLanguage = lng => {
-		changeLanguage(lng)
-	}
-
 	return (
 		<div className={isMenuOpen ? style.menuOpen : style.menuClose}>
 			<div className={style.topBar}>
 				<div className={style.left}>
 					<div className={style.logo}>
-						<div>
-							<img src={logo} alt='Logo' />
-						</div>
-						<div>JDU Portfolio</div>
+						<img src={logo} alt='Logo' width={40} />
+						<div style={{ fontWeight: 700 }}>JDU Portfolio</div>
 					</div>
 				</div>
+
 				<div className={style.right}>
+					{/* header button */}
 					<div className={style.navButton} onClick={handleNavButtonClick}>
-						<NavButtonIcon />
+						<MenuIcon style={{ width: '24px', height: '24px' }} />
 					</div>
 					<div className={style.topBarBox}>
-						<div className={style.languageSwitcher}>
-							{role != 'Recruiter' && <Notifications />}
-						</div>
-						<div className={style.languageSwitcher}>
+						{/* language selector */}
+						{/* <div className={style.languageSwitcher}>
 							<select
 								onChange={e => handleChangeLanguage(e.target.value)}
 								defaultValue={language}
@@ -195,39 +187,28 @@ const Layout = () => {
 								<option value='en'>English</option>
 								<option value='uz'>O‘zbek</option>
 							</select>
-						</div>
-						<div className={style.timeBox}>
-							<div style={{ textAlign: 'right' }}>
-								<div className={style.timeText}>{t('japan')}</div>
-								<div className={style.time}>{japanTime}</div>
-							</div>
-							<svg
-								width='13'
-								height='32'
-								viewBox='0 0 13 32'
-								fill='none'
-								xmlns='http://www.w3.org/2000/svg'
-								style={{ margin: '0 4px' }}
-							>
-								<path
-									d='M5.22727 14.3864V15.6364H0.136364V14.3864H5.22727ZM12.5866 14.3864V15.6364H7.49574V14.3864H12.5866Z'
-									fill='#101828'
-								/>
-								<path
-									d='M5.69886 17.8182L1.94886 31.75H0.431818L4.18182 17.8182H5.69886Z'
-									fill='#101828'
-								/>
-								<path
-									d='M10.7553 0.102272L7.70845 11.4219H6.47585L9.52273 0.102272H10.7553Z'
-									fill='#667085'
-								/>
-							</svg>
+						</div> */}
 
-							<div>
-								<div className={style.timeText}>{t('uzbekistan')}</div>
-								<div className={style.time}>{uzbekistanTime}</div>
+						{/* TIME */}
+						<div className={style.timeBox}>
+							<div className={style.timeBoxCountry}>
+								<div>{t('japan')}</div>/<div>{t('uzbekistan')}</div>
+							</div>
+							<div className={style.timeBoxCountry}>
+								<div style={{ fontWeight: 600 }}>{japanTime}</div>/
+								<div style={{ fontWeight: 600 }}>{uzbekistanTime}</div>
 							</div>
 						</div>
+
+						{/* notifications */}
+						{
+							(role === 'Recruiter',
+							'Admin',
+							'Staff',
+							'Student' && <Notifications />)
+						}
+
+						{/* USER IMAGE */}
 						<div className={style.loginUser}>
 							<UserAvatar
 								photo={activeUser?.photo}
@@ -238,13 +219,16 @@ const Layout = () => {
 					</div>
 				</div>
 			</div>
+
 			<div className={style.sideBar}>
 				<header className={style.left}>
 					<nav>
-						{navItems.map((section, index) => (
+						{navItems.map((item, index) => (
 							<ul key={'ul-' + index}>
-								<span className={style.navGroup}>{section.section}</span>
-								{section.items
+								{/* <span className={style.navGroup}>
+									{item.section}
+								</span> */}
+								{item.items
 									.filter(item => checkRole(role, item.roles))
 									.map((item, index) => (
 										<li key={index}>
@@ -262,9 +246,17 @@ const Layout = () => {
 							</ul>
 						))}
 
-						<ul className={style.NavbarBottom} onClick={() => setOpenLogoutModal(true)}>
-							<LogOutIcon />
-							<div>{t('logout')}</div>
+						<ul onClick={() => setOpenLogoutModal(true)}>
+							<li className={style.NavbarBottom}>
+								<LogoutIcon
+									style={{
+										// transform: 'rotate(180deg)',
+										width: '24px',
+										height: '24px',
+									}}
+								/>
+								<div>{t('logout')}</div>
+							</li>
 						</ul>
 					</nav>
 				</header>
@@ -277,7 +269,7 @@ const Layout = () => {
 						}}
 					/>
 				)}
-				<main className={style.right} id={style.main}>
+				<main id={style.main}>
 					<Outlet />
 				</main>
 			</div>
@@ -286,8 +278,15 @@ const Layout = () => {
 					<h2>{t('logout')}</h2>
 					<p>{t('Are_you_sure')}</p>
 					<div className={style.modalButtons}>
-						<button onClick={handleLogout} className={style.yesbutton}>{t('yesModal')}</button>
-						<button onClick={() => setOpenLogoutModal(false)} className={style.nobutton}>{t('noModal')}</button>
+						<button onClick={handleLogout} className={style.yesbutton}>
+							{t('yesModal')}
+						</button>
+						<button
+							onClick={() => setOpenLogoutModal(false)}
+							className={style.nobutton}
+						>
+							{t('noModal')}
+						</button>
 					</div>
 				</div>
 			</Modal>
@@ -296,4 +295,3 @@ const Layout = () => {
 }
 
 export default Layout
-

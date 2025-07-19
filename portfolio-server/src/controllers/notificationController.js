@@ -2,7 +2,6 @@ const NotificationService = require('../services/notificationService')
 const { getStudentById } = require('../services/studentService')
 const { Op } = require('sequelize')
 
-
 class NotificationController {
 	static async createNotification(req, res) {
 		try {
@@ -18,11 +17,18 @@ class NotificationController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res.status(400).json({ error: 'User ID and user type are required' })
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
+			}
+
+			// Handle Recruiter case - recruiters don't have notifications in the current system
+			if (userType === 'Recruiter') {
+				return res.status(200).json([])
 			}
 
 			let user_id = id
-			let user_role = userType.toLowerCase() 
+			let user_role = userType.toLowerCase()
 
 			if (user_role === 'student') {
 				const student = await getStudentById(id)
@@ -32,10 +38,8 @@ class NotificationController {
 				user_id = student.student_id
 			}
 
-		
 			let filter = { user_id, status: { [Op.ne]: 'read' } }
 
-			
 			if (user_role === 'admin') {
 				filter = { user_role: 'admin', status: { [Op.ne]: 'read' } }
 			} else if (user_role === 'student') {
@@ -44,7 +48,10 @@ class NotificationController {
 				filter.user_role = 'staff'
 			}
 
-			const notifications = await NotificationService.getByUserId(user_id, filter)
+			const notifications = await NotificationService.getByUserId(
+				user_id,
+				filter
+			)
 
 			return res.status(200).json(notifications)
 		} catch (error) {
@@ -78,8 +85,12 @@ class NotificationController {
 	static async getAllNotifications(req, res) {
 		try {
 			const { userType } = req.user
-			if(	userType !== 'Admin') {
-				return res.status(403).json({ error: 'Permission denied. Only admin can get all notifications.' })
+			if (userType !== 'Admin') {
+				return res
+					.status(403)
+					.json({
+						error: 'Permission denied. Only admin can get all notifications.',
+					})
 			}
 			const notifications = await NotificationService.getAll()
 			return res.status(200).json(notifications)
@@ -99,7 +110,6 @@ class NotificationController {
 			}
 
 			let user_id = id
-			
 
 			if (userType === 'Student') {
 				const student = await getStudentById(id)
@@ -165,35 +175,62 @@ class NotificationController {
 	}
 
 	static async markNotificationAsReadAll(req, res) {
-        try {
-            const { id, userType } = req.user
+		try {
+			const { id, userType } = req.user
+			console.log('markNotificationAsReadAll - User info:', { id, userType })
 
-            if (!id || !userType) {
-                return res
-                    .status(400)
-                    .json({ error: 'User ID and user type are required' })
-            }
+			if (!id || !userType) {
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
+			}
 
-            let user_id = id
+			// Handle Recruiter case early - recruiters don't have notifications in the current system
+			if (userType === 'Recruiter') {
+				console.log(
+					'markNotificationAsReadAll - Recruiter detected, returning success with 0 updates'
+				)
+				return res.status(200).json({
+					message: '0 notification(s) marked as read for this user.',
+				})
+			}
 
-            if (userType === 'Student') {
-                const student = await getStudentById(id)
-                if (!student) {
-                    return res.status(404).json({ error: 'Student not found' })
-                }
-                user_id = student.student_id
-            }
+			let user_id = id
 
-            const updatedCount = await NotificationService.markAllAsRead(user_id, userType);
+			if (userType === 'Student') {
+				console.log('markNotificationAsReadAll - Getting student by id:', id)
+				const student = await getStudentById(id)
+				console.log(
+					'markNotificationAsReadAll - Found student:',
+					student ? student.student_id : 'null'
+				)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				user_id = student.student_id
+			}
 
-            return res.status(200).json({
-                message: `${updatedCount} notification(s) marked as read for this user.`,
-            });
-        } catch (error) {
-            console.error('Error marking all notifications as read:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
+			console.log(
+				'markNotificationAsReadAll - Final user_id:',
+				user_id,
+				'userType:',
+				userType
+			)
+			const updatedCount = await NotificationService.markAllAsRead(
+				user_id,
+				userType
+			)
+			console.log('markNotificationAsReadAll - Updated count:', updatedCount)
+
+			return res.status(200).json({
+				message: `${updatedCount} notification(s) marked as read for this user.`,
+			})
+		} catch (error) {
+			console.error('Error marking all notifications as read:', error)
+			console.error('Error stack:', error.stack)
+			return res.status(500).json({ error: 'Internal Server Error' })
+		}
+	}
 }
 
 module.exports = NotificationController

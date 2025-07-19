@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+// Home.jsx - to'liq o'zgartirilgan versiya
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import axios from '../../utils/axiosUtils'
@@ -16,14 +17,11 @@ import translations from '../../locales/translations'
 
 const Home = () => {
 	const navigate = useNavigate()
-	const { language } = useLanguage() // Получение текущего языка из контекста
-
-	const t = key => translations[language][key] || key // Функция перевода
-
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 	const [role, setRole] = useState(null)
 	const [editData, setEditData] = useState('')
 	const [editMode, setEditMode] = useState(false)
-
 	const showAlert = useAlert()
 
 	const fetchHomePageData = async () => {
@@ -69,26 +67,17 @@ const Home = () => {
 		}
 	}
 
-	// Clean HTML content by removing <p> tags but keeping their content and other formatting
-	const cleanHtmlContent = (html) => {
-		if (!html) return '';
-
-		// Create a temporary DOM element
-		const tempDiv = document.createElement('div');
-		tempDiv.innerHTML = html;
-
-		// Find all paragraph tags
-		const paragraphs = tempDiv.querySelectorAll('p');
-
-		// Replace each paragraph with its inner HTML content
+	const cleanHtmlContent = html => {
+		if (!html) return ''
+		const tempDiv = document.createElement('div')
+		tempDiv.innerHTML = html
+		const paragraphs = tempDiv.querySelectorAll('p')
 		paragraphs.forEach(p => {
-			// Create a span to preserve any styling
-			const span = document.createElement('span');
-			span.innerHTML = p.innerHTML;
-			p.parentNode.replaceChild(span, p);
-		});
-
-		return tempDiv.innerHTML;
+			const span = document.createElement('span')
+			span.innerHTML = p.innerHTML
+			p.parentNode.replaceChild(span, p)
+		})
+		return tempDiv.innerHTML
 	}
 
 	useEffect(() => {
@@ -97,13 +86,8 @@ const Home = () => {
 
 	return (
 		<div key={language}>
-			{' '}
-			{/* Динамическое обновление при смене языка */}
 			<Box className={styles.header}>
-				<h3>
-					<a href='https://www.jdu.uz/' target='_blank'>Japan Digital University</a>
-				</h3>
-				<Box display={'flex'} gap={'10px'}>
+				<Box display={'flex'} gap={'10px'} justifyContent={'flex-end'}>
 					{role === 'Admin' && (
 						<>
 							{editMode ? (
@@ -116,7 +100,6 @@ const Home = () => {
 									>
 										{t('save')}
 									</Button>
-
 									<Button
 										onClick={handleCancel}
 										variant='outlined'
@@ -140,27 +123,38 @@ const Home = () => {
 					)}
 				</Box>
 			</Box>
+
+			{/* Main Banner Section */}
 			<div className={styles.container}>
-				<div className={styles.textSection}>
-					{editMode && (
-						<RichTextEditor value={editData} onChange={handleContentChange} />
-					)}
+				<div className={styles.mainBanner}>
+					<div className={styles.backgroundImage}></div>
+					<div className={styles.textContent}>
+						{editMode && (
+							<RichTextEditor value={editData} onChange={handleContentChange} />
+						)}
 
-					{!editMode && (
-						<p
-							className={styles.textParagraph}
-							dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
-						></p>
-					)}
+						{!editMode && (
+							<p
+								className={styles.textParagraph}
+								dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
+							></p>
+						)}
 
-					<div className={styles.buttonContainer}>
-						<button className={styles.button} onClick={handleClick}>
-							{t('next_button')}
-						</button>
+						<div className={styles.buttonContainer}>
+							<button className={styles.button} onClick={handleClick}>
+								{t('next_button')}
+							</button>
+						</div>
 					</div>
 				</div>
-				<div className={styles.imageSection}>
+			</div>
+
+			{/* Bottom Images Grid - 2 ta image yonma-yon */}
+			<div className={styles.bottomImagesGrid}>
+				<div className={styles.gridImageItem}>
 					<img src={Photo1} alt={t('large_class_photo_alt')} />
+				</div>
+				<div className={styles.gridImageItem}>
 					<img src={Photo2} alt={t('group_photo_alt')} />
 				</div>
 			</div>

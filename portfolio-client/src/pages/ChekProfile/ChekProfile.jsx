@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
 import Table from '../../components/Table/Table'
@@ -7,12 +7,16 @@ import Filter from '../../components/Filter/Filter'
 import axios from '../../utils/axiosUtils'
 import { useAlert } from '../../contexts/AlertContext'
 import { useLanguage } from '../../contexts/LanguageContext'
+import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
 
 const Student = ({ OnlyBookmarked = false }) => {
 	const { language } = useLanguage()
+	const { role } = useContext(UserContext)
 	const t = key => translations[language][key] || key
-	const [filterState, setFilterState] = useState({})
+	const [filterState, setFilterState] = useState({
+		search: '',
+	})
 
 	const showAlert = useAlert()
 
@@ -69,6 +73,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 				t('kyoto_university'),
 				t('otemae_university'),
 				t('niigata_university'),
+				t('sanno_university'),
+				t('forty_credit_model'),
 			],
 			minWidth: '160px',
 		},
@@ -114,7 +120,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const navigate = useNavigate()
 
 	const navigateToProfile = student => {
-		navigate(`profile/${student.id}/top`, { state: { student } })
+		navigate(`profile/${student.student_id}/top`, { state: { student } })
 	}
 
 	const updateDraftStatus = async (draftId, status) => {
@@ -130,15 +136,43 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}
 
-	const setProfileVisibility = async (id, visibility) => {
+	// New function to update draft status with comments
+	const updateDraftStatusWithComments = async (
+		draftId,
+		status,
+		comments = ''
+	) => {
 		try {
+			const res = await axios.put(`/api/draft/status/${draftId}`, {
+				status: status,
+				reviewed_by: userId,
+				comments: comments,
+			})
+			if (res.status === 200) {
+				showAlert(t('statusUpdatedSuccessfully'), 'success')
+				return true
+			} else {
+				return false
+			}
+		} catch (error) {
+			console.error('Error updating draft status:', error)
+			showAlert(t('errorUpdatingStatus'), 'error')
+			return false
+		}
+	}
+
+	const setProfileVisibility = async (studentId, visibility) => {
+		try {
+			console.log('Setting profile visibility:', { studentId, visibility })
+
 			if (visibility) {
-				const student = await axios.get(`/api/students/${id}`)
-				const studentId = student.data.student_id
+				console.log('Using student_id for API calls:', studentId)
 
 				const draftsResponse = await axios.get(
 					`/api/draft/student/${studentId}`
 				)
+
+				console.log('Drafts response:', draftsResponse.data)
 
 				if (
 					draftsResponse.data &&
@@ -146,40 +180,72 @@ const Student = ({ OnlyBookmarked = false }) => {
 					draftsResponse.data.draft.status === 'approved'
 				) {
 					const profileData = draftsResponse.data.draft.profile_data || {}
-					const res = await axios.put(`/api/students/${id}`, {
+					console.log('Updating with profile data:', {
 						...profileData,
 						visibility: true,
 					})
 
-					if (res.status === 200) {
-						showAlert(t['profileVisibilityEnabled'], 'success')
-						return true
-					}
-				} else {
-					const res = await axios.put(`/api/students/${id}`, {
+					// Use studentId (student_id) for API calls
+					const res = await axios.put(`/api/students/${studentId}`, {
+						...profileData,
 						visibility: true,
 					})
+
+					console.log('Update response:', res.data)
 
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
 						return true
+					} else {
+						console.error('Update failed with status:', res.status)
+						return false
+					}
+				} else {
+					console.log('Updating visibility only:', { visibility: true })
+
+					// Use studentId (student_id) for API calls
+					const res = await axios.put(`/api/students/${studentId}`, {
+						visibility: true,
+					})
+
+					console.log('Visibility update response:', res.data)
+
+					if (res.status === 200) {
+						showAlert(t['profileVisibilityEnabled'], 'success')
+						return true
+					} else {
+						console.error('Visibility update failed with status:', res.status)
+						return false
 					}
 				}
 			} else {
-				const res = await axios.put(`/api/students/${id}`, {
+				console.log('Setting visibility to false:', { visibility: false })
+
+				// For visibility=false, we don't need to get additional data
+				// since we already have studentId parameter
+
+				// Use studentId (student_id) for API calls
+				const res = await axios.put(`/api/students/${studentId}`, {
 					visibility: false,
 				})
+
+				console.log('Visibility false response:', res.data)
 
 				if (res.status === 200) {
 					showAlert(t['profileHidden'], 'success')
 					return true
+				} else {
+					console.error('Visibility false failed with status:', res.status)
+					return false
 				}
 			}
-
-			return false
 		} catch (error) {
 			console.error('Error setting profile visibility:', error)
-			showAlert(t['errorSettingVisibility'], 'error')
+			console.error('Error details:', error.response?.data)
+			showAlert(
+				t['errorSettingVisibility'] || 'Error setting visibility',
+				'error'
+			)
 			return false
 		}
 	}
@@ -189,10 +255,25 @@ const Student = ({ OnlyBookmarked = false }) => {
 			id: 'first_name',
 			numeric: false,
 			disablePadding: true,
-			label: t('student'),
+			label: '学生',
 			type: 'avatar',
 			minWidth: '220px',
 			onClickAction: navigateToProfile,
+		},
+		{
+			id: 'student_id',
+			numeric: false,
+			disablePadding: false,
+			label: '学生ID',
+			minWidth: '120px',
+		},
+		{
+			id: 'age',
+			numeric: true,
+			disablePadding: false,
+			label: '年齢',
+			minWidth: '80px !important',
+			suffix: ' 歳',
 		},
 		{
 			id: 'draft',
@@ -200,98 +281,73 @@ const Student = ({ OnlyBookmarked = false }) => {
 			numeric: true,
 			type: 'date',
 			disablePadding: false,
-			label: t('submit_date'),
-			minWidth: '110px',
+			label: '申請日',
+			minWidth: '120px',
 		},
 		{
 			id: 'draft',
 			subkey: 'submit_count',
 			numeric: true,
 			disablePadding: false,
-			label: t('submit_count'),
-			minWidth: '60px',
+			label: '申請回数',
+			minWidth: '100px',
+		},
+		{
+			id: 'draft',
+			subkey: 'changed_fields',
+			type: 'changed_fields',
+			numeric: false,
+			disablePadding: false,
+			label: '変更項目',
+			minWidth: '120px',
 		},
 		{
 			id: 'draft',
 			subkey: 'status',
-			type: 'mapped',
+			type: 'status_icon',
 			numeric: false,
 			disablePadding: false,
-			label: t('check_status'),
-			minWidth: '70px',
-			map: {
-				submitted: '未確認',
-				checking: '確認中',
-				resubmission_required: '確認済',
-				approved: '承認済',
+			label: '確認状況',
+			minWidth: '100px',
+			statusMap: {
+				submitted: { icon: 'pending', color: '#ff9800', text: '未確認' },
+				checking: { icon: 'pending', color: '#ff9800', text: '確認中' },
+				resubmission_required: {
+					icon: 'approved',
+					color: '#4caf50',
+					text: '確認済',
+				},
+				approved: { icon: 'approved', color: '#4caf50', text: '承認済' },
 			},
 		},
 		{
-			id: 'draft',
-			subkey: 'status',
+			id: 'confirmation_status',
 			keyIdentifier: 'approval_status',
-			type: 'mapped',
+			type: 'confirmation_status',
 			numeric: false,
 			disablePadding: false,
 			label: '承認状況',
-			minWidth: '30px',
-			map: {
-				draft: '未承認',
-				submitted: '未承認',
-				checking: '未承認',
-				resubmission_required: '差し戻し',
-				disapproved: '差し戻し',
-				approved: '承認済',
-			},
+			minWidth: '100px',
 		},
 		{
 			id: 'visibility',
+			keyIdentifier: 'visibility_toggle',
 			numeric: false,
-			type: 'status',
+			type: 'visibility_toggle',
 			disablePadding: false,
-			label: t('visible_status'),
-			minWidth: '60px',
+			label: '公開状況',
+			minWidth: '100px',
+			onToggle: (row, visibility) =>
+				setProfileVisibility(row.student_id, visibility),
+			disabled: role === 'Staff', // Disable for staff users
 		},
 		{
 			id: 'email',
 			numeric: false,
 			type: 'email',
 			disablePadding: false,
-			label: t('email'),
-			minWidth: '60px',
-		},
-		{
-			id: 'action',
-			numeric: false,
-			disablePadding: true,
-			label: t(''),
-			isJSON: false,
-			type: 'action',
-			minWidth: '20px',
-			options: [
-				{
-					visibleTo: 'Staff',
-					label: '確認開始',
-					action: id => {
-						updateDraftStatus(id, 'checking')
-					},
-				},
-				{
-					visibleTo: 'Admin',
-					label: '公開',
-					action: id => {
-						setProfileVisibility(id, true)
-					},
-					shouldShow: row => row.draft && row.draft.status === 'approved',
-				},
-				{
-					visibleTo: 'Admin',
-					label: '非公開',
-					action: id => {
-						setProfileVisibility(id, false)
-					},
-				},
-			],
+			label: 'メール',
+			minWidth: '200px',
 		},
 	]
 
@@ -301,6 +357,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 		filter: filterState,
 		recruiterId: userId,
 		OnlyBookmarked: OnlyBookmarked,
+		updateDraftStatusWithComments: updateDraftStatusWithComments,
+		userRole: role,
 	}
 
 	return (
@@ -310,6 +368,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 					fields={filterProps}
 					filterState={filterState}
 					onFilterChange={handleFilterChange}
+					disableStudentIdSearch={true}
 				/>
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />

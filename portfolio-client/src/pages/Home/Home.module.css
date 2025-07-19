@@ -1,32 +1,43 @@
-/* Home.module.css */
+.container {
+  margin-bottom: 40px;
+  margin-top: 40px;
+}
 
-.header {
+/* Faqat backgroundImage va textContent qismini o'zgartiring */
+
+.backgroundImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../../assets/Photo1.jpg');
+  background-size: cover;
+  background-position: center left;
+  background-repeat: no-repeat;
+  z-index: 1;
+  /* Gradient overlay - chapdan to'liq rasm, o'rtada yo'qolib ketadi */
+  mask: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0) 100%);
+  -webkit-mask: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0) 100%);
+}
+
+.mainBanner {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
   display: flex;
   align-items: center;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ccc;
-  justify-content: space-between;
+  padding: 60px 40px;
+  overflow: hidden;
+  border-radius: 12px;
 }
 
-.header h3 {
-  margin: 0;
-}
-
-.container {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.textSection {
-  flex: 50%;
-  padding: 10px;
-}
-
-.imageSection {
-  flex: 50%;
+.textContent {
   position: relative;
+  z-index: 2;
+  width: 50%;
+  max-width: 600px;
+  border-radius: 12px;
 }
 
 .titleContainer {
@@ -50,92 +61,149 @@
 }
 
 .textParagraph {
-  margin: 10px 20px 10px 20px;
+  margin: 0 0 30px 0;
   font-family: "Inter", sans-serif;
   font-size: 18px;
   font-weight: 400;
   text-align: left;
-  line-height: 2;
+  line-height: 1.8;
   letter-spacing: 0.05em;
-  border-radius: 8px;
+  color: #333;
 }
 
 .buttonContainer {
-  margin-top: 20px;
-  margin-left: 60px;
+  margin-top: 30px;
 }
 
 .button {
-  padding: 10px 20px;
+  padding: 12px 30px;
   background-color: #4a00e0;
   color: white;
   font-family: "Inter", sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: bold;
   text-align: center;
   border: none;
   border-radius: 30px;
   cursor: pointer;
-  display: inline-block;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 0, 224, 0.3);
   width: fit-content;
 }
 
 .button:hover {
   background-color: #3200a8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 0, 224, 0.4);
 }
 
-.imageSection img {
-  display: block;
-  border-radius: 10px;
+/* Bottom Images Grid */
+.bottomImagesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 40px;
+  padding: 0 10px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gridImageItem {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gridImageItem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.gridImageItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.imageSection img:nth-child(1) {
-  width: 90%;
-  left: 0;
+.gridImageItem:hover img {
+  transform: scale(1.05);
 }
 
-.imageSection img:nth-child(2) {
-  width: 80%;
-  transform: translate(24%, -40%);
-}
-
-.imageSection img:hover {
-  transform: scale(1.1) rotate(3deg);
-}
-
-.imageSection img:nth-child(2):hover {
-  transform: translate(24%, -40%) scale(1.1) rotate(3deg);
-}
-
+/* Responsive Design */
 @media (max-width: 1200px) {
-  .container {
-    flex-direction: column;
+  .mainBanner {
+    min-height: 320px;
+    padding: 40px 20px;
   }
 
-  .textSection,
-  .imageSection {
-    width: 100%;
+  .textContent {
+    max-width: 100%;
+    padding: 30px;
   }
 
-  .imageSection {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .bottomImagesGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 30px;
   }
 
-  .imageSection img {
-    position: absolute;
-    width: 80%;
-    transform: none !important;
+  .gridImageItem {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainBanner {
+    min-height: 280px;
+    padding: 30px 15px;
   }
 
-  .imageSection img {
-    position: static !important;
-    width: 100% !important;
-    margin-bottom: 20px;
+  .textContent {
+    padding: 25px;
+  }
+
+  .textParagraph {
+    font-size: 16px;
+  }
+
+  .bottomImagesGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .gridImageItem {
+    height: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .bottomImagesGrid {
+    padding: 0 5px;
+  }
+
+  .gridImageItem {
+    height: 180px;
+  }
+
+  .mainBanner {
+    min-height: 250px;
+    padding: 20px 10px;
+  }
+
+  .textContent {
+    padding: 20px;
+  }
+
+  .textParagraph {
+    font-size: 14px;
+  }
+
+  .button {
+    padding: 10px 20px;
+    font-size: 14px;
   }
 }

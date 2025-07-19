@@ -1,8 +1,9 @@
 // src/components/RoleField.js
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { TextField as MuiTextField, IconButton } from '@mui/material'
 import { Add, Close } from '@mui/icons-material'
+import PropTypes from 'prop-types'
 import styles from './RoleField.module.css' // Assuming you have some CSS for styling
 
 const RoleField = ({ data, editData, editMode, updateEditData, keyName }) => {
@@ -12,19 +13,19 @@ const RoleField = ({ data, editData, editMode, updateEditData, keyName }) => {
 	}
 
 	const handleDelete = index => {
-		const updatedData = editData[keyName].filter((_, i) => i !== index)
+		const updatedData = (editData[keyName] || []).filter((_, i) => i !== index)
 		updateEditData(keyName, updatedData)
 	}
 
 	const handleAddRole = () => {
 		if (roleText.trim() !== '') {
-			const updatedData = [...editData[keyName], roleText]
+			const updatedData = [...(editData[keyName] || []), roleText]
 			updateEditData(keyName, updatedData)
 			setRoleText('') // Clear the input field after adding
 		}
 	}
 
-	const items = editMode ? editData[keyName] : data
+	const items = editMode ? (editData[keyName] || []) : (data || [])
 
 	return (
 		<div className={styles.container}>
@@ -66,6 +67,16 @@ const RoleField = ({ data, editData, editMode, updateEditData, keyName }) => {
 			</div>
 		</div>
 	)
+}
+
+RoleField.propTypes = {
+	data: PropTypes.arrayOf(PropTypes.string),
+	editData: PropTypes.shape({
+		filter: PropTypes.func,
+	}),
+	editMode: PropTypes.bool,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string,
 }
 
 export default RoleField

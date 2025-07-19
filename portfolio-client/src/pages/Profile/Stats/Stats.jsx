@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useLocation, useParams, Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useLocation, useParams, Link } from 'react-router-dom'
 import axios from '../../../utils/axiosUtils'
 import certificateColors from '../../../utils/certificates'
 import { Box, Tabs, Tab, Snackbar, Alert } from '@mui/material'
@@ -8,6 +8,21 @@ import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import styles from './Stats.module.css'
 
 const Stats = () => {
+	// Helper function to safely parse JSON data
+	const safeParseJSON = (
+		jsonString,
+		fallback = { highest: 'N/A', list: [] }
+	) => {
+		try {
+			if (!jsonString || jsonString === 'null' || jsonString === 'undefined')
+				return fallback
+			const parsed = JSON.parse(jsonString)
+			return parsed || fallback
+		} catch (error) {
+			console.error('Error parsing JSON data:', error)
+			return fallback
+		}
+	}
 	let id
 	const { studentId } = useParams()
 	const location = useLocation()
@@ -15,13 +30,16 @@ const Stats = () => {
 
 	if (userId != 0 && userId) {
 		id = userId
+		console.log('Stats.jsx - Using userId:', id)
 	} else {
 		id = studentId
+		console.log('Stats.jsx - Using studentId:', id)
 	}
+	console.log('Stats.jsx - Final ID determined:', id)
 
 	const [student, setStudent] = useState(null)
 	const [kintoneData, setKintoneData] = useState({})
-	const [editData, setEditData] = useState({})
+	const [editData] = useState({})
 	const [certificates, setCertificates] = useState({})
 	const [subTabIndex, setSubTabIndex] = useState(0)
 	const [alert, setAlert] = useState({
@@ -33,8 +51,10 @@ const Stats = () => {
 	useEffect(() => {
 		const fetchStudentData = async () => {
 			try {
+				console.log('Stats.jsx - Making API request for student ID:', id)
 				const studentResponse = await axios.get(`/api/students/${id}`)
 				const studentData = studentResponse.data
+				console.log('Stats.jsx - Student data received:', studentData)
 
 				const kintoneResponse = await axios.post(`/api/kintone/getby`, {
 					table: 'student_credits',
@@ -47,21 +67,21 @@ const Stats = () => {
 				}
 
 				const fetchCertificates = async () => {
-					setCertificateData('main', 'JLPT', JSON.parse(studentData.jlpt))
+					setCertificateData('main', 'JLPT', safeParseJSON(studentData.jlpt))
 					setCertificateData(
 						'main',
 						'JDU_JLPT',
-						JSON.parse(studentData.jdu_japanese_certification)
+						safeParseJSON(studentData.jdu_japanese_certification)
 					)
 					setCertificateData(
 						'other',
 						'日本語弁論大会学内',
-						JSON.parse(studentData.japanese_speech_contest)
+						safeParseJSON(studentData.japanese_speech_contest)
 					)
 					setCertificateData(
 						'other',
 						'ITコンテスト学内',
-						JSON.parse(studentData.it_contest)
+						safeParseJSON(studentData.it_contest)
 					)
 
 					setStudent(studentData)
@@ -73,8 +93,13 @@ const Stats = () => {
 			}
 		}
 
-		fetchStudentData()
-	}, [studentId])
+		console.log('Stats.jsx - useEffect triggered with id:', id)
+		if (id) {
+			fetchStudentData()
+		} else {
+			console.log('Stats.jsx - No ID available, skipping API call')
+		}
+	}, [id])
 
 	const setCertificateData = (key, type, data) => {
 		let temp = []
@@ -112,36 +137,14 @@ const Stats = () => {
 
 	const openCreditDetails = event => {
 		event.preventDefault()
-		let tempStudent = {
-			student_id: student.student_id,
-			first_name: student.first_name,
-			last_name: student.last_name,
-			partner_university: student.partner_university,
-		}
-
-		const studentData = JSON.stringify(tempStudent)
-
-		const newWindow = window.open(
-			`/credit-details?student=${encodeURIComponent(studentData)}`,
+		// Use student_id as the URL parameter for CreditDetails route
+		window.open(
+			`/credit-details/${student.student_id}`,
 			'_blank',
 			'width=600,height=400'
 		)
 	}
 
-	function base64EncodeUnicode(str) {
-		return btoa(
-			encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) =>
-				String.fromCharCode('0x' + p1)
-			)
-		)
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=+$/, '')
-	}
-
-	const showAlert = (message, severity) => {
-		setAlert({ open: true, message, severity })
-	}
 
 	const handleCloseAlert = () => {
 		setAlert({ open: false, message: '', severity: '' })
@@ -181,6 +184,7 @@ const Stats = () => {
 				<Box my={2}>
 					JDU
 					<CreditsProgressBar
+						studentId={id}
 						breakpoints={breakpoints}
 						unit='単位'
 						credits={
@@ -201,6 +205,7 @@ const Stats = () => {
 				<Box my={2}>
 					{student.partner_university}
 					<CreditsProgressBar
+						studentId={id}
 						breakpoints={breakpoints2}
 						unit='単位'
 						credits={

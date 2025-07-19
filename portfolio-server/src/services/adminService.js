@@ -17,6 +17,8 @@ class AdminService {
 		const updatedData = {
 			first_name: data.first_name,
 			last_name: data.last_name,
+			first_name_furigana: data.first_name_furigana, // QO'SHILDI
+        	last_name_furigana: data.last_name_furigana,   // QO'SHILDI
 			phone: data.phone,
 			email: data.email,
 			photo: data.photo,
