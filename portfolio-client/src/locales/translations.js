@@ -1,5 +1,6 @@
 const translations = {
 	en: {
+		Qualifications:'Qualifications',
 		studetentSkillManagment: 'Student skill management',
 		studentCredits: "Student's number of credits",
 		origin: 'origin',
@@ -357,6 +358,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'Failed to delete skill',
 	},
 	ja: {
+		Qualifications:'資格・表彰暦等',
 		studetentSkillManagment: '学生スキル管理',
 		origin: '出身',
 		major: '専攻',
@@ -523,7 +525,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		hobbies: '趣味',
 		specialSkills: '特技',
 		itSkills: 'ITスキル',
-		otherSkills: 'その他',
+		otherSkills: 'その他の資格・免許・表彰暦等',
 		上級: '上級',
 		中級: '中級',
 		初級: '初級',
@@ -715,6 +717,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'スキルの削除に失敗しました',
 	},
 	uz: {
+		Qualifications:'Sertifikatlar',
 		studetentSkillManagment: 'Talaba ko‘nikmalarini boshqarish',
 		studentCredits: 'Talabaning kreditlar soni',
 		major: 'Mutaxassislik',
