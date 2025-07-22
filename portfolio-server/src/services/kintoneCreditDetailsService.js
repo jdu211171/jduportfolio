@@ -8,17 +8,22 @@ class KintoneCreditDetailsService {
 			? this.baseURL
 			: `${this.baseURL}/k/v1`
 
-		// Try App 233 first (credit_details), then fallback to App 232
-		this.appId = apps.credit_details.appId || apps.student_credits.appId
-		this.token = apps.credit_details.token || apps.student_credits.token
+		// Use App 233 (credit_details) since curl test confirmed it works
+		this.appId = apps.credit_details.appId
+		this.token = apps.credit_details.token
 
 		console.log('🔧 KintoneCreditDetailsService initialized:', {
 			baseURL: this.baseURL,
 			appId: this.appId,
 			tokenExists: !!this.token,
 			tokenValue: this.token ? `${this.token.substring(0, 10)}...` : 'N/A',
+			// fullToken: this.token, // Temporary debug - remove after fixing
 			usingApp:
-				this.appId === '233' ? 'credit_details (233)' : 'student_credits (232)',
+				this.appId === '232' ? 'student_credits (232)' : 'credit_details (233)',
+			envVars: {
+				KINTONE_STUDENT_CREDITS_TOKEN: !!process.env.KINTONE_STUDENT_CREDITS_TOKEN,
+				KINTONE_CREDIT_DETAILS_TOKEN: !!process.env.KINTONE_CREDIT_DETAILS_TOKEN,
+			}
 		})
 	}
 
@@ -30,67 +35,79 @@ class KintoneCreditDetailsService {
 	async getCreditDetailsByStudentId(studentId) {
 		try {
 			if (!this.token) {
-				console.warn(
-					'⚠️ KINTONE_CREDIT_DETAILS_TOKEN not found, using demo data'
+				console.error(
+					'❌ KINTONE_CREDIT_DETAILS_TOKEN not found in environment variables'
 				)
-				return this.getDemoDataForStudent(studentId)
+				console.log('Please set KINTONE_CREDIT_DETAILS_TOKEN in .env file')
+				return []
 			}
 
-			// Fetch data from Kintone App 233 with filter
+			// Fetch data from Kintone App 233 
 			let url = `${this.baseURL}/records.json?app=${this.appId}&limit=500&offset=0`
 
+			// For debugging: first try without filter to see all field names
+			console.log(`🔍 Fetching records from App ${this.appId} to see field structure...`)
+			
 			// Add filter to search for specific student
 			if (studentId) {
-				const query = `学生ID = "${studentId}" or student_id = "${studentId}" or studentId = "${studentId}"`
+				const query = `studentId = "${studentId}"`
 				url += `&query=${encodeURIComponent(query)}`
+				console.log('🔍 Using query filter:', query)
 			}
 
 			console.log('🚀 Fetching credit details from Kintone:', url)
+			console.log('🔑 Using headers:', {
+				'X-Cybozu-API-Token': this.token,
+				'Content-Type': 'application/json',
+			})
 
 			const response = await axios.get(url, {
 				headers: {
 					'X-Cybozu-API-Token': this.token,
-					'Content-Type': 'application/json',
+					// Remove Content-Type header for GET request (might cause issues)
+					// 'Content-Type': 'application/json',
 				},
 				timeout: 10000, // 10 second timeout
 			})
+
+			console.log('📡 Kintone API Response Status:', response.status)
+			console.log('📡 Kintone API Response Headers:', response.headers)
+			console.log('📡 Kintone API Response Data:', JSON.stringify(response.data, null, 2))
 
 			if (response.data && response.data.records) {
 				// Filter records for the specific student
 				const allRecords = response.data.records
 				console.log('🔍 Looking for student:', studentId)
+				console.log('📊 Total records found:', allRecords.length)
+
+				// Debug: show first record structure
+				if (allRecords.length > 0) {
+					console.log('🔬 First record structure:', JSON.stringify(allRecords[0], null, 2))
+					console.log('🔬 First record field names:', Object.keys(allRecords[0]))
+				}
 
 				// Debug: show all student IDs in the records
 				const allStudentIds = allRecords
-					.map(
-						record =>
-							record.student_id?.value ||
-							record.学生ID?.value ||
-							record.studentId?.value
-					)
+					.map(record => record.studentId?.value)
 					.filter(Boolean)
 				console.log('📋 Available student IDs in Kintone:', allStudentIds)
 
 				const studentRecords = allRecords.filter(record => {
-					const recordStudentId =
-						record.student_id?.value ||
-						record.学生ID?.value ||
-						record.studentId?.value
+					const recordStudentId = record.studentId?.value
 					return recordStudentId === studentId
 				})
 
 				const creditDetails = studentRecords.map(record => ({
 					recordId: record.$id.value,
-					番号: record.レコード番号?.value || record.recordNumber?.value || '',
-					科目名: record.科目名?.value || record.subjectName?.value || '',
-					評価: record.評価?.value || record.grade?.value || '',
+					番号: record.レコード番号?.value || '',
+					科目名: record.subjectName?.value || '',
+					評価: record.grade?.value || '',
 					単位数: parseInt(
-						record.単位数?.value ||
-							record.subjectCredit?.value ||
+						record.subjectCredit?.value ||
 							record.manualCredit?.value ||
 							0
 					),
-					取得日: record.取得日?.value || record.date?.value || '',
+					取得日: record.date?.value || '',
 					subjectId: record.subjectId?.value || '',
 					subjectCategory: record.subjectCategory?.value || '',
 					score: record.score?.value || '',
@@ -110,9 +127,13 @@ class KintoneCreditDetailsService {
 				`❌ Error fetching from Kintone for student ${studentId}:`,
 				error.message
 			)
-			// Fallback to demo data if Kintone fails
-			console.log(`🔄 Falling back to demo data for student ${studentId}`)
-			return this.getDemoDataForStudent(studentId)
+			console.error('Full error:', error)
+			if (error.response) {
+				console.error('Response status:', error.response.status)
+				console.error('Response data:', error.response.data)
+			}
+			// Return empty array instead of demo data to see actual issues
+			return []
 		}
 	}
 

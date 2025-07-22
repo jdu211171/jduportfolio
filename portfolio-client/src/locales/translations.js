@@ -130,21 +130,26 @@ const translations = {
 		changesSaved: 'Changes saved',
 		dataRecovered: 'Data recovered successfully',
 		recoverUnsavedChanges: 'Recover Unsaved Changes?',
-		unsavedChangesFound: 'We found unsaved changes from your previous editing session. Would you like to restore them?',
+		unsavedChangesFound:
+			'We found unsaved changes from your previous editing session. Would you like to restore them?',
 		lastModified: 'Last modified',
 		discard: 'Discard',
 		restore: 'Restore',
 		unsavedChangesTitle: 'Unsaved Changes',
-		unsavedChangesMessage: 'You have unsaved changes. Are you sure you want to discard them?',
+		unsavedChangesMessage:
+			'You have unsaved changes. Are you sure you want to discard them?',
 		continueEditing: 'Continue Editing',
 		discardChanges: 'Discard Changes',
 		unsavedChangesLanguageTitle: 'Save changes before switching language?',
-		unsavedChangesLanguageMessage: 'You have unsaved changes. Would you like to save them before changing the language?',
+		unsavedChangesLanguageMessage:
+			'You have unsaved changes. Would you like to save them before changing the language?',
 		discardAndSwitch: 'Discard & Switch',
 		saveAndSwitch: 'Save & Switch',
-		dataRestoredAfterLanguageSwitch: 'Your data has been restored after language switch',
+		dataRestoredAfterLanguageSwitch:
+			'Your data has been restored after language switch',
 		unsavedChangesNavigationTitle: 'Save changes before leaving?',
-		unsavedChangesNavigationMessage: 'You have unsaved changes. Would you like to save them before leaving this page?',
+		unsavedChangesNavigationMessage:
+			'You have unsaved changes. Would you like to save them before leaving this page?',
 		discardAndLeave: 'Discard & Leave',
 		saveAndLeave: 'Save & Leave',
 		fileUploadSuccess: 'File uploaded successfully.',
@@ -324,7 +329,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		saving: 'Saving...',
 		// Language settings translations
 		unsaved_changes_title: 'Unsaved Changes',
-		language_change_unsaved_message: 'You have unsaved changes. Would you like to save them before changing the language?',
+		language_change_unsaved_message:
+			'You have unsaved changes. Would you like to save them before changing the language?',
 		save_and_continue: 'Save and Continue',
 		discard_changes: 'Discard Changes',
 		display_language: 'Display Language',
@@ -348,7 +354,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		create: 'Create',
 		skill: 'Skill',
 		confirm_delete: 'Confirm Delete',
-		delete_skill_confirmation: 'Are you sure you want to delete this skill? This action cannot be undone.',
+		delete_skill_confirmation:
+			'Are you sure you want to delete this skill? This action cannot be undone.',
 		failed_fetch_skills: 'Failed to fetch skills',
 		skill_name_required: 'Skill name is required',
 		skill_updated_success: 'Skill updated successfully',
@@ -502,7 +509,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		changesSaved: '変更が保存されました',
 		dataRecovered: 'データが正常に復元されました',
 		recoverUnsavedChanges: '未保存の変更を復元しますか？',
-		unsavedChangesFound: '前回の編集セッションから未保存の変更が見つかりました。復元しますか？',
+		unsavedChangesFound:
+			'前回の編集セッションから未保存の変更が見つかりました。復元しますか？',
 		lastModified: '最終更新',
 		discard: '破棄',
 		restore: '復元',
@@ -511,12 +519,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		continueEditing: '編集を続ける',
 		discardChanges: '変更を破棄',
 		unsavedChangesLanguageTitle: '言語を切り替える前に変更を保存しますか？',
-		unsavedChangesLanguageMessage: '未保存の変更があります。言語を変更する前に保存しますか？',
+		unsavedChangesLanguageMessage:
+			'未保存の変更があります。言語を変更する前に保存しますか？',
 		discardAndSwitch: '破棄して切り替え',
 		saveAndSwitch: '保存して切り替え',
 		dataRestoredAfterLanguageSwitch: '言語切り替え後、データが復元されました',
 		unsavedChangesNavigationTitle: 'ページを離れる前に変更を保存しますか？',
-		unsavedChangesNavigationMessage: '未保存の変更があります。このページを離れる前に保存しますか？',
+		unsavedChangesNavigationMessage:
+			'未保存の変更があります。このページを離れる前に保存しますか？',
 		discardAndLeave: '破棄して離れる',
 		saveAndLeave: '保存して離れる',
 		fileUploadSuccess: 'ファイルのアップロードが完了しました。',
@@ -683,7 +693,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		saving: '保存中...',
 		// Language settings translations
 		unsaved_changes_title: '未保存の変更',
-		language_change_unsaved_message: '未保存の変更があります。言語を変更する前に保存しますか？',
+		language_change_unsaved_message:
+			'未保存の変更があります。言語を変更する前に保存しますか？',
 		save_and_continue: '保存して続行',
 		discard_changes: '変更を破棄',
 		display_language: '表示言語',
@@ -707,7 +718,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		create: '作成',
 		skill: 'スキル',
 		confirm_delete: '削除の確認',
-		delete_skill_confirmation: 'このスキルを削除してもよろしいですか？この操作は元に戻せません。',
+		delete_skill_confirmation:
+			'このスキルを削除してもよろしいですか？この操作は元に戻せません。',
 		failed_fetch_skills: 'スキルの取得に失敗しました',
 		skill_name_required: 'スキル名は必須です',
 		skill_updated_success: 'スキルが正常に更新されました',
@@ -851,23 +863,30 @@ Please make sure that your profile does not fall under any of the prohibited act
 		changesSaved: "O'zgarishlar saqlandi",
 		dataRecovered: "Ma'lumotlar muvaffaqiyatli tiklandi",
 		recoverUnsavedChanges: "Saqlanmagan o'zgarishlarni tiklaysizmi?",
-		unsavedChangesFound: "Oldingi tahrir sessiyangizdan saqlanmagan o'zgarishlar topildi. Ularni tiklashni xohlaysizmi?",
+		unsavedChangesFound:
+			"Oldingi tahrir sessiyangizdan saqlanmagan o'zgarishlar topildi. Ularni tiklashni xohlaysizmi?",
 		lastModified: "Oxirgi o'zgarish",
-		discard: "Bekor qilish",
-		restore: "Tiklash",
+		discard: 'Bekor qilish',
+		restore: 'Tiklash',
 		unsavedChangesTitle: "Saqlanmagan o'zgarishlar",
-		unsavedChangesMessage: "Saqlanmagan o'zgarishlaringiz bor. Ularni bekor qilishni xohlaysizmi?",
-		continueEditing: "Tahrirlashni davom ettirish",
+		unsavedChangesMessage:
+			"Saqlanmagan o'zgarishlaringiz bor. Ularni bekor qilishni xohlaysizmi?",
+		continueEditing: 'Tahrirlashni davom ettirish',
 		discardChanges: "O'zgarishlarni bekor qilish",
-		unsavedChangesLanguageTitle: "Tilni o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?",
-		unsavedChangesLanguageMessage: "Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
+		unsavedChangesLanguageTitle:
+			"Tilni o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?",
+		unsavedChangesLanguageMessage:
+			"Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
 		discardAndSwitch: "Bekor qilish va o'zgartirish",
 		saveAndSwitch: "Saqlash va o'zgartirish",
-		dataRestoredAfterLanguageSwitch: "Til o'zgartirilgandan so'ng ma'lumotlaringiz tiklandi",
-		unsavedChangesNavigationTitle: "Sahifadan chiqishdan oldin o'zgarishlarni saqlaysizmi?",
-		unsavedChangesNavigationMessage: "Saqlanmagan o'zgarishlaringiz bor. Bu sahifadan chiqishdan oldin ularni saqlashni xohlaysizmi?",
-		discardAndLeave: "Bekor qilish va chiqish",
-		saveAndLeave: "Saqlash va chiqish",
+		dataRestoredAfterLanguageSwitch:
+			"Til o'zgartirilgandan so'ng ma'lumotlaringiz tiklandi",
+		unsavedChangesNavigationTitle:
+			"Sahifadan chiqishdan oldin o'zgarishlarni saqlaysizmi?",
+		unsavedChangesNavigationMessage:
+			"Saqlanmagan o'zgarishlaringiz bor. Bu sahifadan chiqishdan oldin ularni saqlashni xohlaysizmi?",
+		discardAndLeave: 'Bekor qilish va chiqish',
+		saveAndLeave: 'Saqlash va chiqish',
 		fileUploadSuccess: 'Fayl muvaffaqiyatli yuklandi.',
 		selfIntroduction: "O'zini tanishtirish",
 		deliverables: 'Natijalar',
@@ -1041,7 +1060,8 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		saving: 'Saqlanmoqda...',
 		// Language settings translations
 		unsaved_changes_title: "Saqlanmagan o'zgarishlar",
-		language_change_unsaved_message: "Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
+		language_change_unsaved_message:
+			"Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
 		save_and_continue: 'Saqlash va davom etish',
 		discard_changes: "O'zgarishlarni bekor qilish",
 		display_language: 'Displey tili',
@@ -1055,7 +1075,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		skills: "Ko'nikmalar",
 		no_skills_found: "Ko'nikmalar topilmadi",
 		no_skills_available: "Mavjud ko'nikmalar yo'q",
-		try_adjusting_search: 'Qidiruv shartlarini sozlab ko\'ring',
+		try_adjusting_search: "Qidiruv shartlarini sozlab ko'ring",
 		start_adding_skill: "Birinchi IT ko'nikmangizni qo'shishdan boshlang",
 		edit_skill: "Ko'nikmani tahrirlash",
 		skill_name: "Ko'nikma nomi",
@@ -1065,7 +1085,8 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		create: 'Yaratish',
 		skill: "Ko'nikma",
 		confirm_delete: "O'chirishni tasdiqlash",
-		delete_skill_confirmation: "Ushbu ko'nikmani o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.",
+		delete_skill_confirmation:
+			"Ushbu ko'nikmani o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.",
 		failed_fetch_skills: "Ko'nikmalarni yuklashda xatolik",
 		skill_name_required: "Ko'nikma nomi majburiy",
 		skill_updated_success: "Ko'nikma muvaffaqiyatli yangilandi",
