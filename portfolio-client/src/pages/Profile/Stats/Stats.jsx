@@ -11,7 +11,7 @@ const Stats = () => {
 	// Helper function to safely parse JSON data
 	const safeParseJSON = (
 		jsonString,
-		fallback = { highest: 'N/A', list: [] }
+		fallback = { highest: '未提出', list: [] }
 	) => {
 		try {
 			if (!jsonString || jsonString === 'null' || jsonString === 'undefined')
@@ -145,7 +145,6 @@ const Stats = () => {
 		)
 	}
 
-
 	const handleCloseAlert = () => {
 		setAlert({ open: false, message: '', severity: '' })
 	}
@@ -184,20 +183,17 @@ const Stats = () => {
 				<Box my={2}>
 					JDU
 					<CreditsProgressBar
-						studentId={id}
-						breakpoints={breakpoints}
-						unit='単位'
-						credits={
-							JSON.stringify(kintoneData) !== '{}'
+						studentId={student.student_id}
+						student={{
+							totalCredits: JSON.stringify(kintoneData) !== '{}'
 								? Number(kintoneData.businessSkillsCredits?.value) +
 									Number(kintoneData.japaneseEmploymentCredits?.value)
-								: 0
-						}
-						semester={
-							JSON.stringify(kintoneData) !== '{}'
+								: 0,
+							semester: JSON.stringify(kintoneData) !== '{}'
 								? kintoneData.semester?.value
-								: 0
-						}
+								: '',
+							university: 'JDU'
+						}}
 					/>
 				</Box>
 			)}
@@ -205,19 +201,16 @@ const Stats = () => {
 				<Box my={2}>
 					{student.partner_university}
 					<CreditsProgressBar
-						studentId={id}
-						breakpoints={breakpoints2}
-						unit='単位'
-						credits={
-							JSON.stringify(kintoneData) !== '{}'
-								? kintoneData.partnerUniversityCredits.value
-								: 0
-						}
-						semester={
-							JSON.stringify(kintoneData) !== '{}'
+						studentId={student.student_id}
+						student={{
+							totalCredits: JSON.stringify(kintoneData) !== '{}'
+								? Number(kintoneData.partnerUniversityCredits?.value)
+								: 0,
+							semester: JSON.stringify(kintoneData) !== '{}'
 								? kintoneData.semester?.value
-								: 0
-						}
+								: '',
+							university: student.partner_university
+						}}
 					/>
 				</Box>
 			)}

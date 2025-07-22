@@ -1009,33 +1009,21 @@ class StudentService {
 				throw new Error('Student not found')
 			}
 
-			// If credit_details is empty or outdated, fetch from Kintone
-			if (!student.credit_details || student.credit_details.length === 0) {
-				await this.updateStudentCreditDetails(studentId)
-				// Fetch updated student data
-				const updatedStudent = await this.getStudentByStudentId(studentId)
+			// Always fetch fresh data from Kintone for real-time updates
+			console.log(`🔄 Fetching fresh credit details from Kintone for student ${studentId}`)
+			await this.updateStudentCreditDetails(studentId)
+			// Fetch updated student data
+			const updatedStudent = await this.getStudentByStudentId(studentId)
 
-				// Calculate total credits from credit details (like Sanno University)
-				const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(
-					updatedStudent.credit_details || []
-				)
-
-				return {
-					...updatedStudent,
-					totalCredits,
-					creditDetails: updatedStudent.credit_details || [],
-				}
-			}
-
-			// Calculate total credits from existing credit details
+			// Calculate total credits from credit details (like Sanno University)
 			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(
-				student.credit_details || []
+				updatedStudent.credit_details || []
 			)
 
 			return {
-				...student,
+				...updatedStudent,
 				totalCredits,
-				creditDetails: student.credit_details || [],
+				creditDetails: updatedStudent.credit_details || [],
 			}
 		} catch (error) {
 			throw error

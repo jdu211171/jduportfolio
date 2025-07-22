@@ -54,13 +54,16 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 		if (!studentId) return
 
 		setLoading(true)
+		// Clear old data before fetching new data
+		setCreditDetails([])
+		
 		try {
-			const response = await axios.get(
-				`${import.meta.env.VITE_APP_API_BASE_URL}/students/${studentId}/credit-details`,
-				{
-					withCredentials: true,
-				}
-			)
+			const apiUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/students/${studentId}/credit-details`
+			console.log('🌐 Fetching from API:', apiUrl)
+			
+			const response = await axios.get(apiUrl, {
+				withCredentials: true,
+			})
 
 			console.log('🔍 API Response:', response.data)
 			const data = response.data.data
@@ -84,6 +87,11 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 			}
 		} catch (error) {
 			console.error('❌ Error fetching credit details:', error)
+			console.error('Error details:', {
+				message: error.message,
+				status: error.response?.status,
+				data: error.response?.data
+			})
 			// Show demo data that matches the Kintone structure
 			const demoKintoneData = [
 				{
@@ -175,6 +183,8 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 			setLoading(false)
 		} else if (studentId) {
 			// Otherwise, fetch from API if studentId is available
+			// Always fetch fresh data when studentId changes
+			console.log('🔄 Fetching fresh credit details for studentId:', studentId)
 			fetchCreditDetails()
 		} else {
 			// No data available
@@ -182,7 +192,7 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 			setCreditDetails([])
 			setLoading(false)
 		}
-	}, [fetchCreditDetails, credit_details, studentId])
+	}, [studentId]) // Remove fetchCreditDetails from dependencies to prevent infinite loops
 
 	// Grade badge styling
 	const getGradeBadgeClass = grade => {
