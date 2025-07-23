@@ -30,6 +30,7 @@ import Unauthorized from './pages/Unauthorized/Unauthorized'
 import LogOut from './components/LogOut'
 import GoogleAuthCallback from './pages/GoogleAuthCallback.jsx'
 import { CreateSkill } from './pages/CreateSkill/CreateSkill.jsx'
+import { News } from './pages/news/News.jsx'
 const AppRoutes = () => {
 	const { role, userId, updateUser, language } = useContext(UserContext)
 
@@ -82,12 +83,23 @@ const AppRoutes = () => {
 						>
 							<Route index element={<Recruiter />} />
 						</Route>
-						
+
 						<Route
 							path='/create-skill'
 							element={<ProtectedLayout allowedRoles={['Admin', 'Staff']} />}
 						>
 							<Route index element={<CreateSkill />} />
+						</Route>
+
+						<Route
+							path='/news'
+							element={
+								<ProtectedLayout
+									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
+								/>
+							}
+						>
+							<Route index element={<News />} />
 						</Route>
 
 						<Route

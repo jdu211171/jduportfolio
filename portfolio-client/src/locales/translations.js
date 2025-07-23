@@ -1,5 +1,9 @@
 const translations = {
 	en: {
+		searchByHashtag:'Search by hashtag, company name, or news title...',
+		checkOut:'Check out the latest announcements and offers from companies',
+		newsHighlights:'News highlights',
+		news:'Company news',
 		Qualifications:'Qualifications',
 		studetentSkillManagment: 'Student skill management',
 		studentCredits: "Student's number of credits",
@@ -365,6 +369,10 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'Failed to delete skill',
 	},
 	ja: {
+		searchByHashtag:'ハッシュタグ、会社名、ニュースのタイトルで検索します...',
+		checkOut:'企業からの最新のお知らせとオファーをチェックしよう',
+		newsHighlights:'ニュースハイライト',
+		news:'企業ニュース',
 		Qualifications:'資格・表彰暦等',
 		studetentSkillManagment: '学生スキル管理',
 		origin: '出身',
@@ -729,6 +737,10 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'スキルの削除に失敗しました',
 	},
 	uz: {
+		searchByHashtag:'Xeshteg, kompaniya nomi yoki yangilik sarlavhasi bo‘yicha qidiring...',
+		checkOut:"Korxonalardan eng so‘nggi e'lonlar va takliflarni ko‘rib chiqing",
+		newsHighlights:'Yangiliklar',
+		news:'Korxona yangiliklari',
 		Qualifications:'Sertifikatlar',
 		studetentSkillManagment: 'Talaba ko‘nikmalarini boshqarish',
 		studentCredits: 'Talabaning kreditlar soni',

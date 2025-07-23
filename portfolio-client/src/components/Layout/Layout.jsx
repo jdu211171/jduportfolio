@@ -1,4 +1,4 @@
-import { Modal } from '@mui/material'
+import { colors, Modal } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -18,6 +18,7 @@ import { ReactComponent as UserPlusIcon } from '../../assets/icons/user-add-line
 import { ReactComponent as StudentIcon } from '../../assets/icons/user-follow-line.svg'
 import { ReactComponent as SearchIcon } from '../../assets/icons/user-search-line.svg'
 import { ReactComponent as SettingsIcon } from '../../assets/icons/settings-3-line.svg'
+import { ReactComponent as NewsIcon } from '../../assets/icons/news-icon.svg'
 import TuneIcon from '@mui/icons-material/Tune'
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
@@ -45,6 +46,12 @@ const Layout = () => {
 					icon: <HomeIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('home'),
 					roles: ['Admin', 'Staff', 'Recruiter'],
+				},
+				{
+					to: '/news',
+					icon: <NewsIcon style={{ width: '24px', height: '24px', }}/>,
+					label: t('news'),
+					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 				},
 				{
 					to: '/companyprofile',
