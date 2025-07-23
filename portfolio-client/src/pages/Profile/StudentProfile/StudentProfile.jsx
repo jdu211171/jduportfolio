@@ -21,7 +21,6 @@ const StudentProfile = ({ userId = 0 }) => {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
 			return loginUserData?.studentId
 		} catch (e) {
-			console.error('Error parsing login user data:', e)
 			return null
 		}
 	}
@@ -31,20 +30,13 @@ const StudentProfile = ({ userId = 0 }) => {
 	if (role === 'Student') {
 		// For students, ALWAYS use their own student_id from session, ignore userId prop
 		id = getStudentIdFromLoginUser()
-		console.log('Student role - using student_id from session:', id)
 	} else if (studentId) {
 		// For staff/admin, prefer studentId from URL params (this should be student_id)
 		id = studentId
-		console.log('Staff/Admin role - using studentId from URL params:', id)
 	} else if (userId !== 0) {
 		// For staff/admin, fallback to userId prop (but this might be primary key, needs verification)
 		id = userId
-		console.log(
-			'Staff/Admin role - using userId prop (might be primary key):',
-			id
-		)
 	} else {
-		console.error('No valid ID found for student profile')
 		id = null
 	}
 
@@ -67,26 +59,13 @@ const StudentProfile = ({ userId = 0 }) => {
 				setError(null)
 
 				// Debug: check what id value we're using
-				console.log(
-					'StudentProfile fetchStudent - id value:',
-					id,
-					'type:',
-					typeof id
-				)
-				console.log(
-					'StudentProfile fetchStudent - studentId from params:',
-					studentId
-				)
-				console.log('StudentProfile fetchStudent - userId prop:', userId)
-				console.log('StudentProfile fetchStudent - role:', role)
 
 				// Use student_id for API call, not primary key id
 				const response = await axios.get(`/api/students/${id}`)
 				setStudent(response.data)
 				setLoading(false)
 			} catch (error) {
-				console.log('Error fetching student data', error)
-				setError(error.response?.data?.message || 'Error fetching student data')
+					setError(error.response?.data?.message || 'Error fetching student data')
 				setLoading(false)
 			}
 		}
@@ -231,7 +210,8 @@ const StudentProfile = ({ userId = 0 }) => {
 							{/* furigana */}
 							{(student.first_name_furigana || student.last_name_furigana) && (
 								<div style={{ fontSize: 14, color: '#666' }}>
-									{student.last_name_furigana || ''} {student.first_name_furigana || ''}
+									{student.last_name_furigana || ''}{' '}
+									{student.first_name_furigana || ''}
 								</div>
 							)}
 							{/* student id and birthday */}

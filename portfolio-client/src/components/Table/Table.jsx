@@ -46,7 +46,6 @@ const getInitialRowsPerPage = () => {
 		const saved = localStorage.getItem('tableRowsPerPage')
 		return saved ? parseInt(saved, 10) : 10
 	} catch (error) {
-		console.error('Error reading from localStorage:', error)
 		return 10
 	}
 }
@@ -81,7 +80,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		try {
 			localStorage.setItem('tableRowsPerPage', rowsPerPage.toString())
 		} catch (error) {
-			console.error('Error saving to localStorage:', error)
+			// Silently fail if localStorage is not available
 		}
 	}, [rowsPerPage])
 
@@ -92,16 +91,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		}))
 	}
 	const handleClose = async (id, action) => {
-		console.log('handleClose called with:', { id, action })
 		let res = false
 		res = await action(id)
-		console.log('Action result:', res)
 
 		if (res == undefined) {
-			console.log('Action returned undefined, triggering refresh')
 			setRefresher(prev => prev + 1)
-		} else {
-			console.log('Action returned result, not triggering refresh')
 		}
 
 		setAnchorEls(prev => ({
@@ -115,7 +109,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 	}
 
 	const fetchUserData = useCallback(async () => {
-		console.log('fetchUserData called')
 		setLoading(true)
 		try {
 			const response = await axios.get(tableProps.dataLink, {
@@ -125,10 +118,9 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					onlyBookmarked: tableProps.OnlyBookmarked,
 				},
 			})
-			console.log('Fetched data:', response.data)
 			setRows(response.data)
 		} catch (error) {
-			console.error('Error fetching students:', error)
+			// Handle error silently
 		} finally {
 			setLoading(false)
 		}
@@ -140,7 +132,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 	])
 
 	useEffect(() => {
-		console.log('useEffect triggered, calling fetchUserData')
 		fetchUserData()
 	}, [
 		fetchUserData,
@@ -922,12 +913,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 
-																	console.log('Visibility toggle clicked:', {
-																		rowId: row.id,
-																		previousValue: previousValue,
-																		newValue: newValue,
-																		headerId: header.id,
-																	})
 
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
@@ -935,10 +920,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																			prevRow.id === row.id
 																				? { ...prevRow, [header.id]: newValue }
 																				: prevRow
-																		)
-																		console.log(
-																			'Optimistically updated rows:',
-																			newRows.find(r => r.id === row.id)
 																		)
 																		return newRows
 																	})
@@ -961,12 +942,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																					newValue
 																				)
 																			}
-																			console.log('Toggle result:', success)
 
 																			if (!success) {
-																				console.log(
-																					'Toggle failed, reverting to previous state'
-																				)
 																				// Revert to previous state if backend call failed
 																				setRows(prevRows => {
 																					const revertedRows = prevRows.map(
@@ -978,24 +955,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																									}
 																								: prevRow
 																					)
-																					console.log(
-																						'Reverted rows:',
-																						revertedRows.find(
-																							r => r.id === row.id
-																						)
-																					)
 																					return revertedRows
 																				})
 																			} else {
-																				console.log(
-																					'Toggle successful, keeping optimistic update'
-																				)
 																			}
 																		} catch (error) {
-																			console.error(
-																				'Toggle error, reverting to previous state:',
-																				error
-																			)
 																			// Revert to previous state on error
 																			setRows(prevRows => {
 																				const revertedRows = prevRows.map(
@@ -1006,12 +970,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																									[header.id]: previousValue,
 																								}
 																							: prevRow
-																				)
-																				console.log(
-																					'Error reverted rows:',
-																					revertedRows.find(
-																						r => r.id === row.id
-																					)
 																				)
 																				return revertedRows
 																			})
@@ -1069,12 +1027,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 
-																	console.log('Toggle switch clicked:', {
-																		rowId: row.id,
-																		previousValue: previousValue,
-																		newValue: newValue,
-																		headerId: header.id,
-																	})
 
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
@@ -1082,10 +1034,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																			prevRow.id === row.id
 																				? { ...prevRow, [header.id]: newValue }
 																				: prevRow
-																		)
-																		console.log(
-																			'Optimistically updated toggle switch rows:',
-																			newRows.find(r => r.id === row.id)
 																		)
 																		return newRows
 																	})
@@ -1097,15 +1045,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																				row.id,
 																				newValue
 																			)
-																			console.log(
-																				'Toggle switch result:',
-																				success
-																			)
 
 																			if (!success) {
-																				console.log(
-																					'Toggle switch failed, reverting to previous state'
-																				)
 																				// Revert to previous state if backend call failed
 																				setRows(prevRows => {
 																					const revertedRows = prevRows.map(
@@ -1117,24 +1058,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																									}
 																								: prevRow
 																					)
-																					console.log(
-																						'Reverted toggle switch rows:',
-																						revertedRows.find(
-																							r => r.id === row.id
-																						)
-																					)
 																					return revertedRows
 																				})
 																			} else {
-																				console.log(
-																					'Toggle switch successful, keeping optimistic update'
-																				)
 																			}
 																		} catch (error) {
-																			console.error(
-																				'Toggle switch error, reverting to previous state:',
-																				error
-																			)
 																			// Revert to previous state on error
 																			setRows(prevRows => {
 																				const revertedRows = prevRows.map(
@@ -1145,12 +1073,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																									[header.id]: previousValue,
 																								}
 																							: prevRow
-																				)
-																				console.log(
-																					'Error reverted toggle switch rows:',
-																					revertedRows.find(
-																						r => r.id === row.id
-																					)
 																				)
 																				return revertedRows
 																			})

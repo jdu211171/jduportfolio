@@ -112,11 +112,9 @@ const Setting = () => {
 			if (userRole === 'Student') {
 				// For students, use student_id instead of primary key
 				id = loginUser.studentId
-				console.log('Setting.jsx - Student role using student_id:', id)
 			} else {
 				// For other roles, use primary key id
 				id = loginUser.id
-				console.log('Setting.jsx - Other role using id:', id)
 			}
 
 			if (!id) {
@@ -165,7 +163,6 @@ const Setting = () => {
 
 			reset(formData)
 		} catch (error) {
-			console.error('User fetch error:', error)
 			showAlert('Failed to fetch user data', 'error')
 		} finally {
 			setIsLoading(false)
@@ -296,7 +293,6 @@ const Setting = () => {
 			setHasUnsavedChanges(false)
 			showAlert(t('profile_update_success'), 'success')
 		} catch (error) {
-			console.error(t('profile_update_failed'), error)
 
 			// File upload error handling
 			if (
@@ -304,11 +300,6 @@ const Setting = () => {
 				error.config.url &&
 				error.config.url.includes('/api/files/upload')
 			) {
-				console.error('File upload error details:', {
-					status: error.response?.status,
-					data: error.response?.data,
-					message: error.message,
-				})
 				showAlert(
 					'ファイルのアップロードに失敗しました。ファイルサイズやフォーマットを確認してください。',
 					'error'
@@ -333,7 +324,6 @@ const Setting = () => {
 			await axios.post('api/kintone/sync')
 			showAlert('同期に成功しました。', 'success')
 		} catch (error) {
-			console.error('Sync failed:', error)
 			showAlert('同期に失敗しました。再試行してください。', 'error')
 		}
 	}

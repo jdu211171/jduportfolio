@@ -115,7 +115,6 @@ const QA = ({
 				loginUserData?.id
 			)
 		} catch (e) {
-			console.error('Error parsing login user data:', e)
 			return null
 		}
 	}
@@ -124,35 +123,20 @@ const QA = ({
 	if (role === 'Student') {
 		// For students, try multiple sources
 		id = getStudentIdFromLoginUser() || activeUser?.studentId || activeUser?.id
-		console.log('QA.jsx - Student role using student_id:', id)
-		console.log('QA.jsx - activeUser:', activeUser)
 	} else if (studentId) {
 		// For staff/admin, prefer studentId from URL params (this should be student_id)
 		id = studentId
-		console.log(
-			'QA.jsx - Staff/Admin role using studentId from URL params:',
-			id
-		)
 	} else {
 		// Fallback: try to get student data from location.state if available
 		const student = location.state?.student
 		if (student && student.student_id) {
 			id = student.student_id
-			console.log(
-				'QA.jsx - Staff/Admin role using student_id from location.state:',
-				id
-			)
 		} else if (userId !== 0 && userId) {
 			// Last resort: use userId prop (might be primary key, could cause issues)
 			id = userId
-			console.log(
-				'QA.jsx - Staff/Admin role using userId prop (MIGHT BE PRIMARY KEY):',
-				id
-			)
 		} else {
 			// Don't log error for Admin on QA management page
 			if (!(role === 'Admin' && window.location.pathname === '/student-qa')) {
-				console.error('QA.jsx - No valid ID found')
 			}
 			id = null
 		}
@@ -179,10 +163,6 @@ const QA = ({
 	const [passedDraft, setPassedDraft] = useState(currentDraft)
 
 	// Debug logging to track state changes
-	console.log('QA Debug - Role:', role)
-	console.log('QA Debug - currentDraft:', currentDraft)
-	console.log('QA Debug - passedDraft:', passedDraft)
-	console.log('QA Debug - editMode:', editMode)
 
 	// Check submit button visibility condition
 	const shouldShowSubmitButton =
@@ -190,7 +170,6 @@ const QA = ({
 		currentDraft &&
 		(currentDraft.status === 'draft' ||
 			currentDraft.status === 'resubmission_required')
-	console.log('QA Debug - shouldShowSubmitButton:', shouldShowSubmitButton)
 
 	// Keep passedDraft synchronized with currentDraft changes
 	useEffect(() => {
@@ -198,32 +177,25 @@ const QA = ({
 	}, [currentDraft])
 
 	const fetchStudent = async () => {
-		console.log('fetchStudent called - role:', role, 'id:', id, 'isFromTopPage:', isFromTopPage)
 		
 		// Prevent fetching if already loaded (only for non-student roles)
 		if (isDataLoaded && role !== 'Student') return
 
 		try {
 			// Always fetch questions to get the latest admin-added questions
-			console.log('Fetching admin questions from /api/settings/studentQA')
 			const questionsResponse = await axios.get('/api/settings/studentQA')
 			const questions = JSON.parse(questionsResponse.data.value)
-			console.log('Admin questions fetched:', questions)
 
 			let answers = null
 			
 			// For Top page, use provided data as answers
 			if (isFromTopPage && data && Object.keys(data).length > 0) {
-				console.log('Using answers from Top page data')
 				answers = data
 			} else if (id) {
 				// Otherwise fetch answers from API
 				try {
-					console.log('Fetching answers for student:', id)
 					answers = (await axios.get(`/api/qa/student/${id}`)).data
-					console.log('Answers fetched:', answers)
 				} catch (err) {
-					console.log('No existing answers found for student:', id)
 				}
 			}
 
@@ -271,7 +243,6 @@ const QA = ({
 			setEditData(response)
 			setIsDataLoaded(true)
 		} catch (error) {
-			console.error('Error fetching data:', error)
 			// Initialize with empty structure on error
 			setStudentQA({ idList: {} })
 			setEditData({ idList: {} })
@@ -281,15 +252,12 @@ const QA = ({
 
 	useEffect(() => {
 		if (role && (id || role === 'Admin')) {
-			console.log('QA useEffect - role:', role, 'id:', id, 'isFromTopPage:', isFromTopPage)
 			// Always fetch for students to get latest admin questions
 			if (role === 'Student') {
-				console.log('Student role - calling fetchStudent')
 				fetchStudent()
 			} else {
 				// For other roles, only fetch if not loaded
 				if (!isDataLoaded) {
-					console.log('Non-student role - calling fetchStudent')
 					fetchStudent()
 				}
 			}
@@ -380,18 +348,12 @@ const QA = ({
 
 	const approveProfile = async value => {
 		try {
-			console.log('Approving profile with:', {
-				draftId: currentDraft.id,
-				status: value,
-				comments: comment.comments,
-			})
 
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
 				comments: comment.comments,
 			})
 
-			console.log('Approval response:', res.data)
 
 			// Update local draft status to reflect the change
 			setPassedDraft(prevDraft => ({
@@ -428,11 +390,6 @@ const QA = ({
 		
 		setIsSaving(true)
 		try {
-			console.log('=== QA Save Debug ===')
-			console.log('Role:', role)
-			console.log('isFirstTime:', isFirstTime)
-			console.log('editData:', editData)
-			console.log('id:', id)
 
 			if (role == 'Admin') {
 				let questions = removeKey(editData, 'answer')
@@ -447,23 +404,16 @@ const QA = ({
 				setTopEditMode(false)
 			} else {
 				let answers = removeKey(editData, 'question')
-				console.log('Prepared answers data:', answers)
 
 				let res
 				if (isFirstTime) {
-					console.log('Creating new QA entry...')
 					const requestData = { studentId: id, data: answers }
-					console.log('POST request data:', requestData)
 
 					res = await axios.post('/api/qa/', requestData)
-					console.log('Create response:', res.data)
 				} else {
-					console.log('Updating existing QA entry...')
 					const updateData = { data: answers }
-					console.log('PUT request data:', updateData)
 
 					res = await axios.put(`/api/qa/${id}`, updateData)
-					console.log('Update response:', res.data)
 				}
 
 				// Update local state with server response
@@ -491,7 +441,6 @@ const QA = ({
 
 				// If called from Top page, update parent component
 				if (isFromTopPage && handleQAUpdate) {
-					console.log('Updating parent with:', res.data)
 					handleQAUpdate(res.data)
 				}
 
@@ -501,7 +450,6 @@ const QA = ({
 
 			showAlert('Changes saved successfully!', 'success')
 		} catch (error) {
-			console.error('Error saving Q&A data:', error)
 			const errorMessage =
 				error.response?.data?.message ||
 				error.response?.data?.error ||
@@ -526,7 +474,6 @@ const QA = ({
 			
 			showAlert('Changes cancelled', 'info')
 		} catch (error) {
-			console.error('Error cancelling changes:', error)
 			// Fallback: re-fetch from server
 			fetchStudent()
 			setEditMode(false)
@@ -567,11 +514,6 @@ const QA = ({
 				return updatedEditData
 			})
 		}
-		// console.log(
-		// 	document
-		// 		.querySelectorAll('textarea[aria-invalid="false"]')
-		// 		[keys.length].focus()
-		// )
 	}
 
 	const showDeleteConfirmation = (indexToDelete) => {
@@ -594,7 +536,6 @@ const QA = ({
 
 	const handleDelete = async indexToDelete => {
 		try {
-			console.log('Deleting QA item:', indexToDelete, 'from category:', labels[subTabIndex])
 			
 			// Optimistic update: immediately update local state
 			setEditData(prevEditData => {
@@ -623,7 +564,6 @@ const QA = ({
 
 			showAlert('Item deleted successfully!', 'success')
 		} catch (error) {
-			console.error('Error deleting QA item:', error)
 			showAlert('Error deleting item. Please try again.', 'error')
 			
 			// Rollback optimistic update on error
@@ -709,17 +649,6 @@ const QA = ({
 	}
 
 	// Debug logging to understand the state
-	console.log('QA Component Debug:', {
-		role,
-		currentDraft: currentDraft,
-		currentDraftStatus: currentDraft?.status,
-		passedDraftStatus: passedDraft?.status,
-		shouldShowSubmitButton:
-			role == 'Student' &&
-			currentDraft &&
-			(currentDraft.status === 'draft' ||
-				currentDraft.status === 'resubmission_required'),
-	})
 
 	// For Admin viewing QA management, we don't need an ID
 	if (role === 'Admin' && !studentId && !userId) {
@@ -736,13 +665,6 @@ const QA = ({
 	}
 
 	// Debug logging
-	console.log('QA Render Debug:', {
-		id,
-		role,
-		isFromTopPage,
-		hasData: !!data && Object.keys(data).length > 0,
-		location: window.location.pathname,
-	})
 
 	// Don't render buttons if component is used from Top page
 	const portalContent = !isFromTopPage ? (

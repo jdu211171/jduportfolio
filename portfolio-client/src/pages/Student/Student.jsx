@@ -94,14 +94,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const handleFilterChange = useCallback(newFilterState => {
 		setFilterState(newFilterState)
-		console.log('Filter changed:', newFilterState)
+		// console.log('Filter changed:', newFilterState)
 	}, [])
 
 	// ✅ Debug logging qo'shish
 	const handleViewModeChange = useCallback(
 		newMode => {
 			console.log('Current viewMode:', viewMode)
-			console.log('Switching to:', newMode)
+			// console.log('Switching to:', newMode)
 			setViewMode(newMode)
 		},
 		[viewMode]

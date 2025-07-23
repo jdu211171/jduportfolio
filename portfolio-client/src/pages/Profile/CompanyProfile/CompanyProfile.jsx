@@ -358,7 +358,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 		delete processedData.newWelcomeSkill;
 		delete processedData.newVideoUrl;
 		
-		console.log('Processed data being sent to backend:', processedData) // Debug log
 		
 		// Simple implementation - just make API call
 		await axios.put(`/api/recruiters/${id}`, processedData)
@@ -369,7 +368,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 		try {
 			// Use editData instead of getValues() since this component uses state, not React Hook Form
 			const formData = editData
-			console.log('Form data before update:', formData) // Debug log
 			
 			await handleUpdate(formData)
 			
@@ -388,7 +386,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 			// Show success message
 			showAlert(t.changes_saved || 'Changes saved successfully!', 'success')
 		} catch (error) {
-			console.error('Save error:', error)
 			showAlert('Error saving changes', 'error')
 		}
 	}
@@ -407,7 +404,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 			const savedData = localStorage.getItem(storageKey)
 			return savedData ? JSON.parse(savedData) : null
 		} catch (error) {
-			console.error('Error loading from storage:', error)
 			return null
 		}
 	}
@@ -417,7 +413,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 			const storageKey = `company_profile_edit_${id}_${role}`
 			localStorage.setItem(storageKey, JSON.stringify(data))
 		} catch (error) {
-			console.error('Error saving to storage:', error)
 		}
 	}
 
@@ -426,7 +421,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 			const storageKey = `company_profile_edit_${id}_${role}`
 			localStorage.removeItem(storageKey)
 		} catch (error) {
-			console.error('Error clearing storage:', error)
 		}
 	}
 
@@ -524,7 +518,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 			if (isNavigating || navigationBlocked || !editMode) return true
 			
 			if (url && url !== window.location.pathname) {
-				console.log('Navigation intercepted to:', url)
 				isNavigating = true
 				navigationBlocked = true
 				setPendingNavigation({ pathname: url })
@@ -572,12 +565,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 	// Handle language change with unsaved changes check
 	useEffect(() => {
 		const handleCheckUnsavedChanges = (e) => {
-			console.log('checkUnsavedChanges event received:', { 
-				editMode, 
-				role, 
-				eventDetail: e.detail,
-				shouldPrevent: editMode && role === 'Recruiter' 
-			})
 			if (editMode && role === 'Recruiter') {
 				// Always show warning in edit mode for Recruiters
 				e.preventDefault()
@@ -596,14 +583,11 @@ const CompanyProfile = ({ userId = 0 }) => {
 	useEffect(() => {
 		if (editMode && role === 'Recruiter' && editData && company) {
 			const hasChanges = hasChangesFromOriginal(editData)
-			console.log('Auto-save check:', { editMode, role, hasData: !!editData, hasChanges })
 			
 			if (hasChanges) {
-				console.log('Changes detected, saving to localStorage')
 				saveToStorageIfChanged(editData)
 				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: true }))
 			} else {
-				console.log('No changes detected, skipping auto-save')
 				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: false }))
 			}
 		}
@@ -631,10 +615,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 				)
 				keysToRemove.forEach(key => {
 					localStorage.removeItem(key)
-					console.log('Removed stale localStorage key:', key)
 				})
 			} catch (error) {
-				console.error('Error clearing stale localStorage:', error)
 			}
 		}
 	}, [role, id])
@@ -678,12 +660,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 			try {
 				const storageKey = `profileEditDraft_company_profile_edit_${id || 'unknown'}_${role}`
 				localStorage.removeItem(storageKey)
-				console.log('Manually cleared localStorage with key:', storageKey)
 			} catch (error) {
-				console.error('Error clearing localStorage manually:', error)
 			}
 		} catch (error) {
-			console.error('Error fetching company data:', error)
 			setCompany(null)
 		}
 	}
@@ -707,7 +686,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 					// Force load the saved data
 					const persistedEditData = loadFromStorage()
 					if (persistedEditData && Object.keys(persistedEditData).length > 0) {
-						console.log('Found saved data after language change:', persistedEditData)
 						setPersistedData({
 							exists: true,
 							data: persistedEditData,
@@ -720,7 +698,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 					// Check if there's saved data to restore
 					const persistedEditData = loadFromStorage()
 					if (persistedEditData && Object.keys(persistedEditData).length > 0) {
-						console.log('Found saved data after navigation:', persistedEditData)
 						setPersistedData({
 							exists: true,
 							data: persistedEditData,
@@ -731,7 +708,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 				} else {
 					// For normal edit mode entry, don't show recovery dialog
 					// Only show recovery for specific cases (language switch or navigation return)
-					console.log('Normal edit mode entry - no recovery check needed')
 					
 					// Clear any existing localStorage to prevent future false positives
 					clearStorage()
@@ -779,15 +755,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 	// Optimized state update to prevent unnecessary re-renders
 	const handleUpdateEditData = useCallback((key, value) => {
-		console.log(`📝 Updating editData[${key}]:`, value)
 		if (key === 'company_video_url') {
-			console.log(
-				`📝 Video URL update - Array length: ${Array.isArray(value) ? value.length : 'Not an array'}`
-			)
 		}
 		setEditData(prevData => {
 			if (prevData[key] === value) {
-				console.log(`📝 No change needed for ${key}`)
 				return prevData
 			}
 			const newData = {
@@ -795,8 +766,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 				[key]: value,
 			}
 			if (key === 'company_video_url') {
-				console.log(`📝 Updated company_video_url:`, newData[key])
-				console.log(`📝 Updated array length:`, newData[key]?.length)
 			}
 			return newData
 		})
@@ -1009,9 +978,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 										onClick={() => {
 											// Clear any stale localStorage before entering edit mode
 											clearStorage()
-											console.log('🔄 ENTERING EDIT MODE')
-											console.log('🔄 Current company data:', company)
-											console.log('🔄 Current editData before entering edit:', editData)
 											setEditMode(true)
 										}}
 										variant='contained'
@@ -1153,15 +1119,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 											className={styles.videoDeleteButton}
 											onClick={e => {
 												e.preventDefault()
-												console.log('🗑️ Deleting video at index:', index)
-												console.log(
-													'🗑️ Current array before deletion:',
-													editData.company_video_url
-												)
-												console.log(
-													'🗑️ Array length before deletion:',
-													editData.company_video_url?.length
-												)
 
 												const currentArray = Array.isArray(
 													editData.company_video_url
@@ -1172,20 +1129,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 													(_, i) => i !== index
 												)
 
-												console.log('🗑️ New array after deletion:', newArray)
-												console.log(
-													'🗑️ New array length after deletion:',
-													newArray.length
-												)
 												handleUpdateEditData('company_video_url', newArray)
 
-												// Additional debug to confirm state update
-												setTimeout(() => {
-													console.log(
-														'🗑️ EditData after state update:',
-														editData.company_video_url
-													)
-												}, 100)
 											}}
 										>
 											<img

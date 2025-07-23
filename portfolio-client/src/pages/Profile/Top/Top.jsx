@@ -72,7 +72,7 @@ const Top = () => {
 		hasUnsavedChanges: false,
 	})
 	// Language change handling
-	const handleLanguageChange = (newLanguage) => {
+	const handleLanguageChange = newLanguage => {
 		if (editMode && hasUnsavedChanges) {
 			setPendingLanguageChange(newLanguage)
 			setShowUnsavedDialog(true)
@@ -94,22 +94,21 @@ const Top = () => {
 		localStorage.removeItem(`profile_edit_${id}_${role}`)
 	}
 
-	const updateOriginalData = (data) => {
+	const updateOriginalData = data => {
 		// Simple implementation - just reset form with new data
 		reset(data)
 	}
 
-	const hasChangesFromOriginal = (data) => {
+	const hasChangesFromOriginal = data => {
 		// Simple check - just use isDirty from React Hook Form
 		return hasUnsavedChanges
 	}
-
 
 	// Simple replacement for persistedData
 	const persistedData = {
 		exists: false,
 		data: null,
-		timestamp: null
+		timestamp: null,
 	}
 
 	// Simple replacement for missing states
@@ -136,7 +135,7 @@ const Top = () => {
 	const handleDiscardRecovery = () => {}
 
 	// Missing function
-	const immediateSaveIfChanged = (data) => {
+	const immediateSaveIfChanged = data => {
 		if (hasUnsavedChanges) {
 			handleSave()
 			return true
@@ -152,7 +151,7 @@ const Top = () => {
 	const getJLPTData = jlptString => {
 		try {
 			if (!jlptString) return { highest: 'なし' }
-			
+
 			// If it's already a plain string (not JSON), return it as highest value
 			if (typeof jlptString === 'string') {
 				// First, try to parse as JSON
@@ -160,28 +159,23 @@ const Top = () => {
 					const parsed = JSON.parse(jlptString)
 					// If it's a valid JSON object with highest property, return it
 					if (parsed && typeof parsed === 'object' && parsed.highest) {
-						console.log('JLPT JSON parsed successfully:', parsed)
 						return parsed
 					}
 					// If it's a valid JSON but not the expected structure, treat as plain string
-					console.log('JLPT JSON parsed but no highest property, treating as string:', jlptString)
 					return { highest: jlptString }
 				} catch (jsonError) {
 					// If JSON parsing fails, it's a plain string, return it as highest value
-					console.log('JLPT treating as plain string:', jlptString)
 					return { highest: jlptString }
 				}
 			}
-			
+
 			// If it's already an object, return it
 			if (typeof jlptString === 'object' && jlptString !== null) {
-				console.log('JLPT already an object:', jlptString)
 				return jlptString.highest ? jlptString : { highest: 'なし' }
 			}
-			
+
 			return { highest: 'なし' }
 		} catch (error) {
-			console.error('Error parsing JLPT data:', error)
 			return { highest: 'なし' }
 		}
 	}
@@ -215,12 +209,13 @@ const Top = () => {
 
 			// If it's already an object, return it
 			if (typeof certificateString === 'object' && certificateString !== null) {
-				return certificateString.highest ? certificateString : { highest: '未提出', list: [] }
+				return certificateString.highest
+					? certificateString
+					: { highest: '未提出', list: [] }
 			}
 
 			return { highest: '未提出', list: [] }
 		} catch (error) {
-			console.error('Error parsing certificate data:', error)
 			// If anything goes wrong, return the original string as highest if it exists
 			if (certificateString && typeof certificateString === 'string') {
 				return { highest: certificateString, list: [] }
@@ -269,12 +264,9 @@ const Top = () => {
 
 	// React Hook Form setup
 	const {
-		control,
-		handleSubmit,
 		formState: { isDirty },
 		reset,
 		getValues,
-		setValue,
 	} = useForm({
 		defaultValues: student || {},
 		mode: 'onChange',
@@ -303,11 +295,6 @@ const Top = () => {
 	// Handle language change event to save data before reload
 	useEffect(() => {
 		const handleBeforeLanguageChange = e => {
-			console.log('beforeLanguageChange event received', {
-				editMode,
-				role,
-				editData,
-			})
 			// No need to save here as handleConfirmCancel already saves
 		}
 
@@ -351,7 +338,6 @@ const Top = () => {
 			if (isNavigating || navigationBlocked || !editMode) return true
 
 			if (url && url !== window.location.pathname) {
-				console.log('Navigation intercepted to:', url)
 				isNavigating = true
 				navigationBlocked = true
 				setPendingNavigation({ pathname: url })
@@ -399,12 +385,6 @@ const Top = () => {
 	// Handle language change with unsaved changes check
 	useEffect(() => {
 		const handleCheckUnsavedChanges = e => {
-			console.log('checkUnsavedChanges event received:', {
-				editMode,
-				role,
-				eventDetail: e.detail,
-				shouldPrevent: editMode && role === 'Student',
-			})
 			if (editMode && role === 'Student') {
 				// Always show warning in edit mode for Students
 				e.preventDefault()
@@ -451,10 +431,6 @@ const Top = () => {
 						// Force load the saved data
 						const persistedEditData = loadFromStorage()
 						if (persistedEditData && persistedEditData.draft) {
-							console.log(
-								'Auto-restoring data after language switch:',
-								persistedEditData
-							)
 							// Automatically restore without dialog
 							setEditData(persistedEditData)
 							setEditMode(true)
@@ -473,10 +449,6 @@ const Top = () => {
 						// Check if there's saved data to restore
 						const persistedEditData = loadFromStorage()
 						if (persistedEditData && persistedEditData.draft) {
-							console.log(
-								'Found saved data after navigation:',
-								persistedEditData
-							)
 							setPersistedData({
 								exists: true,
 								data: persistedEditData,
@@ -487,16 +459,12 @@ const Top = () => {
 					} else {
 						// For normal edit mode entry, don't show recovery dialog
 						// Only show recovery for specific cases (language switch or navigation return)
-						console.log(
-							'Normal student edit mode entry - no recovery check needed'
-						)
 
 						// Clear any existing localStorage to prevent future false positives
 						clearStorage()
 					}
 				}
 			} catch (error) {
-				console.error('Error loading data:', error)
 				showAlert('Error loading data', 'error')
 			} finally {
 				setIsLoading(false)
@@ -584,7 +552,6 @@ const Top = () => {
 				showAlert('No data found', 'error')
 			}
 		} catch (error) {
-			console.error('Error fetching draft data:', error)
 			showAlert('Error fetching draft data', 'error')
 		}
 	}
@@ -594,7 +561,6 @@ const Top = () => {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
 			return loginUserData?.studentId
 		} catch (e) {
-			console.error('Error parsing login user data:', e)
 			return null
 		}
 	}
@@ -604,7 +570,6 @@ const Top = () => {
 			const response = await axios.get(`/api/students/${id}`)
 			const studentData = response.data
 
-			console.log('Student data received:', studentData) // Debug log
 
 			// Always parse JSON fields first using mapData
 			const parsedStudentData = mapData(studentData)
@@ -620,7 +585,6 @@ const Top = () => {
 					draft: studentData.draft.profile_data || {},
 				}
 
-				console.log('Mapped data for admin:', mappedData) // Debug log
 
 				setStudent(mappedData)
 				setEditData(mappedData)
@@ -643,7 +607,6 @@ const Top = () => {
 
 			SetUpdateQA(!updateQA)
 		} catch (error) {
-			console.error('Error fetching student data:', error)
 			showAlert('Error fetching student data', 'error')
 		}
 	}
@@ -682,7 +645,6 @@ const Top = () => {
 				setHasDraft(false)
 			}
 		} catch (error) {
-			console.error('Error fetching draft:', error)
 			setHasDraft(false)
 		}
 	}
@@ -710,13 +672,15 @@ const Top = () => {
 					// For certificate fields, parse JSON and extract highest value
 					if (key === 'jlpt' || key === 'jdu_japanese_certification') {
 						acc[key] = getJLPTData(data[key]).highest
-					} else if (key === 'japanese_speech_contest' || key === 'it_contest') {
+					} else if (
+						key === 'japanese_speech_contest' ||
+						key === 'it_contest'
+					) {
 						acc[key] = getCertificateData(data[key]).highest
 					} else {
 						acc[key] = data[key] || ''
 					}
 				} catch (error) {
-					console.error(`Error processing field ${key}:`, error)
 					acc[key] = data[key] || ''
 				}
 				return acc
@@ -747,7 +711,6 @@ const Top = () => {
 				showAlert(t('noDraftToSubmit'), 'error')
 			}
 		} catch (error) {
-			console.error('Error submitting draft:', error)
 			showAlert(t('errorSubmittingDraft'), 'error')
 		} finally {
 			setConfirmMode(false)
@@ -812,19 +775,11 @@ const Top = () => {
 	useEffect(() => {
 		if (editMode && role === 'Student' && editData?.draft && student) {
 			const hasChanges = hasChangesFromOriginal(editData)
-			console.log('Auto-save check:', {
-				editMode,
-				role,
-				hasData: !!editData?.draft,
-				hasChanges,
-			})
 
 			if (hasChanges) {
-				console.log('Changes detected, saving to localStorage')
 				saveToStorageIfChanged(editData)
 				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: true }))
 			} else {
-				console.log('No changes detected, skipping auto-save')
 				setSaveStatus(prev => ({ ...prev, hasUnsavedChanges: false }))
 			}
 		}
@@ -949,17 +904,12 @@ const Top = () => {
 			setHasUnsavedChanges(false)
 			showAlert(t('changes_saved'), 'success')
 		} catch (error) {
-			console.error('Save error:', error)
 			showAlert('Error saving changes', 'error')
 		}
 	}
 
 	const handleDraftUpsert = async (formData = editData) => {
 		try {
-
-			console.log('Starting draft upsert...')
-			console.log('Deliverable images:', deliverableImages)
-			console.log('Edit data deliverables:', editData.draft.deliverables)
 
 			// First, upload gallery images if any
 			if (newImages.length > 0) {
@@ -995,7 +945,6 @@ const Top = () => {
 
 			for (const [index, file] of Object.entries(deliverableImages)) {
 				if (file) {
-					console.log(`Uploading deliverable image for index ${index}`)
 					const deliverableFormData = new FormData()
 					deliverableFormData.append('role', role)
 					deliverableFormData.append('file', file)
@@ -1015,10 +964,6 @@ const Top = () => {
 							{ headers: { 'Content-Type': 'multipart/form-data' } }
 						)
 
-						console.log(
-							'Deliverable image upload response:',
-							deliverableFileResponse.data
-						)
 
 						if (deliverableFileResponse.data.Location) {
 							// Make sure we have a deliverable at this index
@@ -1034,16 +979,8 @@ const Top = () => {
 							}
 							updatedDeliverables[index].imageLink =
 								deliverableFileResponse.data.Location
-							console.log(
-								`Updated deliverable ${index} with image URL:`,
-								deliverableFileResponse.data.Location
-							)
 						}
 					} catch (imageUploadError) {
-						console.error(
-							`Error uploading deliverable image ${index}:`,
-							imageUploadError
-						)
 					}
 				}
 			}
@@ -1061,12 +998,10 @@ const Top = () => {
 				},
 			}
 
-			console.log('Saving draft with data:', draftData)
 
 			// Always use PUT for upsert approach (backend uses PUT method)
 			const res = await axios.put(`/api/draft`, draftData)
 
-			console.log('Draft save response:', res.data)
 
 			setCurrentDraft(res.data.draft || res.data)
 			setHasDraft(true)
@@ -1101,7 +1036,6 @@ const Top = () => {
 			}
 			showAlert(t('changesSavedSuccessfully'), 'success')
 		} catch (error) {
-			console.error('Error saving draft:', error)
 			showAlert(t('errorSavingChanges'), 'error')
 		}
 	}
@@ -1110,14 +1044,9 @@ const Top = () => {
 		setConfirmMode(prev => !prev)
 	}
 
-
-
-
-
 	if (isLoading) {
 		return <div>{t('loading')}</div>
 	}
-	console.log(student)
 
 	if (!student) {
 		return <div>{t('noDataFound')}</div>
@@ -1195,11 +1124,11 @@ const Top = () => {
 	return (
 		<Box mb={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student' ? (
-				createPortal(portalContent, portalContainer)
-			) : role === 'Student' ? (
-				portalContent
-			) : null}
+			{portalContainer && role === 'Student'
+				? createPortal(portalContent, portalContainer)
+				: role === 'Student'
+					? portalContent
+					: null}
 
 			<div
 				style={{
@@ -1838,7 +1767,7 @@ const Top = () => {
 								backgroundColor: '#ffffff',
 								borderRadius: '12px',
 								boxShadow: '0 2px 12px rgba(0, 0, 0, 0.05)',
-								maxHeight:346
+								maxHeight: 346,
 							}}
 						>
 							<div
@@ -2153,7 +2082,11 @@ const Top = () => {
 							<span style={{ fontSize: 32, fontWeight: 600, color: 'black' }}>
 								{creditMap[activeUniver] ?? 0}
 							</span>
-							/124
+							/
+							{activeUniver === 'JDU' ||
+							activeUniver === 'University of World Languages'
+								? 76
+								: 124}
 						</div>
 					</Box>
 					<CreditsProgressBar
@@ -2169,12 +2102,12 @@ const Top = () => {
 			)}
 			{subTabIndex === 4 && (
 				<Box my={2}>
-					{/* Debug qo'shing */}
-					{console.log('=== TOP.JSX QA DEBUG ===')}
+					{/* Debug */}
+					{/* {console.log('=== TOP.JSX QA DEBUG ===')}
 					{console.log('editData:', editData)}
 					{console.log('editData.draft:', editData.draft)}
 					{console.log('editData.draft.qa:', editData.draft?.qa)}
-					{console.log('typeof qa:', typeof editData.draft?.qa)}
+					{console.log('typeof qa:', typeof editData.draft?.qa)} */}
 					<QA
 						updateQA={updateQA}
 						data={editData.draft?.qa || {}}
