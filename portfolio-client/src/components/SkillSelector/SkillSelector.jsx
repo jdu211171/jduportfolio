@@ -55,10 +55,8 @@ const SkillSelector = ({
 				? `/api/itskills?search=${encodeURIComponent(search)}` 
 				: '/api/itskills'
 			const response = await axios.get(url)
-			console.log('Fetched database skills:', response.data)
 			setDatabaseSkills(response.data || [])
 		} catch (error) {
-			console.error('Error fetching skills from database:', error)
 			// Fallback to local skills if database fails
 			setDatabaseSkills([])
 		} finally {
@@ -77,29 +75,15 @@ const SkillSelector = ({
 	// Get the current skills data
 	const getCurrentSkillsData = () => {
 		if (editMode && editData && editData[parentKey]) {
-			console.log(
-				'🎯 Getting skills from editData:',
-				editData[parentKey][keyName]
-			)
 			return editData[parentKey][keyName] || {}
 		}
-		console.log('🎯 Getting skills from data:', data?.[keyName])
 		return data?.[keyName] || {}
 	}
 
 	const handleAddSkill = () => {
-		console.log('� Adding skill - Start:', {
-			selectedSkill,
-			selectedLevel,
-			keyName,
-			parentKey,
-			editMode,
-			currentData: getCurrentSkillsData(),
-		})
 
 		// Validation
 		if (!selectedSkill?.name?.trim() || !selectedLevel) {
-			console.log('❌ Validation failed:', { selectedSkill, selectedLevel })
 			return
 		}
 
@@ -132,12 +116,6 @@ const SkillSelector = ({
 			],
 		}
 
-		console.log('✅ Updating skills:', updatedSkills)
-		console.log('📤 Calling updateEditData with:', {
-			keyName,
-			updatedSkills,
-			parentKey,
-		})
 
 		// Update the data
 		try {
@@ -147,19 +125,11 @@ const SkillSelector = ({
 			setSelectedSkill(null)
 			setSelectedLevel('初級')
 
-			console.log('✅ Skill added successfully!')
 		} catch (error) {
-			console.error('❌ Error adding skill:', error)
 		}
 	}
 
 	const handleDeleteSkill = (skillToDelete, level) => {
-		console.log('🗑️ Deleting skill:', {
-			skillToDelete,
-			level,
-			keyName,
-			parentKey,
-		})
 
 		const currentSkillsData = getCurrentSkillsData()
 		const updatedSkills = {
@@ -169,18 +139,14 @@ const SkillSelector = ({
 			),
 		}
 
-		console.log('✅ Updated skills after delete:', updatedSkills)
 
 		try {
 			updateEditData(keyName, updatedSkills, parentKey)
-			console.log('✅ Skill deleted successfully!')
 		} catch (error) {
-			console.error('❌ Error deleting skill:', error)
 		}
 	}
 
 	const skillsToDisplay = getCurrentSkillsData()
-	console.log('📊 Skills to display:', skillsToDisplay)
 
 	return (
 		<div className={styles.container} style={{
@@ -239,7 +205,6 @@ const SkillSelector = ({
 							getOptionLabel={option => option.name || ''}
 							value={selectedSkill}
 							onChange={(event, newValue) => {
-								console.log('🎯 Autocomplete changed:', newValue)
 								setSelectedSkill(newValue)
 							}}
 							onInputChange={(event, newInputValue) => {
@@ -263,7 +228,6 @@ const SkillSelector = ({
 						<TextField
 							value={selectedSkill?.name || ''}
 							onChange={event => {
-								console.log('🎯 TextField changed:', event.target.value)
 								setSelectedSkill({ name: event.target.value })
 							}}
 							onKeyPress={event => {
@@ -284,7 +248,6 @@ const SkillSelector = ({
 						<Select
 							value={selectedLevel}
 							onChange={event => {
-								console.log('🎯 Level changed:', event.target.value)
 								setSelectedLevel(event.target.value)
 							}}
 							label='Level'

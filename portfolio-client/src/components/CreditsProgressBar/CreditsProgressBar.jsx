@@ -11,25 +11,19 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	const completedCredits = student?.totalCredits || 0
 
 	// Target credits depends on university type
-	// JDU and Jahon Tillari University: 76 credits
-	// Other universities: 124 credits
+	// JDU and University of World Languages: 76 credits
+	// Other universities (partner universities): 124 credits
 	const getTargetCredits = () => {
-		console.log('🏫 University info:', {
-			studentId,
-			university: student?.university,
-		})
 
-		// Check if this is JDU or Jahon Tillari University
+		// Check if this is JDU or University of World Languages
 		if (
-			studentId &&
-			(studentId.startsWith('JDU') || studentId.includes('JTUI'))
+			student?.university === 'JDU' ||
+			student?.university === 'University of World Languages'
 		) {
-			console.log('📚 Using 76 credits for JDU/Jahon Tillari student')
-			return 76 // JDU and Jahon Tillari students
+			return 76
 		}
 
-		// For other universities, use 124
-		console.log('📚 Using 124 credits for other university student')
+		// For all other universities (partner universities), use 124
 		return 124
 	}
 
@@ -56,139 +50,115 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 		setLoading(true)
 		// Clear old data before fetching new data
 		setCreditDetails([])
-		
+
 		try {
 			const apiUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/students/${studentId}/credit-details`
-			console.log('🌐 Fetching from API:', apiUrl)
-			
+
 			const response = await axios.get(apiUrl, {
 				withCredentials: true,
 			})
 
-			console.log('🔍 API Response:', response.data)
 			const data = response.data.data
 
 			// Set credit details from Kintone
 			if (data && Array.isArray(data.creditDetails)) {
 				setCreditDetails(data.creditDetails)
-				console.log(
-					`✅ Loaded ${data.creditDetails.length} credit details from Kintone`
-				)
 			} else {
-				console.warn(
-					'⚠️ No creditDetails found in API response, using empty array'
-				)
 				setCreditDetails([])
 			}
 
 			// Update student total credits from Kintone data
 			if (data && data.totalCredits !== undefined) {
-				console.log(`📊 Total credits from Kintone: ${data.totalCredits}`)
 			}
 		} catch (error) {
-			console.error('❌ Error fetching credit details:', error)
-			console.error('Error details:', {
-				message: error.message,
-				status: error.response?.status,
-				data: error.response?.data
-			})
 			// Show demo data that matches the Kintone structure
-			const demoKintoneData = [
-				{
-					recordId: '14',
-					番号: '14',
-					科目名: 'モチベーションアップ',
-					評価: 'S',
-					単位数: 2,
-					取得日: '2024-07-03',
-					subjectId: 'sanno-009',
-					subjectCategory: '専門教育',
-					score: '',
-					gradeSubjectGroup: '自由が丘産能短期大学',
-					gradeUniverGroup: '大学資格',
-				},
-				{
-					recordId: '13',
-					番号: '13',
-					科目名: 'ビジネス対話の技術',
-					評価: 'C',
-					単位数: 2,
-					取得日: '2024-07-17',
-					subjectId: 'sanno-005',
-					subjectCategory: '専門教育',
-					score: '60',
-					gradeSubjectGroup: '自由が丘産能短期大学',
-					gradeUniverGroup: '大学資格',
-				},
-				{
-					recordId: '12',
-					番号: '12',
-					科目名: '問題発見・解決力を伸ばす',
-					評価: 'B',
-					単位数: 2,
-					取得日: '2025-07-01',
-					subjectId: 'sanno-002',
-					subjectCategory: '専門教育',
-					score: '',
-					gradeSubjectGroup: '自由が丘産能短期大学',
-					gradeUniverGroup: '大学資格',
-				},
-				{
-					recordId: '9',
-					番号: '9',
-					科目名: 'アサーション（コミュニケーション技法）',
-					評価: 'A',
-					単位数: 2,
-					取得日: '2025-06-10',
-					subjectId: 'sanno-035',
-					subjectCategory: '専門教育',
-					score: '90',
-					gradeSubjectGroup: '自由が丘産能短期大学',
-					gradeUniverGroup: '大学資格',
-				},
-				{
-					recordId: '8',
-					番号: '8',
-					科目名: 'GAFA next stage',
-					評価: 'B',
-					単位数: 2,
-					取得日: '2025-06-23',
-					subjectId: 'sanno-033',
-					subjectCategory: '専門教育',
-					score: '',
-					gradeSubjectGroup: '自由が丘産能短期大学',
-					gradeUniverGroup: '大学資格',
-				},
-			]
-			setCreditDetails(demoKintoneData)
-			console.log('🎯 Using demo Kintone-style data for testing')
+			// const demoKintoneData = [
+			// 	{
+			// 		recordId: '14',
+			// 		番号: '14',
+			// 		科目名: 'モチベーションアップ',
+			// 		評価: 'S',
+			// 		単位数: 2,
+			// 		取得日: '2024-07-03',
+			// 		subjectId: 'sanno-009',
+			// 		subjectCategory: '専門教育',
+			// 		score: '',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '13',
+			// 		番号: '13',
+			// 		科目名: 'ビジネス対話の技術',
+			// 		評価: 'C',
+			// 		単位数: 2,
+			// 		取得日: '2024-07-17',
+			// 		subjectId: 'sanno-005',
+			// 		subjectCategory: '専門教育',
+			// 		score: '60',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '12',
+			// 		番号: '12',
+			// 		科目名: '問題発見・解決力を伸ばす',
+			// 		評価: 'B',
+			// 		単位数: 2,
+			// 		取得日: '2025-07-01',
+			// 		subjectId: 'sanno-002',
+			// 		subjectCategory: '専門教育',
+			// 		score: '',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '9',
+			// 		番号: '9',
+			// 		科目名: 'アサーション（コミュニケーション技法）',
+			// 		評価: 'A',
+			// 		単位数: 2,
+			// 		取得日: '2025-06-10',
+			// 		subjectId: 'sanno-035',
+			// 		subjectCategory: '専門教育',
+			// 		score: '90',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '8',
+			// 		番号: '8',
+			// 		科目名: 'GAFA next stage',
+			// 		評価: 'B',
+			// 		単位数: 2,
+			// 		取得日: '2025-06-23',
+			// 		subjectId: 'sanno-033',
+			// 		subjectCategory: '専門教育',
+			// 		score: '',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// ]
+			// setCreditDetails(demoKintoneData)
 		} finally {
 			setLoading(false)
 		}
 	}, [studentId])
 
 	useEffect(() => {
-		// If credit_details are passed as prop, use them directly
 		if (
 			credit_details &&
 			Array.isArray(credit_details) &&
 			credit_details.length > 0
 		) {
-			console.log(
-				'📋 Using credit_details from props:',
-				credit_details.length,
-				'items'
-			)
 			setCreditDetails(credit_details)
 			setLoading(false)
 		} else if (studentId) {
 			// Otherwise, fetch from API if studentId is available
 			// Always fetch fresh data when studentId changes
-			console.log('🔄 Fetching fresh credit details for studentId:', studentId)
 			fetchCreditDetails()
 		} else {
 			// No data available
-			console.warn('⚠️ No credit_details prop and no studentId provided')
 			setCreditDetails([])
 			setLoading(false)
 		}

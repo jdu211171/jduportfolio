@@ -30,7 +30,14 @@ const CreditDetails = () => {
 
 	// Progress calculation
 	const calculateProgress = () => {
-		if (!creditDetails.length) return { current: 0, total: 76, percentage: 0 }
+		let totalRequired = 76
+		if (activeTab === 'partner' && student?.partner_university) {
+			// Partner university tab is active
+			totalRequired = 124
+		}
+
+		if (!creditDetails.length)
+			return { current: 0, total: totalRequired, percentage: 0 }
 
 		const earnedCredits = creditDetails.reduce((total, credit) => {
 			// Only count credits with passing grades (not E or F)
@@ -40,7 +47,6 @@ const CreditDetails = () => {
 			return total
 		}, 0)
 
-		const totalRequired = 76 // Based on the image
 		const percentage = Math.min((earnedCredits / totalRequired) * 100, 100)
 
 		return {
@@ -50,21 +56,35 @@ const CreditDetails = () => {
 		}
 	}
 
-	// Progress milestones based on the image
+	// Progress milestones based on university type
 	const getProgressMilestones = () => {
 		const progress = calculateProgress()
-		const milestones = [
-			{ label: '0単位', value: 0 },
-			{ label: '19単位', value: 19 },
-			{ label: '38単位', value: 38 },
-			{ label: '61単位', value: 61 },
-			{ label: '76単位', value: 76 },
-		]
+		const totalCredits = progress.total
+
+		// Generate milestones dynamically based on total credits
+		const milestones =
+			totalCredits === 124
+				? [
+						{ label: '0単位', value: 0 },
+						{ label: '31単位', value: 31 },
+						{ label: '62単位', value: 62 },
+						{ label: '93単位', value: 93 },
+						{ label: '124単位', value: 124 },
+					]
+				: [
+						{ label: '0単位', value: 0 },
+						{ label: '19単位', value: 19 },
+						{ label: '38単位', value: 38 },
+						{ label: '61単位', value: 61 },
+						{ label: '76単位', value: 76 },
+					]
+
+		const interval = totalCredits === 124 ? 31 : 19
 
 		return milestones.map(milestone => {
 			if (progress.current >= milestone.value) {
 				return { ...milestone, status: 'completed' }
-			} else if (progress.current >= milestone.value - 19) {
+			} else if (progress.current >= milestone.value - interval) {
 				return { ...milestone, status: 'current' }
 			} else {
 				return { ...milestone, status: 'future' }

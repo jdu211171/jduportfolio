@@ -19,7 +19,6 @@ const Stats = () => {
 			const parsed = JSON.parse(jsonString)
 			return parsed || fallback
 		} catch (error) {
-			console.error('Error parsing JSON data:', error)
 			return fallback
 		}
 	}
@@ -30,12 +29,9 @@ const Stats = () => {
 
 	if (userId != 0 && userId) {
 		id = userId
-		console.log('Stats.jsx - Using userId:', id)
 	} else {
 		id = studentId
-		console.log('Stats.jsx - Using studentId:', id)
 	}
-	console.log('Stats.jsx - Final ID determined:', id)
 
 	const [student, setStudent] = useState(null)
 	const [kintoneData, setKintoneData] = useState({})
@@ -51,10 +47,8 @@ const Stats = () => {
 	useEffect(() => {
 		const fetchStudentData = async () => {
 			try {
-				console.log('Stats.jsx - Making API request for student ID:', id)
 				const studentResponse = await axios.get(`/api/students/${id}`)
 				const studentData = studentResponse.data
-				console.log('Stats.jsx - Student data received:', studentData)
 
 				const kintoneResponse = await axios.post(`/api/kintone/getby`, {
 					table: 'student_credits',
@@ -89,15 +83,12 @@ const Stats = () => {
 
 				await fetchCertificates()
 			} catch (error) {
-				console.error('Error fetching data:', error)
-			}
+				}
 		}
 
-		console.log('Stats.jsx - useEffect triggered with id:', id)
 		if (id) {
 			fetchStudentData()
 		} else {
-			console.log('Stats.jsx - No ID available, skipping API call')
 		}
 	}, [id])
 

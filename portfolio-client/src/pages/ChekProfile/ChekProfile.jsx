@@ -155,7 +155,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 				return false
 			}
 		} catch (error) {
-			console.error('Error updating draft status:', error)
 			showAlert(t('errorUpdatingStatus'), 'error')
 			return false
 		}
@@ -163,16 +162,13 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const setProfileVisibility = async (studentId, visibility) => {
 		try {
-			console.log('Setting profile visibility:', { studentId, visibility })
 
 			if (visibility) {
-				console.log('Using student_id for API calls:', studentId)
 
 				const draftsResponse = await axios.get(
 					`/api/draft/student/${studentId}`
 				)
 
-				console.log('Drafts response:', draftsResponse.data)
 
 				if (
 					draftsResponse.data &&
@@ -180,10 +176,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 					draftsResponse.data.draft.status === 'approved'
 				) {
 					const profileData = draftsResponse.data.draft.profile_data || {}
-					console.log('Updating with profile data:', {
-						...profileData,
-						visibility: true,
-					})
 
 					// Use studentId (student_id) for API calls
 					const res = await axios.put(`/api/students/${studentId}`, {
@@ -191,35 +183,29 @@ const Student = ({ OnlyBookmarked = false }) => {
 						visibility: true,
 					})
 
-					console.log('Update response:', res.data)
 
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
 						return true
 					} else {
-						console.error('Update failed with status:', res.status)
 						return false
 					}
 				} else {
-					console.log('Updating visibility only:', { visibility: true })
 
 					// Use studentId (student_id) for API calls
 					const res = await axios.put(`/api/students/${studentId}`, {
 						visibility: true,
 					})
 
-					console.log('Visibility update response:', res.data)
 
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
 						return true
 					} else {
-						console.error('Visibility update failed with status:', res.status)
 						return false
 					}
 				}
 			} else {
-				console.log('Setting visibility to false:', { visibility: false })
 
 				// For visibility=false, we don't need to get additional data
 				// since we already have studentId parameter
@@ -229,19 +215,15 @@ const Student = ({ OnlyBookmarked = false }) => {
 					visibility: false,
 				})
 
-				console.log('Visibility false response:', res.data)
 
 				if (res.status === 200) {
 					showAlert(t['profileHidden'], 'success')
 					return true
 				} else {
-					console.error('Visibility false failed with status:', res.status)
 					return false
 				}
 			}
 		} catch (error) {
-			console.error('Error setting profile visibility:', error)
-			console.error('Error details:', error.response?.data)
 			showAlert(
 				t['errorSettingVisibility'] || 'Error setting visibility',
 				'error'
