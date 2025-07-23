@@ -432,6 +432,7 @@ export const NewsForAdmin = () => {
 						<div
 							key={news.id}
 							style={{
+								backgroundColor: '#FFFFFF',
 								borderRadius: '16px',
 								border: '1px solid #e1e8ed',
 								cursor: 'pointer',
