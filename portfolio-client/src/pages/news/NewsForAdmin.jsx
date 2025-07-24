@@ -11,6 +11,7 @@ import {
 	DialogActions,
 	TextField,
 	Box,
+	Snackbar,
 } from '@mui/material'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
@@ -19,7 +20,7 @@ import axios from '../../utils/axiosUtils'
 import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
 import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.svg'
 import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
-
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 export const NewsForAdmin = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
@@ -35,6 +36,8 @@ export const NewsForAdmin = () => {
 	const [editDialogOpen, setEditDialogOpen] = useState(false)
 	const [editLoading, setEditLoading] = useState(false)
 	const [editingNews, setEditingNews] = useState(null)
+	const [toastOpen, setToastOpen] = useState(false)
+	const [toastMessage, setToastMessage] = useState('')
 	const [newNews, setNewNews] = useState({
 		title: '',
 		description: '',
@@ -113,7 +116,10 @@ export const NewsForAdmin = () => {
 			setDeleteLoading(null)
 		}
 	}
-
+	const showToast = msg => {
+		setToastMessage(msg)
+		setToastOpen(true)
+	}
 	// Create new news
 	const handleCreateNews = async () => {
 		setCreateLoading(true)
@@ -145,7 +151,7 @@ export const NewsForAdmin = () => {
 			const data = response.data
 
 			setNewsData(prevNews => [data, ...prevNews])
-
+			showToast(t('fileUploadSuccess'))
 			setNewNews({
 				title: '',
 				description: '',
@@ -208,7 +214,6 @@ export const NewsForAdmin = () => {
 			formData.append('description', newNews.description)
 			formData.append('source_link', newNews.source_link)
 
-			// Parse hashtags from string to array
 			const hashtagsArray = newNews.hashtags
 				? newNews.hashtags
 						.split(',')
@@ -216,9 +221,8 @@ export const NewsForAdmin = () => {
 						.filter(tag => tag.length > 0)
 				: []
 
-			// Har bir hashtagni alohida qo‘shamiz
 			hashtagsArray.forEach(tag => {
-				formData.append('hashtags[]', tag) // ← diqqat: 'hashtags[]'
+				formData.append('hashtags[]', tag)
 			})
 
 			if (newNews.image) {
@@ -242,12 +246,10 @@ export const NewsForAdmin = () => {
 						? JSON.parse(response.data.hashtags)
 						: response.data.hashtags,
 			}
-			// Update the news in the list
 			setNewsData(prevNews =>
 				prevNews.map(news => (news.id === editingNews.id ? updatedNews : news))
 			)
 
-			// Reset form and close dialog
 			setNewNews({
 				title: '',
 				description: '',
@@ -268,11 +270,21 @@ export const NewsForAdmin = () => {
 	}
 
 	return (
-		<div
-			style={{
-				backgroundColor: '#f5f7fa',
-			}}
-		>
+		<div>
+			<Snackbar
+				open={toastOpen}
+				autoHideDuration={3000}
+				onClose={() => setToastOpen(false)}
+				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+			>
+				<Alert
+					onClose={() => setToastOpen(false)}
+					severity='success' // success | error | warning | info
+					sx={{ width: '100%' }}
+				>
+					{toastMessage}
+				</Alert>
+			</Snackbar>
 			{/* Header Section */}
 			<div
 				style={{
@@ -664,41 +676,9 @@ export const NewsForAdmin = () => {
 				maxWidth='md'
 				fullWidth
 			>
-				<DialogTitle>Create New News</DialogTitle>
+				<DialogTitle>{t('CreateNews')}</DialogTitle>
 				<DialogContent>
 					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-						<TextField
-							label='Title'
-							value={newNews.title}
-							onChange={e => handleInputChange('title', e.target.value)}
-							fullWidth
-							required
-						/>
-						<TextField
-							label='Description'
-							value={newNews.description}
-							onChange={e => handleInputChange('description', e.target.value)}
-							fullWidth
-							multiline
-							rows={4}
-							required
-						/>
-						<TextField
-							label='Hashtags (comma separated)'
-							value={newNews.hashtags}
-							onChange={e => handleInputChange('hashtags', e.target.value)}
-							fullWidth
-							placeholder='e.g., technology, news, update'
-							required
-						/>
-						<TextField
-							label='Source Link'
-							value={newNews.source_link}
-							onChange={e => handleInputChange('source_link', e.target.value)}
-							fullWidth
-							placeholder='https://example.com'
-							required
-						/>
 						<Box>
 							<input
 								accept='image/*'
@@ -708,15 +688,57 @@ export const NewsForAdmin = () => {
 								onChange={handleFileChange}
 							/>
 							<label htmlFor='image-upload'>
-								<Button variant='outlined' component='span' fullWidth>
-									{newNews.image ? newNews.image.name : 'Upload Image'}
+								<Button
+									variant='outlined'
+									component='span'
+									fullWidth
+									startIcon={<UploadFileIcon />}
+									sx={{
+										justifyContent: 'flex-start',
+										textTransform: 'none',
+										paddingY: 1.5,
+									}}
+								>
+									{newNews.image ? newNews.image.name : t('upload_picture')}
 								</Button>
 							</label>
 						</Box>
+						<TextField
+							label={t('title')}
+							value={newNews.title}
+							onChange={e => handleInputChange('title', e.target.value)}
+							fullWidth
+							required
+						/>
+						<TextField
+							label={t('description')}
+							value={newNews.description}
+							onChange={e => handleInputChange('description', e.target.value)}
+							fullWidth
+							multiline
+							rows={4}
+							required
+						/>
+						<TextField
+							label={t('hashtag')}
+							value={newNews.hashtags}
+							onChange={e => handleInputChange('hashtags', e.target.value)}
+							fullWidth
+							placeholder='e.g., technology, news, update'
+							required
+						/>
+						<TextField
+							label={t('sourseLink')}
+							value={newNews.source_link}
+							onChange={e => handleInputChange('source_link', e.target.value)}
+							fullWidth
+							placeholder='https://example.com'
+							required
+						/>
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+					<Button onClick={() => setCreateDialogOpen(false)}>{t('cencel')}</Button>
 					<Button
 						onClick={handleCreateNews}
 						variant='contained'
@@ -724,9 +746,9 @@ export const NewsForAdmin = () => {
 					>
 						{createLoading ? (
 							<CircularProgress size={20} color='inherit' />
-						) : (
-							'Create'
-						)}
+						) : 
+							t('create')
+						}
 					</Button>
 				</DialogActions>
 			</Dialog>
@@ -748,41 +770,9 @@ export const NewsForAdmin = () => {
 				maxWidth='md'
 				fullWidth
 			>
-				<DialogTitle>Edit News</DialogTitle>
+				<DialogTitle>{t('EditNews')}</DialogTitle>
 				<DialogContent>
 					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-						<TextField
-							label='Title'
-							value={newNews.title}
-							onChange={e => handleInputChange('title', e.target.value)}
-							fullWidth
-							required
-						/>
-						<TextField
-							label='Description'
-							value={newNews.description}
-							onChange={e => handleInputChange('description', e.target.value)}
-							fullWidth
-							multiline
-							rows={4}
-							required
-						/>
-						<TextField
-							label='Hashtags (comma separated)'
-							value={newNews.hashtags}
-							onChange={e => handleInputChange('hashtags', e.target.value)}
-							fullWidth
-							placeholder='e.g., technology, news, update'
-							required
-						/>
-						<TextField
-							label='Source Link'
-							value={newNews.source_link}
-							onChange={e => handleInputChange('source_link', e.target.value)}
-							fullWidth
-							placeholder='https://example.com'
-							required
-						/>
 						<Box>
 							<input
 								accept='image/*'
@@ -795,10 +785,42 @@ export const NewsForAdmin = () => {
 								<Button variant='outlined' component='span' fullWidth>
 									{newNews.image
 										? newNews.image.name
-										: 'Upload New Image (optional)'}
+										: t('upload_picture')}
 								</Button>
 							</label>
 						</Box>
+						<TextField
+							label={t('title')}
+							value={newNews.title}
+							onChange={e => handleInputChange('title', e.target.value)}
+							fullWidth
+							required
+						/>
+						<TextField
+							label={t('description')}
+							value={newNews.description}
+							onChange={e => handleInputChange('description', e.target.value)}
+							fullWidth
+							multiline
+							rows={4}
+							required
+						/>
+						<TextField
+							label={t('hashtag')}
+							value={newNews.hashtags}
+							onChange={e => handleInputChange('hashtags', e.target.value)}
+							fullWidth
+							placeholder='e.g., technology, news, update'
+							required
+						/>
+						<TextField
+							label={t('sourseLink')}
+							value={newNews.source_link}
+							onChange={e => handleInputChange('source_link', e.target.value)}
+							fullWidth
+							placeholder='https://example.com'
+							required
+						/>
 					</Box>
 				</DialogContent>
 				<DialogActions>

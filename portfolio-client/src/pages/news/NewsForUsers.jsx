@@ -5,16 +5,6 @@ import translations from '../../locales/translations';
 import LaunchIcon from '@mui/icons-material/Launch';
 import axios from '../../utils/axiosUtils';
 
-// Swiper imports
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, EffectFade } from 'swiper/modules';
-
-// Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
-
 export const NewsForUsers = () => {
     const { language } = useLanguage();
     const t = key => translations[language][key] || key;
@@ -74,10 +64,7 @@ export const NewsForUsers = () => {
     }
 
     return (
-        <div style={{
-            backgroundColor: '#f5f7fa',
-            minHeight: 'screen',
-        }}>
+        <div>
             {/* Header Section */}
             <div style={{
                 textAlign: 'center',
@@ -99,234 +86,164 @@ export const NewsForUsers = () => {
                 </p>
             </div>
 
-            {/* Swiper Carousel */}
+            {/* News Grid */}
             <div style={{
-                maxWidth: '1200px',
-                margin: '0 auto'
+                margin: '0 auto',
+                padding: '0 20px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(350px, 1fr))',
+                gap: '10px',
+                gridAutoRows: 'auto'
             }}>
-                <Swiper
-                    modules={[Navigation, Pagination, Autoplay, EffectFade]}
-                    spaceBetween={30}
-                    slidesPerView={1}
-                    navigation={{
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev',
-                    }}
-                    pagination={{
-                        clickable: true,
-                        dynamicBullets: true,
-                    }}
-                    autoplay={{
-                        delay: 5000,
-                        disableOnInteraction: false,
-                    }}
-                    effect="fade"
-                    fadeEffect={{
-                        crossFade: true
-                    }}
-                    loop={true}
-                    style={{
+                {newsData.map((news, index) => (
+                    <div key={news.id || index} style={{
+                        backgroundColor: 'white',
                         borderRadius: '20px',
                         overflow: 'hidden',
-                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    {newsData.map((news, index) => (
-                        <SwiperSlide key={news.id || index}>
-                            <div style={{
-                                backgroundColor: 'white',
-                                minHeight: '500px',
-                                display: 'flex',
-                                flexDirection: window.innerWidth > 768 ? 'row' : 'column'
-                            }}>
-                                {/* Image Section */}
+                        display: 'flex',
+                        flexDirection: 'column',
+                        border:'1px solid #e6e6e6'
+                    }}>
+                        {/* Image Section */}
+                        <div style={{
+                            height: '250px',
+                            backgroundColor: '#f8f9fa',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'hidden'
+                        }}>
+                            {news.image_url ? (
+                                <img 
+                                    src={news.image_url} 
+                                    alt={news.title}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover'
+                                    }}
+                                />
+                            ) : (
                                 <div style={{
-                                    flex: window.innerWidth > 768 ? '1' : 'none',
-                                    height: window.innerWidth > 768 ? '500px' : '250px',
-                                    backgroundColor: '#f8f9fa',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    overflow: 'hidden'
+                                    color: '#6c757d',
+                                    fontSize: '16px',
+                                    textAlign: 'center'
                                 }}>
-                                    {news.image_url ? (
-                                        <img 
-                                            src={news.image_url} 
-                                            alt={news.title}
+                                    No Image Available
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Content Section */}
+                        <div style={{
+                            padding: '24px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flexGrow: 1
+                        }}>
+                            {/* Title */}
+                            <h2 style={{
+                                fontSize: 'clamp(18px, 3vw, 22px)',
+                                fontWeight: '600',
+                                color: '#2c3e50',
+                                marginBottom: '12px',
+                                lineHeight: '1.3'
+                            }}>
+                                {news.title}
+                            </h2>
+
+                            {/* Description */}
+                            <p style={{
+                                fontSize: 'clamp(14px, 2vw, 16px)',
+                                color: '#7f8c8d',
+                                lineHeight: '1.6',
+                                marginBottom: '16px',
+                                flexGrow: 1,
+                                overflow: 'hidden',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: 'vertical'
+                            }}>
+                                {news.description}
+                            </p>
+
+                            {/* Hashtags */}
+                            {news.hashtags && Array.isArray(news.hashtags) && news.hashtags.length > 0 && (
+                                <div style={{
+                                    marginBottom: '16px',
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: '6px'
+                                }}>
+                                    {news.hashtags.slice(0, 3).map((hashtag, idx) => (
+                                        <Chip
+                                            key={idx}
+                                            label={hashtag}
+                                            size="small"
                                             style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover'
+                                                backgroundColor: '#e3f2fd',
+                                                color: '#1976d2',
+                                                fontSize: '12px'
                                             }}
                                         />
-                                    ) : (
-                                        <div style={{
-                                            color: '#6c757d',
-                                            fontSize: '16px',
-                                            textAlign: 'center'
-                                        }}>
-                                            No Image Available
-                                        </div>
-                                    )}
+                                    ))}
                                 </div>
+                            )}
 
-                                {/* Content Section */}
+                            {/* Footer */}
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                gap: '10px',
+                                paddingTop: '16px',
+                                borderTop: '1px solid #f1f3f4'
+                            }}>
                                 <div style={{
-                                    flex: window.innerWidth > 768 ? '1' : 'none',
-                                    padding: 'clamp(20px, 4vw, 40px)',
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between'
+                                    alignItems: 'center',
+                                    gap: '12px'
                                 }}>
-                                    {/* Title */}
-                                    <h2 style={{
-                                        fontSize: 'clamp(20px, 4vw, 28px)',
-                                        fontWeight: '600',
+                                    <span style={{
+                                        fontSize: '13px',
+                                        color: '#95a5a6'
+                                    }}>
+                                        {news.createdAt?.split('T')[0]}
+                                    </span>
+                                    <span style={{
+                                        fontSize: '13px',
                                         color: '#2c3e50',
-                                        marginBottom: '16px',
-                                        lineHeight: '1.3'
+                                        fontWeight: '500',
+                                        textTransform: 'capitalize'
                                     }}>
-                                        {news.title}
-                                    </h2>
-
-                                    {/* Description */}
-                                    <p style={{
-                                        fontSize: 'clamp(14px, 2.5vw, 16px)',
-                                        color: '#7f8c8d',
-                                        lineHeight: '1.6',
-                                        marginBottom: '20px',
-                                        flex: 1,
-                                        overflow: 'hidden',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 4,
-                                        WebkitBoxOrient: 'vertical'
-                                    }}>
-                                        {news.description}
-                                    </p>
-
-                                    {/* Hashtags */}
-                                    {news.hashtags && Array.isArray(news.hashtags) && news.hashtags.length > 0 && (
-                                        <div style={{
-                                            marginBottom: '20px',
-                                            display: 'flex',
-                                            flexWrap: 'wrap',
-                                            gap: '8px'
-                                        }}>
-                                            {news.hashtags.slice(0, 5).map((hashtag, idx) => (
-                                                <Chip
-                                                    key={idx}
-                                                    label={hashtag}
-                                                    size="small"
-                                                    style={{
-                                                        backgroundColor: '#e3f2fd',
-                                                        color: '#1976d2',
-                                                        fontSize: 'clamp(11px, 2vw, 13px)'
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {/* Footer */}
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        flexWrap: 'wrap',
-                                        gap: '10px'
-                                    }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '15px'
-                                        }}>
-                                            <span style={{
-                                                fontSize: 'clamp(12px, 2vw, 14px)',
-                                                color: '#95a5a6'
-                                            }}>
-                                                {news.createdAt?.split('T')[0]}
-                                            </span>
-                                            <span style={{
-                                                fontSize: 'clamp(12px, 2vw, 14px)',
-                                                color: '#2c3e50',
-                                                fontWeight: '500',
-                                                textTransform: 'capitalize'
-                                            }}>
-                                                {news.type}
-                                            </span>
-                                        </div>
-
-                                        {/* Source Link */}
-                                        {news.source_link && (
-                                            <IconButton
-                                                component="a"
-                                                href={news.source_link}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                style={{
-                                                    backgroundColor: '#2c3e50',
-                                                    color: 'white',
-                                                    width: '40px',
-                                                    height: '40px'
-                                                }}
-                                            >
-                                                <LaunchIcon style={{ fontSize: '18px' }} />
-                                            </IconButton>
-                                        )}
-                                    </div>
+                                        {news.type}
+                                    </span>
                                 </div>
+
+                                {/* Source Link */}
+                                {news.source_link && (
+                                    <IconButton
+                                        component="a"
+                                        href={news.source_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            backgroundColor: '#2c3e50',
+                                            color: 'white',
+                                            width: '36px',
+                                            height: '36px'
+                                        }}
+                                    >
+                                        <LaunchIcon style={{ fontSize: '16px' }} />
+                                    </IconButton>
+                                )}
                             </div>
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
+                        </div>
+                    </div>
+                ))}
             </div>
 
-            {/* Custom Swiper Styles */}
-            <style jsx>{`
-                .swiper-button-next,
-                .swiper-button-prev {
-                    color: #2c3e50 !important;
-                    background: rgba(255, 255, 255, 0.9) !important;
-                    width: 50px !important;
-                    height: 50px !important;
-                    border-radius: 50% !important;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-                }
-
-                .swiper-button-next:after,
-                .swiper-button-prev:after {
-                    font-size: 20px !important;
-                    font-weight: bold !important;
-                }
-
-                .swiper-pagination-bullet {
-                    background: #d1d5db !important;
-                    opacity: 1 !important;
-                    width: 12px !important;
-                    height: 12px !important;
-                }
-
-                .swiper-pagination-bullet-active {
-                    background: #2c3e50 !important;
-                }
-
-                .swiper-pagination {
-                    bottom: 20px !important;
-                }
-
-                @media (max-width: 768px) {
-                    .swiper-button-next,
-                    .swiper-button-prev {
-                        width: 40px !important;
-                        height: 40px !important;
-                    }
-                    
-                    .swiper-button-next:after,
-                    .swiper-button-prev:after {
-                        font-size: 16px !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 };
