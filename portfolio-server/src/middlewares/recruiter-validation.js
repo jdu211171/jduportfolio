@@ -31,11 +31,6 @@ exports.validateRecruiterUpdate = [
 		.isNumeric()
 		.optional()
 		.withMessage('Phone number must be numeric'),
-	body('date_of_birth')
-		.isISO8601()
-		.toDate()
-		.optional()
-		.withMessage('Date of birth must be a valid date'),
 	body('company_Address')
 		.optional()
 		.isString()
