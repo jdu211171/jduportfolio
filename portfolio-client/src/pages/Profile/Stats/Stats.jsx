@@ -162,6 +162,7 @@ const Stats = () => {
 
 	return (
 		<Box my={2}>
+			{/* Credit section hidden - temporarily disabled
 			<Tabs
 				className={styles.Tabs}
 				value={subTabIndex}
@@ -214,6 +215,7 @@ const Stats = () => {
 			>
 				詳細はこちらへ
 			</Link>
+			*/}
 			<Box my={2}>
 				<SkillSelector
 					title='資格'

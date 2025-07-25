@@ -1143,7 +1143,7 @@ const Top = () => {
 					borderEndStartRadius: 10,
 				}}
 			>
-				{['selfIntroduction', 'skill', 'deliverables', 'credits', 'qa'].map(
+				{['selfIntroduction', 'skill', 'deliverables', 'qa'].map(
 					(item, ind) => (
 						<div
 							key={ind}
@@ -2049,7 +2049,7 @@ const Top = () => {
 					/>
 				</Box>
 			)}
-			{/* QA */}
+			{/* Credits section - temporarily disabled
 			{subTabIndex === 3 && (
 				<Box my={2} backgroundColor={'#FFFFFF'} padding={3}>
 					<div style={{ display: 'flex', gap: 10 }}>
@@ -2100,7 +2100,9 @@ const Top = () => {
 					/>
 				</Box>
 			)}
-			{subTabIndex === 4 && (
+			*/}
+			{/* QA */}
+			{subTabIndex === 3 && (
 				<Box my={2}>
 					{/* Debug */}
 					{/* {console.log('=== TOP.JSX QA DEBUG ===')}
