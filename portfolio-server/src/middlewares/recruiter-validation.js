@@ -5,7 +5,7 @@ exports.validateRecruiterCreation = [
 	body('email').isEmail().withMessage('Email must be a valid email address'),
 	body('password').notEmpty().withMessage('Password is required'),
 	body('company_name').notEmpty().withMessage('Company name is required'),
-	body('phone_number').isNumeric().withMessage('Phone number must be numeric'),
+	body('phone').isNumeric().withMessage('Phone number must be numeric'),
 	body('first_name').notEmpty().withMessage('First name is required'),
 	body('last_name').notEmpty().withMessage('Last name is required'),
 	body('date_of_birth')
@@ -27,7 +27,7 @@ exports.validateRecruiterUpdate = [
 		.isEmail()
 		.optional()
 		.withMessage('Email must be a valid email address'),
-	body('phone_number')
+	body('phone')
 		.isNumeric()
 		.optional()
 		.withMessage('Phone number must be numeric'),

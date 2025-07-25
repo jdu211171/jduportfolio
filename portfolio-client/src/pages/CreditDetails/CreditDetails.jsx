@@ -22,6 +22,12 @@ const CreditDetails = () => {
 	const navigate = useNavigate()
 	const showAlert = useAlert()
 
+	// Credit details page is currently disabled
+	useEffect(() => {
+		navigate('/')
+		showAlert('Credit details page is currently disabled', 'info')
+	}, [navigate, showAlert])
+
 	const [student, setStudent] = useState(null)
 	const [creditDetails, setCreditDetails] = useState([])
 	const [loading, setLoading] = useState(true)
