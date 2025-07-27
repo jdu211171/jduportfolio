@@ -32,6 +32,7 @@ const SkillSelector = ({
 	showHeaders,
 	icon,
 	isChanged = false,
+	skillOptions = [],
 }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
@@ -51,8 +52,8 @@ const SkillSelector = ({
 	const fetchSkillsFromDatabase = async (search = '') => {
 		try {
 			setLoadingSkills(true)
-			const url = search 
-				? `/api/itskills?search=${encodeURIComponent(search)}` 
+			const url = search
+				? `/api/itskills?search=${encodeURIComponent(search)}`
 				: '/api/itskills'
 			const response = await axios.get(url)
 			setDatabaseSkills(response.data || [])
@@ -68,6 +69,8 @@ const SkillSelector = ({
 	const getSkillsForAutocomplete = () => {
 		if (showAutocomplete && databaseSkills.length > 0) {
 			return databaseSkills
+		} else if (!showAutocomplete && skillOptions.length > 0) {
+			return skillOptions
 		}
 		return skills
 	}
@@ -81,7 +84,6 @@ const SkillSelector = ({
 	}
 
 	const handleAddSkill = () => {
-
 		// Validation
 		if (!selectedSkill?.name?.trim() || !selectedLevel) {
 			return
@@ -116,7 +118,6 @@ const SkillSelector = ({
 			],
 		}
 
-
 		// Update the data
 		try {
 			updateEditData(keyName, updatedSkills, parentKey)
@@ -124,13 +125,10 @@ const SkillSelector = ({
 			// Reset form
 			setSelectedSkill(null)
 			setSelectedLevel('初級')
-
-		} catch (error) {
-		}
+		} catch (error) {}
 	}
 
 	const handleDeleteSkill = (skillToDelete, level) => {
-
 		const currentSkillsData = getCurrentSkillsData()
 		const updatedSkills = {
 			...currentSkillsData,
@@ -139,35 +137,38 @@ const SkillSelector = ({
 			),
 		}
 
-
 		try {
 			updateEditData(keyName, updatedSkills, parentKey)
-		} catch (error) {
-		}
+		} catch (error) {}
 	}
 
 	const skillsToDisplay = getCurrentSkillsData()
 
 	return (
-		<div className={styles.container} style={{
-			backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
-			border: isChanged ? '2px solid #ffc107' : '1px solid #f0f0f0',
-			borderRadius: isChanged ? '8px' : '12px',
-			padding: isChanged ? '28px' : '20px',
-			position: 'relative',
-		}}>
+		<div
+			className={styles.container}
+			style={{
+				backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
+				border: isChanged ? '2px solid #ffc107' : '1px solid #f0f0f0',
+				borderRadius: isChanged ? '8px' : '12px',
+				padding: isChanged ? '28px' : '20px',
+				position: 'relative',
+			}}
+		>
 			{isChanged && (
-				<div style={{
-					position: 'absolute',
-					top: -10,
-					right: 10,
-					backgroundColor: '#ffc107',
-					color: '#fff',
-					padding: '2px 8px',
-					borderRadius: '4px',
-					fontSize: '12px',
-					fontWeight: 'bold',
-				}}>
+				<div
+					style={{
+						position: 'absolute',
+						top: -10,
+						right: 10,
+						backgroundColor: '#ffc107',
+						color: '#fff',
+						padding: '2px 8px',
+						borderRadius: '4px',
+						fontSize: '12px',
+						fontWeight: 'bold',
+					}}
+				>
 					変更あり
 				</div>
 			)}
@@ -199,7 +200,7 @@ const SkillSelector = ({
 					gap={2}
 					className={styles.addSkillForm}
 				>
-					{showAutocomplete ? (
+					{showAutocomplete || (skillOptions && skillOptions.length > 0) ? (
 						<Autocomplete
 							options={getSkillsForAutocomplete()}
 							getOptionLabel={option => option.name || ''}
@@ -208,12 +209,16 @@ const SkillSelector = ({
 								setSelectedSkill(newValue)
 							}}
 							onInputChange={(event, newInputValue) => {
-								// Search skills when user types
-								if (newInputValue && newInputValue.length > 0) {
+								// Search skills when user types (only for showAutocomplete=true)
+								if (
+									showAutocomplete &&
+									newInputValue &&
+									newInputValue.length > 0
+								) {
 									fetchSkillsFromDatabase(newInputValue)
 								}
 							}}
-							loading={loadingSkills}
+							loading={showAutocomplete ? loadingSkills : false}
 							sx={{ width: 200 }}
 							renderInput={params => (
 								<TextField
@@ -378,6 +383,7 @@ SkillSelector.propTypes = {
 	showAutocomplete: PropTypes.bool,
 	showHeaders: PropTypes.bool,
 	icon: PropTypes.node,
+	skillOptions: PropTypes.array,
 }
 
 export default SkillSelector
