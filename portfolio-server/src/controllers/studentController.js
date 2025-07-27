@@ -154,33 +154,6 @@ class StudentController {
 		}
 	}
 
-	// Controller method to get all students
-	// static async getAllStudents(req, res, next) {
-	// 	try {
-	// 		let filter
-	// 		const userType = req.user.userType
-	// 		console.log('Raw query filter:', req.query.filter);
-	// 		if (req.query.filter) {
-	// 			filter = req.query.filter
-	// 		} else {
-	// 			filter = {}
-	// 		}
-
-	// 		const recruiterId = req.query.recruiterId
-	// 		const onlyBookmarked = req.query.onlyBookmarked
-
-	// 		const students = await StudentService.getAllStudents(
-	// 			filter,
-	// 			recruiterId,
-	// 			onlyBookmarked,
-	// 			userType
-	// 		)
-	// 		res.status(200).json(students)
-	// 	} catch (error) {
-	// 		next(error)
-	// 	}
-	// }
-
 	// test getAllStudents
 	static async getAllStudents(req, res, next) {
 		try {
