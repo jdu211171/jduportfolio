@@ -143,6 +143,7 @@
 
 .active * {
   color: #5627DB;
+  fill: #5627DB;
 }
 
 @media only screen and (max-width: 768px) {
