@@ -43,6 +43,7 @@ db.Image = require('./Image')(sequelize, Sequelize);
 db.UserFile = require('./userFile')(sequelize, Sequelize);
 db.News = require('./News')(sequelize, Sequelize); 
 db.ItSkill = require('./itskill')(sequelize, Sequelize); 
+db.Skill = require('./skill')(sequelize, Sequelize);
 
 
 // Load other models here if needed
@@ -104,4 +105,5 @@ module.exports = {
 	UserFile: db.UserFile,
 	News: db.News, 
 	ItSkill: db.ItSkill,
+	Skill: db.Skill,
 }

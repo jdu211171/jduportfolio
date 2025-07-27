@@ -107,6 +107,10 @@ module.exports = (sequelize, DataTypes) => {
 			skills: { type: DataTypes.JSONB, allowNull: true },
 			it_skills: { type: DataTypes.JSONB, allowNull: true },
 			other_information: { type: DataTypes.TEXT, allowNull: true },
+			other_skills: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+			},
 			deliverables: { type: DataTypes.JSONB, allowNull: true },
 			jlpt: { type: DataTypes.TEXT, allowNull: true },
 			ielts: { type: DataTypes.TEXT, allowNull: true },
