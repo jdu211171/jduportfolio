@@ -1792,42 +1792,23 @@ const Top = () => {
 									style={{ display: 'flex', alignItems: 'center', height: 36 }}
 								>
 									<span style={{ minWidth: 160, fontWeight: 500 }}>JLPT:</span>
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.jlpt
-													? getJLPTData(editData.draft.jlpt).highest
-													: getJLPTData(student.jlpt).highest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData('jlpt', e.target.value)
-											}
-											style={{
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #ccc',
-												borderRadius: 6,
-												width: 160,
-												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												padding: '6px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												background: '#fff',
-											}}
-										>
-											{editData.draft.jlpt
-												? getJLPTData(editData.draft.jlpt).highest
-												: getJLPTData(student.jlpt).highest}
-										</span>
-									)}
+									<span
+										style={{
+											padding: '6px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+											background: editMode ? '#f5f5f5' : '#fff',
+											color: editMode ? '#666' : '#000',
+											cursor: editMode ? 'not-allowed' : 'default',
+										}}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+									>
+										{editData.draft.jlpt
+											? getJLPTData(editData.draft.jlpt).highest
+											: getJLPTData(student.jlpt).highest}
+									</span>
 								</div>
 
 								{/* JDU Certification */}
@@ -1837,50 +1818,25 @@ const Top = () => {
 									<span style={{ minWidth: 160, fontWeight: 500 }}>
 										{t('jdu_certification')}:
 									</span>
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.jdu_japanese_certification
-													? getJLPTData(
-															editData.draft.jdu_japanese_certification
-														).highest
-													: getJLPTData(student.jdu_japanese_certification)
-															.highest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData(
-													'jdu_japanese_certification',
-													e.target.value
-												)
-											}
-											style={{
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #ccc',
-												borderRadius: 6,
-												width: 160,
-												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												padding: '6px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												background: '#fff',
-											}}
-										>
-											{editData.draft.jdu_japanese_certification
-												? getJLPTData(editData.draft.jdu_japanese_certification)
-														.highest
-												: getJLPTData(student.jdu_japanese_certification)
-														.highest}
-										</span>
-									)}
+									<span
+										style={{
+											padding: '6px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+											background: editMode ? '#f5f5f5' : '#fff',
+											color: editMode ? '#666' : '#000',
+											cursor: editMode ? 'not-allowed' : 'default',
+										}}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+									>
+										{editData.draft.jdu_japanese_certification
+											? getJLPTData(editData.draft.jdu_japanese_certification)
+													.highest
+											: getJLPTData(student.jdu_japanese_certification)
+													.highest}
+									</span>
 								</div>
 
 								{/* Japanese Speech Contest */}
@@ -1890,51 +1846,26 @@ const Top = () => {
 									<span style={{ minWidth: 160, fontWeight: 500 }}>
 										{t('japaneseSpeechContest')}:
 									</span>
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.japanese_speech_contest
-													? getCertificateData(
-															editData.draft.japanese_speech_contest
-														).highest
-													: getCertificateData(student.japanese_speech_contest)
-															.highest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData(
-													'japanese_speech_contest',
-													e.target.value
-												)
-											}
-											style={{
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #ccc',
-												borderRadius: 6,
-												width: 160,
-												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												padding: '6px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												background: '#fff',
-											}}
-										>
-											{editData.draft.japanese_speech_contest
-												? getCertificateData(
-														editData.draft.japanese_speech_contest
-													).highest
-												: getCertificateData(student.japanese_speech_contest)
-														.highest}
-										</span>
-									)}
+									<span
+										style={{
+											padding: '6px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+											background: editMode ? '#f5f5f5' : '#fff',
+											color: editMode ? '#666' : '#000',
+											cursor: editMode ? 'not-allowed' : 'default',
+										}}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+									>
+										{editData.draft.japanese_speech_contest
+											? getCertificateData(
+													editData.draft.japanese_speech_contest
+												).highest
+											: getCertificateData(student.japanese_speech_contest)
+													.highest}
+									</span>
 								</div>
 
 								{/* IT Contest */}
@@ -1944,43 +1875,23 @@ const Top = () => {
 									<span style={{ minWidth: 160, fontWeight: 500 }}>
 										{t('itContest')}:
 									</span>
-									{editMode ? (
-										<input
-											type='text'
-											value={
-												editData.draft.it_contest
-													? getCertificateData(editData.draft.it_contest)
-															.highest
-													: getCertificateData(student.it_contest).highest || ''
-											}
-											onChange={e =>
-												handleUpdateEditData('it_contest', e.target.value)
-											}
-											style={{
-												padding: '8px 15px',
-												fontSize: 14,
-												border: '1px solid #ccc',
-												borderRadius: 6,
-												width: 160,
-												boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)',
-											}}
-										/>
-									) : (
-										<span
-											style={{
-												padding: '6px 20px',
-												fontWeight: 500,
-												fontSize: 14,
-												border: '1px solid #e0e0e0',
-												borderRadius: 6,
-												background: '#fff',
-											}}
-										>
-											{editData.draft.it_contest
-												? getCertificateData(editData.draft.it_contest).highest
-												: getCertificateData(student.it_contest).highest}
-										</span>
-									)}
+									<span
+										style={{
+											padding: '6px 20px',
+											fontWeight: 500,
+											fontSize: 14,
+											border: '1px solid #e0e0e0',
+											borderRadius: 6,
+											background: editMode ? '#f5f5f5' : '#fff',
+											color: editMode ? '#666' : '#000',
+											cursor: editMode ? 'not-allowed' : 'default',
+										}}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+									>
+										{editData.draft.it_contest
+											? getCertificateData(editData.draft.it_contest).highest
+											: getCertificateData(student.it_contest).highest}
+									</span>
 								</div>
 							</div>
 						</div>
