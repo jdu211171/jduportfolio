@@ -7,7 +7,7 @@ const path = require('path');
 exports.uploadRecruiterFiles = async (req, res) => {
     try {
         if (req.user.userType !== 'Recruiter') {
-            return res.status(403).json({ message: 'Ruxsat yo\'q. Faqat rekuterlar fayl yuklay oladi.' });
+            return res.status(403).json({ message: "Ruxsat yo'q. Faqat rekuterlar fayl yuklay oladi." });
         }
 
         const recruiterId = req.user.id;
@@ -23,8 +23,32 @@ exports.uploadRecruiterFiles = async (req, res) => {
             return res.status(400).json({ message: `Siz jami 3 tagacha fayl yuklay olasiz. Sizda allaqachon ${existingFilesCount} ta fayl mavjud.` });
         }
 
+        // Check total size quota (20MB)
+        const MAX_TOTAL_SIZE = 20 * 1024 * 1024; // 20MB
+        const existingFiles = await UserFile.findAll({ 
+            where: { owner_id: recruiterId, owner_type: 'Recruiter' } 
+        });
+        const existingTotalSize = existingFiles.reduce((sum, file) => sum + (file.file_size || 0), 0);
+        const newFilesTotalSize = filesToUpload.reduce((sum, file) => sum + file.size, 0);
+        
+        if (existingTotalSize + newFilesTotalSize > MAX_TOTAL_SIZE) {
+            const remainingSpace = MAX_TOTAL_SIZE - existingTotalSize;
+            const remainingMB = (remainingSpace / 1024 / 1024).toFixed(1);
+            return res.status(400).json({ 
+                message: `Jami hajm 20MB dan oshmasligi kerak. Mavjud bo'sh joy: ${remainingMB}MB` 
+            });
+        }
+
         const uploadedFileRecords = [];
         for (const file of filesToUpload) {
+            console.log('Processing file:', {
+                originalname: file.originalname,
+                originalnameHex: Buffer.from(file.originalname).toString('hex'),
+                mimetype: file.mimetype,
+                size: file.size,
+                bufferLength: file.buffer ? file.buffer.length : 0
+            });
+            
             const fileBuffer = file.buffer;
             const uniqueFilename = generateUniqueFilename(file.originalname);
             const objectName = `Recruiter/${recruiterId}/documents/${uniqueFilename}`;
@@ -37,6 +61,7 @@ exports.uploadRecruiterFiles = async (req, res) => {
                 imageType: 'recruiter_document',
                 owner_id: recruiterId,
                 owner_type: 'Recruiter',
+                file_size: file.size,
             });
             uploadedFileRecords.push(newFileRecord);
         }
@@ -50,14 +75,22 @@ exports.uploadRecruiterFiles = async (req, res) => {
 exports.getRecruiterFiles = async (req, res) => {
     try {
         if (req.user.userType !== 'Recruiter') {
-            return res.status(403).json({ message: 'Ruxsat yo\'q.' });
+            return res.status(403).json({ message: "Ruxsat yo'q." });
         }
         const recruiterId = req.user.id;
         const files = await UserFile.findAll({
             where: { owner_id: recruiterId, owner_type: 'Recruiter' },
             order: [['createdAt', 'DESC']]
         });
-        res.status(200).json(files);
+        
+        // Calculate total size
+        const totalSize = files.reduce((sum, file) => sum + (file.file_size || 0), 0);
+        
+        res.status(200).json({
+            files,
+            totalSize,
+            maxSize: 20 * 1024 * 1024 // 20MB
+        });
     } catch (error) {
         console.error('Rekruter fayllarini olishda xatolik:', error);
         res.status(500).json({ error: 'Fayllarni olib bo‘lmadi' });
@@ -66,7 +99,7 @@ exports.getRecruiterFiles = async (req, res) => {
 exports.updateRecruiterFile = async (req, res) => {
     try {
         if (req.user.userType !== 'Recruiter') {
-            return res.status(403).json({ message: 'Ruxsat yo\'q.' });
+            return res.status(403).json({ message: "Ruxsat yo'q." });
         }
 
         const { id: fileId } = req.params;
@@ -79,11 +112,11 @@ exports.updateRecruiterFile = async (req, res) => {
 
         const oldFileRecord = await UserFile.findOne({ where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' } });
         if (!oldFileRecord) {
-            return res.status(404).json({ error: 'Fayl topilmadi yoki uni yangilashga ruxsatingiz yo\'q.' });
+            return res.status(404).json({ error: "Fayl topilmadi yoki uni yangilashga ruxsatingiz yo'q." });
         }
 
         // 1. Eski faylni ombordan o'chiramiz
-        await deleteFile(oldFileRecord.file_url);
+        await deleteFile(oldFileRecord.object_name);
 
         // 2. Yangi faylni yuklaymiz
         const fileBuffer = newFile.buffer;
@@ -95,6 +128,7 @@ exports.updateRecruiterFile = async (req, res) => {
         oldFileRecord.file_url = uploadedS3Info.Location;
         oldFileRecord.object_name = objectName;
         oldFileRecord.original_filename = newFile.originalname;
+        oldFileRecord.file_size = newFile.size;
         await oldFileRecord.save();
         
         res.status(200).json(oldFileRecord);
@@ -106,7 +140,7 @@ exports.updateRecruiterFile = async (req, res) => {
 exports.deleteRecruiterFile = async (req, res) => {
     try {
         if (req.user.userType !== 'Recruiter') {
-            return res.status(403).json({ message: 'Ruxsat yo\'q.' });
+            return res.status(403).json({ message: "Ruxsat yo'q." });
         }
         
         const { id: fileId } = req.params;
@@ -114,22 +148,29 @@ exports.deleteRecruiterFile = async (req, res) => {
         
         const fileRecord = await UserFile.findOne({ where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' } });
         if (!fileRecord) {
-            return res.status(404).json({ error: 'Fayl topilmadi yoki uni o\'chirishga ruxsatingiz yo\'q.' });
+            return res.status(404).json({ error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q." });
         }
 
-        await deleteFile(fileRecord.file_url);
+        // Delete from database first (faster response)
         await fileRecord.destroy();
-
-        res.status(200).json({ message: 'Fayl muvaffaqiyatli o\'chirildi.' });
+        
+        // Send success response immediately
+        res.status(200).json({ message: "Fayl muvaffaqiyatli o'chirildi." });
+        
+        // Delete from storage asynchronously (after response)
+        deleteFile(fileRecord.object_name).catch(err => {
+            console.error('Storage deletion error (non-blocking):', err);
+        });
+        
     } catch (error) {
-        console.error('Rekruter faylini o\'chirishda xatolik:', error);
-        res.status(500).json({ error: 'Faylni o\'chirib bo‘lmadi' });
+        console.error("Rekruter faylini o'chirishda xatolik:", error);
+        res.status(500).json({ error: "Faylni o'chirib bo'lmadi" });
     }
 };
 exports.downloadRecruiterFile = async (req, res) => {
     try {
         if (req.user.userType !== 'Recruiter') {
-            return res.status(403).json({ message: 'Ruxsat yo\'q.' });
+            return res.status(403).json({ message: "Ruxsat yo'q." });
         }
 
         const { id: fileId } = req.params;
@@ -137,25 +178,21 @@ exports.downloadRecruiterFile = async (req, res) => {
 
         const fileRecord = await UserFile.findOne({ where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' } });
         if (!fileRecord) {
-            return res.status(404).json({ error: 'Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo\'q.' });
+            return res.status(404).json({ error: "Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo'q." });
         }
 
-        const tempDir = path.join(__dirname, '..', 'temp_downloads');
-        const downloadPath = path.join(tempDir, fileRecord.original_filename);
-
-        await getFile(fileRecord.object_name, downloadPath);
-
-        res.download(downloadPath, fileRecord.original_filename, (err) => {
-            if (err) {
-                console.error('Faylni yuborishda xatolik:', err);
-            }
-            // Vaqtinchalik faylni o'chirish
-            const fs = require('fs');
-            fs.unlinkSync(downloadPath);
-        });
+        // Properly encode filename for Unicode support (RFC 5987)
+        const encodedFilename = encodeURIComponent(fileRecord.original_filename);
+        const asciiFilename = fileRecord.original_filename.replace(/[^\x00-\x7F]/g, '_');
+        
+        // Set Content-Disposition with both ASCII fallback and UTF-8 encoded name
+        res.setHeader('Content-Disposition', 
+            `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`
+        );
+        res.redirect(fileRecord.file_url);
 
     } catch (error) {
         console.error('Rekruter faylini yuklab olishda xatolik:', error);
-        res.status(500).json({ error: 'Faylni yuklab bo‘lmadi' });
+        res.status(500).json({ error: "Faylni yuklab bo'lmadi" });
     }
 };
