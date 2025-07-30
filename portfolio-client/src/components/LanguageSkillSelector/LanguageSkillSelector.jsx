@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react'
-import {
-	TextField,
-	Chip,
-	Box,
-	IconButton,
-} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import styles from './LanguageSkillSelector.module.css'
+import { Autocomplete, Box, Chip, IconButton, TextField } from '@mui/material'
+import axios from 'axios'
 import PropTypes from 'prop-types'
+import { useEffect, useState } from 'react'
+import styles from './LanguageSkillSelector.module.css'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
@@ -23,41 +19,81 @@ const LanguageSkillSelector = ({
 	icon,
 	isChanged = false,
 }) => {
-	const [skillName, setSkillName] = useState('')
+	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [skillLevel, setSkillLevel] = useState('')
+	const [availableSkills, setAvailableSkills] = useState([])
+	const [loadingSkills, setLoadingSkills] = useState(false)
 
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
+	// Fetch available skills from API
+	useEffect(() => {
+		fetchSkillsFromAPI()
+	}, [])
+
+	const fetchSkillsFromAPI = async (search = '') => {
+		try {
+			setLoadingSkills(true)
+			const url = search
+				? `/api/skills?search=${encodeURIComponent(search)}`
+				: '/api/skills'
+			const response = await axios.get(url)
+			setAvailableSkills(response.data || [])
+		} catch (error) {
+			console.error('Error fetching skills:', error)
+			setAvailableSkills([])
+		} finally {
+			setLoadingSkills(false)
+		}
+	}
+
 	// Get the current skills data
 	const getCurrentSkillsData = () => {
+		let skillsData = []
+
 		if (editMode && editData && editData[parentKey]) {
-			return editData[parentKey][keyName] || []
+			skillsData = editData[parentKey][keyName] || []
+		} else {
+			skillsData = data?.[keyName] || []
 		}
-		return data?.[keyName] || []
+
+		// If the data is a string (from database), parse it as JSON
+		if (typeof skillsData === 'string') {
+			try {
+				skillsData = JSON.parse(skillsData)
+			} catch (error) {
+				console.error('Error parsing language skills data:', error)
+				skillsData = []
+			}
+		}
+
+		// Ensure it's an array
+		return Array.isArray(skillsData) ? skillsData : []
 	}
 
 	const handleAddSkill = () => {
 		// Validation
-		if (!skillName.trim() || !skillLevel.trim()) {
+		if (!selectedSkill?.name?.trim() || !skillLevel.trim()) {
 			return
 		}
 
+		const skillName = selectedSkill.name.trim()
 		const currentSkillsData = getCurrentSkillsData()
 
 		// Check for duplicates
 		const isDuplicate = currentSkillsData.some(
-			skill => skill.name?.toLowerCase() === skillName.trim().toLowerCase()
+			skill => skill.name?.toLowerCase() === skillName.toLowerCase()
 		)
 
 		if (isDuplicate) {
-			alert(`Skill "${skillName.trim()}" already exists!`)
+			alert(`Skill "${skillName}" already exists!`)
 			return
 		}
 
 		// Create new skill object
 		const newSkill = {
-			name: skillName.trim(),
+			name: skillName,
 			level: skillLevel.trim(),
 			color: '#5627DB',
 		}
@@ -65,26 +101,26 @@ const LanguageSkillSelector = ({
 		// Create updated skills array
 		const updatedSkills = [...currentSkillsData, newSkill]
 
-		// Update the data
+		// Update the data - convert to JSON string for database storage
 		try {
-			updateEditData(keyName, updatedSkills, parentKey)
+			updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
 
 			// Reset form
-			setSkillName('')
+			setSelectedSkill(null)
 			setSkillLevel('')
 		} catch (error) {
 			console.error('Error updating language skills:', error)
 		}
 	}
 
-	const handleDeleteSkill = (skillToDelete) => {
+	const handleDeleteSkill = skillToDelete => {
 		const currentSkillsData = getCurrentSkillsData()
 		const updatedSkills = currentSkillsData.filter(
 			skill => skill.name !== skillToDelete.name
 		)
 
 		try {
-			updateEditData(keyName, updatedSkills, parentKey)
+			updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
 		} catch (error) {
 			console.error('Error deleting language skill:', error)
 		}
@@ -93,7 +129,7 @@ const LanguageSkillSelector = ({
 	const skillsToDisplay = getCurrentSkillsData()
 
 	return (
-		<div 
+		<div
 			className={styles.container}
 			style={{
 				backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
@@ -104,21 +140,23 @@ const LanguageSkillSelector = ({
 			}}
 		>
 			{isChanged && (
-				<div style={{
-					position: 'absolute',
-					top: -10,
-					right: 10,
-					backgroundColor: '#ffc107',
-					color: '#fff',
-					padding: '2px 8px',
-					borderRadius: '4px',
-					fontSize: '12px',
-					fontWeight: 'bold',
-				}}>
+				<div
+					style={{
+						position: 'absolute',
+						top: -10,
+						right: 10,
+						backgroundColor: '#ffc107',
+						color: '#fff',
+						padding: '2px 8px',
+						borderRadius: '4px',
+						fontSize: '12px',
+						fontWeight: 'bold',
+					}}
+				>
 					変更あり
 				</div>
 			)}
-			
+
 			<div
 				className={styles.title}
 				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
@@ -136,22 +174,30 @@ const LanguageSkillSelector = ({
 					gap={2}
 					className={styles.addSkillForm}
 				>
-					<TextField
-						value={skillName}
-						onChange={event => setSkillName(event.target.value)}
-						onKeyPress={event => {
-							if (event.key === 'Enter') {
-								event.preventDefault()
-								if (skillLevel.trim()) {
-									handleAddSkill()
-								}
+					<Autocomplete
+						options={availableSkills}
+						getOptionLabel={option => option.name || ''}
+						value={selectedSkill}
+						onChange={(event, newValue) => {
+							setSelectedSkill(newValue)
+						}}
+						onInputChange={(event, newInputValue) => {
+							// Search skills when user types
+							if (newInputValue && newInputValue.length > 0) {
+								fetchSkillsFromAPI(newInputValue)
 							}
 						}}
-						label={t('languageName') || 'Language Name'}
-						placeholder="e.g., IELTS, JLPT, TOEFL"
-						variant='outlined'
-						size='small'
+						loading={loadingSkills}
 						sx={{ width: 200 }}
+						renderInput={params => (
+							<TextField
+								{...params}
+								label={t('languageName') || 'Language Name'}
+								variant='outlined'
+								size='small'
+								placeholder='e.g., IELTS, JLPT, TOEFL'
+							/>
+						)}
 					/>
 
 					<TextField
@@ -164,7 +210,7 @@ const LanguageSkillSelector = ({
 							}
 						}}
 						label={t('level') || 'Level'}
-						placeholder="e.g., N4, 7.0, 90"
+						placeholder='e.g., N4, 7.0, 90'
 						variant='outlined'
 						size='small'
 						sx={{ width: 150 }}
@@ -173,7 +219,7 @@ const LanguageSkillSelector = ({
 					<IconButton
 						onClick={handleAddSkill}
 						color='primary'
-						disabled={!skillName.trim() || !skillLevel.trim()}
+						disabled={!selectedSkill?.name?.trim() || !skillLevel.trim()}
 						sx={{
 							backgroundColor: '#5627DB',
 							color: 'white',
@@ -202,20 +248,18 @@ const LanguageSkillSelector = ({
 									borderRadius: '16px',
 									margin: '4px',
 								}}
-								onDelete={
-									editMode
-										? () => handleDeleteSkill(skill)
-										: undefined
-								}
+								onDelete={editMode ? () => handleDeleteSkill(skill) : undefined}
 							/>
 						))}
 					</div>
 				) : (
-					<div style={{
-						textAlign: 'center',
-						padding: '20px',
-						color: '#999',
-					}}>
+					<div
+						style={{
+							textAlign: 'center',
+							padding: '20px',
+							color: '#999',
+						}}
+					>
 						{editMode
 							? 'No language skills added yet. Use the form above to add skills.'
 							: 'No language skills available.'}
