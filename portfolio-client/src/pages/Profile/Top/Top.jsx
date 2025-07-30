@@ -44,9 +44,9 @@ import {
 	subTabIndexAtom,
 	updateQAAtom,
 } from '../../../atoms/profileEditAtoms'
-import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
+import LanguageSkillSelector from '../../../components/LanguageSkillSelector/LanguageSkillSelector'
 import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import TextField from '../../../components/TextField/TextField'
 import { useAlert } from '../../../contexts/AlertContext'
@@ -570,7 +570,6 @@ const Top = () => {
 			const response = await axios.get(`/api/students/${id}`)
 			const studentData = response.data
 
-
 			// Always parse JSON fields first using mapData
 			const parsedStudentData = mapData(studentData)
 
@@ -584,7 +583,6 @@ const Top = () => {
 					...parsedStudentData,
 					draft: studentData.draft.profile_data || {},
 				}
-
 
 				setStudent(mappedData)
 				setEditData(mappedData)
@@ -658,6 +656,7 @@ const Top = () => {
 			'other_information',
 			'it_skills',
 			'skills',
+			'language_skills',
 			'address',
 			'jlpt',
 			'jdu_japanese_certification',
@@ -910,7 +909,6 @@ const Top = () => {
 
 	const handleDraftUpsert = async (formData = editData) => {
 		try {
-
 			// First, upload gallery images if any
 			if (newImages.length > 0) {
 				const formData = new FormData()
@@ -964,7 +962,6 @@ const Top = () => {
 							{ headers: { 'Content-Type': 'multipart/form-data' } }
 						)
 
-
 						if (deliverableFileResponse.data.Location) {
 							// Make sure we have a deliverable at this index
 							if (!updatedDeliverables[index]) {
@@ -980,8 +977,7 @@ const Top = () => {
 							updatedDeliverables[index].imageLink =
 								deliverableFileResponse.data.Location
 						}
-					} catch (imageUploadError) {
-					}
+					} catch (imageUploadError) {}
 				}
 			}
 
@@ -998,10 +994,8 @@ const Top = () => {
 				},
 			}
 
-
 			// Always use PUT for upsert approach (backend uses PUT method)
 			const res = await axios.put(`/api/draft`, draftData)
-
 
 			setCurrentDraft(res.data.draft || res.data)
 			setHasDraft(true)
@@ -1803,7 +1797,9 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.jlpt
 											? getJLPTData(editData.draft.jlpt).highest
@@ -1829,13 +1825,14 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.jdu_japanese_certification
 											? getJLPTData(editData.draft.jdu_japanese_certification)
 													.highest
-											: getJLPTData(student.jdu_japanese_certification)
-													.highest}
+											: getJLPTData(student.jdu_japanese_certification).highest}
 									</span>
 								</div>
 
@@ -1857,7 +1854,9 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.japanese_speech_contest
 											? getCertificateData(
@@ -1886,7 +1885,9 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.it_contest
 											? getCertificateData(editData.draft.it_contest).highest
@@ -1896,25 +1897,18 @@ const Top = () => {
 							</div>
 						</div>
 
-						<SkillSelector
+						<LanguageSkillSelector
 							title={t('languageSkills')}
-							headers={{
-								上級: '3年間以上',
-								中級: '1年間〜1年間半',
-								初級: '基礎',
-							}}
 							data={student.draft}
 							editMode={editMode}
 							editData={editData}
 							updateEditData={handleUpdateEditData}
-							showAutocomplete={false}
-							showHeaders={false}
-							keyName='skills'
+							keyName='language_skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
 							isChanged={
 								role === 'Staff' &&
-								currentDraft?.changed_fields?.includes('skills')
+								currentDraft?.changed_fields?.includes('language_skills')
 							}
 						/>
 
