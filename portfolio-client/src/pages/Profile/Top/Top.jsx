@@ -1997,15 +1997,14 @@ const Top = () => {
 								中級: '1年間〜1年間半',
 								初級: '基礎',
 							}}
-							data={student.draft}
+							data={filteredLanguageSkills}
 							editMode={editMode}
 							editData={editData}
 							updateEditData={handleUpdateEditData}
-							showAutocomplete={false}
+							showAutocomplete={true}
 							showHeaders={false}
 							keyName='skills'
 							parentKey='draft'
-							skillOptions={filteredLanguageSkills}
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
 							isChanged={
 								role === 'Staff' &&
