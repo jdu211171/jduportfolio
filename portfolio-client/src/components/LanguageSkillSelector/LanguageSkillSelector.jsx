@@ -1,8 +1,13 @@
+import { useState, useEffect } from 'react'
+import {
+	TextField,
+	Chip,
+	Box,
+	IconButton,
+} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
-import { Box, Chip, IconButton, TextField } from '@mui/material'
-import PropTypes from 'prop-types'
-import { useState } from 'react'
 import styles from './LanguageSkillSelector.module.css'
+import PropTypes from 'prop-types'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
@@ -24,53 +29,12 @@ const LanguageSkillSelector = ({
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
-	// Get the current skills data - handle both old string format and new array format
+	// Get the current skills data
 	const getCurrentSkillsData = () => {
-		let rawData = null
-
 		if (editMode && editData && editData[parentKey]) {
-			rawData = editData[parentKey][keyName]
-		} else {
-			rawData = data?.[keyName]
+			return editData[parentKey][keyName] || []
 		}
-
-		// If no data, return empty array
-		if (!rawData) {
-			return []
-		}
-
-		// If it's already an array (new format), return it
-		if (Array.isArray(rawData)) {
-			return rawData
-		}
-
-		// If it's a string (old format), parse it
-		if (typeof rawData === 'string' && rawData.trim()) {
-			// Parse string like "Japanese (JLPT N2), English (IELTS 6.5)" into array format
-			return rawData
-				.split(',')
-				.map(skill => skill.trim())
-				.filter(skill => skill.length > 0)
-				.map(skill => {
-					const match = skill.match(/^(.+?)\s*\((.+?)\)$/)
-					if (match) {
-						return {
-							name: match[1].trim(),
-							level: match[2].trim(),
-							color: '#5627DB',
-						}
-					} else {
-						// If no parentheses found, treat the whole string as name
-						return {
-							name: skill,
-							level: '',
-							color: '#5627DB',
-						}
-					}
-				})
-		}
-
-		return []
+		return data?.[keyName] || []
 	}
 
 	const handleAddSkill = () => {
@@ -101,7 +65,7 @@ const LanguageSkillSelector = ({
 		// Create updated skills array
 		const updatedSkills = [...currentSkillsData, newSkill]
 
-		// Update the data with array format
+		// Update the data
 		try {
 			updateEditData(keyName, updatedSkills, parentKey)
 
@@ -113,7 +77,7 @@ const LanguageSkillSelector = ({
 		}
 	}
 
-	const handleDeleteSkill = skillToDelete => {
+	const handleDeleteSkill = (skillToDelete) => {
 		const currentSkillsData = getCurrentSkillsData()
 		const updatedSkills = currentSkillsData.filter(
 			skill => skill.name !== skillToDelete.name
@@ -129,7 +93,7 @@ const LanguageSkillSelector = ({
 	const skillsToDisplay = getCurrentSkillsData()
 
 	return (
-		<div
+		<div 
 			className={styles.container}
 			style={{
 				backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
@@ -140,23 +104,21 @@ const LanguageSkillSelector = ({
 			}}
 		>
 			{isChanged && (
-				<div
-					style={{
-						position: 'absolute',
-						top: -10,
-						right: 10,
-						backgroundColor: '#ffc107',
-						color: '#fff',
-						padding: '2px 8px',
-						borderRadius: '4px',
-						fontSize: '12px',
-						fontWeight: 'bold',
-					}}
-				>
+				<div style={{
+					position: 'absolute',
+					top: -10,
+					right: 10,
+					backgroundColor: '#ffc107',
+					color: '#fff',
+					padding: '2px 8px',
+					borderRadius: '4px',
+					fontSize: '12px',
+					fontWeight: 'bold',
+				}}>
 					変更あり
 				</div>
 			)}
-
+			
 			<div
 				className={styles.title}
 				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
@@ -186,7 +148,7 @@ const LanguageSkillSelector = ({
 							}
 						}}
 						label={t('languageName') || 'Language Name'}
-						placeholder='e.g., IELTS, JLPT, TOEFL'
+						placeholder="e.g., IELTS, JLPT, TOEFL"
 						variant='outlined'
 						size='small'
 						sx={{ width: 200 }}
@@ -202,7 +164,7 @@ const LanguageSkillSelector = ({
 							}
 						}}
 						label={t('level') || 'Level'}
-						placeholder='e.g., N4, 7.0, 90'
+						placeholder="e.g., N4, 7.0, 90"
 						variant='outlined'
 						size='small'
 						sx={{ width: 150 }}
@@ -240,18 +202,20 @@ const LanguageSkillSelector = ({
 									borderRadius: '16px',
 									margin: '4px',
 								}}
-								onDelete={editMode ? () => handleDeleteSkill(skill) : undefined}
+								onDelete={
+									editMode
+										? () => handleDeleteSkill(skill)
+										: undefined
+								}
 							/>
 						))}
 					</div>
 				) : (
-					<div
-						style={{
-							textAlign: 'center',
-							padding: '20px',
-							color: '#999',
-						}}
-					>
+					<div style={{
+						textAlign: 'center',
+						padding: '20px',
+						color: '#999',
+					}}>
 						{editMode
 							? 'No language skills added yet. Use the form above to add skills.'
 							: 'No language skills available.'}

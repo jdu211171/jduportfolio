@@ -44,10 +44,10 @@ import {
 	subTabIndexAtom,
 	updateQAAtom,
 } from '../../../atoms/profileEditAtoms'
+import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 import LanguageSkillSelector from '../../../components/LanguageSkillSelector/LanguageSkillSelector'
-import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import TextField from '../../../components/TextField/TextField'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
@@ -656,7 +656,6 @@ const Top = () => {
 			'other_information',
 			'it_skills',
 			'skills',
-			'language_skills',
 			'address',
 			'jlpt',
 			'jdu_japanese_certification',
@@ -1897,18 +1896,25 @@ const Top = () => {
 							</div>
 						</div>
 
-						<LanguageSkillSelector
+						<SkillSelector
 							title={t('languageSkills')}
+							headers={{
+								上級: '3年間以上',
+								中級: '1年間〜1年間半',
+								初級: '基礎',
+							}}
 							data={student.draft}
 							editMode={editMode}
 							editData={editData}
 							updateEditData={handleUpdateEditData}
-							keyName='language_skills'
+							showAutocomplete={false}
+							showHeaders={false}
+							keyName='skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
 							isChanged={
 								role === 'Staff' &&
-								currentDraft?.changed_fields?.includes('language_skills')
+								currentDraft?.changed_fields?.includes('skills')
 							}
 						/>
 
