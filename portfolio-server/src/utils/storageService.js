@@ -89,16 +89,30 @@ const uploadFile = async (fileBuffer, objectName) => {
 	}
 }
 
-const deleteFile = async fileUrl => {
+const deleteFile = async objectName => {
 	try {
-		const url = new URL(fileUrl)
-		const objectName = decodeURIComponent(url.pathname.substring(1)) // Remove leading '/'
+		// Check if AWS credentials are configured
+		if (!process.env.AWS_S3_ACCESS_KEY || !process.env.AWS_S3_SECRET_KEY || !bucketName) {
+			// Local storage deletion
+			const fs = require('fs')
+			const path = require('path')
+			const filePath = path.join(__dirname, '../../uploads', objectName)
+			
+			if (fs.existsSync(filePath)) {
+				fs.unlinkSync(filePath)
+				console.log('Local file deleted:', filePath)
+			}
+			return
+		}
+		
+		// S3 deletion
 		const deleteParams = {
 			Bucket: bucketName,
 			Key: objectName,
 		}
 		const command = new DeleteObjectCommand(deleteParams)
 		await s3Client.send(command)
+		console.log('S3 file deleted:', objectName)
 	} catch (error) {
 		console.error('Error deleting file:', error)
 		throw error

@@ -51,6 +51,7 @@ import DeleteIcon from '../../../assets/icons/delete-bin-3-line.svg'
 import styles from './CompanyProfile.module.css'
 import translations from '../../../locales/translations'
 import { UserContext } from '../../../contexts/UserContext'
+import RecruiterFiles from '../../../components/RecruiterFiles'
 
 // Helper functions moved outside component
 const safeArrayRender = array => {
@@ -1259,6 +1260,11 @@ const CompanyProfile = ({ userId = 0 }) => {
 					</Box>
 				)}
 			</ContentBox>
+			)}
+
+			{/* Company Documents - Above Company Overview */}
+			{role === 'Recruiter' && !editMode && (
+				<RecruiterFiles />
 			)}
 
 			{/* Company Overview */}
