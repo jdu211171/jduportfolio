@@ -183,6 +183,7 @@ const translations = {
 		selectSkill: 'Select Skill',
 		skill: 'Skill',
 		level: 'Level',
+		languageName: 'Language Name',
 		levelInfo:
 			'Advanced: Over 3 years | Intermediate: Less than 3 years | Beginner: Less than 1 year',
 		levels: {
@@ -597,6 +598,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		selectSkill: 'スキルを選択',
 		skill: 'スキル',
 		level: 'レベル',
+		languageName: '言語名',
 		levelInfo: '上級：3年以上　　　　中級：3年未満　　　　初級：1年未満',
 		levels: {
 			上級: '上級: 3年以上',
@@ -991,6 +993,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		selectSkill: "Ko'nikmani tanlang",
 		skill: "Ko'nikma",
 		level: 'Daraja',
+		languageName: 'Til nomi',
 		levelInfo:
 			"Yuqori: 3 yildan ortiq | O'rtacha: 3 yildan kam | Boshlang'ich: 1 yildan kam",
 		notifications: 'Bildirishnomalar',

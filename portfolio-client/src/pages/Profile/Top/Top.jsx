@@ -44,9 +44,9 @@ import {
 	subTabIndexAtom,
 	updateQAAtom,
 } from '../../../atoms/profileEditAtoms'
-import CreditsProgressBar from '../../../components/CreditsProgressBar/CreditsProgressBar'
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
+import LanguageSkillSelector from '../../../components/LanguageSkillSelector/LanguageSkillSelector'
 import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import TextField from '../../../components/TextField/TextField'
 import { useAlert } from '../../../contexts/AlertContext'
@@ -1808,7 +1808,9 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.jlpt
 											? getJLPTData(editData.draft.jlpt).highest
@@ -1834,13 +1836,14 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.jdu_japanese_certification
 											? getJLPTData(editData.draft.jdu_japanese_certification)
 													.highest
-											: getJLPTData(student.jdu_japanese_certification)
-													.highest}
+											: getJLPTData(student.jdu_japanese_certification).highest}
 									</span>
 								</div>
 
@@ -1862,7 +1865,9 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.japanese_speech_contest
 											? getCertificateData(
@@ -1891,7 +1896,9 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={editMode ? 'この情報はKintoneから管理されています' : ''}
+										title={
+											editMode ? 'この情報はKintoneから管理されています' : ''
+										}
 									>
 										{editData.draft.it_contest
 											? getCertificateData(editData.draft.it_contest).highest
@@ -1901,25 +1908,25 @@ const Top = () => {
 							</div>
 						</div>
 
-						<SkillSelector
+						<LanguageSkillSelector
 							title={t('languageSkills')}
 							headers={{
 								上級: '3年間以上',
 								中級: '1年間〜1年間半',
 								初級: '基礎',
 							}}
-							data={filteredLanguageSkills}
+							data={student.draft}
 							editMode={editMode}
 							editData={editData}
 							updateEditData={handleUpdateEditData}
 							showAutocomplete={true}
 							showHeaders={false}
-							keyName='skills'
+							keyName='language_skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
 							isChanged={
 								role === 'Staff' &&
-								currentDraft?.changed_fields?.includes('skills')
+								currentDraft?.changed_fields?.includes('language_skills')
 							}
 						/>
 
