@@ -246,7 +246,7 @@ const Top = () => {
 	const [activeUniver, setActiveUniver] = useAtom(activeUniverAtom)
 	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
 		useState(false)
-
+	const [filteredLanguageSkills, setFilteredLanguageSkills] = useState([])
 	// ✅ New state for hobbies and special skills tags
 	const [hobbiesInput, setHobbiesInput] = useAtom(hobbiesInputAtom)
 	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(
@@ -403,6 +403,7 @@ const Top = () => {
 	}, [editMode, role])
 
 	useEffect(() => {
+		fetchLanguageSkills()
 		const loadData = async () => {
 			setIsLoading(true)
 			try {
@@ -1035,6 +1036,17 @@ const Top = () => {
 
 	const toggleConfirmMode = () => {
 		setConfirmMode(prev => !prev)
+	}
+	// Fetch language skills from API
+	const fetchLanguageSkills = async () => {
+		try {
+			const response = await axios.get(`/api/skills/`)
+			console.log(response.data)
+
+			setFilteredLanguageSkills(response.data)
+		} catch (error) {
+			console.error('Error fetching language skills:', error)
+		}
 	}
 
 	if (isLoading) {
@@ -1898,10 +1910,17 @@ const Top = () => {
 
 						<LanguageSkillSelector
 							title={t('languageSkills')}
+							headers={{
+								上級: '3年間以上',
+								中級: '1年間〜1年間半',
+								初級: '基礎',
+							}}
 							data={student.draft}
 							editMode={editMode}
 							editData={editData}
 							updateEditData={handleUpdateEditData}
+							showAutocomplete={true}
+							showHeaders={false}
 							keyName='language_skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
