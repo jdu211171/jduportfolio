@@ -246,7 +246,7 @@ const Top = () => {
 	const [activeUniver, setActiveUniver] = useAtom(activeUniverAtom)
 	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
 		useState(false)
-
+	const [filteredLanguageSkills, setFilteredLanguageSkills] = useState([])
 	// ✅ New state for hobbies and special skills tags
 	const [hobbiesInput, setHobbiesInput] = useAtom(hobbiesInputAtom)
 	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(
@@ -403,6 +403,7 @@ const Top = () => {
 	}, [editMode, role])
 
 	useEffect(() => {
+		fetchLanguageSkills()
 		const loadData = async () => {
 			setIsLoading(true)
 			try {
@@ -570,7 +571,6 @@ const Top = () => {
 			const response = await axios.get(`/api/students/${id}`)
 			const studentData = response.data
 
-
 			// Always parse JSON fields first using mapData
 			const parsedStudentData = mapData(studentData)
 
@@ -584,7 +584,6 @@ const Top = () => {
 					...parsedStudentData,
 					draft: studentData.draft.profile_data || {},
 				}
-
 
 				setStudent(mappedData)
 				setEditData(mappedData)
@@ -910,7 +909,6 @@ const Top = () => {
 
 	const handleDraftUpsert = async (formData = editData) => {
 		try {
-
 			// First, upload gallery images if any
 			if (newImages.length > 0) {
 				const formData = new FormData()
@@ -964,7 +962,6 @@ const Top = () => {
 							{ headers: { 'Content-Type': 'multipart/form-data' } }
 						)
 
-
 						if (deliverableFileResponse.data.Location) {
 							// Make sure we have a deliverable at this index
 							if (!updatedDeliverables[index]) {
@@ -980,8 +977,7 @@ const Top = () => {
 							updatedDeliverables[index].imageLink =
 								deliverableFileResponse.data.Location
 						}
-					} catch (imageUploadError) {
-					}
+					} catch (imageUploadError) {}
 				}
 			}
 
@@ -998,10 +994,8 @@ const Top = () => {
 				},
 			}
 
-
 			// Always use PUT for upsert approach (backend uses PUT method)
 			const res = await axios.put(`/api/draft`, draftData)
-
 
 			setCurrentDraft(res.data.draft || res.data)
 			setHasDraft(true)
@@ -1042,6 +1036,17 @@ const Top = () => {
 
 	const toggleConfirmMode = () => {
 		setConfirmMode(prev => !prev)
+	}
+	// Fetch language skills from API
+	const fetchLanguageSkills = async () => {
+		try {
+			const response = await axios.get(`/api/skills/`)
+			console.log(response.data)
+
+			setFilteredLanguageSkills(response.data)
+		} catch (error) {
+			console.error('Error fetching language skills:', error)
+		}
 	}
 
 	if (isLoading) {
@@ -1903,11 +1908,11 @@ const Top = () => {
 								中級: '1年間〜1年間半',
 								初級: '基礎',
 							}}
-							data={student.draft}
+							data={filteredLanguageSkills}
 							editMode={editMode}
 							editData={editData}
 							updateEditData={handleUpdateEditData}
-							showAutocomplete={false}
+							showAutocomplete={true}
 							showHeaders={false}
 							keyName='skills'
 							parentKey='draft'
