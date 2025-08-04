@@ -331,7 +331,7 @@ const QA = ({
 			if (res.status == 200) {
 				// Update parent's currentDraft state to 'submitted'
 				updateCurrentDraft('submitted')
-				showAlert(t['profileConfirmed'], 'success')
+				showAlert(t('profileConfirmed'), 'success')
 			}
 		} catch (error) {
 			// Backend'dan kelgan yangi xatolik xabarini handle qilamiz
@@ -341,12 +341,12 @@ const QA = ({
 				)
 			) {
 				showAlert(
-					t['draftAlreadySubmitted'] ||
+					t('draftAlreadySubmitted') ||
 						"Avvalgi so'rovingiz hali ko'rib chiqilmagan. Yangisini yuborish uchun natijani kuting.",
 					'warning'
 				)
 			} else {
-				showAlert(t['errorConfirmingProfile'], 'error')
+				showAlert(t('errorConfirmingProfile'), 'error')
 			}
 		} finally {
 			setConfirmMode(false)
@@ -371,9 +371,9 @@ const QA = ({
 			updateCurrentDraft(value)
 			// Clear comment input after successful submission
 			setComment({ comments: '' })
-			showAlert(t['profileConfirmed'], 'success')
+			showAlert(t('profileConfirmed'), 'success')
 		} catch (error) {
-			showAlert(t['errorConfirmingProfile'], 'error')
+			showAlert(t('errorConfirmingProfile'), 'error')
 		} finally {
 			setConfirmMode(false)
 		}
@@ -702,7 +702,7 @@ const QA = ({
 									color='primary'
 									size='small'
 								>
-									{t['add']}
+									{t('add')}
 								</Button>
 							)}
 							{!isHonban && (
@@ -712,7 +712,7 @@ const QA = ({
 									color='primary'
 									size='small'
 								>
-									{t['updateDraft']}
+									{t('updateDraft')}
 								</Button>
 							)}
 							{role == 'Student' && id && (
@@ -722,7 +722,7 @@ const QA = ({
 									color='primary'
 									size='small'
 								>
-									{t['saveDraft']}
+									{t('saveDraft')}
 								</Button>
 							)}
 							{role == 'Admin' && (
@@ -733,7 +733,7 @@ const QA = ({
 									size='small'
 									disabled={isSaving}
 								>
-									{isSaving ? 'Saving...' : t['save']}
+									{isSaving ? 'Saving...' : t('save')}
 								</Button>
 							)}
 							<Button
@@ -742,7 +742,7 @@ const QA = ({
 								color='error'
 								size='small'
 							>
-								{t['cancel']}
+								{t('cancel')}
 							</Button>
 						</>
 					) : (
@@ -757,7 +757,7 @@ const QA = ({
 										color='secondary'
 										size='small'
 									>
-										{t['submitAgree']}
+										{t('submitAgree')}
 									</Button>
 								)}
 							<Button
@@ -766,8 +766,8 @@ const QA = ({
 								color='primary'
 								size='small'
 							>
-								{role == 'Student' ? t['editProfile'] : ''}
-								{role == 'Admin' ? t['q_edit'] : ''}
+								{role == 'Student' ? t('editProfile') : ''}
+								{role == 'Admin' ? t('q_edit') : ''}
 							</Button>
 						</>
 					)}
@@ -913,19 +913,19 @@ const QA = ({
 				fullWidth
 			>
 				<DialogTitle>
-					{t['confirmDelete'] || 'Confirm Delete'}
+					{t('confirmDelete') || 'Confirm Delete'}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
-						{t['confirmDeleteMessage'] || 'Are you sure you want to delete this Q&A item? This action cannot be undone.'}
+						{t('confirmDeleteMessage') || 'Are you sure you want to delete this Q&A item? This action cannot be undone.'}
 					</Typography>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleDeleteCancel} color="primary">
-						{t['cancel'] || 'Cancel'}
+						{t('cancel') || 'Cancel'}
 					</Button>
 					<Button onClick={handleDeleteConfirm} color="error" variant="contained">
-						{t['delete'] || 'Delete'}
+						{t('delete') || 'Delete'}
 					</Button>
 				</DialogActions>
 			</Dialog>
