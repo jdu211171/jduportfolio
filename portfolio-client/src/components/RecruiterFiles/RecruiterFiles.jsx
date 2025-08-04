@@ -7,7 +7,7 @@ import axios from '../../utils/axiosUtils'
 import RecruiterFileUpload from './RecruiterFileUpload'
 import RecruiterFileList from './RecruiterFileList'
 
-const RecruiterFiles = () => {
+const RecruiterFiles = ({ editMode = false, recruiterId, currentRole }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	
@@ -17,12 +17,16 @@ const RecruiterFiles = () => {
 	
 	useEffect(() => {
 		fetchFiles()
-	}, [])
+	}, [recruiterId])
 	
 	const fetchFiles = async () => {
 		try {
 			setLoading(true)
-			const response = await axios.get('/api/recruiter-files')
+			// For non-recruiters, send recruiterId as query param
+			const url = currentRole === 'Recruiter' 
+				? '/api/recruiter-files' 
+				: `/api/recruiter-files?recruiterId=${recruiterId}`
+			const response = await axios.get(url)
 			setFiles(response.data.files || response.data) // Handle both old and new response format
 			setTotalSize(response.data.totalSize || 0)
 		} catch (error) {
@@ -47,20 +51,26 @@ const RecruiterFiles = () => {
 			<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
 				<AttachFileIcon sx={{ mr: 1, color: 'primary.main' }} />
 				<Typography variant="h6" component="h2">
-					{t.company_documents || 'Company Documents'}
+					{t('company_documents')}
 				</Typography>
 			</Box>
 			
-			<RecruiterFileUpload
-				onUploadSuccess={handleUploadSuccess}
-				existingFilesCount={files.length}
-				existingFilesSize={totalSize}
-			/>
+			{/* Only Recruiters can upload files */}
+			{currentRole === 'Recruiter' && (
+				<RecruiterFileUpload
+					onUploadSuccess={handleUploadSuccess}
+					existingFilesCount={files.length}
+					existingFilesSize={totalSize}
+					editMode={editMode}
+				/>
+			)}
 			
 			<RecruiterFileList
 				files={files}
 				onFileDeleted={handleFileDeleted}
 				loading={loading}
+				editMode={editMode && currentRole === 'Recruiter'}
+				currentRole={currentRole}
 			/>
 		</Paper>
 	)

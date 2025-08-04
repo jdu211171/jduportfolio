@@ -42,6 +42,7 @@ import {
 	Dialog,
 	DialogTitle,
 	DialogContent,
+	DialogContentText,
 	DialogActions,
 	Typography,
 	// IconButton,
@@ -49,6 +50,7 @@ import {
 
 import translations from '../../../locales/translations'
 import { UserContext } from '../../../contexts/UserContext'
+import { useLanguage } from '../../../contexts/LanguageContext'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import AutoStoriesOutlinedIcon from '@mui/icons-material/AutoStoriesOutlined'
 import PermIdentityIcon from '@mui/icons-material/PermIdentity'
@@ -101,7 +103,8 @@ const QA = ({
 	const { userId } = location.state || {}
 
 	const { language, activeUser } = useContext(UserContext)
-	const t = translations[language] || translations.en
+	const { language: langContext } = useLanguage()
+	const t = key => translations[langContext][key] || key
 
 	// Helper function to get student_id from login user data
 	const getStudentIdFromLoginUser = () => {
@@ -161,6 +164,10 @@ const QA = ({
 		!currentDraft || Object.keys(currentDraft).length === 0
 	)
 	const [passedDraft, setPassedDraft] = useState(currentDraft)
+	const [warningModal, setWarningModal] = useState({
+		open: false,
+		message: '',
+	})
 
 	// Debug logging to track state changes
 
@@ -377,9 +384,24 @@ const QA = ({
 			const res = await axios.put(`/api/students/${id}`, {
 				visibility: visibility,
 			})
-			showAlert(t['profileConfirmed'], 'success')
+			
+			// Check if response contains warning
+			if (res.data && res.data.warning && res.data.requiresStaffApproval) {
+				setWarningModal({
+					open: true,
+					message: t(res.data.message) || t('studentNotApprovedByStaff'),
+				})
+				return
+			}
+			
+			showAlert(
+				visibility 
+					? t('profileVisibilityEnabled') 
+					: t('profileHidden'), 
+				'success'
+			)
 		} catch (error) {
-			showAlert(t['errorConfirmingProfile'], 'error')
+			showAlert(t('errorConfirmingProfile'), 'error')
 		} finally {
 			setConfirmMode(false)
 		}
@@ -916,39 +938,72 @@ const QA = ({
 				>
 					{passedDraft && passedDraft.status != 'approved' ? (
 						<>
-							<TextField
-								title='コメント'
-								data={comment}
-								editData={comment}
-								editMode={true}
-								updateEditData={updateComment}
-								keyName='comments'
-							/>
+							{/* Staff approval controls */}
+							{role === 'Staff' && (
+								<>
+									<TextField
+										title='コメント'
+										data={comment}
+										editData={comment}
+										editMode={true}
+										updateEditData={updateComment}
+										keyName='comments'
+									/>
 
-							<Box
-								sx={{
-									display: 'flex',
-									justifyContent: 'center',
-									gap: 10,
-								}}
-							>
-								<Button
-									onClick={() => approveProfile('approved')}
-									variant='contained'
-									color='primary'
-									size='small'
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'center',
+											gap: 10,
+										}}
+									>
+										<Button
+											onClick={() => approveProfile('approved')}
+											variant='contained'
+											color='primary'
+											size='small'
+										>
+											承認する
+										</Button>
+										<Button
+											onClick={() => approveProfile('resubmission_required')}
+											variant='contained'
+											color='primary'
+											size='small'
+										>
+											承認しない
+										</Button>
+									</Box>
+								</>
+							)}
+
+							{/* Admin visibility controls */}
+							{role === 'Admin' && (
+								<Box
+									sx={{
+										display: 'flex',
+										justifyContent: 'center',
+										gap: 10,
+									}}
 								>
-									承認する
-								</Button>
-								<Button
-									onClick={() => approveProfile('resubmission_required')}
-									variant='contained'
-									color='primary'
-									size='small'
-								>
-									承認しない
-								</Button>
-							</Box>
+									<Button
+										onClick={() => setProfileVisible(false)}
+										variant='contained'
+										color='primary'
+										size='small'
+									>
+										非公開
+									</Button>
+									<Button
+										onClick={() => setProfileVisible(true)}
+										variant='contained'
+										color='primary'
+										size='small'
+									>
+										公開
+									</Button>
+								</Box>
+							)}
 						</>
 					) : (
 						<>
@@ -1014,6 +1069,28 @@ const QA = ({
 					)}
 				</Box>
 			)}
+			
+			{/* Warning Modal */}
+			<Dialog
+				open={warningModal.open}
+				onClose={() => setWarningModal({ open: false, message: '' })}
+				aria-labelledby="warning-dialog-title"
+				aria-describedby="warning-dialog-description"
+			>
+				<DialogTitle id="warning-dialog-title">
+					{t('warning')}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="warning-dialog-description">
+						{warningModal.message}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setWarningModal({ open: false, message: '' })} color="primary" autoFocus>
+						{t('ok')}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</Box>
 	)
 }

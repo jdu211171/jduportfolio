@@ -3,12 +3,12 @@ import { Autocomplete, Box, Chip, IconButton, TextField } from '@mui/material'
 import axios from 'axios'
 import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
-import styles from './LanguageSkillSelector.module.css'
+import styles from './OtherSkillsSelector.module.css'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
-const LanguageSkillSelector = ({
+const OtherSkillsSelector = ({
 	title,
 	data,
 	editData,
@@ -63,9 +63,27 @@ const LanguageSkillSelector = ({
 			try {
 				skillsData = JSON.parse(skillsData)
 			} catch (error) {
-				console.error('Error parsing language skills data:', error)
+				console.error('Error parsing skills data:', error)
 				skillsData = []
 			}
+		}
+
+		// If it's an object (old format), convert to array
+		if (skillsData && typeof skillsData === 'object' && !Array.isArray(skillsData)) {
+			// Convert old format to new array format
+			const convertedArray = []
+			Object.entries(skillsData).forEach(([level, skills]) => {
+				if (Array.isArray(skills)) {
+					skills.forEach(skill => {
+						convertedArray.push({
+							name: skill.name,
+							level: level,
+							color: skill.color || '#5627DB'
+						})
+					})
+				}
+			})
+			return convertedArray
 		}
 
 		// Ensure it's an array
@@ -109,7 +127,7 @@ const LanguageSkillSelector = ({
 			setSelectedSkill(null)
 			setSkillLevel('')
 		} catch (error) {
-			console.error('Error updating language skills:', error)
+			console.error('Error updating other skills:', error)
 		}
 	}
 
@@ -122,7 +140,14 @@ const LanguageSkillSelector = ({
 		try {
 			updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
 		} catch (error) {
-			console.error('Error deleting language skill:', error)
+			console.error('Error deleting other skill:', error)
+		}
+	}
+
+	const handleKeyPress = (event) => {
+		if (event.key === 'Enter') {
+			event.preventDefault()
+			handleAddSkill()
 		}
 	}
 
@@ -174,46 +199,28 @@ const LanguageSkillSelector = ({
 					gap={2}
 					className={styles.addSkillForm}
 				>
-					<Autocomplete
-						options={availableSkills}
-						getOptionLabel={option => option.name || ''}
-						value={selectedSkill}
-						onChange={(event, newValue) => {
-							setSelectedSkill(newValue)
+					<TextField
+						value={selectedSkill?.name || ''}
+						onChange={event => {
+							setSelectedSkill({ name: event.target.value })
 						}}
-						onInputChange={(event, newInputValue) => {
-							// Search skills when user types
-							if (newInputValue && newInputValue.length > 0) {
-								fetchSkillsFromAPI(newInputValue)
-							}
-						}}
-						loading={loadingSkills}
-						sx={{ width: 200 }}
-						renderInput={params => (
-							<TextField
-								{...params}
-								label={t('languageName') || 'Language Name'}
-								variant='outlined'
-								size='small'
-								placeholder='e.g., IELTS, JLPT, TOEFL'
-							/>
-						)}
+						onKeyPress={handleKeyPress}
+						label={t('awardName') || 'Award/Certificate Name'}
+						placeholder='e.g., TOEIC, Contest, Certificate'
+						variant='outlined'
+						size='small'
+						sx={{ width: 250 }}
 					/>
 
 					<TextField
 						value={skillLevel}
 						onChange={event => setSkillLevel(event.target.value)}
-						onKeyPress={event => {
-							if (event.key === 'Enter') {
-								event.preventDefault()
-								handleAddSkill()
-							}
-						}}
-						label={t('level') || 'Level'}
-						placeholder='e.g., N4, 7.0, 90'
+						onKeyPress={handleKeyPress}
+						label={t('level') || 'Level/Score'}
+						placeholder='e.g., Gold Medal, 1st Place, 850'
 						variant='outlined'
 						size='small'
-						sx={{ width: 150 }}
+						sx={{ width: 200 }}
 					/>
 
 					<IconButton
@@ -261,8 +268,8 @@ const LanguageSkillSelector = ({
 						}}
 					>
 						{editMode
-							? t('noLanguageSkillsEdit')
-							: t('noLanguageSkills')}
+							? t('noAwardsEdit')
+							: t('noAwards')}
 					</div>
 				)}
 			</div>
@@ -270,7 +277,7 @@ const LanguageSkillSelector = ({
 	)
 }
 
-LanguageSkillSelector.propTypes = {
+OtherSkillsSelector.propTypes = {
 	title: PropTypes.string.isRequired,
 	data: PropTypes.object,
 	editData: PropTypes.object,
@@ -282,4 +289,4 @@ LanguageSkillSelector.propTypes = {
 	isChanged: PropTypes.bool,
 }
 
-export default LanguageSkillSelector
+export default OtherSkillsSelector

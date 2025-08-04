@@ -22,7 +22,7 @@ import { useAlert } from '../../contexts/AlertContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 
-const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
+const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMode = false, currentRole }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const showAlert = useAlert()
@@ -47,7 +47,7 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 		setDeleting(true)
 		try {
 			await axios.delete(`/api/recruiter-files/${fileToDelete.id}`)
-			showAlert(t.file_deleted || 'File deleted successfully', 'success')
+			showAlert(t('file_deleted'), 'success')
 			
 			if (onFileDeleted) {
 				onFileDeleted(fileToDelete.id)
@@ -57,7 +57,7 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 			setFileToDelete(null)
 		} catch (error) {
 			console.error('Delete error:', error)
-			showAlert(t.delete_failed || 'Delete failed', 'error')
+			showAlert(t('delete_failed'), 'error')
 		} finally {
 			setDeleting(false)
 		}
@@ -87,7 +87,7 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 		return (
 			<Box sx={{ textAlign: 'center', py: 3 }}>
 				<Typography color="text.secondary">
-					{t.no_files_uploaded || 'No files uploaded yet'}
+					{t('no_files_uploaded')}
 				</Typography>
 			</Box>
 		)
@@ -128,13 +128,15 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 							>
 								<DownloadIcon />
 							</IconButton>
-							<IconButton
-								edge="end"
-								aria-label="delete"
-								onClick={() => handleDeleteClick(file)}
-							>
-								<DeleteIcon />
-							</IconButton>
+							{editMode && (
+								<IconButton
+									edge="end"
+									aria-label="delete"
+									onClick={() => handleDeleteClick(file)}
+								>
+									<DeleteIcon />
+								</IconButton>
+							)}
 						</ListItemSecondaryAction>
 					</ListItem>
 				))}
@@ -147,11 +149,11 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 				fullWidth
 			>
 				<DialogTitle>
-					{t.delete_file || 'Delete File'}
+					{t('delete_file')}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
-						{t.delete_file_confirm || 'Are you sure you want to delete this file?'}
+						{t('delete_file_confirm')}
 					</Typography>
 					{fileToDelete && (
 						<Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
@@ -161,7 +163,7 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleDeleteCancel} disabled={deleting}>
-						{t.cancel || 'Cancel'}
+						{t('cancel')}
 					</Button>
 					<Button
 						onClick={handleDeleteConfirm}
@@ -170,7 +172,7 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false }) => {
 						disabled={deleting}
 						startIcon={deleting ? <CircularProgress size={20} /> : null}
 					>
-						{deleting ? t.deleting || 'Deleting...' : t.delete || 'Delete'}
+						{deleting ? t('deleting') : t('delete')}
 					</Button>
 				</DialogActions>
 			</Dialog>

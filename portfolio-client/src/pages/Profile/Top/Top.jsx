@@ -48,6 +48,7 @@ import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 import LanguageSkillSelector from '../../../components/LanguageSkillSelector/LanguageSkillSelector'
 import SkillSelector from '../../../components/SkillSelector/SkillSelector'
+import OtherSkillsSelector from '../../../components/OtherSkillsSelector/OtherSkillsSelector'
 import TextField from '../../../components/TextField/TextField'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
@@ -1930,19 +1931,12 @@ const Top = () => {
 							}
 						/>
 
-						<SkillSelector
+						<OtherSkillsSelector
 							title={t('otherSkills')}
-							headers={{
-								上級: '3年間以上',
-								中級: '1年間〜1年間半',
-								初級: '基礎',
-							}}
 							data={student.draft}
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
-							showAutocomplete={false}
-							showHeaders={false}
 							keyName='other_skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}

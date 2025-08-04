@@ -11,6 +11,8 @@ import { useForm, Controller } from 'react-hook-form'
 import axios from '../../../utils/axiosUtils'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
+import { useAtom } from 'jotai'
+import { editModeAtom, saveStatusAtom, editDataAtom } from '../../../atoms/profileEditAtoms'
 import {
 	Box,
 	Typography,
@@ -249,7 +251,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 
 	const [company, setCompany] = useState(null)
 	const [loading, setLoading] = useState(false)
-	const [editMode, setEditMode] = useState(false)
+	const [editMode, setEditMode] = useAtom(editModeAtom)
+	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
 
 	// Initial editData state
 	const initialEditData = {
@@ -277,17 +280,12 @@ const CompanyProfile = ({ userId = 0 }) => {
 		photo: '',
 	}
 
-	const [editData, setEditData] = useState(initialEditData)
+	const [editData, setEditData] = useAtom(editDataAtom)
 
 	// Navigation and persistence state
 	const [showUnsavedWarning, setShowUnsavedWarning] = useState(false)
 	const [pendingNavigation, setPendingNavigation] = useState(null)
 	const [showRecoveryDialog, setShowRecoveryDialog] = useState(false)
-	const [saveStatus, setSaveStatus] = useState({
-		isSaving: false,
-		lastSaved: null,
-		hasUnsavedChanges: false,
-	})
 	const [persistedData, setPersistedData] = useState({
 		exists: false,
 		data: null,
@@ -1263,8 +1261,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 			)}
 
 			{/* Company Documents - Above Company Overview */}
-			{role === 'Recruiter' && !editMode && (
-				<RecruiterFiles />
+			{(role === 'Recruiter' || role === 'Admin' || role === 'Staff' || role === 'Student') && (
+				<RecruiterFiles editMode={editMode} recruiterId={id} currentRole={role} />
 			)}
 
 			{/* Company Overview */}

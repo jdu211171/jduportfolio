@@ -1,10 +1,12 @@
-import { colors, Modal } from '@mui/material'
+import { colors, Modal, Dialog, DialogTitle, DialogContent, DialogActions, Button, DialogContentText } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
 import UserAvatar from '../Table/Avatar/UserAvatar'
+import { useAtom } from 'jotai'
+import { editModeAtom, saveStatusAtom } from '../../atoms/profileEditAtoms'
 // icons
 import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
 import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
@@ -31,12 +33,46 @@ const checkRole = (role, allowedRoles) => {
 
 const Layout = () => {
 	const [openLogoutModal, setOpenLogoutModal] = useState(false)
+	const [openNavigationWarning, setOpenNavigationWarning] = useState(false)
+	const [pendingNavigation, setPendingNavigation] = useState(null)
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+	const navigate = useNavigate()
+	const [editMode, setEditMode] = useAtom(editModeAtom)
+	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
 
 	const handleLogout = () => {
 		sessionStorage.clear()
 		window.location.href = '/login'
+	}
+
+	const handleNavigation = (e, to) => {
+		// Check if in edit mode
+		if (editMode) {
+			e.preventDefault()
+			setPendingNavigation(to)
+			setOpenNavigationWarning(true)
+		}
+	}
+
+	const handleDiscardChanges = () => {
+		// Reset edit mode and clear unsaved changes
+		setEditMode(false)
+		setSaveStatus({
+			isSaving: false,
+			lastSaved: null,
+			hasUnsavedChanges: false,
+		})
+		setOpenNavigationWarning(false)
+		if (pendingNavigation) {
+			navigate(pendingNavigation)
+			setPendingNavigation(null)
+		}
+	}
+
+	const handleCancelNavigation = () => {
+		setOpenNavigationWarning(false)
+		setPendingNavigation(null)
 	}
 	const navItems = [
 		{
@@ -244,6 +280,7 @@ const Layout = () => {
 												className={({ isActive }) =>
 													isActive ? style.active : ''
 												}
+												onClick={(e) => handleNavigation(e, item.to)}
 											>
 												{item.icon}
 												<div>{item.label}</div>
@@ -297,6 +334,31 @@ const Layout = () => {
 					</div>
 				</div>
 			</Modal>
+
+			{/* Navigation Warning Modal */}
+			<Dialog
+				open={openNavigationWarning}
+				onClose={handleCancelNavigation}
+				aria-labelledby="navigation-warning-title"
+				aria-describedby="navigation-warning-description"
+			>
+				<DialogTitle id="navigation-warning-title">
+					{t('navigationWarningTitle')}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="navigation-warning-description">
+						{t('navigationWarningMessage')}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleCancelNavigation} color="primary">
+						{t('cancel')}
+					</Button>
+					<Button onClick={handleDiscardChanges} color="primary" variant="contained">
+						{t('discardChanges')}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</div>
 	)
 }

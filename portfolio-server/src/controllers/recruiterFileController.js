@@ -74,10 +74,23 @@ exports.uploadRecruiterFiles = async (req, res) => {
 };
 exports.getRecruiterFiles = async (req, res) => {
     try {
-        if (req.user.userType !== 'Recruiter') {
+        // Allow Admin, Staff, Student to view recruiter files
+        const allowedRoles = ['Admin', 'Staff', 'Student', 'Recruiter'];
+        if (!allowedRoles.includes(req.user.userType)) {
             return res.status(403).json({ message: "Ruxsat yo'q." });
         }
-        const recruiterId = req.user.id;
+        
+        // For non-recruiters, get recruiterId from query params
+        let recruiterId;
+        if (req.user.userType === 'Recruiter') {
+            recruiterId = req.user.id;
+        } else {
+            recruiterId = req.query.recruiterId;
+            if (!recruiterId) {
+                return res.status(400).json({ message: "recruiterId parametri kerak." });
+            }
+        }
+        
         const files = await UserFile.findAll({
             where: { owner_id: recruiterId, owner_type: 'Recruiter' },
             order: [['createdAt', 'DESC']]
@@ -169,14 +182,27 @@ exports.deleteRecruiterFile = async (req, res) => {
 };
 exports.downloadRecruiterFile = async (req, res) => {
     try {
-        if (req.user.userType !== 'Recruiter') {
+        // Allow Admin, Staff, Student to download recruiter files
+        const allowedRoles = ['Admin', 'Staff', 'Student', 'Recruiter'];
+        if (!allowedRoles.includes(req.user.userType)) {
             return res.status(403).json({ message: "Ruxsat yo'q." });
         }
 
         const { id: fileId } = req.params;
-        const recruiterId = req.user.id;
-
-        const fileRecord = await UserFile.findOne({ where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' } });
+        
+        // For recruiters, verify they own the file
+        // For others, just check if file exists
+        let fileRecord;
+        if (req.user.userType === 'Recruiter') {
+            fileRecord = await UserFile.findOne({ 
+                where: { id: fileId, owner_id: req.user.id, owner_type: 'Recruiter' } 
+            });
+        } else {
+            fileRecord = await UserFile.findOne({ 
+                where: { id: fileId, owner_type: 'Recruiter' } 
+            });
+        }
+        
         if (!fileRecord) {
             return res.status(404).json({ error: "Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo'q." });
         }

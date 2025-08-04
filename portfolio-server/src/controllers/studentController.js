@@ -261,6 +261,16 @@ class StudentController {
 				const studentDraft = studentWithDraft?.draft
 				console.log('Draft data for student:', studentDraft)
 
+				// Check if student is approved by staff (draft status should be 'approved')
+				if (!studentDraft || studentDraft.status !== 'approved') {
+					// Return warning response instead of error
+					return res.status(200).json({
+						warning: true,
+						message: 'studentNotApprovedByStaff',
+						requiresStaffApproval: true
+					})
+				}
+
 				if (studentDraft && studentDraft.status === 'approved') {
 					// Draftdan profile_data ni olish va uni yangilash payload'ga qo'shish
 					const profileData = studentDraft.profile_data || {}

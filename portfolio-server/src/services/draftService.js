@@ -361,7 +361,7 @@ class DraftService {
 
 	static async getAll(filter) {
 		try {
-			// console.log(filter)
+			console.log('DraftService.getAll called with filter:', JSON.stringify(filter, null, 2))
 
 			const semesterMapping = {
 				'1年生': ['1', '2'],
@@ -422,10 +422,9 @@ class DraftService {
 				'email',
 				'first_name',
 				'last_name',
+				'student_id',
 				'self_introduction',
 				'hobbies',
-				'skills',
-				'it_skills',
 				'jlpt',
 			]
 			let statusFilter = ''
@@ -454,9 +453,25 @@ class DraftService {
 			Object.keys(filter).forEach(key => {
 				if (filter[key] && key !== 'draft_status') {
 					if (key === 'search') {
-						querySearch[Op.or] = searchableColumns.map(column => ({
+						let searchConditions = searchableColumns.map(column => ({
 							[column]: { [Op.iLike]: `%${filter[key]}%` },
 						}))
+
+						// Add JSONB search conditions for skills and it_skills using sequelize.where
+						searchConditions.push(
+							sequelize.where(
+								sequelize.cast(sequelize.col('Student.skills'), 'TEXT'),
+								{ [Op.iLike]: `%${filter[key]}%` }
+							)
+						)
+						searchConditions.push(
+							sequelize.where(
+								sequelize.cast(sequelize.col('Student.it_skills'), 'TEXT'),
+								{ [Op.iLike]: `%${filter[key]}%` }
+							)
+						)
+
+						querySearch[Op.or] = searchConditions
 					} else if (key === 'skills' || key === 'it_skills') {
 						queryOther[Op.and].push({
 							[Op.or]: [
@@ -516,6 +531,9 @@ class DraftService {
 				combinedStatusFilter = statusFilter || approvalStatusFilter
 			}
 
+			console.log('Final query object:', JSON.stringify(query, null, 2))
+			console.log('Combined status filter:', combinedStatusFilter)
+			
 			const students = await Student.findAll({
 				where: query,
 				attributes: {
@@ -543,6 +561,9 @@ class DraftService {
 
 			return students
 		} catch (error) {
+			console.error('DraftService.getAll error:', error)
+			console.error('Error message:', error.message)
+			console.error('SQL:', error.sql)
 			throw error
 		}
 	}
