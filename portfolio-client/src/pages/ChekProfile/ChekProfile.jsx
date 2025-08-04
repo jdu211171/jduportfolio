@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box } from '@mui/material'
+import { Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material'
 import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
 
@@ -16,6 +16,10 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const t = key => translations[language][key] || key
 	const [filterState, setFilterState] = useState({
 		search: '',
+	})
+	const [warningModal, setWarningModal] = useState({
+		open: false,
+		message: '',
 	})
 
 	const showAlert = useAlert()
@@ -183,6 +187,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 						visibility: true,
 					})
 
+					// Check if response contains warning
+					if (res.data && res.data.warning && res.data.requiresStaffApproval) {
+						setWarningModal({
+							open: true,
+							message: t(res.data.message) || t('studentNotApprovedByStaff'),
+						})
+						return false
+					}
 
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
@@ -197,6 +209,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 						visibility: true,
 					})
 
+					// Check if response contains warning
+					if (res.data && res.data.warning && res.data.requiresStaffApproval) {
+						setWarningModal({
+							open: true,
+							message: t(res.data.message) || t('studentNotApprovedByStaff'),
+						})
+						return false
+					}
 
 					if (res.status === 200) {
 						showAlert(t['profileVisibilityEnabled'], 'success')
@@ -354,6 +374,28 @@ const Student = ({ OnlyBookmarked = false }) => {
 				/>
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
+			
+			{/* Warning Modal */}
+			<Dialog
+				open={warningModal.open}
+				onClose={() => setWarningModal({ open: false, message: '' })}
+				aria-labelledby="warning-dialog-title"
+				aria-describedby="warning-dialog-description"
+			>
+				<DialogTitle id="warning-dialog-title">
+					{t('warning')}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id="warning-dialog-description">
+						{warningModal.message}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setWarningModal({ open: false, message: '' })} color="primary" autoFocus>
+						{t('ok')}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</div>
 	)
 }

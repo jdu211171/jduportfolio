@@ -12,7 +12,7 @@ import { useAlert } from '../../contexts/AlertContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 
-const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existingFilesSize = 0 }) => {
+const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existingFilesSize = 0, editMode = false }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const showAlert = useAlert()
@@ -45,20 +45,20 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 		
 		// Double-check if max files reached
 		if (existingFilesCount >= MAX_FILES) {
-			showAlert(t.max_files_reached || 'Maximum files reached (3 files)', 'error')
+			showAlert(t('max_files_reached'), 'error')
 			event.target.value = '' // Clear input
 			return
 		}
 		
 		// Check remaining slots
 		if (remainingSlots <= 0) {
-			showAlert(t.max_files_reached || 'Maximum files reached (3 files)', 'error')
+			showAlert(t('max_files_reached'), 'error')
 			event.target.value = '' // Clear input
 			return
 		}
 		
 		if (files.length > remainingSlots) {
-			showAlert(`${t.can_upload_only || 'Can upload only'} ${remainingSlots} ${t.more_files || 'more file(s)'}`, 'error')
+			showAlert(`${t('can_upload_only')} ${remainingSlots} ${t('more_files')}`, 'error')
 			return
 		}
 		
@@ -79,7 +79,7 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 			
 			// Check file type
 			if (!ALLOWED_TYPES[file.type]) {
-				showAlert(`${file.name}: ${t.invalid_file_type || 'Invalid file type'} (${file.type})`, 'error')
+				showAlert(`${file.name}: ${t('invalid_file_type')} (${file.type})`, 'error')
 				continue
 			}
 			
@@ -91,7 +91,7 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 		// Check if new files fit in remaining space
 		if (totalSize > remainingSpace) {
 			const remainingMB = (remainingSpace / 1024 / 1024).toFixed(1)
-			showAlert(`${t.insufficient_space || 'Insufficient space. Available'}: ${remainingMB}MB`, 'error')
+			showAlert(`${t('insufficient_space')}: ${remainingMB}MB`, 'error')
 			return
 		}
 		
@@ -123,7 +123,7 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 				}
 			})
 			
-			showAlert(t.files_uploaded_successfully || 'Files uploaded successfully', 'success')
+			showAlert(t('files_uploaded_successfully'), 'success')
 			
 			// Clear selection
 			setSelectedFiles([])
@@ -137,7 +137,7 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 			}
 		} catch (error) {
 			console.error('Upload error:', error)
-			showAlert(t.upload_failed || 'Upload failed', 'error')
+			showAlert(t('upload_failed'), 'error')
 		} finally {
 			setUploading(false)
 			setUploadProgress(0)
@@ -151,16 +151,21 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 		return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 	}
 	
+	// Don't show upload UI if not in edit mode
+	if (!editMode) {
+		return null
+	}
+
 	return (
 		<Box sx={{ mb: 3 }}>
 			<Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-				{t.upload_info || 'You can upload up to 3 files (PDF, Word, Excel, PowerPoint). Maximum total size: 20MB'}
+				{t('upload_info')}
 			</Typography>
 			
 			{existingFilesSize > 0 && (
 				<Typography variant="body2" sx={{ mb: 2, color: 'info.main' }}>
-					{t.space_used || 'Space used'}: {(existingFilesSize / 1024 / 1024).toFixed(1)}MB / 20MB | 
-					{' '}{t.available || 'Available'}: {((MAX_SIZE - existingFilesSize) / 1024 / 1024).toFixed(1)}MB
+					{t('space_used')}: {(existingFilesSize / 1024 / 1024).toFixed(1)}MB / 20MB | 
+					{' '}{t('available')}: {((MAX_SIZE - existingFilesSize) / 1024 / 1024).toFixed(1)}MB
 				</Typography>
 			)}
 			
@@ -183,14 +188,14 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 					disabled={uploading || existingFilesCount >= MAX_FILES}
 					sx={{ mb: 2 }}
 				>
-					{t.select_files || 'Select Files'}
+					{t('select_files')}
 				</Button>
 			</label>
 			
 			{selectedFiles.length > 0 && (
 				<Box sx={{ mb: 2 }}>
 					<Typography variant="subtitle2" sx={{ mb: 1 }}>
-						{t.selected_files || 'Selected files'}:
+						{t('selected_files')}:
 					</Typography>
 					{selectedFiles.map((file, index) => (
 						<Typography key={index} variant="body2" sx={{ ml: 2 }}>
@@ -204,7 +209,7 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 						disabled={uploading}
 						sx={{ mt: 2 }}
 					>
-						{uploading ? t.uploading || 'Uploading...' : t.upload || 'Upload'}
+						{uploading ? t('uploading') : t('upload')}
 					</Button>
 				</Box>
 			)}
@@ -215,7 +220,7 @@ const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existing
 			
 			{existingFilesCount >= MAX_FILES && (
 				<Alert severity="info" sx={{ mt: 2 }}>
-					{t.max_files_info || 'You have reached the maximum number of files (3). Please delete existing files to upload new ones.'}
+					{t('max_files_info')}
 				</Alert>
 			)}
 		</Box>

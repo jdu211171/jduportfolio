@@ -153,17 +153,31 @@ class DraftController {
      */
     static async getAllDrafts(req, res, next) {
 		try {
-			let filter
+			let filter = {}
+			
+			// Handle different filter formats
 			if (req.query.filter) {
-				filter = req.query.filter
-			} else {
-				filter = {}
+				// If filter is already an object (from nested query params like filter[search]=value)
+				if (typeof req.query.filter === 'object') {
+					filter = req.query.filter
+				} 
+				// If filter is a JSON string
+				else if (typeof req.query.filter === 'string') {
+					try {
+						filter = JSON.parse(req.query.filter)
+					} catch (e) {
+						// If JSON parse fails, assume it's a simple search string
+						filter = { search: req.query.filter }
+					}
+				}
 			}
+			
+			console.log('Parsed filter:', filter)
+			
 			const students = await DraftService.getAll(filter)
-			// res.status(200).json(students);
-			// const drafts = await Draft.findAll();
 			return res.status(200).json(students)
 		} catch (error) {
+			console.error('getAllDrafts error:', error)
 			next(error)
 		}
 	}
