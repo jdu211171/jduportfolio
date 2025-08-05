@@ -226,7 +226,8 @@ const translations = {
 		profileHidden: 'Profile hidden successfully',
 		errorSettingVisibility: 'Error setting visibility',
 		navigationWarningTitle: 'Unsaved Changes',
-		navigationWarningMessage: 'You have unsaved changes. Do you want to discard them and navigate away?',
+		navigationWarningMessage:
+			'You have unsaved changes. Do you want to discard them and navigate away?',
 		discardChanges: 'Discard Changes',
 		cancel: 'Cancel',
 		welcome: 'JDU Portfolio',
@@ -391,12 +392,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'Failed to delete skill',
 		// Recruiter file translations
 		company_documents: 'Company Documents',
-		upload_info: 'You can upload up to 3 files (PDF, Word, Excel, PowerPoint). Maximum total size: 20MB',
+		upload_info:
+			'You can upload up to 3 files (PDF, Word, Excel, PowerPoint). Maximum total size: 20MB',
 		select_files: 'Select Files',
 		selected_files: 'Selected files',
 		uploading: 'Uploading...',
 		upload: 'Upload',
-		max_files_info: 'You have reached the maximum number of files (3). Please delete existing files to upload new ones.',
+		max_files_info:
+			'You have reached the maximum number of files (3). Please delete existing files to upload new ones.',
 		max_files_reached: 'Maximum files reached (3 files)',
 		can_upload_only: 'Can upload only',
 		more_files: 'more file(s)',
@@ -655,7 +658,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		profileHidden: 'プロフィールが正常に非公開になりました',
 		errorSettingVisibility: '公開設定エラー',
 		navigationWarningTitle: '未保存の変更',
-		navigationWarningMessage: '保存されていない変更があります。変更を破棄して移動しますか？',
+		navigationWarningMessage:
+			'保存されていない変更があります。変更を破棄して移動しますか？',
 		discardChanges: '変更を破棄',
 		cancel: 'キャンセル',
 		welcome: 'JDU Portfolio',
@@ -807,12 +811,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'スキルの削除に失敗しました',
 		// Recruiter file translations
 		company_documents: '会社資料',
-		upload_info: '最大3ファイル（PDF、Word、Excel、PowerPoint）をアップロードできます。合計最大サイズ：20MB',
+		upload_info:
+			'最大3ファイル（PDF、Word、Excel、PowerPoint）をアップロードできます。合計最大サイズ：20MB',
 		select_files: 'ファイルを選択',
 		selected_files: '選択されたファイル',
 		uploading: 'アップロード中...',
 		upload: 'アップロード',
-		max_files_info: 'ファイルの最大数（3）に達しました。新しいファイルをアップロードするには、既存のファイルを削除してください。',
+		max_files_info:
+			'ファイル数の上限（３ファイル）に達しました。新しいファイルをアップロードするには、既存のファイルを削除してください。',
 		max_files_reached: '最大ファイル数に達しました（3ファイル）',
 		can_upload_only: 'アップロード可能：',
 		more_files: 'ファイル',
@@ -1010,7 +1016,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		hobbies: 'Qiziqishlar',
 		specialSkills: "Maxsus ko'nikmalar",
 		itSkills: "IT Ko'nikmalar",
-		otherSkills: "Boshqa sertifikat/litsenziya/mukofotlar",
+		otherSkills: 'Boshqa sertifikat/litsenziya/mukofotlar',
 		上級: "Ilg'or",
 		中級: "O'rta",
 		初級: "Boshlang'ich",
@@ -1052,7 +1058,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		profileHidden: 'Profil muvaffaqiyatli yashirildi',
 		errorSettingVisibility: "Ko'rinishni o'rnatishda xatolik",
 		navigationWarningTitle: "Saqlanmagan o'zgarishlar",
-		navigationWarningMessage: "Sizda saqlanmagan o'zgarishlar bor. Ularni bekor qilib boshqa sahifaga o'tmoqchimisiz?",
+		navigationWarningMessage:
+			"Sizda saqlanmagan o'zgarishlar bor. Ularni bekor qilib boshqa sahifaga o'tmoqchimisiz?",
 		discardChanges: "O'zgarishlarni bekor qilish",
 		cancel: 'Bekor qilish',
 		levels: {
@@ -1228,12 +1235,14 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		failed_delete_skill: "Ko'nikmani o'chirishda xatolik",
 		// Recruiter file translations
 		company_documents: 'Kompaniya hujjatlari',
-		upload_info: "3 tagacha fayl (PDF, Word, Excel, PowerPoint) yuklashingiz mumkin. Maksimal hajm: 20MB",
+		upload_info:
+			'3 tagacha fayl (PDF, Word, Excel, PowerPoint) yuklashingiz mumkin. Maksimal hajm: 20MB',
 		select_files: 'Fayllarni tanlash',
 		selected_files: 'Tanlangan fayllar',
 		uploading: 'Yuklanmoqda...',
 		upload: 'Yuklash',
-		max_files_info: "Maksimal fayllar soniga (3 ta) yetdingiz. Yangi fayllar yuklash uchun mavjud fayllarni o'chiring.",
+		max_files_info:
+			"Maksimal fayllar soniga (3 ta) yetdingiz. Yangi fayllar yuklash uchun mavjud fayllarni o'chiring.",
 		max_files_reached: 'Maksimal fayllar soniga yetildi (3 ta fayl)',
 		can_upload_only: 'Faqat yuklash mumkin:',
 		more_files: 'ta fayl',
@@ -1241,7 +1250,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		insufficient_space: 'Joy yetarli emas. Mavjud',
 		available: 'Mavjud',
 		space_used: 'Ishlatilgan joy',
-		file_too_large: "Fayl juda katta",
+		file_too_large: 'Fayl juda katta',
 		total_size_exceeded: 'Umumiy hajm 20MB dan oshdi',
 		files_uploaded_successfully: 'Fayllar muvaffaqiyatli yuklandi',
 		upload_failed: 'Yuklashda xatolik',
