@@ -67,10 +67,10 @@ const app = express()
 
 // Use cookie-parser middleware
 app.use(cookieParser())
-// Middleware to parse JSON bodies
-app.use(express.json())
-// Middleware to parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true }))
+// Middleware to parse JSON bodies with 21MB limit
+app.use(express.json({ limit: '21mb' }))
+// Middleware to parse URL-encoded bodies with 21MB limit
+app.use(express.urlencoded({ extended: true, limit: '21mb' }))
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
