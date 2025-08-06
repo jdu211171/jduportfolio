@@ -25,7 +25,7 @@ import TuneIcon from '@mui/icons-material/Tune'
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
 import logo from '/src/assets/logo40.png'
-
+import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
 	return allowedRoles.includes(role)
@@ -91,7 +91,7 @@ const Layout = () => {
 				},
 				{
 					to: '/companyprofile',
-					icon: <ProfileIcon style={{ width: '24px', height: '24px' }} />,
+					icon: <PermIdentityOutlinedIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('profile'),
 					roles: ['Recruiter'],
 				},

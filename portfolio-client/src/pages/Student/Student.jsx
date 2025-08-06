@@ -20,12 +20,9 @@ const getInitialViewMode = () => {
 	}
 }
 
-const Student = ({ OnlyBookmarked = false }) => {
-	const { language } = useLanguage()
-	const t = key => translations[language][key] || key
-
-	// Initial filter state
-	const initialFilterState = {
+// localStorage dan filter state ni o'qish yoki default qiymat
+const getInitialFilterState = () => {
+	const defaultState = {
 		search: '',
 		it_skills: [],
 		jlpt: [],
@@ -33,6 +30,26 @@ const Student = ({ OnlyBookmarked = false }) => {
 		partner_university: [],
 		other_information: '',
 	}
+
+	try {
+		const saved = localStorage.getItem('students-filter-v1')
+		if (saved) {
+			const parsedState = JSON.parse(saved)
+			// Validate va merge with default state
+			return { ...defaultState, ...parsedState }
+		}
+	} catch (error) {
+		console.error('Error reading filter state from localStorage:', error)
+	}
+	return defaultState
+}
+
+const Student = ({ OnlyBookmarked = false }) => {
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
+
+	// Initial filter state - localStorage dan olish
+	const initialFilterState = getInitialFilterState()
 
 	const [filterState, setFilterState] = useState(initialFilterState)
 	const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
@@ -97,14 +114,12 @@ const Student = ({ OnlyBookmarked = false }) => {
 		// console.log('Filter changed:', newFilterState)
 	}, [])
 
-	// ✅ Debug logging qo'shish
+	// ✅ viewMode change handler
 	const handleViewModeChange = useCallback(
 		newMode => {
-			console.log('Current viewMode:', viewMode)
-			// console.log('Switching to:', newMode)
 			setViewMode(newMode)
 		},
-		[viewMode]
+		[]
 	)
 
 	const navigate = useNavigate()
@@ -194,9 +209,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 		OnlyBookmarked: OnlyBookmarked,
 	}
 
-	// ✅ Debug logging
-	console.log('Current viewMode in Parent:', viewMode)
-
 	return (
 		<div key={language}>
 			<Box sx={{ width: '100%', height: '100px' }}>
@@ -209,7 +221,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 					persistKey='students-filter-v1'
 				/>
 			</Box>
-			{/* ✅ viewMode prop qo'shildi */}
 			<Table
 				tableProps={tableProps}
 				updatedBookmark={updatedBookmark}
