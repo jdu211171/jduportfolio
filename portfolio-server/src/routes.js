@@ -22,6 +22,7 @@ const webhookRoutes = require('./routes/webhook-routes')
 const itSkillRoutes = require('./routes/itSkillRoutes')
 const skillRoutes = require('./routes/skillRoutes')
 const recruiterFileRoutes = require('./routes/recruiterFileRoutes')
+const deliverableRoutes = require('./routes/deliverableRoutes')
 
 /**
  * @swagger
@@ -86,6 +87,7 @@ const configureRoutes = app => {
 	app.use('/api/itskills', authMiddleware, itSkillRoutes)
 	app.use('/api/skills', authMiddleware, skillRoutes)
 	app.use('/api/recruiter-files', authMiddleware, recruiterFileRoutes)
+	app.use('/api/deliverables', authMiddleware, deliverableRoutes)
 }
 
 module.exports = configureRoutes

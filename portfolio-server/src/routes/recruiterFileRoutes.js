@@ -1,34 +1,26 @@
-const express = require('express');
-const router = express.Router();
+// routes/recruiterFileRoutes
+const express = require('express')
+const router = express.Router()
 
-const controller = require('../controllers/recruiterFileController');
-const recruiterUploader = require('../middlewares/recruiterUploader');
+const controller = require('../controllers/recruiterFileController')
+const recruiterUploader = require('../middlewares/recruiterUploader')
 
 router.post(
-    '/',
-    recruiterUploader.array('files', 3), 
-    controller.uploadRecruiterFiles
-);
+	'/',
+	recruiterUploader.array('files', 3),
+	controller.uploadRecruiterFiles
+)
 
-router.get(
-    '/',
-    controller.getRecruiterFiles
-);
+router.get('/', controller.getRecruiterFiles)
 
 router.put(
-    '/:id',
-    recruiterUploader.single('file'),
-    controller.updateRecruiterFile
-);
+	'/:id',
+	recruiterUploader.single('file'),
+	controller.updateRecruiterFile
+)
 
-router.delete(
-    '/:id',
-    controller.deleteRecruiterFile
-);
+router.delete('/:id', controller.deleteRecruiterFile)
 
-router.get(
-    '/:id/download',
-    controller.downloadRecruiterFile
-);
+router.get('/:id/download', controller.downloadRecruiterFile)
 
-module.exports = router;
+module.exports = router
