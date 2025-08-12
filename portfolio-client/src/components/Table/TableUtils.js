@@ -1,8 +1,19 @@
 export function descendingComparator(a, b, orderBy) {
-	if (b[orderBy] < a[orderBy]) {
+	let aValue, bValue
+
+	// Special handling for first_name sorting - use full name
+	if (orderBy === 'first_name') {
+		aValue = `${a.first_name || ''} ${a.last_name || ''}`.trim().toLowerCase()
+		bValue = `${b.first_name || ''} ${b.last_name || ''}`.trim().toLowerCase()
+	} else {
+		aValue = a[orderBy]
+		bValue = b[orderBy]
+	}
+
+	if (bValue < aValue) {
 		return -1
 	}
-	if (b[orderBy] > a[orderBy]) {
+	if (bValue > aValue) {
 		return 1
 	}
 	return 0

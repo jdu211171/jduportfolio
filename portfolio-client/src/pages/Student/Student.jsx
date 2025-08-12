@@ -137,6 +137,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'avatar',
 			minWidth: '220px',
 			onClickAction: navigateToProfile,
+			sortable: true,
 		},
 		{
 			id: 'student_id',
@@ -144,6 +145,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: t('student_id'),
 			minWidth: '120px',
+			sortable: true,
 		},
 		{
 			id: 'age',

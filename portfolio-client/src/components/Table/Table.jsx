@@ -22,6 +22,7 @@ import {
 	Switch,
 	Modal,
 	Button,
+	TableSortLabel,
 } from '@mui/material'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -59,8 +60,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 	const role = sessionStorage.getItem('role')
 
-	const [order, setOrder] = useState('asc')
-	const [orderBy, setOrderBy] = useState('')
+	const [order, setOrder] = useState('desc')
+	const [orderBy, setOrderBy] = useState('first_name')
 	const [selected, setSelected] = useState([])
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useAtom(rowsPerPageAtom)
@@ -83,6 +84,12 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 			// Silently fail if localStorage is not available
 		}
 	}, [rowsPerPage])
+
+	const handleRequestSort = (event, property) => {
+		const isAsc = orderBy === property && order === 'asc'
+		setOrder(isAsc ? 'desc' : 'asc')
+		setOrderBy(property)
+	}
 
 	const handleClick = (event, rowId) => {
 		setAnchorEls(prev => ({
@@ -497,7 +504,36 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 											padding={'normal'}
 											sortDirection={orderBy === header.id ? order : false}
 										>
-											{header.label}
+											{header.sortable ? (
+												<TableSortLabel
+													active={true} // Always show as active to display arrows
+													direction={orderBy === header.id ? order : 'desc'}
+													onClick={event => handleRequestSort(event, header.id)}
+													sx={{
+														'& .MuiTableSortLabel-icon': {
+															fontSize: '1.2rem',
+															opacity: orderBy === header.id ? 1 : 0.4,
+															transition: 'opacity 0.2s ease',
+														},
+														'&:hover': {
+															color: '#5627db',
+															'& .MuiTableSortLabel-icon': {
+																opacity: 1,
+															},
+														},
+														'&.Mui-active': {
+															color: orderBy === header.id ? '#5627db' : 'inherit',
+															'& .MuiTableSortLabel-icon': {
+																color: orderBy === header.id ? '#5627db !important' : 'rgba(0, 0, 0, 0.54) !important',
+															},
+														},
+													}}
+												>
+													{header.label}
+												</TableSortLabel>
+											) : (
+												header.label
+											)}
 										</TableCell>
 									))}
 								</TableRow>
@@ -778,7 +814,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																			textTransform: 'none',
 																			padding: '4px 8px',
 																			fontSize: '12px',
-																			color: '#1976d2',
+																			color: '#5627db',
 																			'&:hover': {
 																				backgroundColor: '#e3f2fd',
 																			},
