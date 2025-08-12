@@ -8,7 +8,7 @@ const kintoneCreditDetailsService = require('./kintoneCreditDetailsService')
 
 const { formatStudentWelcomeEmail } = require('../utils/emailToStudent')
 const { sendBulkEmails } = require('../utils/emailService')
-	
+
 class StudentService {
 	// Service method to create a new student
 	static async createStudent(studentData) {
@@ -20,25 +20,24 @@ class StudentService {
 		}
 	}
 
-	// Service method to retrieve all students
 	// static async getAllStudents(filter, recruiterId, onlyBookmarked, userType) {
 	// 	try {
+	// 		// console.log('Received filter:', filter);
+
 	// 		const semesterMapping = {
 	// 			'1年生': ['1', '2'],
 	// 			'2年生': ['3', '4'],
 	// 			'3年生': ['5', '6'],
 	// 			'4年生': ['7', '8', '9'],
 	// 		}
-	// 		const getSemesterNumbers = term => {
-	// 			return semesterMapping[term] || [] // Return an empty array if term is not found in the mapping
-	// 		}
-	// 		if (filter.semester) {
+	// 		const getSemesterNumbers = term => semesterMapping[term] || []
+	// 		if (filter && filter.semester) {
 	// 			filter.semester = filter.semester.flatMap(term =>
 	// 				getSemesterNumbers(term)
 	// 			)
 	// 		}
 
-	// 		let query = {} // Initialize an empty query object
+	// 		let query = {}
 	// 		let querySearch = {}
 	// 		let queryOther = {}
 	// 		queryOther[Op.and] = []
@@ -52,44 +51,48 @@ class StudentService {
 	// 			'skills',
 	// 			'it_skills',
 	// 			'jlpt',
-	// 			'student_id'
-	// 		] // Example list of searchable columns
+	// 			'student_id',
+	// 		]
 
-	// 		// Iterate through filter keys
+	// 		if (!filter || typeof filter !== 'object') {
+	// 			filter = {}
+	// 		}
+
 	// 		Object.keys(filter).forEach(key => {
 	// 			if (filter[key]) {
-	// 				// Handle different types of filter values
+	// 				// console.log(`Processing key: ${key}, value: ${filter[key]}`);
 	// 				if (key === 'search') {
-	// 					// Search across all searchable columns
+	// 					const searchValue = String(filter[key])
+	// 					// console.log('Search value:', searchValue);
 	// 					querySearch[Op.or] = searchableColumns.map(column => {
+	// 						// console.log(`Building condition for column: ${column}`);
 	// 						if (['skills', 'it_skills'].includes(column)) {
-	// 							// Handle JSONB fields specifically
 	// 							return {
 	// 								[Op.or]: [
 	// 									{
 	// 										[column]: {
-	// 											'上級::text': { [Op.iLike]: `%${filter[key]}%` },
+	// 											'上級::text': { [Op.iLike]: `%${searchValue}%` },
 	// 										},
 	// 									},
 	// 									{
 	// 										[column]: {
-	// 											'中級::text': { [Op.iLike]: `%${filter[key]}%` },
+	// 											'中級::text': { [Op.iLike]: `%${searchValue}%` },
 	// 										},
 	// 									},
 	// 									{
 	// 										[column]: {
-	// 											'初級::text': { [Op.iLike]: `%${filter[key]}%` },
+	// 											'初級::text': { [Op.iLike]: `%${searchValue}%` },
 	// 										},
 	// 									},
 	// 								],
 	// 							}
+	// 						} else if (column === 'student_id') {
+	// 							return { [column]: { [Op.iLike]: `%${searchValue}%` } } // Student ID uchun qisman moslik
 	// 						} else {
-	// 							// Use Op.iLike for case insensitive search on other columns
-	// 							return { [column]: { [Op.iLike]: `%${filter[key]}%` } }
+	// 							return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 	// 						}
 	// 					})
 	// 				} else if (key === 'skills' || key === 'it_skills') {
-	// 					// Search across all searchable columns
 	// 					queryOther[Op.and].push({
 	// 						[Op.or]: [
 	// 							{ [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
@@ -98,7 +101,10 @@ class StudentService {
 	// 						],
 	// 					})
 	// 				} else if (key === 'partner_university_credits') {
-	// 					queryOther[key] = { [Op.lt]: Number(filter[key]) }
+	// 					const credits = Number(filter[key])
+	// 					if (!isNaN(credits)) {
+	// 						queryOther[key] = { [Op.lt]: credits }
+	// 					}
 	// 				} else if (key === 'other_information') {
 	// 					if (filter[key] === '有り') {
 	// 						queryOther['other_information'] = { [Op.ne]: null }
@@ -110,19 +116,18 @@ class StudentService {
 	// 					key === 'ielts' ||
 	// 					key === 'jdu_japanese_certification'
 	// 				) {
-	// 					// Handle jlpt specifically for stringified JSON field
-	// 					queryOther[Op.and].push({
-	// 						[Op.or]: filter[key].map(level => {
-	// 							return { [key]: { [Op.iLike]: `%${level}"%` } }
-	// 						}),
-	// 					})
+	// 					if (Array.isArray(filter[key])) {
+	// 						queryOther[Op.and].push({
+	// 							[Op.or]: filter[key].map(level => ({
+	// 								[key]: { [Op.iLike]: `%${level}"%` },
+	// 							})),
+	// 						})
+	// 					}
 	// 				} else if (Array.isArray(filter[key])) {
-	// 					// If filter value is an array, use $in operator
 	// 					queryOther[key] = { [Op.in]: filter[key] }
 	// 				} else if (typeof filter[key] === 'string') {
-	// 					queryOther[key] = { [Op.like]: `%${filter[key]}%` }
+	// 					queryOther[key] = { [Op.iLike]: `%${filter[key]}%` }
 	// 				} else {
-	// 					// Handle other types of filter values as needed
 	// 					queryOther[key] = filter[key]
 	// 				}
 	// 			}
@@ -134,71 +139,134 @@ class StudentService {
 
 	// 		query[Op.and].push(querySearch, queryOther, { active: true })
 
-	// 		// If the user is a recruiter, only show students with visibility=true
+	// 		// Only apply visibility filter for Recruiter users
 	// 		if (userType === 'Recruiter') {
 	// 			query[Op.and].push({ visibility: true })
 	// 		}
 
-	// 		// Handle bookmarked filtering
-	// 		if (onlyBookmarked === 'true') {
+	// 		// Only apply bookmark filter if both conditions are met
+	// 		if (onlyBookmarked === 'true' && recruiterId) {
 	// 			query[Op.and].push(
 	// 				sequelize.literal(`EXISTS (
-	//         SELECT 1
-	//         FROM "Bookmarks" AS "Bookmark"
-	//         WHERE "Bookmark"."studentId" = "Student"."id"
-	//           AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
-	//       )`)
+	// 			SELECT 1
+	// 			FROM "Bookmarks" AS "Bookmark"
+	// 			WHERE "Bookmark"."studentId" = "Student"."id"
+	// 			  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
+	// 		  )`)
 	// 			)
 	// 		}
 
-	// 		// Execute the query to fetch students
+	// 		// Build attributes for the query
+	// 		const attributes = {
+	// 			include: [],
+	// 		}
+
+	// 		// Only include bookmark status if recruiterId is provided
+	// 		if (recruiterId) {
+	// 			attributes.include.push([
+	// 				sequelize.literal(`EXISTS (
+	// 					SELECT 1
+	// 					FROM "Bookmarks" AS "Bookmark"
+	// 					WHERE "Bookmark"."studentId" = "Student"."id"
+	// 					  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
+	// 				  )`),
+	// 				'isBookmarked',
+	// 			])
+	// 		}
+
+	// 		// console.log('Generated Query:', JSON.stringify(query, null, 2));
 	// 		const students = await Student.findAll({
 	// 			where: query,
-	// 			attributes: {
-	// 				include: recruiterId
-	// 					? [
-	// 							[
-	// 								sequelize.literal(`EXISTS (
-	//           SELECT 1
-	//           FROM "Bookmarks" AS "Bookmark"
-	//           WHERE "Bookmark"."studentId" = "Student"."id"
-	//             AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
-	//         )`),
-	// 								'isBookmarked',
-	// 							],
-	// 						]
-	// 					: [],
-	// 			},
+	// 			attributes: attributes,
+	// 			include: [
+	// 				{
+	// 					model: Draft,
+	// 					as: 'draft',
+	// 					attributes: [
+	// 						'id',
+	// 						'status',
+	// 						'submit_count',
+	// 						'created_at',
+	// 						'updated_at',
+	// 						'profile_data', // Include profile_data to get draft information
+	// 					],
+	// 					required: false, // LEFT JOIN so students without drafts are still included
+	// 				},
+	// 			],
 	// 		})
 
-	// 		return students
+	// 		// Merge draft data with student data if draft exists and is NOT in 'draft' status
+	// 		const studentsWithDraftData = students.map(student => {
+	// 			const studentJson = student.toJSON()
+
+	// 			// Only merge draft data if it exists and status is NOT 'draft'
+	// 			// Draft status data should only be visible to the student themselves
+	// 			if (
+	// 				studentJson.draft &&
+	// 				studentJson.draft.profile_data &&
+	// 				studentJson.draft.status !== 'draft'
+	// 			) {
+	// 				const draftData = studentJson.draft.profile_data
+
+	// 				// Merge draft fields into the main student object
+	// 				const fieldsToMerge = [
+	// 					'deliverables',
+	// 					'gallery',
+	// 					'self_introduction',
+	// 					'hobbies',
+	// 					'hobbies_description',
+	// 					'special_skills_description',
+	// 					'other_information',
+	// 					'it_skills',
+	// 					'skills',
+	// 				]
+
+	// 				fieldsToMerge.forEach(field => {
+	// 					if (draftData[field] !== undefined) {
+	// 						studentJson[field] = draftData[field]
+	// 					}
+	// 				})
+	// 			}
+
+	// 			return studentJson
+	// 		})
+
+	// 		return studentsWithDraftData
 	// 	} catch (error) {
-	// 		throw error
+	// 		console.error('Error in getAllStudents:', error.message, error.stack)
+	// 		// Return empty array instead of throwing to prevent 500 errors
+	// 		return []
 	// 	}
 	// }
 
-	/// test getAllStudents
-	static async getAllStudents(filter, recruiterId, onlyBookmarked, userType) {
+	static async getAllStudents(
+		filter,
+		recruiterId,
+		onlyBookmarked,
+		userType,
+		sortOptions = {}
+	) {
 		try {
-			// console.log('Received filter:', filter);
-
+			// 1. FILTRLASH MANTIG'I (o'zgarishsiz qoladi)
 			const semesterMapping = {
 				'1年生': ['1', '2'],
 				'2年生': ['3', '4'],
 				'3年生': ['5', '6'],
 				'4年生': ['7', '8', '9'],
 			}
-			const getSemesterNumbers = term => semesterMapping[term] || []
 			if (filter && filter.semester) {
-				filter.semester = filter.semester.flatMap(term =>
-					getSemesterNumbers(term)
+				filter.semester = filter.semester.flatMap(
+					term => semesterMapping[term] || []
 				)
 			}
 
 			let query = {}
 			let querySearch = {}
-			let queryOther = {}
-			queryOther[Op.and] = []
+			let queryOther = { [Op.and]: [] }
+
+			if (!filter || typeof filter !== 'object') {
+				filter = {}
+			}
 
 			const searchableColumns = [
 				'email',
@@ -212,18 +280,11 @@ class StudentService {
 				'student_id',
 			]
 
-			if (!filter || typeof filter !== 'object') {
-				filter = {}
-			}
-
 			Object.keys(filter).forEach(key => {
 				if (filter[key]) {
-					// console.log(`Processing key: ${key}, value: ${filter[key]}`);
 					if (key === 'search') {
 						const searchValue = String(filter[key])
-						// console.log('Search value:', searchValue);
 						querySearch[Op.or] = searchableColumns.map(column => {
-							// console.log(`Building condition for column: ${column}`);
 							if (['skills', 'it_skills'].includes(column)) {
 								return {
 									[Op.or]: [
@@ -244,13 +305,10 @@ class StudentService {
 										},
 									],
 								}
-							} else if (column === 'student_id') {
-								return { [column]: { [Op.iLike]: `%${searchValue}%` } } // Student ID uchun qisman moslik
-							} else {
-								return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 							}
+							return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 						})
-					} else if (key === 'skills' || key === 'it_skills') {
+					} else if (['skills', 'it_skills'].includes(key)) {
 						queryOther[Op.and].push({
 							[Op.or]: [
 								{ [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
@@ -270,9 +328,7 @@ class StudentService {
 							queryOther['other_information'] = { [Op.is]: null }
 						}
 					} else if (
-						key === 'jlpt' ||
-						key === 'ielts' ||
-						key === 'jdu_japanese_certification'
+						['jlpt', 'ielts', 'jdu_japanese_certification'].includes(key)
 					) {
 						if (Array.isArray(filter[key])) {
 							queryOther[Op.and].push({
@@ -291,78 +347,89 @@ class StudentService {
 				}
 			})
 
-			if (!query[Op.and]) {
-				query[Op.and] = []
-			}
-
-			query[Op.and].push(querySearch, queryOther, { active: true })
-
-			// Only apply visibility filter for Recruiter users
+			query[Op.and] = [querySearch, queryOther, { active: true }]
 			if (userType === 'Recruiter') {
 				query[Op.and].push({ visibility: true })
 			}
-
-			// Only apply bookmark filter if both conditions are met
 			if (onlyBookmarked === 'true' && recruiterId) {
 				query[Op.and].push(
-					sequelize.literal(`EXISTS (
-				SELECT 1
-				FROM "Bookmarks" AS "Bookmark"
-				WHERE "Bookmark"."studentId" = "Student"."id"
-				  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
-			  )`)
+					sequelize.literal(
+						`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(
+							recruiterId
+						)})`
+					)
 				)
 			}
 
-			// Build attributes for the query
-			const attributes = {
-				include: [],
+			// 2. SARALASH MANTIG'I (YANGI QISM)
+			let order = []
+			const { sortBy, sortOrder } = sortOptions
+			const validSortOrder =
+				sortOrder && ['ASC', 'DESC'].includes(sortOrder.toUpperCase())
+					? sortOrder.toUpperCase()
+					: 'ASC'
+
+			// Frontend'dan kelgan nomni DB'dagi ustun nomiga o'girish (xavfsizlik uchun)
+			const columnMap = {
+				name: ['first_name', 'last_name'], // Ism bo'yicha saralash uchun ikkita ustun
+				student_id: ['student_id'],
+				graduation_year: ['graduation_year'],
+				age: ['date_of_birth'],
+				email: ['email'],
 			}
 
-			// Only include bookmark status if recruiterId is provided
+			const dbColumns = columnMap[sortBy]
+
+			if (dbColumns) {
+				if (sortBy === 'age') {
+					// Yosh bo'yicha o'sish tartibi -> tug'ilgan sana bo'yicha kamayish tartibi
+					const ageSortOrder = validSortOrder === 'ASC' ? 'DESC' : 'ASC'
+					order.push([dbColumns[0], ageSortOrder])
+				} else {
+					dbColumns.forEach(column => order.push([column, validSortOrder]))
+				}
+			} else {
+				order.push(['student_id', 'ASC']) // Standart saralash
+			}
+
+			// 3. MA'LUMOTLARNI OLISH (order parametri qo'shildi)
+			const attributes = {}
 			if (recruiterId) {
-				attributes.include.push([
-					sequelize.literal(`EXISTS (
-						SELECT 1
-						FROM "Bookmarks" AS "Bookmark"
-						WHERE "Bookmark"."studentId" = "Student"."id"
-						  AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)}
-					  )`),
-					'isBookmarked',
-				])
+				attributes.include = [
+					[
+						sequelize.literal(
+							`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(
+								recruiterId
+							)})`
+						),
+						'isBookmarked',
+					],
+				]
 			}
 
-			// console.log('Generated Query:', JSON.stringify(query, null, 2));
 			const students = await Student.findAll({
 				where: query,
-				attributes: attributes,
+				attributes,
 				include: [
 					{
 						model: Draft,
 						as: 'draft',
-						attributes: [
-							'id',
-							'status',
-							'submit_count',
-							'created_at',
-							'updated_at',
-							'profile_data', // Include profile_data to get draft information
-						],
-						required: false, // LEFT JOIN so students without drafts are still included
+						attributes: ['id', 'status', 'profile_data'],
+						required: false,
 					},
 				],
+				order: order, // <<<<<<<<<<<<<<<< SARALASH SHU YERDA QO'LLANILADI
 			})
 
-			// Merge draft data with student data if draft exists and is NOT in 'draft' status
+			// 4. DRAFT MA'LUMOTLARINI BIRLASHTIRISH (o'zgarishsiz qoladi)
 			const studentsWithDraftData = students.map(student => {
 				const studentJson = student.toJSON()
-				
-				// Only merge draft data if it exists and status is NOT 'draft'
-				// Draft status data should only be visible to the student themselves
-				if (studentJson.draft && studentJson.draft.profile_data && studentJson.draft.status !== 'draft') {
+				if (
+					studentJson.draft &&
+					studentJson.draft.profile_data &&
+					studentJson.draft.status !== 'draft'
+				) {
 					const draftData = studentJson.draft.profile_data
-					
-					// Merge draft fields into the main student object
 					const fieldsToMerge = [
 						'deliverables',
 						'gallery',
@@ -372,29 +439,31 @@ class StudentService {
 						'special_skills_description',
 						'other_information',
 						'it_skills',
-						'skills'
+						'skills',
 					]
-					
 					fieldsToMerge.forEach(field => {
 						if (draftData[field] !== undefined) {
 							studentJson[field] = draftData[field]
 						}
 					})
 				}
-				
 				return studentJson
 			})
 
 			return studentsWithDraftData
 		} catch (error) {
 			console.error('Error in getAllStudents:', error.message, error.stack)
-			// Return empty array instead of throwing to prevent 500 errors
 			return []
 		}
 	}
 
 	// Service method to retrieve a student by ID
-	static async getStudentById(studentId, password = false, requesterId = null, requesterRole = null) {
+	static async getStudentById(
+		studentId,
+		password = false,
+		requesterId = null,
+		requesterRole = null
+	) {
 		try {
 			let excluded = ['createdAt', 'updatedAt']
 			if (!password) {
@@ -421,13 +490,13 @@ class StudentService {
 			if (!student) {
 				throw new Error('Student not found')
 			}
-			
+
 			// Convert to JSON
 			const studentJson = student.toJSON()
-			
+
 			// Determine if draft data should be merged
 			let shouldMergeDraft = false
-			
+
 			if (studentJson.draft && studentJson.draft.profile_data) {
 				// Check if draft should be visible based on status and requester
 				if (studentJson.draft.status === 'draft') {
@@ -438,26 +507,32 @@ class StudentService {
 						requesterRole,
 						requesterId,
 						studentDbId: student.id,
-						isMatch: requesterId === student.id
+						isMatch: requesterId === student.id,
 					})
-					
-					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
+
+					if (
+						requesterRole === 'Student' &&
+						requesterId &&
+						student.id === requesterId
+					) {
 						shouldMergeDraft = true
 					}
 					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (studentJson.draft.status === 'submitted' || 
-						   studentJson.draft.status === 'approved' || 
-						   studentJson.draft.status === 'disapproved' ||
-						   studentJson.draft.status === 'resubmission_required') {
+				} else if (
+					studentJson.draft.status === 'submitted' ||
+					studentJson.draft.status === 'approved' ||
+					studentJson.draft.status === 'disapproved' ||
+					studentJson.draft.status === 'resubmission_required'
+				) {
 					// Non-draft statuses: visible to authorized users
 					shouldMergeDraft = true
 				}
 			}
-			
+
 			// Merge draft data if conditions are met
 			if (shouldMergeDraft) {
 				const draftData = studentJson.draft.profile_data
-				
+
 				// Merge draft fields into the main student object
 				const fieldsToMerge = [
 					'deliverables',
@@ -468,16 +543,16 @@ class StudentService {
 					'special_skills_description',
 					'other_information',
 					'it_skills',
-					'skills'
+					'skills',
 				]
-				
+
 				fieldsToMerge.forEach(field => {
 					if (draftData[field] !== undefined) {
 						studentJson[field] = draftData[field]
 					}
 				})
 			}
-			
+
 			return studentJson
 		} catch (error) {
 			throw error
@@ -485,7 +560,12 @@ class StudentService {
 	}
 
 	// Service method to retrieve a student by student_id
-	static async getStudentByStudentId(studentId, password = false, requesterId = null, requesterRole = null) {
+	static async getStudentByStudentId(
+		studentId,
+		password = false,
+		requesterId = null,
+		requesterRole = null
+	) {
 		try {
 			let excluded = ['createdAt', 'updatedAt']
 			if (!password) {
@@ -518,10 +598,10 @@ class StudentService {
 
 			// Convert to JSON
 			const studentJson = student.toJSON()
-			
+
 			// Determine if draft data should be merged
 			let shouldMergeDraft = false
-			
+
 			if (studentJson.draft && studentJson.draft.profile_data) {
 				// Check if draft should be visible based on status and requester
 				if (studentJson.draft.status === 'draft') {
@@ -532,26 +612,32 @@ class StudentService {
 						requesterRole,
 						requesterId,
 						studentDbId: student.id,
-						isMatch: requesterId === student.id
+						isMatch: requesterId === student.id,
 					})
-					
-					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
+
+					if (
+						requesterRole === 'Student' &&
+						requesterId &&
+						student.id === requesterId
+					) {
 						shouldMergeDraft = true
 					}
 					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (studentJson.draft.status === 'submitted' || 
-						   studentJson.draft.status === 'approved' || 
-						   studentJson.draft.status === 'disapproved' ||
-						   studentJson.draft.status === 'resubmission_required') {
+				} else if (
+					studentJson.draft.status === 'submitted' ||
+					studentJson.draft.status === 'approved' ||
+					studentJson.draft.status === 'disapproved' ||
+					studentJson.draft.status === 'resubmission_required'
+				) {
 					// Non-draft statuses: visible to authorized users
 					shouldMergeDraft = true
 				}
 			}
-			
+
 			// Merge draft data if conditions are met
 			if (shouldMergeDraft) {
 				const draftData = studentJson.draft.profile_data
-				
+
 				// Merge draft fields into the main student object
 				const fieldsToMerge = [
 					'deliverables',
@@ -562,9 +648,9 @@ class StudentService {
 					'special_skills_description',
 					'other_information',
 					'it_skills',
-					'skills'
+					'skills',
 				]
-				
+
 				fieldsToMerge.forEach(field => {
 					if (draftData[field] !== undefined) {
 						studentJson[field] = draftData[field]
@@ -577,23 +663,6 @@ class StudentService {
 			throw error
 		}
 	}
-
-	// Service method to update a student
-	// static async updateStudent(studentId, studentData) {
-	//   try {
-	//     console.log("Updating student with ID:", studentId, "Type:", typeof studentId);
-	//     const student = await Student.findByPk(studentId, {
-	//       attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-	//     });
-	//     if (!student) {
-	//       throw new Error('Student not found');
-	//     }
-	//     await student.update(studentData);
-	//     return student;
-	//   } catch (error) {
-	//     throw error;
-	//   }
-	// }
 
 	static async updateStudent(studentId, studentData) {
 		try {
@@ -1010,7 +1079,9 @@ class StudentService {
 			}
 
 			// Always fetch fresh data from Kintone for real-time updates
-			console.log(`🔄 Fetching fresh credit details from Kintone for student ${studentId}`)
+			console.log(
+				`🔄 Fetching fresh credit details from Kintone for student ${studentId}`
+			)
 			await this.updateStudentCreditDetails(studentId)
 			// Fetch updated student data
 			const updatedStudent = await this.getStudentByStudentId(studentId)

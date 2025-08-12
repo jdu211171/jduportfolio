@@ -154,13 +154,11 @@ class StudentController {
 		}
 	}
 
-	// test getAllStudents
 	static async getAllStudents(req, res, next) {
 		try {
 			let filter = {}
 			const userType = req.user?.userType || 'Guest'
 
-			// console.log('Raw query filter:', req.query.filter);
 			if (req.query.filter) {
 				try {
 					filter =
@@ -177,8 +175,9 @@ class StudentController {
 			const recruiterId = req.query.recruiterId
 			const onlyBookmarked = req.query.onlyBookmarked
 
-			// Add fallback for recruiter search - if recruiterId is required but not provided,
-			// suppress the search instead of throwing error
+			const { sortBy, sortOrder } = req.query
+			const sortOptions = { sortBy, sortOrder }
+
 			if (userType === 'Recruiter' && !recruiterId) {
 				console.log(
 					'Recruiter user but no recruiterId provided, returning empty result'
@@ -190,7 +189,8 @@ class StudentController {
 				filter,
 				recruiterId,
 				onlyBookmarked,
-				userType
+				userType,
+				sortOptions
 			)
 
 			// Set cache control headers to prevent 304 responses
@@ -220,7 +220,12 @@ class StudentController {
 			// Pass requester info to service method
 			const requesterId = req.user?.id
 			const requesterRole = req.user?.userType
-			const student = await StudentService.getStudentByStudentId(id, false, requesterId, requesterRole)
+			const student = await StudentService.getStudentByStudentId(
+				id,
+				false,
+				requesterId,
+				requesterRole
+			)
 			res.status(200).json(student)
 		} catch (error) {
 			if (error.message === 'Student not found') {
@@ -267,7 +272,7 @@ class StudentController {
 					return res.status(200).json({
 						warning: true,
 						message: 'studentNotApprovedByStaff',
-						requiresStaffApproval: true
+						requiresStaffApproval: true,
 					})
 				}
 
