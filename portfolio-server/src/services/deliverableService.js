@@ -4,7 +4,6 @@ const { Draft } = require('../models')
 const _ = require('lodash')
 const { uploadFile, deleteFile } = require('../utils/storageService')
 const generateUniqueFilename = require('../utils/uniqueFilename')
-// DraftService'ni import qilish endi shart emas
 
 /**
  * Talaba uchun mavjud draftni topadi yoki yangisini yaratadi.
