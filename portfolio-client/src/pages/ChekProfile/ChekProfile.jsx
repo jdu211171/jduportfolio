@@ -1,6 +1,14 @@
 import { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material'
+import {
+	Box,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	Button,
+} from '@mui/material'
 import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
 
@@ -166,13 +174,10 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const setProfileVisibility = async (studentId, visibility) => {
 		try {
-
 			if (visibility) {
-
 				const draftsResponse = await axios.get(
 					`/api/draft/student/${studentId}`
 				)
-
 
 				if (
 					draftsResponse.data &&
@@ -203,7 +208,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 						return false
 					}
 				} else {
-
 					// Use studentId (student_id) for API calls
 					const res = await axios.put(`/api/students/${studentId}`, {
 						visibility: true,
@@ -226,7 +230,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 					}
 				}
 			} else {
-
 				// For visibility=false, we don't need to get additional data
 				// since we already have studentId parameter
 
@@ -234,7 +237,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 				const res = await axios.put(`/api/students/${studentId}`, {
 					visibility: false,
 				})
-
 
 				if (res.status === 200) {
 					showAlert(t['profileHidden'], 'success')
@@ -261,6 +263,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'avatar',
 			minWidth: '220px',
 			onClickAction: navigateToProfile,
+			isSort: true,
 		},
 		{
 			id: 'student_id',
@@ -268,6 +271,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: '学生ID',
 			minWidth: '120px',
+			isSort: true,
 		},
 		{
 			id: 'age',
@@ -276,6 +280,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: '年齢',
 			minWidth: '80px !important',
 			suffix: ' 歳',
+			isSort: true,
 		},
 		{
 			id: 'draft',
@@ -350,6 +355,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: 'メール',
 			minWidth: '200px',
+			isSort: true,
 		},
 	]
 
@@ -374,24 +380,26 @@ const Student = ({ OnlyBookmarked = false }) => {
 				/>
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
-			
+
 			{/* Warning Modal */}
 			<Dialog
 				open={warningModal.open}
 				onClose={() => setWarningModal({ open: false, message: '' })}
-				aria-labelledby="warning-dialog-title"
-				aria-describedby="warning-dialog-description"
+				aria-labelledby='warning-dialog-title'
+				aria-describedby='warning-dialog-description'
 			>
-				<DialogTitle id="warning-dialog-title">
-					{t('warning')}
-				</DialogTitle>
+				<DialogTitle id='warning-dialog-title'>{t('warning')}</DialogTitle>
 				<DialogContent>
-					<DialogContentText id="warning-dialog-description">
+					<DialogContentText id='warning-dialog-description'>
 						{warningModal.message}
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setWarningModal({ open: false, message: '' })} color="primary" autoFocus>
+					<Button
+						onClick={() => setWarningModal({ open: false, message: '' })}
+						color='primary'
+						autoFocus
+					>
 						{t('ok')}
 					</Button>
 				</DialogActions>
