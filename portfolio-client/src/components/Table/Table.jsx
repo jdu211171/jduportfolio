@@ -28,6 +28,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
 import PendingIcon from '@mui/icons-material/Pending'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 // Icons import
 import AwardIcon from '../../assets/icons/award-line.svg'
@@ -61,6 +63,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 	const [order, setOrder] = useState('asc')
 	const [orderBy, setOrderBy] = useState('')
+	const [sortBy, setSortBy] = useState('')
+	const [sortOrder, setSortOrder] = useState('')
 	const [selected, setSelected] = useState([])
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useAtom(rowsPerPageAtom)
@@ -83,6 +87,41 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 			// Silently fail if localStorage is not available
 		}
 	}, [rowsPerPage])
+
+	// Sort handler function
+	const handleSort = header => {
+		// Check if the header is sortable
+		if (!header.isSort) {
+			return
+		}
+
+		// Define mapping from header id to API sort field names
+		const sortMapping = {
+			first_name: 'name',
+			student_id: 'student_id',
+			age: 'age',
+			email: 'email',
+			expected_graduation_year: 'graduation_year',
+		}
+
+		const apiSortField = sortMapping[header.id]
+		if (!apiSortField) {
+			return
+		}
+
+		let newOrder = 'ASC'
+
+		// If clicking on the same column, toggle the order
+		if (sortBy === apiSortField) {
+			newOrder = sortOrder === 'ASC' ? 'DESC' : 'ASC'
+		}
+
+		setSortBy(apiSortField)
+		setSortOrder(newOrder)
+		setOrderBy(header.id)
+		setOrder(newOrder.toLowerCase())
+		setPage(0) // Reset to first page when sorting
+	}
 
 	const handleClick = (event, rowId) => {
 		setAnchorEls(prev => ({
@@ -111,13 +150,19 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 	const fetchUserData = useCallback(async () => {
 		setLoading(true)
 		try {
-			const response = await axios.get(tableProps.dataLink, {
-				params: {
-					filter: tableProps.filter,
-					recruiterId: tableProps.recruiterId,
-					onlyBookmarked: tableProps.OnlyBookmarked,
-				},
-			})
+			const params = {
+				filter: tableProps.filter,
+				recruiterId: tableProps.recruiterId,
+				onlyBookmarked: tableProps.OnlyBookmarked,
+			}
+
+			// Add sorting parameters if they exist
+			if (sortBy && sortOrder) {
+				params.sortBy = sortBy
+				params.sortOrder = sortOrder
+			}
+
+			const response = await axios.get(tableProps.dataLink, { params })
 			setRows(response.data)
 		} catch (error) {
 			// Handle error silently
@@ -129,6 +174,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		tableProps.filter,
 		tableProps.recruiterId,
 		tableProps.OnlyBookmarked,
+		sortBy,
+		sortOrder,
 	])
 
 	useEffect(() => {
@@ -476,30 +523,76 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 						>
 							<TableHead>
 								<TableRow>
-									{visibleHeaders.map((header, index) => (
-										<TableCell
-											sx={{
-												backgroundColor: '#f7fafc',
-												borderBottom: '1px solid #e0e0e0',
-												borderRight: 'none',
-												position: 'sticky',
-												top: 0,
-												zIndex: 10,
-												...(index === 0 && {
-													borderTopLeftRadius: '10px',
-												}),
-												...(index === visibleHeaders.length - 1 && {
-													borderTopRightRadius: '10px',
-												}),
-											}}
-											key={`data${getUniqueKey(header)}_${header.id}`}
-											align='center'
-											padding={'normal'}
-											sortDirection={orderBy === header.id ? order : false}
-										>
-											{header.label}
-										</TableCell>
-									))}
+									{visibleHeaders.map((header, index) => {
+										const isSortable = header.isSort === true
+										const isActiveSortColumn = orderBy === header.id
+
+										return (
+											<TableCell
+												sx={{
+													backgroundColor: '#f7fafc',
+													borderBottom: '1px solid #e0e0e0',
+													borderRight: 'none',
+													position: 'sticky',
+													top: 0,
+													zIndex: 10,
+													cursor: isSortable ? 'pointer' : 'default',
+													userSelect: 'none',
+													'&:hover': isSortable
+														? {
+																backgroundColor: '#edf2f7',
+															}
+														: {},
+													...(index === 0 && {
+														borderTopLeftRadius: '10px',
+													}),
+													...(index === visibleHeaders.length - 1 && {
+														borderTopRightRadius: '10px',
+													}),
+												}}
+												key={`data${getUniqueKey(header)}_${header.id}`}
+												align='center'
+												padding={'normal'}
+												sortDirection={orderBy === header.id ? order : false}
+												onClick={() => isSortable && handleSort(header)}
+											>
+												<Box
+													sx={{
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+														gap: '4px',
+													}}
+												>
+													{header.label}
+													{isSortable && (
+														<Box
+															sx={{
+																display: 'flex',
+																flexDirection: 'column',
+																alignItems: 'center',
+																opacity: isActiveSortColumn ? 1 : 0.3,
+															}}
+														>
+															{isActiveSortColumn && order === 'asc' ? (
+																<KeyboardArrowUpIcon
+																	sx={{ fontSize: '16px', color: '#2563eb' }}
+																/>
+															) : isActiveSortColumn && order === 'desc' ? (
+																<KeyboardArrowDownIcon
+																	sx={{ fontSize: '16px', color: '#2563eb' }}
+																/>
+															) : (
+																<KeyboardArrowUpIcon
+																	sx={{ fontSize: '16px' }}
+																/>
+															)}
+														</Box>
+													)}
+												</Box>
+											</TableCell>
+										)
+									})}
 								</TableRow>
 							</TableHead>
 							<TableBody>
@@ -913,7 +1006,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 
-
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
 																		const newRows = prevRows.map(prevRow =>
@@ -1026,7 +1118,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																onChange={async e => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
-
 
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {

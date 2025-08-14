@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
-import { useState, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Filter from '../../components/Filter/Filter'
 import Table from '../../components/Table/Table'
 
@@ -137,6 +137,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'avatar',
 			minWidth: '220px',
 			onClickAction: navigateToProfile,
+			isSort: true,
 		},
 		{
 			id: 'student_id',
@@ -144,6 +145,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: t('student_id'),
 			minWidth: '120px',
+			isSort: true,
 		},
 		{
 			id: 'age',
@@ -152,6 +154,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: '年齢',
 			minWidth: '80px !important',
 			suffix: ' 歳',
+			isSort: true,
 		},
 		{
 			id: 'jlpt',
@@ -174,6 +177,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: '卒業予定年（月）',
 			minWidth: '160px',
+			isSort: true,
 		},
 		{
 			id: 'bookmark',
