@@ -1,5 +1,6 @@
 const translations = {
 	en: {
+		rank:'rank',
 		title: 'Title',
 		description: 'Description',
 		sourseLink: 'Sourse Link',
@@ -420,6 +421,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		delete_failed: 'Delete failed',
 	},
 	ja: {
+		rank:'位',
 		title: 'タイトル',
 		description: 'デスクリプション',
 		sourseLink: '出典リンク',
@@ -839,6 +841,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		delete_failed: '削除に失敗しました',
 	},
 	uz: {
+		rank:'o\'rin',
 		title: 'Sarlavha',
 		description: 'Tavsif',
 		sourseLink: 'Manba havolasi',

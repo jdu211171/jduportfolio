@@ -1877,6 +1877,7 @@ const Top = () => {
 											: getCertificateData(student.japanese_speech_contest)
 													.highest}
 									</span>
+									<span style={{marginLeft:8}}>{t('rank')}</span>
 								</div>
 
 								{/* IT Contest */}
@@ -1905,6 +1906,7 @@ const Top = () => {
 											? getCertificateData(editData.draft.it_contest).highest
 											: getCertificateData(student.it_contest).highest}
 									</span>
+									<span style={{marginLeft:8}}>{t('rank')}</span>
 								</div>
 							</div>
 						</div>
