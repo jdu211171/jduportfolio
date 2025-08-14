@@ -89,7 +89,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 	}, [rowsPerPage])
 
 	// Sort handler function
-	const handleSort = (header) => {
+	const handleSort = header => {
 		// Check if the header is sortable
 		if (!header.isSort) {
 			return
@@ -97,11 +97,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 		// Define mapping from header id to API sort field names
 		const sortMapping = {
-			'first_name': 'name',
-			'student_id': 'student_id', 
-			'age': 'age',
-			'email': 'email',
-			'expected_graduation_year': 'graduation_year'
+			first_name: 'name',
+			student_id: 'student_id',
+			age: 'age',
+			email: 'email',
+			expected_graduation_year: 'graduation_year',
 		}
 
 		const apiSortField = sortMapping[header.id]
@@ -110,7 +110,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		}
 
 		let newOrder = 'ASC'
-		
+
 		// If clicking on the same column, toggle the order
 		if (sortBy === apiSortField) {
 			newOrder = sortOrder === 'ASC' ? 'DESC' : 'ASC'
@@ -538,9 +538,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													zIndex: 10,
 													cursor: isSortable ? 'pointer' : 'default',
 													userSelect: 'none',
-													'&:hover': isSortable ? {
-														backgroundColor: '#edf2f7'
-													} : {},
+													'&:hover': isSortable
+														? {
+																backgroundColor: '#edf2f7',
+															}
+														: {},
 													...(index === 0 && {
 														borderTopLeftRadius: '10px',
 													}),
@@ -559,7 +561,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														display: 'flex',
 														alignItems: 'center',
 														justifyContent: 'center',
-														gap: '4px'
+														gap: '4px',
 													}}
 												>
 													{header.label}
@@ -573,11 +575,17 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 															}}
 														>
 															{isActiveSortColumn && order === 'asc' ? (
-																<KeyboardArrowUpIcon sx={{ fontSize: '16px', color: '#2563eb' }} />
+																<KeyboardArrowUpIcon
+																	sx={{ fontSize: '16px', color: '#2563eb' }}
+																/>
 															) : isActiveSortColumn && order === 'desc' ? (
-																<KeyboardArrowDownIcon sx={{ fontSize: '16px', color: '#2563eb' }} />
+																<KeyboardArrowDownIcon
+																	sx={{ fontSize: '16px', color: '#2563eb' }}
+																/>
 															) : (
-																<KeyboardArrowUpIcon sx={{ fontSize: '16px' }} />
+																<KeyboardArrowUpIcon
+																	sx={{ fontSize: '16px' }}
+																/>
 															)}
 														</Box>
 													)}
@@ -998,7 +1006,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
 
-
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
 																		const newRows = prevRows.map(prevRow =>
@@ -1111,7 +1118,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																onChange={async e => {
 																	const newValue = e.target.checked
 																	const previousValue = row[header.id]
-
 
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
