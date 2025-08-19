@@ -59,7 +59,17 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 				{!notExpand && (
 					<AccordionDetails className={styles.answer}>
 						<ChatBubbleOutlineIcon />
-						<pre>{answer}</pre>
+						<div
+							style={{
+								whiteSpace: 'pre-wrap',
+								wordWrap: 'break-word',
+								overflowWrap: 'break-word',
+								flex: 1,
+								maxWidth: '100%',
+							}}
+						>
+							{answer}
+						</div>
 					</AccordionDetails>
 				)}
 			</Accordion>
