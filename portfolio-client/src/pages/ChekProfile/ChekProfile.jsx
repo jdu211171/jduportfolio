@@ -269,7 +269,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			id: 'student_id',
 			numeric: false,
 			disablePadding: false,
-			label: '学生ID',
+			label: '学籍番号',
 			minWidth: '120px',
 			isSort: true,
 		},

@@ -616,7 +616,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 											{visibleHeaders.map((header, cellIndex) => (
 												<TableCell
 													key={`data${getUniqueKey(header)}_${header.id}`}
-													align='center'
+													align={header.type === 'avatar' ? 'left' : 'center'}
 													padding={header.disablePadding ? 'none' : 'normal'}
 													onClick={() => {
 														// Don't trigger profile navigation for delete icon
@@ -637,7 +637,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 															// Set specific minWidth based on column label
 															switch (header.label) {
 																case '年齢':
-																	return '70px'
+																	return '82px'
 																case '申請回数':
 																	return '90px'
 																case '承認状況':
