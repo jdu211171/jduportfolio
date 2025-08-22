@@ -1,11 +1,33 @@
-const { Op } = require('sequelize')
 const { Draft, Student, sequelize } = require('../models')
+const _ = require('lodash') // Used for deep object comparison
+const { uploadFile, deleteFile } = require('../utils/storageService')
+const generateUniqueFilename = require('../utils/uniqueFilename')
+
+const { Op } = require('sequelize')
+
+/**
+ * Compares two objects and returns an array of keys that have changed.
+ * @param {object} newData - The new data object.
+ * @param {object} oldData - The old data object.
+ * @returns {string[]} An array of changed keys.
+ */
+const getChangedKeys = (newData, oldData) => {
+	if (!oldData) return Object.keys(newData)
+	const allKeys = _.union(Object.keys(newData), Object.keys(oldData))
+
+	return allKeys.filter(key => {
+		// _.isEqual provides deep comparison for nested objects and arrays
+		return !_.isEqual(newData[key], oldData[key])
+	})
+}
 
 class DraftService {
-
 	static async getAll(filter) {
 		try {
-			// console.log(filter)
+			console.log(
+				'DraftService.getAll called with filter:',
+				JSON.stringify(filter, null, 2)
+			)
 
 			const semesterMapping = {
 				'1年生': ['1', '2'],
@@ -66,10 +88,9 @@ class DraftService {
 				'email',
 				'first_name',
 				'last_name',
+				'student_id',
 				'self_introduction',
 				'hobbies',
-				'skills',
-				'it_skills',
 				'jlpt',
 			]
 			let statusFilter = ''
@@ -98,9 +119,25 @@ class DraftService {
 			Object.keys(filter).forEach(key => {
 				if (filter[key] && key !== 'draft_status') {
 					if (key === 'search') {
-						querySearch[Op.or] = searchableColumns.map(column => ({
+						let searchConditions = searchableColumns.map(column => ({
 							[column]: { [Op.iLike]: `%${filter[key]}%` },
 						}))
+
+						// Add JSONB search conditions for skills and it_skills using sequelize.where
+						searchConditions.push(
+							sequelize.where(
+								sequelize.cast(sequelize.col('Student.skills'), 'TEXT'),
+								{ [Op.iLike]: `%${filter[key]}%` }
+							)
+						)
+						searchConditions.push(
+							sequelize.where(
+								sequelize.cast(sequelize.col('Student.it_skills'), 'TEXT'),
+								{ [Op.iLike]: `%${filter[key]}%` }
+							)
+						)
+
+						querySearch[Op.or] = searchConditions
 					} else if (key === 'skills' || key === 'it_skills') {
 						queryOther[Op.and].push({
 							[Op.or]: [
@@ -138,7 +175,9 @@ class DraftService {
 						status => statusMapping[status]
 					)
 					statusFilter = filteredStatuses.length
-						? `AND d.status IN (${filteredStatuses.map(s => `'${s}'`).join(', ')})`
+						? `AND d.status IN (${filteredStatuses
+								.map(s => `'${s}'`)
+								.join(', ')})`
 						: ''
 				}
 			})
@@ -160,8 +199,14 @@ class DraftService {
 				combinedStatusFilter = statusFilter || approvalStatusFilter
 			}
 
+			console.log('Final query object:', JSON.stringify(query, null, 2))
+			console.log('Combined status filter:', combinedStatusFilter)
+
 			const students = await Student.findAll({
 				where: query,
+				attributes: {
+					include: ['credit_details'], // Explicitly include credit_details field
+				},
 				include: [
 					{
 						model: Draft,
@@ -184,99 +229,127 @@ class DraftService {
 
 			return students
 		} catch (error) {
+			console.error('DraftService.getAll error:', error)
+			console.error('Error message:', error.message)
+			console.error('SQL:', error.sql)
 			throw error
 		}
 	}
+	/**
+	 * Creates a new draft or updates an existing one (upsert).
+	 * This is the primary method for student edits.
+	 */
+	static async upsertDraft(studentId, newProfileData) {
+		let draft = await Draft.findOne({ where: { student_id: studentId } })
 
-	static async create(data) {
-		try {
-			const { student_id, profile_data, comments, status, reviewed_by } = data
+		if (draft) {
+			const oldProfileData = draft.profile_data || {}
+			const changedKeys = getChangedKeys(newProfileData, oldProfileData)
+			draft.profile_data = newProfileData
+			draft.changed_fields = _.union(draft.changed_fields || [], changedKeys)
 
-			// Studentning mavjud draftini tekshirish
-			let draft = await Draft.findOne({ where: { student_id } })
-
-			/// agar draftni haqiqiy versiyasi public bolsa ushani false qilish
-			await Student.update({ visibility: false }, { where: { student_id } })
-
-			if (draft) {
-				// Agar draft mavjud bo‘lsa, uni yangilaymiz
-				draft.profile_data = profile_data
-				draft.comments = comments
-				draft.status = status
-				draft.reviewed_by = reviewed_by
-				await draft.save()
-				return { message: 'Draft updated successfully', draft }
-			} else {
-				// Agar draft mavjud bo‘lmasa, yangi draft yaratamiz
-				draft = await Draft.create({ student_id, profile_data })
-				return { message: 'Draft created successfully', draft }
+			if (
+				[
+					'submitted',
+					'approved',
+					'resubmission_required',
+					'disapproved',
+				].includes(draft.status)
+			) {
+				draft.status = 'draft'
 			}
-		} catch (error) {
-			throw new Error(error.message)
+
+			await draft.save()
+			return { draft, created: false }
+		} else {
+			// If draft does not exist, create a new one
+			const changedKeys = Object.keys(newProfileData) // All fields are considered new
+			draft = await Draft.create({
+				student_id: studentId,
+				profile_data: newProfileData,
+				changed_fields: changedKeys,
+				status: 'draft',
+			})
+			return { draft, created: true }
 		}
 	}
+	/**
+	 * Submits a draft for review.
+	 * Enforces the rule that a draft cannot be submitted if already in 'submitted' state.
+	 */
+	static async submitForReview(draftId) {
+		const draft = await Draft.findByPk(draftId)
+		if (!draft) {
+			throw new Error('Qoralama topilmadi.')
+		}
 
-	// get draft for ID
+		if (draft.status === 'submitted') {
+			throw new Error(
+				'Sizda allaqachon tekshiruvga yuborilgan faol qoralama mavjud. Yangisini yuborish uchun avvalgisining natijasini kuting.'
+			)
+		}
+
+		draft.status = 'submitted'
+		draft.submit_count += 1
+		draft.comments = null
+
+		await Student.update(
+			{ visibility: false },
+			{ where: { student_id: draft.student_id } }
+		)
+		await draft.save()
+		return draft
+	}
+	/**
+	 * Updates the status of a draft by a staff member.
+	 * Clears the changed_fields array upon review completion.
+	 */
+	static async updateStatusByStaff(draftId, status, comments, reviewedBy) {
+		const draft = await Draft.findByPk(draftId)
+		if (!draft) {
+			throw new Error('Qoralama topilmadi.')
+		}
+
+		draft.status = status
+		draft.comments = comments
+		draft.reviewed_by = reviewedBy
+
+		// When a review cycle is complete, clear the list of changes
+		if (['approved', 'resubmission_required', 'disapproved'].includes(status)) {
+			draft.changed_fields = []
+		}
+
+		await draft.save()
+		return draft
+	}
+
 	static async getById(id) {
 		return Draft.findByPk(id)
 	}
 
-	static async getByStudentId(student_id) {
-		return Draft.findAll({
-			where: { student_id },
-			order: [['created_at', 'DESC']], // Sort by created_at in descending order
+	static async getStudentWithDraft(studentId) {
+		return Student.findOne({
+			where: { student_id: studentId },
+			attributes: {
+				exclude: ['password', 'createdAt', 'updatedAt'],
+			},
+			include: [
+				{
+					model: Draft,
+					as: 'draft',
+					required: false,
+				},
+			],
 		})
 	}
-	// update draft
-	static async update(id, data) {
-		const draft = await Draft.findByPk(id)
-		if (!draft) {
-			throw new Error('Draft not found')
-		}
-		return draft.update(data)
-	}
 
-	// Delete draft
 	static async delete(id) {
 		const draft = await Draft.findByPk(id)
 		if (!draft) {
-			throw new Error('Draft not found')
+			throw new Error('Qoralama topilmadi')
 		}
-		return draft.destroy()
-	}
-
-	static async getLatestApprovedDraftByStudentId(studentId) {
-		return Draft.findOne({
-			where: {
-				student_id: studentId,
-				status: 'approved', // Only fetch approved drafts
-			},
-			order: [['updated_at', 'DESC']], // Get the latest updated draft
-		})
-	}
-
-	static async getDraftByStudentId(studentId) {
-		try {
-			const student = await Student.findOne({
-				where: { student_id: studentId },
-				include: [
-					{
-						model: Draft,
-						as: 'draft',
-						required: false,
-					},
-				],
-			})
-
-			if (!student) {
-				throw new Error('Student not found')
-			}
-
-			return student
-		} catch (error) {
-			console.error('Error getting student with draft:', error)
-			throw error
-		}
+		await draft.destroy()
+		return draft
 	}
 }
 

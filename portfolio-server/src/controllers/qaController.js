@@ -51,14 +51,25 @@ class QAController {
 	static async updateQA(req, res, next) {
 		try {
 			const { data } = req.body
+			console.log('Update QA request data:', data)
+			
 			let response = {}
-			Object.entries(data.idList).forEach(async ([key, category]) => {
-				const updatedQA = await QAService.updateQA(key, data[category])
-				response[updatedQA.category] = updatedQA.qa_list
-			})
+			
+			// Fix: Use for...of loop with proper async/await handling
+			for (const [key, category] of Object.entries(data.idList)) {
+				try {
+					const updatedQA = await QAService.updateQA(key, data[category])
+					response[updatedQA.category] = updatedQA.qa_list
+				} catch (updateError) {
+					console.error(`Failed to update QA ${key}:`, updateError)
+					// Continue with other updates even if one fails
+				}
+			}
 
+			console.log('Update QA response:', response)
 			res.json(response)
 		} catch (error) {
+			console.error('UpdateQA Controller Error:', error)
 			next(error)
 		}
 	}
@@ -89,7 +100,9 @@ class QAController {
 	static async findQAByStudentId(req, res, next) {
 		try {
 			const { studentId } = req.params
+
 			const qaList = await QAService.findQAByStudentId(studentId)
+
 			let response = {}
 			let idList = {}
 			qaList.forEach(data => {

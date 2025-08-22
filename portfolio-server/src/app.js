@@ -4,14 +4,14 @@ const cookieParser = require('cookie-parser')
 const path = require('path')
 const cors = require('cors')
 const multer = require('multer')
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc')
+const swaggerUi = require('swagger-ui-express')
 const cron = require('node-cron')
 
 const configureRoutes = require('./routes')
 const KintoneService = require('./services/kintoneService')
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 4000
 
 const options = {
 	definition: {
@@ -24,8 +24,8 @@ const options = {
 		servers: [
 			{
 				url: '/', // Use relative URL for same-origin requests
-				description: 'Current server'
-			}
+				description: 'Current server',
+			},
 		],
 		components: {
 			securitySchemes: {
@@ -33,33 +33,32 @@ const options = {
 					type: 'apiKey',
 					in: 'cookie',
 					name: 'token',
-					description: 'Authentication token stored in a cookie. Login first using the /api/auth/login endpoint.'
-				}
-			}
+					description:
+						'Authentication token stored in a cookie. Login first using the /api/auth/login endpoint.',
+				},
+			},
 		},
 		security: [
 			{
-				cookieAuth: []
-			}
-		]
+				cookieAuth: [],
+			},
+		],
 	},
-	apis: [
-		'./src/routes/*.js', 
-	],
-};
+	apis: ['./src/routes/*.js'],
+}
 
-const swaggerSpec = swaggerJSDoc(options);
+const swaggerSpec = swaggerJSDoc(options)
 
 // Enhanced Swagger UI configuration for cookie authentication
 const swaggerOptions = {
 	withCredentials: true,
 	persistAuthorization: true,
 	// Add request interceptor to ensure credentials are included
-	requestInterceptor: (req) => {
-		req.credentials = 'include';
-		return req;
-	}
-};
+	requestInterceptor: req => {
+		req.credentials = 'include'
+		return req
+	},
+}
 
 // Load environment variables from .env file
 dotenv.config()
@@ -68,31 +67,49 @@ const app = express()
 
 // Use cookie-parser middleware
 app.use(cookieParser())
-// Middleware to parse JSON bodies
-app.use(express.json())
-// Middleware to parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true }))
+// Middleware to parse JSON bodies with 21MB limit
+app.use(express.json({ limit: '21mb' }))
+// Middleware to parse URL-encoded bodies with 21MB limit
+app.use(express.urlencoded({ extended: true, limit: '21mb' }))
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
 // app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
-
-
 const allowedOrigins = [
-    process.env.FRONTEND_URL, // http://localhost:5173
-    process.env.FRONTEND_URL_PROD // https://portfolio.jdu.uz
-];
+	process.env.FRONTEND_URL, // http://localhost:5173
+	process.env.FRONTEND_URL_PROD, // https://portfolio.jdu.uz
+	'http://localhost:3000', // Additional dev server
+	'http://localhost:5174', // Alternative Vite port
+	'http://127.0.0.1:5173', // Alternative localhost
+	'http://127.0.0.1:3000', // Alternative localhost
+	'http://127.0.0.1:5174', // Alternative localhost
+].filter(Boolean) // Remove undefined values
 
+console.log('Allowed CORS origins:', allowedOrigins)
 
-app.use(cors({ 
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true
-}));
+app.use(
+	cors({
+		origin: function (origin, callback) {
+			// Allow requests with no origin (like mobile apps or curl requests)
+			if (!origin) {
+				return callback(null, true)
+			}
+
+			if (allowedOrigins.indexOf(origin) !== -1) {
+				callback(null, true)
+			} else {
+				console.error(
+					`CORS error: Origin '${origin}' not allowed. Allowed origins:`,
+					allowedOrigins
+				)
+				callback(new Error(`Not allowed by CORS. Origin: ${origin}`))
+			}
+		},
+		credentials: true,
+	})
+)
 
 // Configure routes
 configureRoutes(app)
@@ -102,18 +119,26 @@ cron.schedule('0 4 * * *', async () => {
 	await KintoneService.syncData()
 })
 
-
-
 CronService.scheduleJobs()
 
 // Updated Swagger UI setup with enhanced options
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { 
-	swaggerOptions,
-	customCss: '.swagger-ui .auth-wrapper .authorize {padding: 15px 20px; display: block;}',
-	customSiteTitle: "Portfolio API Documentation",
-	customfavIcon: "",
-	customCssUrl: "",
-}));
+app.use(
+	'/api-docs',
+	swaggerUi.serve,
+	swaggerUi.setup(swaggerSpec, {
+		swaggerOptions,
+		customCss:
+			'.swagger-ui .auth-wrapper .authorize {padding: 15px 20px; display: block;}',
+		customSiteTitle: 'Portfolio API Documentation',
+		customfavIcon: '',
+		customCssUrl: '',
+	})
+)
+
+// Serve uploaded files statically (only for local development)
+if (process.env.NODE_ENV === 'development') {
+	app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+}
 
 app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
@@ -122,8 +147,6 @@ app.get('*', (req, res) => {
 		path.resolve(__dirname, '../../portfolio-client/dist/index.html')
 	)
 })
-
-
 
 // Start the server
 app.listen(PORT, () => {

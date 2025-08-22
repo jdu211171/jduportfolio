@@ -1,292 +1,968 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { TextField as MuiTextField, Box, IconButton } from '@mui/material'
-import { Add, DeleteOutline, Upload } from '@mui/icons-material'
-import styles from './Deliverables.module.css'
-import TextField from '../TextField/TextField'
-import RoleField from '../RoleField/RoleField'
+import React, { useState, useRef, useEffect } from 'react'
 import {
-	TransformWrapper,
-	TransformComponent,
-	useControls,
-} from 'react-zoom-pan-pinch'
+	Box,
+	Button,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	TextField,
+	IconButton,
+	Card,
+	CardContent,
+	CardMedia,
+	Typography,
+	Grid,
+	Chip,
+	Menu,
+	MenuItem,
+	CircularProgress,
+	Tooltip,
+	ImageList,
+	ImageListItem,
+} from '@mui/material'
+import {
+	Add as AddIcon,
+	Edit as EditIcon,
+	Delete as DeleteIcon,
+	Launch as LaunchIcon,
+	Close as CloseIcon,
+	PhotoCamera as PhotoCameraIcon,
+	MoreVert as MoreVertIcon,
+	ZoomIn as ZoomInIcon,
+	NavigateBefore as NavigateBeforeIcon,
+	NavigateNext as NavigateNextIcon,
+} from '@mui/icons-material'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { useAlert } from '../../contexts/AlertContext'
+import translations from '../../locales/translations'
+import axios from '../../utils/axiosUtils'
+import PropTypes from 'prop-types'
+import styles from './Deliverables.module.css'
 
 const Deliverables = ({
-	data,
+	data = [],
 	editData,
 	editMode,
 	updateEditData,
 	keyName,
 	updateEditMode,
 	onImageUpload,
+	resetPreviews,
+	isChanged = false,
 }) => {
-	const textFieldRef = useRef(null)
+	const { language } = useLanguage()
+	const showAlert = useAlert()
+	const t = key => translations[language][key] || key
 	const fileInputRef = useRef(null)
-	const [newData, setNewData] = useState(editData)
-	const [activeDeliverable, setActiveDeliverable] = useState(0)
-	const [imagePreview, setImagePreview] = useState({})
+	console.log(data)
 
+	// State management
+	const [deliverables, setDeliverables] = useState([])
+	const [createDialogOpen, setCreateDialogOpen] = useState(false)
+	const [editDialogOpen, setEditDialogOpen] = useState(false)
+	const [viewModalOpen, setViewModalOpen] = useState(false)
+	const [currentDeliverable, setCurrentDeliverable] = useState(null)
+	const [currentImageIndex, setCurrentImageIndex] = useState(0)
+	const [menuAnchor, setMenuAnchor] = useState(null)
+	const [selectedDeliverable, setSelectedDeliverable] = useState(null)
+	const [loading, setLoading] = useState(false)
+
+	// Form state
+	const [formData, setFormData] = useState({
+		title: '',
+		description: '',
+		link: '',
+		files: [],
+	})
+	const [selectedFiles, setSelectedFiles] = useState([])
+	const [previewUrls, setPreviewUrls] = useState([])
+
+	// Initialize deliverables from data
 	useEffect(() => {
-		setNewData(editData)
-	}, [editData])
+		if (editMode && editData && editData[keyName]) {
+			setDeliverables(editData[keyName] || [])
+		} else if (data && Array.isArray(data)) {
+			setDeliverables(data)
+		} else {
+			setDeliverables([])
+		}
+	}, [data, editData, editMode, keyName])
 
-	const handleChange = (key, value) => {
-		const updatedData = newData.map((item, index) => {
-			if (index === activeDeliverable) {
-				return { ...item, [key]: value }
+	// Cleanup preview URLs on component unmount
+	useEffect(() => {
+		return () => {
+			previewUrls.forEach(url => URL.revokeObjectURL(url))
+		}
+	}, [previewUrls])
+
+	// Handle file selection
+	const handleFileSelect = event => {
+		const files = Array.from(event.target.files)
+		if (files.length === 0) return
+
+		// Validate file types and sizes
+		const validFiles = files.filter(file => {
+			const isValidType = file.type.startsWith('image/')
+			const isValidSize = file.size <= 5 * 1024 * 1024 // 5MB
+
+			if (!isValidType) {
+				showAlert('Invalid file type. Please select image files only.', 'error')
+				return false
 			}
-			return item
+			if (!isValidSize) {
+				showAlert('File size too large. Maximum size is 5MB.', 'error')
+				return false
+			}
+			return true
 		})
-		setNewData(updatedData)
-		updateEditData(keyName, updatedData)
+
+		// Add new files to existing files instead of replacing
+		setSelectedFiles(prevFiles => [...prevFiles, ...validFiles])
+
+		// Create preview URLs for new files and add to existing previews
+		const newUrls = validFiles.map(file => URL.createObjectURL(file))
+		setPreviewUrls(prevUrls => [...prevUrls, ...newUrls])
+
+		// Clear the input so the same file can be selected again if needed
+		if (event.target) {
+			event.target.value = ''
+		}
 	}
 
-	const addNewDeliverable = () => {
-		const deliverable = {
+	// Remove individual image from preview
+	const removeImage = index => {
+		setSelectedFiles(prevFiles => prevFiles.filter((_, i) => i !== index))
+		setPreviewUrls(prevUrls => {
+			// Revoke the URL to prevent memory leaks
+			URL.revokeObjectURL(prevUrls[index])
+			return prevUrls.filter((_, i) => i !== index)
+		})
+	}
+
+	// Clear form data
+	const clearForm = () => {
+		// Revoke all preview URLs to prevent memory leaks
+		previewUrls.forEach(url => URL.revokeObjectURL(url))
+
+		setFormData({
 			title: '',
-			link: '',
-			role: [],
-			codeLink: '',
-			imageLink: '',
 			description: '',
-		}
-		const updatedData = [...newData, deliverable]
-		setNewData(updatedData)
-		updateEditData(keyName, updatedData)
-		updateEditMode()
-		setActiveDeliverable(updatedData.length - 1)
-		setTimeout(() => {
-			textFieldRef.current?.focus()
-		}, 0)
-	}
-
-	useEffect(() => {
-		if (editData.length === 0) {
-			addNewDeliverable()
-		}
-	}, [])
-
-	const deleteDeliverable = index => {
-		const updatedData = newData.filter((_, i) => i !== index)
-		setNewData(updatedData)
-		updateEditData(keyName, updatedData)
-		if (activeDeliverable >= updatedData.length) {
-			setActiveDeliverable(updatedData.length - 1)
+			link: '',
+			files: [],
+		})
+		setSelectedFiles([])
+		setPreviewUrls([])
+		if (fileInputRef.current) {
+			fileInputRef.current.value = ''
 		}
 	}
 
-	const handleChangeActive = index => {
-		setActiveDeliverable(index)
+	// Handle dialog close
+	const handleCreateDialogClose = () => {
+		setCreateDialogOpen(false)
+		clearForm()
 	}
 
-	const Controls = () => {
-		const { zoomIn, zoomOut, resetTransform } = useControls()
-		return (
-			<div className={styles.zoomContainer}>
-				<button className={styles.zoomButtonR} onClick={() => zoomIn()}>
-					+
-				</button>
-				<button className={styles.resetButton} onClick={() => resetTransform()}>
-					<svg
-						width='16'
-						height='16'
-						viewBox='0 0 24 24'
-						fill='none'
-						xmlns='http://www.w3.org/2000/svg'
-					>
-						<path
-							d='M12 4V1L8 5l4 4V6c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8h-2c0 5.5 4.5 10 10 10s10-4.5 10-10-4.5-10-10-10z'
-							fill='white'
-						/>
-					</svg>
-				</button>
-				<button className={styles.zoomButtonL} onClick={() => zoomOut()}>
-					-
-				</button>
-			</div>
-		)
+	const handleEditDialogClose = () => {
+		setEditDialogOpen(false)
+		clearForm()
 	}
 
-	const handleFileChange = e => {
-		const file = e.target.files[0]
-
-		const reader = new FileReader()
-		reader.onloadend = () => {
-			setImagePreview(prevPreview => ({
-				...prevPreview,
-				[activeDeliverable]: reader.result,
-			}))
+	// Handle create deliverable
+	const handleCreate = async () => {
+		if (!formData.title.trim()) {
+			showAlert(t('titleRequired') || 'Title is required', 'error')
+			return
 		}
-		reader.readAsDataURL(file)
 
-		onImageUpload(activeDeliverable, file)
+		if (selectedFiles.length === 0) {
+			showAlert(t('filesRequired') || 'At least one image is required', 'error')
+			return
+		}
+
+		setLoading(true)
+		try {
+			const formDataToSend = new FormData()
+			formDataToSend.append('title', formData.title)
+			formDataToSend.append('description', formData.description)
+			formDataToSend.append('link', formData.link)
+
+			selectedFiles.forEach(file => {
+				formDataToSend.append('files', file)
+			})
+
+			const response = await axios.post('/api/deliverables', formDataToSend, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
+
+			// Update local state with the new deliverable from the response
+			const newDeliverables = response.data.profile_data?.deliverables || []
+			setDeliverables(newDeliverables)
+
+			// Update parent component's edit data
+			if (updateEditData) {
+				updateEditData(keyName, newDeliverables)
+			}
+
+			showAlert(
+				t('deliverableCreated') || 'Deliverable created successfully!',
+				'success'
+			)
+			handleCreateDialogClose()
+		} catch (error) {
+			console.error('Error creating deliverable:', error)
+			showAlert(
+				error.response?.data?.message || 'Failed to create deliverable',
+				'error'
+			)
+		} finally {
+			setLoading(false)
+		}
 	}
 
-	const handleUploadClick = () => {
-		fileInputRef.current.click()
+	// Handle update deliverable
+	const handleUpdate = async () => {
+		if (!formData.title.trim()) {
+			showAlert(t('titleRequired') || 'Title is required', 'error')
+			return
+		}
+
+		setLoading(true)
+		try {
+			const formDataToSend = new FormData()
+			formDataToSend.append('title', formData.title)
+
+			if (selectedFiles.length > 0) {
+				selectedFiles.forEach(file => {
+					formDataToSend.append('files', file)
+				})
+			}
+
+			const response = await axios.put(
+				`/api/deliverables/${currentDeliverable.id}`,
+				formDataToSend,
+				{
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					},
+				}
+			)
+
+			// Update local state
+			const updatedDeliverables = response.data.profile_data?.deliverables || []
+			setDeliverables(updatedDeliverables)
+
+			// Update parent component's edit data
+			if (updateEditData) {
+				updateEditData(keyName, updatedDeliverables)
+			}
+
+			showAlert(
+				t('deliverableUpdated') || 'Deliverable updated successfully!',
+				'success'
+			)
+			handleEditDialogClose()
+		} catch (error) {
+			console.error('Error updating deliverable:', error)
+			showAlert(
+				error.response?.data?.message || 'Failed to update deliverable',
+				'error'
+			)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// Handle delete deliverable
+	const handleDelete = async deliverableId => {
+		if (
+			!window.confirm(
+				t('confirmDelete') ||
+					'Are you sure you want to delete this deliverable?'
+			)
+		) {
+			return
+		}
+
+		setLoading(true)
+		try {
+			const response = await axios.delete(`/api/deliverables/${deliverableId}`)
+
+			// Update local state
+			const updatedDeliverables = response.data.profile_data?.deliverables || []
+			setDeliverables(updatedDeliverables)
+
+			// Update parent component's edit data
+			if (updateEditData) {
+				updateEditData(keyName, updatedDeliverables)
+			}
+
+			showAlert(
+				t('deliverableDeleted') || 'Deliverable deleted successfully!',
+				'success'
+			)
+			setMenuAnchor(null)
+		} catch (error) {
+			console.error('Error deleting deliverable:', error)
+			showAlert(
+				error.response?.data?.message || 'Failed to delete deliverable',
+				'error'
+			)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// Handle menu operations
+	const handleMenuOpen = (event, deliverable) => {
+		setMenuAnchor(event.currentTarget)
+		setSelectedDeliverable(deliverable)
+	}
+
+	const handleMenuClose = () => {
+		setMenuAnchor(null)
+		setSelectedDeliverable(null)
+	}
+
+	const handleEditClick = () => {
+		setCurrentDeliverable(selectedDeliverable)
+		// Clear any existing previews first
+		previewUrls.forEach(url => URL.revokeObjectURL(url))
+		setSelectedFiles([])
+		setPreviewUrls([])
+
+		setFormData({
+			title: selectedDeliverable.title || '',
+			description: selectedDeliverable.description || '',
+			link: selectedDeliverable.link || '',
+			files: [],
+		})
+		setEditDialogOpen(true)
+		handleMenuClose()
+	}
+
+	// Handle view modal
+	const handleViewDeliverable = (deliverable, imageIndex = 0) => {
+		setCurrentDeliverable(deliverable)
+		setCurrentImageIndex(imageIndex)
+		setViewModalOpen(true)
+	}
+
+	const handlePrevImage = () => {
+		const images =
+			currentDeliverable?.image_urls || currentDeliverable?.files || []
+		if (images.length > 0) {
+			setCurrentImageIndex(prev => (prev === 0 ? images.length - 1 : prev - 1))
+		}
+	}
+
+	const handleNextImage = () => {
+		const images =
+			currentDeliverable?.image_urls || currentDeliverable?.files || []
+		if (images.length > 0) {
+			setCurrentImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1))
+		}
+	}
+
+	// Open link in new tab
+	const handleOpenLink = link => {
+		if (link) {
+			window.open(link, '_blank', 'noopener,noreferrer')
+		}
 	}
 
 	return (
 		<div className={styles.container}>
-			<table className={styles.table}>
-				<tbody>
-					<tr className={styles.row}>
-						<td className={styles.cellLeft}>タイトル：</td>
-						<td className={styles.cell}>
-							{editMode ? (
-								<MuiTextField
-									inputRef={textFieldRef}
-									value={newData[activeDeliverable]?.title || ''}
-									onChange={e => handleChange('title', e.target.value)}
-									fullWidth
-									multiline
-								/>
-							) : (
-								<div className={styles.cell}>
-									{newData[activeDeliverable]?.title}
-								</div>
-							)}
-						</td>
-					</tr>
-					<tr className={styles.row}>
-						<td className={styles.cellLeft}>開発経験共有：</td>
-						<td className={styles.cell}>
-							{editMode ? (
-								<MuiTextField
-									value={newData[activeDeliverable]?.link || ''}
-									onChange={e => handleChange('link', e.target.value)}
-									fullWidth
-									multiline
-								/>
-							) : (
-								<div className={styles.cell}>
-									<a
-										href={newData[activeDeliverable]?.link}
-										target='_blank'
-										rel='noopener noreferrer'
-									>
-										{newData[activeDeliverable]?.link}
-									</a>
-								</div>
-							)}
-						</td>
-					</tr>
-					<tr className={styles.row}>
-						<td className={styles.cellLeft}>ソースコード：</td>
-						<td className={styles.cell}>
-							{editMode ? (
-								<MuiTextField
-									value={newData[activeDeliverable]?.codeLink || ''}
-									onChange={e => handleChange('codeLink', e.target.value)}
-									fullWidth
-									multiline
-								/>
-							) : (
-								<div className={styles.cell}>
-									<a
-										href={newData[activeDeliverable]?.codeLink}
-										target='_blank'
-										rel='noopener noreferrer'
-									>
-										{newData[activeDeliverable]?.codeLink}
-									</a>
-								</div>
-							)}
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<Box className={styles.imageBox}>
-				{editMode && (
-					<div className={styles.uploadButton}>
-						<IconButton color='primary' onClick={handleUploadClick}>
-							<Upload />
-						</IconButton>
-						<input
-							ref={fileInputRef}
-							type='file'
-							accept='image/*'
-							onChange={handleFileChange}
-							style={{ display: 'none' }}
-						/>
-					</div>
-				)}
-				<TransformWrapper>
-					<TransformComponent>
-						<img
-							src={
-								imagePreview[activeDeliverable] ||
-								newData[activeDeliverable]?.imageLink
-							}
-							alt={newData[activeDeliverable]?.title || 'Deliverable Image'}
-							width='100%'
-						/>
-					</TransformComponent>
-					<Controls />
-				</TransformWrapper>
-			</Box>
-			<Box>
-				<TextField
-					title='プロジェクトの概要欄'
-					data={newData[activeDeliverable]?.description}
-					editData={newData[activeDeliverable]}
-					editMode={editMode}
-					updateEditData={handleChange}
-					keyName='description'
-				/>
-				<RoleField
-					data={newData[activeDeliverable]?.role}
-					editData={newData[activeDeliverable]}
-					editMode={editMode}
-					updateEditData={handleChange}
-					keyName='role'
-				/>
-			</Box>
-			<Box className={styles.imageContainer}>
-				{newData.map(
-					(pr, index) =>
-						activeDeliverable !== index && (
-							<div
-								key={'pr' + index}
-								onClick={e => {
-									e.stopPropagation()
-									handleChangeActive(index)
-								}}
-								className={styles.image}
-							>
-								{pr.title}
-								<img
-									src={imagePreview[index] || pr.imageLink}
-									alt={pr.title || `Image ${index}`}
-								/>
-								{editMode && (
-									<IconButton
-										onClick={e => {
-											e.stopPropagation()
-											deleteDeliverable(index)
-										}}
-										color='error'
-										className={styles.removeIconButton}
-									>
-										<DeleteOutline />
-									</IconButton>
+			{/* Header with Add Button */}
+			{editMode && (
+				<Box
+					sx={{
+						mb: 3,
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+					}}
+				>
+					<Typography variant='h6' component='h2'>
+						{t('deliverables') || 'Deliverables'}
+					</Typography>
+					<Button
+						variant='contained'
+						startIcon={<AddIcon />}
+						onClick={() => setCreateDialogOpen(true)}
+						sx={{
+							backgroundColor: '#5627DB',
+							'&:hover': { backgroundColor: '#4520A6' },
+						}}
+					>
+						{t('addDeliverable') || 'Add Deliverable'}
+					</Button>
+				</Box>
+			)}
+
+			{/* Deliverables Grid */}
+			<Grid container spacing={3}>
+				{deliverables.map((deliverable, index) => {
+					const images = deliverable.image_urls || deliverable.files || []
+					return (
+						<Grid item xs={12} sm={6} md={4} key={deliverable.id || index}>
+							<Card className={styles.deliverableCard} elevation={2}>
+								{/* Main Image */}
+								{images.length > 0 && (
+									<CardMedia
+										component='img'
+										image={images[0]}
+										alt={deliverable.title}
+										className={styles.cardImage}
+										onClick={() => handleViewDeliverable(deliverable, 0)}
+										sx={{ cursor: 'pointer' }}
+									/>
 								)}
-							</div>
-						)
-				)}
-				{editMode && (
-					<div className={styles.image}>
-						<IconButton
-							onClick={addNewDeliverable}
-							color='primary'
-							className={styles.addIconButton}
+
+								<CardContent>
+									{/* Title and Menu */}
+									<Box
+										sx={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'flex-start',
+											mb: 1,
+										}}
+									>
+										<Typography
+											variant='h6'
+											className={styles.title}
+											sx={{ flex: 1 }}
+										>
+											{deliverable.title}
+										</Typography>
+										{editMode && (
+											<IconButton
+												size='small'
+												onClick={e => handleMenuOpen(e, deliverable)}
+											>
+												<MoreVertIcon />
+											</IconButton>
+										)}
+									</Box>
+
+									{/* Description */}
+									{deliverable.description && (
+										<Typography
+											variant='body2'
+											className={styles.description}
+											sx={{ mb: 2 }}
+										>
+											{deliverable.description}
+										</Typography>
+									)}
+
+									{/* Image Count */}
+									{images.length > 1 && (
+										<Chip
+											label={`${images.length} ${t('images') || 'images'}`}
+											size='small'
+											sx={{ mb: 2 }}
+										/>
+									)}
+
+									{/* Actions */}
+									<Box sx={{ display: 'flex', gap: 1 }}>
+										{images.length > 0 && (
+											<Button
+												size='small'
+												startIcon={<ZoomInIcon />}
+												onClick={() => handleViewDeliverable(deliverable)}
+											>
+												{t('view') || 'View'}
+											</Button>
+										)}
+										{deliverable.link && (
+											<Button
+												size='small'
+												startIcon={<LaunchIcon />}
+												onClick={() => handleOpenLink(deliverable.link)}
+											>
+												{t('openLink') || 'Open Link'}
+											</Button>
+										)}
+									</Box>
+								</CardContent>
+							</Card>
+						</Grid>
+					)
+				})}
+			</Grid>
+
+			{/* Empty State */}
+			{deliverables.length === 0 && (
+				<Box sx={{ textAlign: 'center', py: 8 }}>
+					<Typography variant='h6' color='text.secondary' gutterBottom>
+						{t('noDeliverables') || 'No deliverables yet'}
+					</Typography>
+					{editMode && (
+						<Button
+							variant='outlined'
+							startIcon={<AddIcon />}
+							onClick={() => setCreateDialogOpen(true)}
+							sx={{ mt: 2 }}
 						>
-							<Add />
-						</IconButton>
-					</div>
-				)}
-			</Box>
+							{t('addFirstDeliverable') || 'Add your first deliverable'}
+						</Button>
+					)}
+				</Box>
+			)}
+
+			{/* Context Menu */}
+			<Menu
+				anchorEl={menuAnchor}
+				open={Boolean(menuAnchor)}
+				onClose={handleMenuClose}
+			>
+				<MenuItem onClick={handleEditClick}>
+					<EditIcon sx={{ mr: 1 }} />
+					{t('edit') || 'Edit'}
+				</MenuItem>
+				<MenuItem
+					onClick={() => {
+						handleDelete(selectedDeliverable?.id)
+						handleMenuClose()
+					}}
+					sx={{ color: 'error.main' }}
+				>
+					<DeleteIcon sx={{ mr: 1 }} />
+					{t('delete') || 'Delete'}
+				</MenuItem>
+			</Menu>
+
+			{/* Create Dialog */}
+			<Dialog
+				open={createDialogOpen}
+				onClose={handleCreateDialogClose}
+				maxWidth='md'
+				fullWidth
+			>
+				<DialogTitle>
+					{t('createDeliverable') || 'Create Deliverable'}
+				</DialogTitle>
+				<DialogContent>
+					<Box sx={{ pt: 1 }}>
+						<TextField
+							fullWidth
+							label={t('title') || 'Title'}
+							value={formData.title}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, title: e.target.value }))
+							}
+							margin='normal'
+							required
+						/>
+						<TextField
+							fullWidth
+							label={t('description') || 'Description'}
+							value={formData.description}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, description: e.target.value }))
+							}
+							margin='normal'
+							multiline
+							rows={3}
+						/>
+						<TextField
+							fullWidth
+							label={t('link') || 'Link'}
+							value={formData.link}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, link: e.target.value }))
+							}
+							margin='normal'
+							placeholder='https://...'
+						/>
+
+						{/* File Upload */}
+						<Box sx={{ mt: 2 }}>
+							<input
+								ref={fileInputRef}
+								type='file'
+								multiple
+								accept='image/*'
+								onChange={handleFileSelect}
+								style={{ display: 'none' }}
+							/>
+							<Button
+								variant='outlined'
+								startIcon={<PhotoCameraIcon />}
+								onClick={() => fileInputRef.current?.click()}
+								fullWidth
+								sx={{ mb: 2 }}
+							>
+								{selectedFiles.length > 0
+									? `${t('addMoreImages') || 'Add More Images'} (${selectedFiles.length})`
+									: t('selectImages') || 'Select Images'}
+							</Button>
+
+							{/* Image Previews */}
+							{previewUrls.length > 0 && (
+								<ImageList cols={3} gap={8}>
+									{previewUrls.map((url, index) => (
+										<ImageListItem key={index} sx={{ position: 'relative' }}>
+											<img
+												src={url}
+												alt={`Preview ${index + 1}`}
+												style={{
+													width: '100%',
+													height: 100,
+													objectFit: 'cover',
+													borderRadius: 4,
+												}}
+											/>
+											<IconButton
+												size='small'
+												sx={{
+													position: 'absolute',
+													top: 4,
+													right: 4,
+													bgcolor: 'rgba(255,255,255,0.8)',
+													'&:hover': {
+														bgcolor: 'rgba(255,255,255,0.9)',
+													},
+												}}
+												onClick={() => removeImage(index)}
+											>
+												<CloseIcon fontSize='small' />
+											</IconButton>
+										</ImageListItem>
+									))}
+								</ImageList>
+							)}
+						</Box>
+					</Box>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleCreateDialogClose}>
+						{t('cancel') || 'Cancel'}
+					</Button>
+					<Button
+						onClick={handleCreate}
+						variant='contained'
+						disabled={loading}
+						startIcon={loading ? <CircularProgress size={20} /> : null}
+					>
+						{t('create') || 'Create'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Edit Dialog */}
+			<Dialog
+				open={editDialogOpen}
+				onClose={handleEditDialogClose}
+				maxWidth='md'
+				fullWidth
+			>
+				<DialogTitle>{t('editDeliverable') || 'Edit Deliverable'}</DialogTitle>
+				<DialogContent>
+					<Box sx={{ pt: 1 }}>
+						<TextField
+							fullWidth
+							label={t('title') || 'Title'}
+							value={formData.title}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, title: e.target.value }))
+							}
+							margin='normal'
+							required
+						/>
+
+						{/* File Upload for Edit */}
+						<Box sx={{ mt: 2 }}>
+							<input
+								ref={fileInputRef}
+								type='file'
+								multiple
+								accept='image/*'
+								onChange={handleFileSelect}
+								style={{ display: 'none' }}
+							/>
+							<Button
+								variant='outlined'
+								startIcon={<PhotoCameraIcon />}
+								onClick={() => fileInputRef.current?.click()}
+								fullWidth
+								sx={{ mb: 2 }}
+							>
+								{selectedFiles.length > 0
+									? `${t('addMoreImages') || 'Add More Images'} (${selectedFiles.length})`
+									: t('replaceImages') || 'Add Images'}
+							</Button>
+
+							{/* Current Images */}
+							{(() => {
+								const images =
+									currentDeliverable?.image_urls ||
+									currentDeliverable?.files ||
+									[]
+								return (
+									images.length > 0 && (
+										<Box sx={{ mb: 2 }}>
+											<Typography variant='subtitle2' gutterBottom>
+												{t('currentImages') || 'Current Images'}:
+											</Typography>
+											<ImageList cols={3} gap={8}>
+												{images.map((url, index) => (
+													<ImageListItem key={index}>
+														<img
+															src={url}
+															alt={`Current ${index + 1}`}
+															style={{
+																width: '100%',
+																height: 100,
+																objectFit: 'cover',
+																borderRadius: 4,
+															}}
+														/>
+													</ImageListItem>
+												))}
+											</ImageList>
+										</Box>
+									)
+								)
+							})()}
+
+							{/* New Image Previews */}
+							{previewUrls.length > 0 && (
+								<Box>
+									<Typography variant='subtitle2' gutterBottom>
+										{t('newImages') || 'New Images'}:
+									</Typography>
+									<ImageList cols={3} gap={8}>
+										{previewUrls.map((url, index) => (
+											<ImageListItem key={index} sx={{ position: 'relative' }}>
+												<img
+													src={url}
+													alt={`Preview ${index + 1}`}
+													style={{
+														width: '100%',
+														height: 100,
+														objectFit: 'cover',
+														borderRadius: 4,
+													}}
+												/>
+												<IconButton
+													size='small'
+													sx={{
+														position: 'absolute',
+														top: 4,
+														right: 4,
+														bgcolor: 'rgba(255,255,255,0.8)',
+														'&:hover': {
+															bgcolor: 'rgba(255,255,255,0.9)',
+														},
+													}}
+													onClick={() => removeImage(index)}
+												>
+													<CloseIcon fontSize='small' />
+												</IconButton>
+											</ImageListItem>
+										))}
+									</ImageList>
+								</Box>
+							)}
+						</Box>
+					</Box>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleEditDialogClose}>
+						{t('cancel') || 'Cancel'}
+					</Button>
+					<Button
+						onClick={handleUpdate}
+						variant='contained'
+						disabled={loading}
+						startIcon={loading ? <CircularProgress size={20} /> : null}
+					>
+						{t('update') || 'Update'}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* View Modal with Image Carousel */}
+			<Dialog
+				open={viewModalOpen}
+				onClose={() => setViewModalOpen(false)}
+				maxWidth='lg'
+				fullWidth
+			>
+				<DialogTitle
+					sx={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+					}}
+				>
+					<Typography variant='h6'>{currentDeliverable?.title}</Typography>
+					<IconButton onClick={() => setViewModalOpen(false)}>
+						<CloseIcon />
+					</IconButton>
+				</DialogTitle>
+				<DialogContent>
+					{currentDeliverable && (
+						<Box>
+							{/* Image Carousel */}
+							{(() => {
+								const images =
+									currentDeliverable.image_urls ||
+									currentDeliverable.files ||
+									[]
+								return (
+									images.length > 0 && (
+										<Box sx={{ position: 'relative', mb: 3 }}>
+											<img
+												src={images[currentImageIndex]}
+												alt={`${currentDeliverable.title} - Image ${currentImageIndex + 1}`}
+												style={{
+													width: '100%',
+													maxHeight: '400px',
+													objectFit: 'contain',
+													borderRadius: 8,
+												}}
+											/>
+
+											{/* Navigation Arrows */}
+											{images.length > 1 && (
+												<>
+													<IconButton
+														onClick={handlePrevImage}
+														sx={{
+															position: 'absolute',
+															left: 8,
+															top: '50%',
+															transform: 'translateY(-50%)',
+															backgroundColor: 'rgba(0,0,0,0.5)',
+															color: 'white',
+															'&:hover': { backgroundColor: 'rgba(0,0,0,0.7)' },
+														}}
+													>
+														<NavigateBeforeIcon />
+													</IconButton>
+													<IconButton
+														onClick={handleNextImage}
+														sx={{
+															position: 'absolute',
+															right: 8,
+															top: '50%',
+															transform: 'translateY(-50%)',
+															backgroundColor: 'rgba(0,0,0,0.5)',
+															color: 'white',
+															'&:hover': { backgroundColor: 'rgba(0,0,0,0.7)' },
+														}}
+													>
+														<NavigateNextIcon />
+													</IconButton>
+												</>
+											)}
+
+											{/* Image Counter */}
+											{images.length > 1 && (
+												<Box
+													sx={{
+														position: 'absolute',
+														bottom: 8,
+														right: 8,
+														backgroundColor: 'rgba(0,0,0,0.5)',
+														color: 'white',
+														px: 1,
+														py: 0.5,
+														borderRadius: 1,
+														fontSize: '0.875rem',
+													}}
+												>
+													{currentImageIndex + 1} / {images.length}
+												</Box>
+											)}
+										</Box>
+									)
+								)
+							})()}
+
+							{/* Description */}
+							{currentDeliverable.description && (
+								<Typography variant='body1' paragraph>
+									{currentDeliverable.description}
+								</Typography>
+							)}
+
+							{/* Link */}
+							{currentDeliverable.link && (
+								<Button
+									variant='outlined'
+									startIcon={<LaunchIcon />}
+									onClick={() => handleOpenLink(currentDeliverable.link)}
+									sx={{ mt: 2 }}
+								>
+									{t('openLink') || 'Open Link'}
+								</Button>
+							)}
+
+							{/* Image Grid for Quick Navigation */}
+							{(() => {
+								const images =
+									currentDeliverable.image_urls ||
+									currentDeliverable.files ||
+									[]
+								return (
+									images.length > 1 && (
+										<Box sx={{ mt: 3 }}>
+											<Typography variant='subtitle2' gutterBottom>
+												{t('allImages') || 'All Images'}:
+											</Typography>
+											<ImageList cols={4} gap={8}>
+												{images.map((url, index) => (
+													<ImageListItem key={index}>
+														<img
+															src={url}
+															alt={`Thumbnail ${index + 1}`}
+															style={{
+																width: '100%',
+																height: 80,
+																objectFit: 'cover',
+																borderRadius: 4,
+																cursor: 'pointer',
+																border:
+																	index === currentImageIndex
+																		? '2px solid #5627DB'
+																		: 'none',
+															}}
+															onClick={() => setCurrentImageIndex(index)}
+														/>
+													</ImageListItem>
+												))}
+											</ImageList>
+										</Box>
+									)
+								)
+							})()}
+						</Box>
+					)}
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
+}
+
+Deliverables.propTypes = {
+	data: PropTypes.array,
+	editData: PropTypes.object,
+	editMode: PropTypes.bool,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string,
+	updateEditMode: PropTypes.func,
+	onImageUpload: PropTypes.func,
+	resetPreviews: PropTypes.bool,
+	isChanged: PropTypes.bool,
 }
 
 export default Deliverables

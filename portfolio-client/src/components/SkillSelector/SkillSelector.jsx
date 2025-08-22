@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import {
 	Autocomplete,
 	TextField,
@@ -13,258 +13,371 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
+import axios from 'axios'
+import PropTypes from 'prop-types'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
 const SkillSelector = ({
-												 title,
-												 data,
-												 editData,
-												 editMode,
-												 headers,
-												 updateEditData,
-												 keyName,
-												 parentKey = 'draft', // ✅ parentKey qo'shildi
-												 showAutocomplete,
-												 showHeaders,
-											 }) => {
-	// ✅ TO'G'IRLANGAN: parentKey orqali to'g'ri ma'lumotlarga murojaat
-	const getDataSource = () => {
-		if (parentKey) {
-			return data[parentKey] ? data[parentKey][keyName] || {} : {}
-		}
-		return data[keyName] || {}
-	}
-
-	const getEditDataSource = () => {
-		if (parentKey) {
-			return editData[parentKey] ? editData[parentKey][keyName] || {} : {}
-		}
-		return editData[keyName] || {}
-	}
-
-	const [jsonData, setJsonData] = useState(getDataSource())
-	const [editJsonData, setEditJsonData] = useState(getEditDataSource())
+	title,
+	data,
+	editData,
+	editMode,
+	headers,
+	updateEditData,
+	keyName,
+	parentKey = 'draft',
+	showAutocomplete,
+	showHeaders,
+	icon,
+	isChanged = false,
+}) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
+	const [databaseSkills, setDatabaseSkills] = useState([])
+	const [loadingSkills, setLoadingSkills] = useState(false)
 
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
-	// ✅ TO'G'IRLANGAN useEffect: parentKey hisobga olish
+	// Fetch skills from database when showAutocomplete is true
 	useEffect(() => {
-		console.log('🔄 SkillSelector data updated:', {
-			keyName,
-			parentKey,
-			dataSource: getDataSource(),
-			editDataSource: getEditDataSource(),
-			editMode
-		})
+		if (showAutocomplete) {
+			fetchSkillsFromDatabase()
+		}
+	}, [showAutocomplete])
 
-		setJsonData(getDataSource())
-		setEditJsonData(getEditDataSource())
-	}, [data, editData, keyName, parentKey])
-
-	// ✅ TO'G'IRLANGAN updateEditData: parentKey bilan ishlash
-	const updateParentEditData = (updatedSkills) => {
-		if (parentKey) {
-			// Parent component'ga parentKey orqali yuborish
-			updateEditData(keyName, updatedSkills, parentKey)
-		} else {
-			// To'g'ridan-to'g'ri yuborish
-			updateEditData(keyName, updatedSkills)
+	const fetchSkillsFromDatabase = async (search = '') => {
+		try {
+			setLoadingSkills(true)
+			const url = search 
+				? `/api/itskills?search=${encodeURIComponent(search)}` 
+				: '/api/itskills'
+			const response = await axios.get(url)
+			setDatabaseSkills(response.data || [])
+		} catch (error) {
+			// Fallback to local skills if database fails
+			setDatabaseSkills([])
+		} finally {
+			setLoadingSkills(false)
 		}
 	}
 
+	// Get skills to use in autocomplete (database skills if available, otherwise local skills)
+	const getSkillsForAutocomplete = () => {
+		if (showAutocomplete && databaseSkills.length > 0) {
+			return databaseSkills
+		}
+		return skills
+	}
+
+	// Get the current skills data
+	const getCurrentSkillsData = () => {
+		if (editMode && editData && editData[parentKey]) {
+			return editData[parentKey][keyName] || {}
+		}
+		return data?.[keyName] || {}
+	}
+
 	const handleAddSkill = () => {
-		if (selectedSkill && selectedLevel) {
-			let skillExists = false
-			Object.keys(editJsonData).forEach(level => {
-				if (
-					editJsonData[level] &&
-					editJsonData[level].some(skill => skill.name === selectedSkill.name)
-				) {
-					skillExists = true
-					alert(
-						`Skill "${selectedSkill.name}" is already added for level "${level}"`
-					)
-				}
-			})
 
-			if (skillExists) {
-				return
-			}
+		// Validation
+		if (!selectedSkill?.name?.trim() || !selectedLevel) {
+			return
+		}
 
-			const updatedSkills = {
-				...editJsonData,
-				[selectedLevel]: [
-					...(editJsonData[selectedLevel] || []),
-					{
-						name: selectedSkill.name,
-						color: selectedSkill.color,
-					},
-				],
-			}
+		const skillName = selectedSkill.name.trim()
+		const currentSkillsData = getCurrentSkillsData()
 
-			console.log('➕ Adding skill:', {
-				skill: selectedSkill.name,
-				level: selectedLevel,
-				updatedSkills
-			})
+		// Check for duplicates
+		const isDuplicate = Object.values(currentSkillsData).some(
+			levelSkills =>
+				Array.isArray(levelSkills) &&
+				levelSkills.some(
+					skill => skill.name?.toLowerCase() === skillName.toLowerCase()
+				)
+		)
 
-			setEditJsonData(updatedSkills)
-			updateParentEditData(updatedSkills) // ✅ TO'G'IRLANGAN
+		if (isDuplicate) {
+			alert(`Skill "${skillName}" already exists!`)
+			return
+		}
 
-			// Reset selection
+		// Create updated skills object
+		const updatedSkills = {
+			...currentSkillsData,
+			[selectedLevel]: [
+				...(currentSkillsData[selectedLevel] || []),
+				{
+					name: skillName,
+					color: selectedSkill.color || '#5627DB',
+				},
+			],
+		}
+
+
+		// Update the data
+		try {
+			updateEditData(keyName, updatedSkills, parentKey)
+
+			// Reset form
 			setSelectedSkill(null)
 			setSelectedLevel('初級')
+
+		} catch (error) {
 		}
 	}
 
 	const handleDeleteSkill = (skillToDelete, level) => {
+
+		const currentSkillsData = getCurrentSkillsData()
 		const updatedSkills = {
-			...editJsonData,
-			[level]: editJsonData[level].filter(
+			...currentSkillsData,
+			[level]: (currentSkillsData[level] || []).filter(
 				skill => skill.name !== skillToDelete.name
 			),
 		}
 
-		console.log('🗑️ Deleting skill:', {
-			skill: skillToDelete.name,
-			level,
-			updatedSkills
-		})
 
-		setEditJsonData(updatedSkills)
-		updateParentEditData(updatedSkills) // ✅ TO'G'IRLANGAN
+		try {
+			updateEditData(keyName, updatedSkills, parentKey)
+		} catch (error) {
+		}
 	}
 
-	// ✅ TO'G'IRLANGAN: editMode'da editJsonData, aks holda jsonData
-	const displayData = editMode ? editJsonData : jsonData
-
-	console.log('🎯 SkillSelector render:', {
-		keyName,
-		editMode,
-		displayData,
-		jsonData,
-		editJsonData
-	})
+	const skillsToDisplay = getCurrentSkillsData()
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.title}>{title}</div>
-			<div className={styles.description}>
-				{showHeaders &&
-					Object.entries(headers).map(([level, description]) => (
+		<div className={styles.container} style={{
+			backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
+			border: isChanged ? '2px solid #ffc107' : '1px solid #f0f0f0',
+			borderRadius: isChanged ? '8px' : '12px',
+			padding: isChanged ? '28px' : '20px',
+			position: 'relative',
+		}}>
+			{isChanged && (
+				<div style={{
+					position: 'absolute',
+					top: -10,
+					right: 10,
+					backgroundColor: '#ffc107',
+					color: '#fff',
+					padding: '2px 8px',
+					borderRadius: '4px',
+					fontSize: '12px',
+					fontWeight: 'bold',
+				}}>
+					変更あり
+				</div>
+			)}
+			<div
+				className={styles.title}
+				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
+			>
+				{icon}
+				{title}
+			</div>
+
+			{showHeaders && (
+				<div className={styles.description}>
+					{Object.entries(headers).map(([level, description]) => (
 						<div key={level}>
 							<span style={{ fontWeight: 800 }}>{t('levels')[level]}</span>:{' '}
 							{description}
 						</div>
 					))}
-			</div>
-			<hr />
+				</div>
+			)}
+
 			{editMode && (
-				<Box display='flex' alignItems='center' mb={2} mt={2}>
+				<Box
+					display='flex'
+					alignItems='center'
+					mb={2}
+					mt={2}
+					gap={2}
+					className={styles.addSkillForm}
+				>
 					{showAutocomplete ? (
 						<Autocomplete
-							options={skills}
-							getOptionLabel={option => option.name}
+							options={getSkillsForAutocomplete()}
+							getOptionLabel={option => option.name || ''}
 							value={selectedSkill}
-							onChange={(event, newValue) => setSelectedSkill(newValue)}
-							sx={{ width: 160 }}
+							onChange={(event, newValue) => {
+								setSelectedSkill(newValue)
+							}}
+							onInputChange={(event, newInputValue) => {
+								// Search skills when user types
+								if (newInputValue && newInputValue.length > 0) {
+									fetchSkillsFromDatabase(newInputValue)
+								}
+							}}
+							loading={loadingSkills}
+							sx={{ width: 200 }}
 							renderInput={params => (
 								<TextField
 									{...params}
-									label='Select Skill'
+									label={t('selectSkill')}
 									variant='outlined'
+									size='small'
 								/>
 							)}
 						/>
 					) : (
 						<TextField
 							value={selectedSkill?.name || ''}
-							onChange={event => setSelectedSkill({
-								name: event.target.value,
-								color: '#2196f3' // Default color
-							})}
-							label='Skill'
+							onChange={event => {
+								setSelectedSkill({ name: event.target.value })
+							}}
+							onKeyPress={event => {
+								if (event.key === 'Enter') {
+									event.preventDefault()
+									handleAddSkill()
+								}
+							}}
+							label={t('skill')}
 							variant='outlined'
-							sx={{ width: 120 }}
+							size='small'
+							sx={{ width: 200 }}
 						/>
 					)}
-					<FormControl variant='outlined' size='small' sx={{ ml: 2 }}>
-						<InputLabel>Level</InputLabel>
+
+					<FormControl variant='outlined' size='small' sx={{ width: 150 }}>
+						<InputLabel>{t('level')}</InputLabel>
 						<Select
 							value={selectedLevel}
-							onChange={event => setSelectedLevel(event.target.value)}
+							onChange={event => {
+								setSelectedLevel(event.target.value)
+							}}
 							label='Level'
-							sx={{ width: 120 }}
 						>
-							{Object.keys(headers).map(key => (
+							{Object.keys(headers || {}).map(key => (
 								<MenuItem key={key} value={key}>
 									{t('levels')[key]}
 								</MenuItem>
 							))}
 						</Select>
 					</FormControl>
-					<IconButton onClick={handleAddSkill} color='primary' sx={{ ml: 2 }}>
+
+					<IconButton
+						onClick={handleAddSkill}
+						color='primary'
+						disabled={!selectedSkill?.name?.trim() || !selectedLevel}
+						sx={{
+							backgroundColor: '#5627DB',
+							color: 'white',
+							'&:hover': { backgroundColor: '#4520A6' },
+							'&:disabled': { backgroundColor: '#cccccc', color: '#666666' },
+						}}
+					>
 						<AddIcon />
 					</IconButton>
 				</Box>
 			)}
+
 			<div className={styles.data}>
 				<table>
 					<tbody>
-					{Object.entries(displayData || {}).map(([level, skillsArray]) => (
-						<tr key={level}>
-							<td style={{ textAlign: 'right' }}>{t('levels')[level]}:</td>
-							<td>
-								{(skillsArray || []).map((skill, index) => (
-									<Chip
-										key={`${level}-${index}-${skill.name}`}
-										label={
-											skill.name + '\n' + (skill.date ? skill.date : '')
-										}
-										variant='outlined'
-										style={
-											skill.date
-												? {
-													borderColor: skill.color,
-													color: skill.color,
-													margin: '0 4px 4px 0',
-													backgroundColor: skill.color + '16',
-													padding: '8px 4px',
-													height: 'auto',
-												}
-												: {
-													borderColor: skill.color,
-													color: skill.color,
-													margin: '0 4px 4px 0',
-													backgroundColor: skill.color + '16',
-												}
-										}
-										sx={{
-											'& .MuiChip-label': {
-												display: 'block',
-												whiteSpace: 'pre-wrap',
-											},
+						{Object.entries(skillsToDisplay)
+							.filter(
+								([, skills]) =>
+									skills && Array.isArray(skills) && skills.length > 0
+							)
+							.map(([level, skills]) => (
+								<tr key={level}>
+									<td
+										style={{
+											fontSize: 14,
+											width: '120px',
+											verticalAlign: 'top',
+											paddingRight: '12px',
 										}}
-										onDelete={
-											editMode
-												? () => handleDeleteSkill(skill, level)
-												: undefined
-										}
-									/>
-								))}
-							</td>
-						</tr>
-					))}
+									>
+										{t('levels')[level] || level}
+									</td>
+									<td style={{ width: 'auto' }}>
+										<div className={styles.skillChipContainer}>
+											{skills.map((skill, index) => (
+												<Chip
+													key={`${level}-${index}-${skill.name}`}
+													label={
+														skill.name + (skill.date ? `\n${skill.date}` : '')
+													}
+													variant='filled'
+													style={{
+														color: skill.date
+															? skill.color
+															: level === '上級'
+																? '#ffffff'
+																: level === '中級'
+																	? '#FFFFFF'
+																	: '#5627db',
+														backgroundColor: skill.date
+															? skill.color + '16'
+															: level === '上級'
+																? '#5627DB'
+																: level === '中級'
+																	? '#7852e2'
+																	: '#efeafc',
+														fontWeight: 500,
+														fontSize: 13,
+														borderRadius: '16px',
+													}}
+													sx={{
+														height: 'auto',
+														'& .MuiChip-label': {
+															display: 'block',
+															whiteSpace: 'pre-wrap',
+															padding: '6px 12px',
+														},
+													}}
+													onDelete={
+														editMode
+															? () => handleDeleteSkill(skill, level)
+															: undefined
+													}
+												/>
+											))}
+										</div>
+									</td>
+								</tr>
+							))}
+						{Object.keys(skillsToDisplay).length === 0 && (
+							<tr>
+								<td
+									colSpan='2'
+									style={{
+										textAlign: 'center',
+										padding: '20px',
+										color: '#999',
+									}}
+								>
+									{editMode
+										? 'No skills added yet. Use the form above to add skills.'
+										: 'No skills available.'}
+								</td>
+							</tr>
+						)}
 					</tbody>
 				</table>
 			</div>
 		</div>
 	)
+}
+
+SkillSelector.propTypes = {
+	title: PropTypes.string.isRequired,
+	data: PropTypes.object,
+	editData: PropTypes.object,
+	editMode: PropTypes.bool,
+	headers: PropTypes.object,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string.isRequired,
+	parentKey: PropTypes.string,
+	showAutocomplete: PropTypes.bool,
+	showHeaders: PropTypes.bool,
+	icon: PropTypes.node,
 }
 
 export default SkillSelector

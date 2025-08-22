@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { TextField as MuiTextField, IconButton, Box } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
+import PropTypes from 'prop-types'
 import styles from './QATextField.module.css'
 
 const QATextField = ({
@@ -89,6 +90,17 @@ const QATextField = ({
 			</div>
 		</div>
 	)
+}
+
+QATextField.propTypes = {
+	category: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+	question: PropTypes.string,
+	keyName: PropTypes.string.isRequired,
+	editData: PropTypes.object.isRequired,
+	updateEditData: PropTypes.func.isRequired,
+	DeleteQA: PropTypes.func.isRequired,
+	aEdit: PropTypes.bool,
+	qEdit: PropTypes.bool,
 }
 
 export default QATextField

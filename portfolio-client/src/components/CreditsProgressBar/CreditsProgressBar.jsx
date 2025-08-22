@@ -1,98 +1,335 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import axios from 'axios'
+import PropTypes from 'prop-types'
 import styles from './CreditsProgressBar.module.css'
 
-const CreditsProgressBar = ({ breakpoints, unit, credits, semester }) => {
-	let color = 'red'
-	if (credits > 124) {
-		color = 'blue'
-	} else if ((124 / 9) * Number(semester) < credits) {
-		color = 'green'
-	}
-	let totalPoints =
-		breakpoints[breakpoints.length - 1].point > credits
-			? breakpoints[breakpoints.length - 1].point
-			: credits
-	if (totalPoints < credits) {
-		totalPoints = credits
-	}
-	const creditPercentage = (credits / totalPoints) * 100
+const CreditsProgressBar = ({ studentId, student, credit_details }) => {
+	const [creditDetails, setCreditDetails] = useState([])
+	const [loading, setLoading] = useState(false)
 
-	const graphContainerRef = useRef(null)
+	// Calculate completed credits
+	const completedCredits = student?.totalCredits || 0
+
+	// Target credits depends on university type
+	// JDU and University of World Languages: 76 credits
+	// Other universities (partner universities): 124 credits
+	const getTargetCredits = () => {
+
+		// Check if this is JDU or University of World Languages
+		if (
+			student?.university === 'JDU' ||
+			student?.university === 'University of World Languages'
+		) {
+			return 76
+		}
+
+		// For all other universities (partner universities), use 124
+		return 124
+	}
+
+	const targetCredits = getTargetCredits()
+
+	// Create breakpoints based on target credits
+	const breakpoints = [
+		{ point: Math.round(targetCredits * 0.25), label: '1年' },
+		{ point: Math.round(targetCredits * 0.5), label: '2年' },
+		{ point: Math.round(targetCredits * 0.75), label: '3年' },
+		{ point: targetCredits, label: '卒業' },
+	]
+
+	// Progress calculation
+	const creditPercentage = Math.min(
+		(completedCredits / targetCredits) * 100,
+		100
+	)
+
+	// Fetch credit details from backend
+	const fetchCreditDetails = useCallback(async () => {
+		if (!studentId) return
+
+		setLoading(true)
+		// Clear old data before fetching new data
+		setCreditDetails([])
+
+		try {
+			const apiUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/students/${studentId}/credit-details`
+
+			const response = await axios.get(apiUrl, {
+				withCredentials: true,
+			})
+
+			const data = response.data.data
+
+			// Set credit details from Kintone
+			if (data && Array.isArray(data.creditDetails)) {
+				setCreditDetails(data.creditDetails)
+			} else {
+				setCreditDetails([])
+			}
+
+			// Update student total credits from Kintone data
+			if (data && data.totalCredits !== undefined) {
+			}
+		} catch (error) {
+			// Show demo data that matches the Kintone structure
+			// const demoKintoneData = [
+			// 	{
+			// 		recordId: '14',
+			// 		番号: '14',
+			// 		科目名: 'モチベーションアップ',
+			// 		評価: 'S',
+			// 		単位数: 2,
+			// 		取得日: '2024-07-03',
+			// 		subjectId: 'sanno-009',
+			// 		subjectCategory: '専門教育',
+			// 		score: '',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '13',
+			// 		番号: '13',
+			// 		科目名: 'ビジネス対話の技術',
+			// 		評価: 'C',
+			// 		単位数: 2,
+			// 		取得日: '2024-07-17',
+			// 		subjectId: 'sanno-005',
+			// 		subjectCategory: '専門教育',
+			// 		score: '60',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '12',
+			// 		番号: '12',
+			// 		科目名: '問題発見・解決力を伸ばす',
+			// 		評価: 'B',
+			// 		単位数: 2,
+			// 		取得日: '2025-07-01',
+			// 		subjectId: 'sanno-002',
+			// 		subjectCategory: '専門教育',
+			// 		score: '',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '9',
+			// 		番号: '9',
+			// 		科目名: 'アサーション（コミュニケーション技法）',
+			// 		評価: 'A',
+			// 		単位数: 2,
+			// 		取得日: '2025-06-10',
+			// 		subjectId: 'sanno-035',
+			// 		subjectCategory: '専門教育',
+			// 		score: '90',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// 	{
+			// 		recordId: '8',
+			// 		番号: '8',
+			// 		科目名: 'GAFA next stage',
+			// 		評価: 'B',
+			// 		単位数: 2,
+			// 		取得日: '2025-06-23',
+			// 		subjectId: 'sanno-033',
+			// 		subjectCategory: '専門教育',
+			// 		score: '',
+			// 		gradeSubjectGroup: '自由が丘産能短期大学',
+			// 		gradeUniverGroup: '大学資格',
+			// 	},
+			// ]
+			// setCreditDetails(demoKintoneData)
+		} finally {
+			setLoading(false)
+		}
+	}, [studentId])
 
 	useEffect(() => {
-		const graphContainer = graphContainerRef.current
-		const checkScrollable = () => {
-			if (graphContainer.scrollWidth > graphContainer.clientWidth) {
-				graphContainer.classList.add(styles.scrollable)
-			} else {
-				graphContainer.classList.remove(styles.scrollable)
-			}
+		if (
+			credit_details &&
+			Array.isArray(credit_details) &&
+			credit_details.length > 0
+		) {
+			setCreditDetails(credit_details)
+			setLoading(false)
+		} else if (studentId) {
+			// Otherwise, fetch from API if studentId is available
+			// Always fetch fresh data when studentId changes
+			fetchCreditDetails()
+		} else {
+			// No data available
+			setCreditDetails([])
+			setLoading(false)
 		}
+	}, [studentId]) // Remove fetchCreditDetails from dependencies to prevent infinite loops
 
-		checkScrollable()
-		window.addEventListener('resize', checkScrollable)
-
-		return () => {
-			window.removeEventListener('resize', checkScrollable)
+	// Grade badge styling
+	const getGradeBadgeClass = grade => {
+		switch (grade) {
+			case 'S':
+				return styles.gradeS
+			case 'A':
+				return styles.gradeA
+			case 'B':
+				return styles.gradeB
+			case 'C':
+				return styles.gradeC
+			case 'D':
+				return styles.gradeD
+			case 'F':
+				return styles.gradeF
+			default:
+				return styles.gradeDefault
 		}
-	}, [])
+	}
 
 	return (
-		<div className={styles.graphContainer} ref={graphContainerRef}>
-			<svg width='100%' height='120' style={{ overflow: 'visible' }}>
-				{/* Base line */}
-				<line x1='0' y1='60' x2='100%' y2='60' stroke='#000' strokeWidth='2' />
+		<div className={styles.container}>
+			{/* Show error message if neither studentId nor credit_details are available */}
+			{!studentId &&
+			(!credit_details ||
+				!Array.isArray(credit_details) ||
+				credit_details.length === 0) ? (
+				<div className={styles.noData}>Student ID is required</div>
+			) : (
+				<>
+					{/* Progress Bar */}
+					<div className={styles.progressContainer}>
+						<div className={styles.topLabels}>
+							<span className={styles.startLabel}>入学</span>
+							<span className={styles.endLabel}>卒業</span>
+						</div>
 
-				{/* Breakpoints */}
-				{breakpoints.map((breakpoint, index) => {
-					const x = `${(breakpoint.point / totalPoints) * 100}%`
-					if (breakpoint.point <= 124) {
-						return (
-							<g key={index}>
-								<line
-									x1={x}
-									y1='50'
-									x2={x}
-									y2='70'
-									stroke='#000'
-									strokeWidth='2'
-								/>
-								<text x={x} y='40' textAnchor='middle' fontSize='12'>
-									{breakpoint.label}
-								</text>
-								<text x={x} y='90' textAnchor='middle' fontSize='12'>
-									{breakpoint.point}
-									{unit}
-								</text>
-							</g>
-						)
-					} else {
-					}
-				})}
+						<div className={styles.progressBar}>
+							<div className={styles.progressLine}></div>
+							<div
+								className={styles.activeProgressLine}
+								style={{ width: `${creditPercentage}%` }}
+							></div>
 
-				{/* Credit Indicator */}
-				<g>
-					<line
-						x1={`${creditPercentage}%`}
-						y1='55'
-						x2={`${creditPercentage}%`}
-						y2='130'
-						stroke={color}
-						strokeWidth='2'
-					/>
-					<text
-						x={`${creditPercentage}%`}
-						y='150'
-						textAnchor='middle'
-						fontSize='12'
-						fill={color}
-					>
-						学生単位数: {credits}
-					</text>
-				</g>
-			</svg>
+							{Array.isArray(breakpoints) &&
+								breakpoints.map((breakpoint, index) => {
+									const leftPosition = (breakpoint.point / targetCredits) * 100
+									const isCompleted = completedCredits >= breakpoint.point
+
+									return (
+										<div
+											key={index}
+											className={`${styles.breakpoint} ${isCompleted ? styles.completed : ''}`}
+											style={{ left: `${leftPosition}%` }}
+										>
+											<div className={styles.circle}>
+												{isCompleted && (
+													<svg
+														width='16'
+														height='16'
+														viewBox='0 0 16 16'
+														fill='none'
+													>
+														<path
+															d='M13.5 4.5L6 12L2.5 8.5'
+															stroke='white'
+															strokeWidth='2'
+															strokeLinecap='round'
+															strokeLinejoin='round'
+														/>
+													</svg>
+												)}
+											</div>
+											<div className={styles.creditLabel}>
+												{breakpoint.point}単位
+											</div>
+										</div>
+									)
+								})}
+
+							<div
+								className={styles.currentIndicator}
+								style={{ left: `${creditPercentage}%` }}
+							>
+								<div className={styles.currentCircle}></div>
+							</div>
+						</div>
+					</div>
+
+					{/* Credit Details Table */}
+					<div className={styles.tableContainer}>
+						<h3 className={styles.tableTitle}>取得単位詳細</h3>
+						{loading ? (
+							<div className={styles.loading}>読み込み中...</div>
+						) : creditDetails.length > 0 ? (
+							<div className={styles.tableWrapper}>
+								<table className={styles.creditTable}>
+									<thead>
+										<tr>
+											<th>科目名</th>
+											<th>単位数</th>
+											<th>評価</th>
+											<th>点数</th>
+											<th>取得日</th>
+											<th>カテゴリ</th>
+										</tr>
+									</thead>
+									<tbody>
+										{Array.isArray(creditDetails) &&
+											creditDetails.map(detail => (
+												<tr key={detail.recordId || detail.id || Math.random()}>
+													<td className={styles.subjectName}>
+														{detail.科目名}
+													</td>
+													<td className={styles.credits}>{detail.単位数}</td>
+													<td>
+														<span
+															className={`${styles.gradeBadge} ${getGradeBadgeClass(detail.評価)}`}
+														>
+															{detail.評価}
+														</span>
+													</td>
+													<td className={styles.score}>
+														{detail.score || '-'}
+													</td>
+													<td className={styles.date}>{detail.取得日}</td>
+													<td className={styles.category}>
+														{detail.subjectCategory}
+													</td>
+												</tr>
+											))}
+									</tbody>
+								</table>
+							</div>
+						) : (
+							<div className={styles.noData}>単位データがありません</div>
+						)}
+					</div>
+				</>
+			)}
 		</div>
 	)
+}
+
+CreditsProgressBar.propTypes = {
+	studentId: PropTypes.string, // Make optional since credit_details can be passed
+	student: PropTypes.shape({
+		totalCredits: PropTypes.number,
+		semester: PropTypes.string,
+		university: PropTypes.string,
+	}),
+	credit_details: PropTypes.arrayOf(
+		PropTypes.shape({
+			recordId: PropTypes.string,
+			番号: PropTypes.string,
+			科目名: PropTypes.string,
+			評価: PropTypes.string,
+			単位数: PropTypes.number,
+			取得日: PropTypes.string,
+			subjectId: PropTypes.string,
+			subjectCategory: PropTypes.string,
+			score: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+			gradeSubjectGroup: PropTypes.string,
+			gradeUniverGroup: PropTypes.string,
+		})
+	),
 }
 
 export default CreditsProgressBar

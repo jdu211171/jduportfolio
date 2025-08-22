@@ -1,0 +1,33 @@
+.container {
+	background-color: #ffffff;
+	border: 1px solid #f0f0f0;
+	border-radius: 12px;
+	padding: 20px;
+	margin-bottom: 16px;
+	position: relative;
+}
+
+.title {
+	font-size: 16px;
+	font-weight: 600;
+	margin-bottom: 12px;
+	color: #333;
+}
+
+.addSkillForm {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.data {
+	min-height: 60px;
+}
+
+.skillChipContainer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	padding: 8px 0;
+}

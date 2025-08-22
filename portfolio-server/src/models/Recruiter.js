@@ -11,11 +11,11 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			Recruiter.hasMany(models.News, {
-			foreignKey: 'authorId',
-			constraints: false,
-			scope: { authorType: 'Recruiter' },
-			as: 'authorRecruiter'
-    });
+				foreignKey: 'authorId',
+				constraints: false,
+				scope: { authorType: 'Recruiter' },
+				as: 'authorRecruiter',
+			})
 		}
 	}
 
@@ -53,6 +53,14 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
 				allowNull: true,
 			},
+			first_name_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			last_name_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
 			first_name: {
 				type: DataTypes.STRING,
 				allowNull: false,
@@ -73,6 +81,59 @@ module.exports = (sequelize, DataTypes) => {
 			kintone_id: {
 				type: DataTypes.STRING,
 				allowNull: false,
+			},
+			company_Address: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			established_Date: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			employee_Count: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			business_overview: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			target_audience: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			required_skills: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			welcome_skills: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			work_location: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			work_hours: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			salary: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			benefits: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			selection_process: {
+				type: DataTypes.TEXT,
+				allowNull: true,
+			},
+			company_video_url: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: [],
 			},
 		},
 		{

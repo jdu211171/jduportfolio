@@ -47,6 +47,14 @@ module.exports = sequelize => {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
+			first_name_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			last_name_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
 			department: {
 				type: DataTypes.STRING,
 				allowNull: false,
