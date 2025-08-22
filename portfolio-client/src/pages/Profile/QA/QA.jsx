@@ -169,6 +169,10 @@ const QA = ({
 		message: '',
 	})
 
+	// Reviewer view: allow a single arrow to toggle all
+	const isReviewer = ['Admin', 'Staff', 'Recruiter'].includes(role) && !!id
+	const [allExpanded, setAllExpanded] = useState(true)
+
 	// Debug logging to track state changes
 
 	// Check submit button visibility condition
@@ -872,13 +876,21 @@ const QA = ({
 			>
 				{!editMode &&
 					Object.entries(getCategoryData(subTabIndex)).map(
-						([key, { question, answer }]) =>
+						([key, { question, answer }], idx) =>
 							!(question.split(']')[0] == '[任意]' && !answer) && (
 								<QAAccordion
 									key={key}
 									question={question}
 									answer={answer ? answer : '回答なし'}
 									notExpand={id ? false : true}
+									// Reviewer experience: only first arrow, toggles all
+									expanded={isReviewer ? allExpanded : undefined}
+									showExpandIcon={isReviewer ? idx === 0 : true}
+									onToggle={
+										isReviewer && idx === 0
+											? () => setAllExpanded(prev => !prev)
+											: undefined
+									}
 								/>
 							)
 					)}

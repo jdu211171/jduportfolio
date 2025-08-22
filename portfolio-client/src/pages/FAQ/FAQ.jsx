@@ -27,6 +27,7 @@ const FAQ = () => {
 	const [settings, setSettings] = useState({})
 	const [editMode, setEditMode] = useState(false)
 	const [role, setRole] = useState(null)
+	const [allExpanded, setAllExpanded] = useState(true) // default open on load
 
 	const showAlert = useAlert()
 
@@ -194,13 +195,20 @@ const FAQ = () => {
 				{/* View Mode */}
 				{!editMode && (
 					<Box className={FAQstyle.faqList}>
-						{Object.entries(editData).map(([key, { question, answer }]) => (
-							<QAAccordion
-								key={key}
-								question={question}
-								answer={answer ? answer : '回答なし'}
-							/>
-						))}
+						{Object.entries(editData).map(
+							([key, { question, answer }], index) => (
+								<QAAccordion
+									key={key}
+									question={question}
+									answer={answer ? answer : '回答なし'}
+									expanded={allExpanded}
+									showExpandIcon={index === 0}
+									onToggle={
+										index === 0 ? () => setAllExpanded(prev => !prev) : undefined
+									}
+								/>
+							)
+						)}
 					</Box>
 				)}
 			</Box>

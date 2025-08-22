@@ -17,14 +17,26 @@ const StyledAccordionSummary = styled(AccordionSummary)(() => ({
 	},
 }))
 
-const QAAccordion = ({ question, answer, notExpand = false }) => {
-	const [expandable, setExpandable] = useState(notExpand)
+const QAAccordion = ({
+	question,
+	answer,
+	notExpand = false,
+	expanded, // optional controlled expanded state
+	onToggle, // optional toggle handler (for controlled mode)
+	showExpandIcon = true, // controls visibility of expand icon and click behavior
+}) => {
+	// Local state for uncontrolled usage
+	const [localExpanded, setLocalExpanded] = useState(false)
+
+	const isControlled = typeof expanded === 'boolean'
+	const isExpanded = isControlled ? expanded : localExpanded
+
 	return (
 		<div>
 			<Accordion
 				TransitionProps={{ timeout: 500 }}
 				className={styles.accordion}
-				expanded={expandable}
+				expanded={notExpand ? false : isExpanded}
 				style={notExpand ? {} : { marginBottom: '10px' }}
 				sx={{
 					transition: 'all 0.3s ease',
@@ -41,13 +53,19 @@ const QAAccordion = ({ question, answer, notExpand = false }) => {
 						alignItems: 'center',
 						justifyContent: 'left',
 					}}
-					expandIcon={!notExpand && <KeyboardArrowDownIcon />}
+					expandIcon={!notExpand && showExpandIcon && <KeyboardArrowDownIcon />}
 					aria-controls='panel2-content'
 					id='panel2-header'
 					onClick={e => {
-						if (notExpand) e.stopPropagation()
-						else {
-							setExpandable(!expandable)
+						// If expansion is disabled or icon is hidden, prevent toggling
+						if (notExpand || !showExpandIcon) {
+							e.stopPropagation()
+							return
+						}
+						if (typeof onToggle === 'function') {
+							onToggle()
+						} else if (!isControlled) {
+							setLocalExpanded(prev => !prev)
 						}
 					}}
 				>
@@ -81,6 +99,9 @@ QAAccordion.propTypes = {
 	question: PropTypes.string.isRequired,
 	answer: PropTypes.string.isRequired,
 	notExpand: PropTypes.bool,
+	expanded: PropTypes.bool,
+	onToggle: PropTypes.func,
+	showExpandIcon: PropTypes.bool,
 }
 
 export default QAAccordion
