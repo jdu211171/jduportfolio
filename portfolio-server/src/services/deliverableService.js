@@ -53,7 +53,12 @@ class DeliverableService {
 			image_urls: imageUrls,
 		}
 
-		// >>> ASOSIY O'ZGARISH: Endi `upsertDraft` o'rniga yordamchi funksiyadan foydalanamiz <<<
+		if (typeof newDeliverable.role === 'string') {
+			newDeliverable.role = newDeliverable.role
+				.split(',')
+				.map(r => r.trim())
+				.filter(r => r)
+		}
 		const draft = await _getOrCreateDraft(studentId)
 
 		const currentDeliverables = draft.profile_data.deliverables || []
@@ -79,6 +84,13 @@ class DeliverableService {
 		const deliverableIndex = deliverables.findIndex(d => d.id == deliverableId)
 		if (deliverableIndex === -1) {
 			throw { status: 404, message: 'Bu IDga ega ish namunasi topilmadi.' }
+		}
+
+		if (updateData.role && typeof updateData.role === 'string') {
+			updateData.role = updateData.role
+				.split(',')
+				.map(r => r.trim())
+				.filter(r => r)
 		}
 
 		const deliverableToUpdate = deliverables[deliverableIndex]
