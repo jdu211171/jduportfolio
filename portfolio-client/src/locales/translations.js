@@ -211,6 +211,7 @@ const translations = {
 		images: 'images',
 		view: 'View',
 		openLink: 'Open Link',
+		openCodeLink: 'Open Code Link',
 		allImages: 'All Images',
 		confirmDelete: 'Are you sure you want to delete this deliverable?',
 		levels: {
@@ -644,6 +645,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		images: '画像',
 		view: '表示',
 		openLink: 'リンクを開く',
+		openCodeLink: 'コードリンクを開く',
 		allImages: 'すべての画像',
 		confirmDelete: 'この成果物を削除してもよろしいですか？',
 		上級: '上級',
@@ -1081,6 +1083,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		images: 'rasmlar',
 		view: "Ko'rish",
 		openLink: 'Havolani ochish',
+		openCodeLink: "Kodini ko'rish",
 		allImages: 'Barcha rasmlar',
 		confirmDelete: "Bu mahsulotni o'chirishga ishonchingiz komilmi?",
 		上級: "Ilg'or",

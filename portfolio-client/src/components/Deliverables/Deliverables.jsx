@@ -32,6 +32,7 @@ import {
 	ZoomIn as ZoomInIcon,
 	NavigateBefore as NavigateBeforeIcon,
 	NavigateNext as NavigateNextIcon,
+	Code as CodeIcon
 } from '@mui/icons-material'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useAlert } from '../../contexts/AlertContext'
@@ -73,6 +74,8 @@ const Deliverables = ({
 		title: '',
 		description: '',
 		link: '',
+		codeLink: '',
+		role: '',
 		files: [],
 	})
 	const [selectedFiles, setSelectedFiles] = useState([])
@@ -149,6 +152,8 @@ const Deliverables = ({
 			title: '',
 			description: '',
 			link: '',
+			codeLink: '',
+			role: '',
 			files: [],
 		})
 		setSelectedFiles([])
@@ -187,6 +192,8 @@ const Deliverables = ({
 			formDataToSend.append('title', formData.title)
 			formDataToSend.append('description', formData.description)
 			formDataToSend.append('link', formData.link)
+			formDataToSend.append('codeLink', formData.codeLink)
+			formDataToSend.append('role', formData.role)
 
 			selectedFiles.forEach(file => {
 				formDataToSend.append('files', file)
@@ -234,6 +241,10 @@ const Deliverables = ({
 		try {
 			const formDataToSend = new FormData()
 			formDataToSend.append('title', formData.title)
+			formDataToSend.append('description', formData.description)
+			formDataToSend.append('link', formData.link)
+			formDataToSend.append('codeLink', formData.codeLink)
+			formDataToSend.append('role', formData.role)
 
 			if (selectedFiles.length > 0) {
 				selectedFiles.forEach(file => {
@@ -338,6 +349,10 @@ const Deliverables = ({
 			title: selectedDeliverable.title || '',
 			description: selectedDeliverable.description || '',
 			link: selectedDeliverable.link || '',
+			codeLink: selectedDeliverable.codeLink || '',
+			role: Array.isArray(selectedDeliverable.role) 
+				? selectedDeliverable.role.join(', ') 
+				: selectedDeliverable.role || '',
 			files: [],
 		})
 		setEditDialogOpen(true)
@@ -409,7 +424,15 @@ const Deliverables = ({
 					const images = deliverable.image_urls || deliverable.files || []
 					return (
 						<Grid item xs={12} sm={6} md={4} key={deliverable.id || index}>
-							<Card className={styles.deliverableCard} elevation={2}>
+							<Card 
+								className={styles.deliverableCard} 
+								elevation={2}
+								sx={{ 
+									display: 'flex', 
+									flexDirection: 'column', 
+									height: '100%' 
+								}}
+							>
 								{/* Main Image */}
 								{images.length > 0 && (
 									<CardMedia
@@ -422,7 +445,12 @@ const Deliverables = ({
 									/>
 								)}
 
-								<CardContent>
+								<CardContent sx={{ 
+									display: 'flex', 
+									flexDirection: 'column', 
+									flexGrow: 1,
+									pb: 1
+								}}>
 									{/* Title and Menu */}
 									<Box
 										sx={{
@@ -449,28 +477,54 @@ const Deliverables = ({
 										)}
 									</Box>
 
-									{/* Description */}
-									{deliverable.description && (
-										<Typography
-											variant='body2'
-											className={styles.description}
-											sx={{ mb: 2 }}
-										>
-											{deliverable.description}
-										</Typography>
-									)}
+									{/* Content Container - Grows to fill space */}
+									<Box sx={{ flexGrow: 1 }}>
+										{/* Description */}
+										{deliverable.description && (
+											<Typography
+												variant='body2'
+												className={styles.description}
+												sx={{ mb: 2 }}
+											>
+												{deliverable.description}
+											</Typography>
+										)}
+										{/* Code Link */}
+										
 
-									{/* Image Count */}
-									{images.length > 1 && (
-										<Chip
-											label={`${images.length} ${t('images') || 'images'}`}
-											size='small'
-											sx={{ mb: 2 }}
-										/>
-									)}
+										{/* Role */}
+										{deliverable.role && Array.isArray(deliverable.role) && deliverable.role.length > 0 && (
+											<Box sx={{ mb: 2 }}>
+												{deliverable.role.map((item, ind) => (
+													<Chip
+														key={ind}
+														label={item.trim()}
+														size='small'
+														sx={{ mr: 0.5, mb: 0.5 }}
+														variant='outlined'
+													/>
+												))}
+											</Box>
+										)}
 
-									{/* Actions */}
-									<Box sx={{ display: 'flex', gap: 1 }}>
+										{/* Image Count */}
+										{images.length > 1 && (
+											<Chip
+												label={`${images.length} ${t('images') || 'images'}`}
+												size='small'
+												sx={{ mb: 2 }}
+											/>
+										)}
+									</Box>
+
+									{/* Actions - Always at bottom */}
+									<Box sx={{ 
+										display: 'flex', 
+										gap: 1, 
+										mt: 'auto',
+										pt: 2,
+										flexWrap: 'wrap'
+									}}>
 										{images.length > 0 && (
 											<Button
 												size='small'
@@ -487,6 +541,15 @@ const Deliverables = ({
 												onClick={() => handleOpenLink(deliverable.link)}
 											>
 												{t('openLink') || 'Open Link'}
+											</Button>
+										)}
+										{deliverable.codeLink && (
+											<Button
+												size='small'
+												startIcon={<CodeIcon />}
+												onClick={() => handleOpenLink(deliverable.codeLink)}
+											>
+												{t('openCodeLink') || 'Open Code Link'}
 											</Button>
 										)}
 									</Box>
@@ -580,6 +643,26 @@ const Deliverables = ({
 							}
 							margin='normal'
 							placeholder='https://...'
+						/>
+						<TextField
+							fullWidth
+							label={t('role') || 'Role'}
+							value={formData.role}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, role: e.target.value }))
+							}
+							margin='normal'
+							placeholder='frontend developer, designer, UI/UX'
+						/>
+						<TextField
+							fullWidth
+							label={t('codeLink') || 'Code link'}
+							value={formData.codeLink}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, codeLink: e.target.value }))
+							}
+							margin='normal'
+							placeholder='https://github.com/...'
 						/>
 
 						{/* File Upload */}
@@ -675,6 +758,47 @@ const Deliverables = ({
 							}
 							margin='normal'
 							required
+						/>
+						<TextField
+							fullWidth
+							label={t('description') || 'Description'}
+							value={formData.description}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, description: e.target.value }))
+							}
+							margin='normal'
+							multiline
+							rows={3}
+						/>
+						<TextField
+							fullWidth
+							label={t('link') || 'Link'}
+							value={formData.link}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, link: e.target.value }))
+							}
+							margin='normal'
+							placeholder='https://...'
+						/>
+						<TextField
+							fullWidth
+							label={t('role') || 'Role'}
+							value={formData.role}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, role: e.target.value }))
+							}
+							margin='normal'
+							placeholder='frontend developer, designer, UI/UX'
+						/>
+						<TextField
+							fullWidth
+							label={t('codeLink') || 'Code link'}
+							value={formData.codeLink}
+							onChange={e =>
+								setFormData(prev => ({ ...prev, codeLink: e.target.value }))
+							}
+							margin='normal'
+							placeholder='https://github.com/...'
 						/>
 
 						{/* File Upload for Edit */}
@@ -895,13 +1019,49 @@ const Deliverables = ({
 								</Typography>
 							)}
 
+							{/* Code Link */}
+							{currentDeliverable.codeLink && (
+								<Box sx={{ mt: 2 }}>
+									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
+										Code Repository:
+									</Typography>
+									<Button
+										variant='outlined'
+										startIcon={<CodeIcon />}
+										onClick={() => handleOpenLink(currentDeliverable.codeLink)}
+										size='small'
+									>
+										{t('openCodeLink') || 'Open Code Link'}
+									</Button>
+								</Box>
+							)}
+
+							{/* Role */}
+							{currentDeliverable.role && Array.isArray(currentDeliverable.role) && currentDeliverable.role.length > 0 && (
+								<Box sx={{ mt: 2 }}>
+									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
+										Role:
+									</Typography>
+									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+										{currentDeliverable.role.map((item, ind) => (
+											<Chip
+												key={ind}
+												label={item.trim()}
+												size='small'
+												variant='outlined'
+											/>
+										))}
+									</Box>
+								</Box>
+							)}
+
 							{/* Link */}
 							{currentDeliverable.link && (
 								<Button
 									variant='outlined'
 									startIcon={<LaunchIcon />}
 									onClick={() => handleOpenLink(currentDeliverable.link)}
-									sx={{ mt: 2 }}
+									sx={{ mt: 2, mr: 1 }}
 								>
 									{t('openLink') || 'Open Link'}
 								</Button>
