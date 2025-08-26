@@ -58,6 +58,9 @@ const Deliverables = ({
 	const fileInputRef = useRef(null)
 	console.log(data)
 
+	// Helpers
+	const hasNonEmpty = v => typeof v === 'string' && v.trim().length > 0
+
 	// State management
 	const [deliverables, setDeliverables] = useState([])
 	const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -534,7 +537,7 @@ const Deliverables = ({
 												{t('view') || 'View'}
 											</Button>
 										)}
-										{deliverable.link && (
+										{hasNonEmpty(deliverable.link) && (
 											<Button
 												size='small'
 												startIcon={<LaunchIcon />}
@@ -543,7 +546,7 @@ const Deliverables = ({
 												{t('openLink') || 'Open Link'}
 											</Button>
 										)}
-										{deliverable.codeLink && (
+										{hasNonEmpty(deliverable.codeLink) && (
 											<Button
 												size='small'
 												startIcon={<CodeIcon />}
@@ -1020,7 +1023,7 @@ const Deliverables = ({
 							)}
 
 							{/* Code Link */}
-							{currentDeliverable.codeLink && (
+							{hasNonEmpty(currentDeliverable.codeLink) && (
 								<Box sx={{ mt: 2 }}>
 									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
 										Code Repository:
@@ -1056,7 +1059,7 @@ const Deliverables = ({
 							)}
 
 							{/* Link */}
-							{currentDeliverable.link && (
+							{hasNonEmpty(currentDeliverable.link) && (
 								<Button
 									variant='outlined'
 									startIcon={<LaunchIcon />}

@@ -135,6 +135,31 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 				defaultValue: [],
 			},
+            // New fields
+            tagline: { type: DataTypes.STRING, allowNull: true },
+            company_website: { type: DataTypes.STRING, allowNull: true },
+            company_capital: { type: DataTypes.STRING, allowNull: true },
+            company_revenue: { type: DataTypes.STRING, allowNull: true },
+            company_representative: { type: DataTypes.STRING, allowNull: true },
+
+            job_title: { type: DataTypes.STRING, allowNull: true },
+            job_description: { type: DataTypes.TEXT, allowNull: true },
+            number_of_openings: { type: DataTypes.STRING, allowNull: true },
+            employment_type: { type: DataTypes.STRING, allowNull: true },
+            probation_period: { type: DataTypes.TEXT, allowNull: true },
+            employment_period: { type: DataTypes.TEXT, allowNull: true },
+
+            recommended_skills: { type: DataTypes.TEXT, allowNull: true },
+            recommended_licenses: { type: DataTypes.TEXT, allowNull: true },
+            recommended_other: { type: DataTypes.TEXT, allowNull: true },
+
+            salary_increase: { type: DataTypes.STRING, allowNull: true },
+            bonus: { type: DataTypes.STRING, allowNull: true },
+            allowances: { type: DataTypes.TEXT, allowNull: true },
+            holidays_vacation: { type: DataTypes.TEXT, allowNull: true },
+
+            other_notes: { type: DataTypes.TEXT, allowNull: true },
+            interview_method: { type: DataTypes.STRING, allowNull: true },
 		},
 		{
 			sequelize,
