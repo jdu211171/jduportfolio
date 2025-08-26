@@ -90,6 +90,16 @@ const safeParse = data => {
 	return []
 }
 
+// Determine if a value has meaningful content for view mode
+const hasContent = value => {
+    if (value === null || value === undefined) return false
+    if (typeof value === 'string') return value.trim().length > 0
+    if (Array.isArray(value)) return value.length > 0
+    if (typeof value === 'object') return Object.keys(value).length > 0
+    if (typeof value === 'number' || typeof value === 'boolean') return true
+    return !!value
+}
+
 // Helper function to extract YouTube video ID from URL
 const extractYouTubeId = url => {
 	if (!url) return null
@@ -309,6 +319,15 @@ const CompanyProfile = ({ userId = 0 }) => {
 		holidays_vacation: '',
 		other_notes: '',
 		interview_method: '',
+		// New fields
+		japanese_level: '',
+		application_requirements_other: '',
+		retirement_benefit: '',
+		telework_availability: '',
+		housing_availability: '',
+		relocation_support: '',
+		airport_pickup: '',
+		intro_page_thumbnail: '',
 	}
 
 	const [editData, setEditData] = useAtom(editDataAtom)
@@ -370,6 +389,16 @@ const CompanyProfile = ({ userId = 0 }) => {
 			salary: data.salary || '',
 			benefits: data.benefits || '',
 			selection_process: data.selection_process || '',
+
+			// New optional strings
+			japanese_level: data.japanese_level || '',
+			application_requirements_other: data.application_requirements_other || '',
+			retirement_benefit: data.retirement_benefit || '',
+			telework_availability: data.telework_availability || '',
+			housing_availability: data.housing_availability || '',
+			relocation_support: data.relocation_support || '',
+			airport_pickup: data.airport_pickup || '',
+			intro_page_thumbnail: data.intro_page_thumbnail || '',
 
 			// These should be strings (TEXT in database)
 			business_overview: Array.isArray(data.business_overview)
@@ -694,6 +723,15 @@ const CompanyProfile = ({ userId = 0 }) => {
 				recommended_skills: safeParse(companyData.recommended_skills),
 				recommended_licenses: safeParse(companyData.recommended_licenses),
 				recommended_other: safeParse(companyData.recommended_other),
+				// Ensure optional string fields are non-null for UI
+				japanese_level: companyData.japanese_level || '',
+				application_requirements_other: companyData.application_requirements_other || '',
+				retirement_benefit: companyData.retirement_benefit || '',
+				telework_availability: companyData.telework_availability || '',
+				housing_availability: companyData.housing_availability || '',
+				relocation_support: companyData.relocation_support || '',
+				airport_pickup: companyData.airport_pickup || '',
+				intro_page_thumbnail: companyData.intro_page_thumbnail || '',
 			}
 
 			setCompany(processedData)
@@ -995,28 +1033,24 @@ const CompanyProfile = ({ userId = 0 }) => {
 							>
 								{safeStringValue(company.company_name)}
 							</Typography>
-							{/* Header Tagline */}
-							{editMode && role === 'Recruiter' ? (
-								<CustomTextField
-									value={safeStringValue(editData.tagline)}
-									onChange={e =>
-										handleUpdateEditData('tagline', e.target.value)
-									}
-									placeholder={t.tagline}
-									fieldKey='tagline_header'
-									inputRef={createInputRef('tagline_header')}
-								/>
-							) : (
-								<Typography variant='subtitle1' className={styles.nameText}>
-									{safeStringValue(company.tagline)}
-								</Typography>
-							)}
+
 						</Box>
 						<Box className={styles.chipContainer}>
-							<Typography variant='body4' className={styles.nameText}>
-								{safeStringValue(company.first_name)}
-								{safeStringValue(company.last_name)}
-							</Typography>
+							{editMode && role === 'Recruiter'
+								? (
+									<CustomTextField
+										value={safeStringValue(editData.tagline)}
+										onChange={e => handleUpdateEditData('tagline', e.target.value)}
+										placeholder={t.tagline}
+										fieldKey='tagline_header'
+										inputRef={createInputRef('tagline_header')}
+									/>
+								)
+								: (role === 'Recruiter' || hasContent(company.tagline)) && (
+									<Typography variant='subtitle1' className={styles.nameText}>
+										{safeStringValue(company.tagline)}
+									</Typography>
+								)}
 						</Box>
 					</Box>
 					{role === 'Recruiter' && (
@@ -1073,6 +1107,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 				{/* Company Information (会社情報) */}
 				<Box className={styles.companyInfoContainer}>
 					{/* company_name */}
+					{(role === 'Recruiter' || editMode || hasContent(company.company_name)) && (
 					<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
 						<Typography variant='subtitle1' className={styles.label}>
 							{t.company_name}
@@ -1095,6 +1130,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</Box>
 					</Box>
+					)}
+					{(role === 'Recruiter' || editMode || hasContent(company.company_Address)) && (
 					<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
 						<Typography variant='subtitle1' className={styles.label}>
 							{t.company_Address}
@@ -1117,7 +1154,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</Box>
 					</Box>
+					)}
 
+					{(role === 'Recruiter' || editMode || hasContent(company.established_Date)) && (
 					<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
 						<Typography variant='subtitle1' className={styles.label}>
 							{t.established_Date}
@@ -1140,7 +1179,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</Box>
 					</Box>
+					)}
 
+					{(role === 'Recruiter' || editMode || hasContent(company.employee_Count)) && (
 					<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
 						<Typography variant='subtitle1' className={styles.label}>
 							{t.employee_Count}
@@ -1163,7 +1204,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</Box>
 					</Box>
+					)}
 					{/* New: Tagline */}
+					{(role === 'Recruiter' || editMode || hasContent(company.tagline)) && (
 					<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
 						<Typography variant='subtitle1' className={styles.label}>
 							{t.tagline || 'Tagline'}
@@ -1187,8 +1230,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</Box>
 					</Box>
+					)}
 
 					{/* New: Company Website */}
+					{(role === 'Recruiter' || editMode || hasContent(company.company_website)) && (
 					<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
 						<Typography variant='subtitle1' className={styles.label}>
 							{t.company_website}
@@ -1223,6 +1268,34 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</Box>
 					</Box>
+					)}
+
+					{/* New: Intro Page Thumbnail */}
+					{(role === 'Recruiter' || editMode || hasContent(company.intro_page_thumbnail)) && (
+					<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+						<Typography variant='subtitle1' className={styles.label}>
+							{t.intro_page_thumbnail}
+						</Typography>
+
+						<Box className={styles.value}>
+							{editMode ? (
+								<CustomTextField
+									value={safeStringValue(editData.intro_page_thumbnail)}
+									onChange={e =>
+										handleUpdateEditData('intro_page_thumbnail', e.target.value)
+									}
+									placeholder={t.intro_page_thumbnail}
+									fieldKey='intro_page_thumbnail'
+									inputRef={createInputRef('intro_page_thumbnail')}
+								/>
+							) : (
+								<Typography variant='body1'>
+									{safeStringValue(company.intro_page_thumbnail)}
+								</Typography>
+							)}
+						</Box>
+					</Box>
+					)}
 
 					{/* Company Description */}
 					<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
@@ -1537,7 +1610,11 @@ const CompanyProfile = ({ userId = 0 }) => {
 							multiline: true,
 						},
 						{ key: 'work_location', label: t.work_location, multiline: false },
-					].map(({ key, label, multiline }) => (
+						{ key: 'japanese_level', label: t.japanese_level, multiline: false },
+						{ key: 'application_requirements_other', label: t.application_requirements_other, multiline: true },
+					]
+						.filter(({ key }) => role === 'Recruiter' || (editMode && role === 'Recruiter') || hasContent(company[key]))
+						.map(({ key, label, multiline }) => (
 						<Grid item xs={12} md={6} key={key}>
 							<Typography
 								variant='subtitle1'
@@ -1918,20 +1995,26 @@ const CompanyProfile = ({ userId = 0 }) => {
 					</Grid>
 				) : (
 					<Grid container spacing={2}>
-						{[
-							{
-								label: t.recommended_skills || 'Recommended Skills',
-								items: safeArrayRender(company.recommended_skills),
-							},
-							{
-								label: t.recommended_licenses || 'Recommended Licenses',
-								items: safeArrayRender(company.recommended_licenses),
-							},
-							{
-								label: t.recommended_other || 'Other Recommendations',
-								items: safeArrayRender(company.recommended_other),
-							},
-						].map((col, idx) => (
+					{[
+						{
+							label: t.recommended_skills || 'Recommended Skills',
+							items: safeArrayRender(company.recommended_skills),
+						},
+						{
+							label: t.recommended_licenses || 'Recommended Licenses',
+							items: safeArrayRender(company.recommended_licenses),
+						},
+						{
+							label: t.recommended_other || 'Other Recommendations',
+							items: safeArrayRender(company.recommended_other),
+						},
+					]
+						// For non-recruiters, hide empty recommendation columns/items
+						.map(col => (
+							role === 'Recruiter' ? col : { ...col, items: col.items.filter(item => hasContent(item)) }
+						))
+						.filter(col => role === 'Recruiter' || col.items.length > 0)
+						.map((col, idx) => (
 							<Grid item xs={12} md={4} key={`reco-col-${idx}`}>
 								<Typography variant='subtitle1' className={styles.fieldLabel}>
 									{col.label}
@@ -1971,7 +2054,17 @@ const CompanyProfile = ({ userId = 0 }) => {
 							label: t.holidays_vacation || 'Holidays/Vacation',
 							multiline: true,
 						},
-					].map(({ key, label, multiline }) => (
+						{ key: 'salary', label: t.salary, multiline: false },
+						{ key: 'work_hours', label: t.work_hours, multiline: false },
+						{ key: 'benefits', label: t.benefits, multiline: true },
+						{ key: 'retirement_benefit', label: t.retirement_benefit, multiline: false },
+						{ key: 'telework_availability', label: t.telework_availability, multiline: false },
+						{ key: 'housing_availability', label: t.housing_availability, multiline: false },
+						{ key: 'relocation_support', label: t.relocation_support, multiline: true },
+						{ key: 'airport_pickup', label: t.airport_pickup, multiline: false },
+					]
+						.filter(({ key }) => role === 'Recruiter' || editMode || hasContent(company[key]))
+						.map(({ key, label, multiline }) => (
 						<Grid item xs={12} md={6} key={key}>
 							<Typography
 								variant='subtitle1'
@@ -1999,29 +2092,27 @@ const CompanyProfile = ({ userId = 0 }) => {
 			</ContentBox>
 
 			{/* Other (その他) */}
-			<ContentBox>
-				<SectionHeader icon={InfoIcon} title={t.other || 'その他'} />
-				<Typography
-					variant='subtitle1'
-					className={styles.fieldLabel}
-					sx={{ fontWeight: '600', mb: 1 }}
-				>
-					{t.other_notes}
-				</Typography>
-				{editMode && role === 'Recruiter' ? (
-					<CustomTextField
-						value={safeStringValue(editData.other_notes)}
-						onChange={e => handleUpdateEditData('other_notes', e.target.value)}
-						multiline
-						minRows={3}
-						placeholder={t.other_notes}
-						fieldKey='other_notes'
-						inputRef={createInputRef('other_notes')}
-					/>
-				) : (
-					<DisplayText>{safeStringValue(company.other_notes)}</DisplayText>
-				)}
-			</ContentBox>
+			{(editMode || hasContent(company.other_notes)) && (
+				<ContentBox>
+					<SectionHeader icon={InfoIcon} title={t.other || 'その他'} />
+					<Typography variant='subtitle1' className={styles.fieldLabel} sx={{ fontWeight: '600', mb: 1 }}>
+						{t.other_notes}
+					</Typography>
+					{editMode && role === 'Recruiter' ? (
+						<CustomTextField
+							value={safeStringValue(editData.other_notes)}
+							onChange={e => handleUpdateEditData('other_notes', e.target.value)}
+							multiline
+							minRows={3}
+							placeholder={t.other_notes}
+							fieldKey='other_notes'
+							inputRef={createInputRef('other_notes')}
+						/>
+					) : (
+						<DisplayText>{safeStringValue(company.other_notes)}</DisplayText>
+					)}
+				</ContentBox>
+			)}
 
 			{/* Selection Process (選考情報) */}
 			<ContentBox>
@@ -2038,7 +2129,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 							label: t.interview_method,
 							multiline: false,
 						},
-					].map(({ key, label, multiline }) => (
+					]
+						.filter(({ key }) => role === 'Recruiter' || editMode || hasContent(company[key]))
+						.map(({ key, label, multiline }) => (
 						<Grid item xs={12} md={6} key={key}>
 							<Typography
 								variant='subtitle1'

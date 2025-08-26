@@ -160,6 +160,16 @@ module.exports = (sequelize, DataTypes) => {
 
             other_notes: { type: DataTypes.TEXT, allowNull: true },
             interview_method: { type: DataTypes.STRING, allowNull: true },
+
+            // Additional fields
+            japanese_level: { type: DataTypes.STRING, allowNull: true },
+            application_requirements_other: { type: DataTypes.TEXT, allowNull: true },
+            retirement_benefit: { type: DataTypes.STRING, allowNull: true },
+            telework_availability: { type: DataTypes.STRING, allowNull: true },
+            housing_availability: { type: DataTypes.STRING, allowNull: true },
+            relocation_support: { type: DataTypes.TEXT, allowNull: true },
+            airport_pickup: { type: DataTypes.STRING, allowNull: true },
+            intro_page_thumbnail: { type: DataTypes.STRING, allowNull: true },
 		},
 		{
 			sequelize,

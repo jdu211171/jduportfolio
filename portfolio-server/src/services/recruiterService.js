@@ -36,6 +36,14 @@ class RecruiterService {
 					'company_description',
 					'phone',
 					'company_Address',
+					// New recruiter profile fields included in search
+					'tagline',
+					'company_website',
+					'company_representative',
+					'job_title',
+					'job_description',
+					'employment_type',
+					'work_location',
 				]
 
 				whereCondition[Op.or] = searchableColumns.map(column => ({
@@ -128,7 +136,11 @@ class RecruiterService {
 				'job_title','job_description','number_of_openings','employment_type','probation_period','employment_period',
 				'recommended_skills','recommended_licenses','recommended_other',
 				'salary_increase','bonus','allowances','holidays_vacation',
-				'other_notes','interview_method'
+				'other_notes','interview_method',
+				// Additional fields
+				'japanese_level','application_requirements_other','retirement_benefit',
+				'telework_availability','housing_availability','relocation_support',
+				'airport_pickup','intro_page_thumbnail'
 			]
 			
 			fields.forEach(field => {
