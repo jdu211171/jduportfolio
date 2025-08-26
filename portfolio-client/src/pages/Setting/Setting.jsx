@@ -871,6 +871,12 @@ const Setting = () => {
 												<span>O'zbek</span>
 											</Box>
 										</MenuItem>
+										<MenuItem value='ru'>
+											<Box display='flex' alignItems='center' gap={1}>
+												<span>🇷🇺</span>
+												<span>Русский</span>
+											</Box>
+										</MenuItem>
 									</Select>
 								</FormControl>
 								<Typography variant='caption' color='textSecondary' sx={{ mt: 1, display: 'block' }}>
