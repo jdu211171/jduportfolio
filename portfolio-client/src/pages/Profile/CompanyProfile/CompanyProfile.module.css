@@ -116,12 +116,15 @@
 .nameText {
 	color: #555;
 	font-size: 1.25rem;
+	width: 100%;
+	flex: 1 1 100%;
+	overflow-wrap: anywhere;
 }
 
 .mainTitle {
 	display: flex;
 	align-items: center;
-	font-size: 5rem;
+	font-size: 2.75rem !important;
 	font-weight: bold;
 }
 
@@ -144,6 +147,7 @@
 	display: flex;
 	gap: 8px;
 	flex-wrap: wrap;
+	width: 100%;
 }
 
 
@@ -153,12 +157,15 @@
 	display: flex;
 	align-items: center;
 	flex-shrink: 0;
+	align-self: flex-start;
+	/* Pin to the top of header */
 }
 
 .buttonsContainer {
 	display: flex;
 	gap: 8px;
-	margin-top: 6.0625rem;
+	margin-top: 0;
+	/* Move buttons to top */
 }
 
 .editButton {
@@ -183,7 +190,6 @@
 
 .infoRow {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
 	min-height: 60px;
 }
@@ -201,7 +207,7 @@
 }
 
 .label {
-	width: 30%;
+	width: 20%;
 	padding: 16px 32px;
 	font-weight: 500;
 	color: #333;
@@ -210,8 +216,8 @@
 }
 
 .value {
-	width: 300px;
-	margin-right: 26.875rem;
+	/* width: 300px; */
+	/* margin-right: 26.875rem; */
 	color: #555;
 	display: flex;
 	align-items: center;

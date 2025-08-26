@@ -95,11 +95,62 @@ class DeliverableService {
 
 		const deliverableToUpdate = deliverables[deliverableIndex]
 
+
+		// Normalize intent flags for image handling
+		const parseBool = v => {
+			if (typeof v === 'boolean') return v
+			if (typeof v === 'string') {
+				const s = v.trim().toLowerCase()
+				return s === 'true' || s === '1' || s === 'yes'
+			}
+			return false
+		}
+
+		const toArray = v => {
+			if (Array.isArray(v)) return v
+			if (typeof v === 'string') {
+				const s = v.trim()
+				if (!s) return []
+				if ((s.startsWith('[') && s.endsWith(']')) || s.includes(',')) {
+					try {
+						const j = JSON.parse(s)
+						if (Array.isArray(j)) return j
+					} catch (_) {
+						return s.split(',').map(x => x.trim()).filter(Boolean)
+					}
+				}
+				return [s]
+			}
+			return []
+		}
+
+		// Default to append behavior unless explicitly told to replace
+		const replaceAll = parseBool(updateData.replace_all || updateData.replaceAll || updateData.mode === 'replace')
+		const removeImageUrls = toArray(updateData.remove_image_urls || updateData.removeImageUrls)
+
+		let currentUrls = Array.isArray(deliverableToUpdate.image_urls)
+			? [...deliverableToUpdate.image_urls]
+			: []
+
+		// Remove specific images if requested
+		if (removeImageUrls.length > 0 && currentUrls.length > 0) {
+			const toRemove = new Set(removeImageUrls)
+			const remaining = []
+			for (const url of currentUrls) {
+				if (toRemove.has(url)) {
+					try { await deleteFile(url) } catch (_) {}
+				} else {
+					remaining.push(url)
+				}
+			}
+			currentUrls = remaining
+		}
+
 		if (files && files.length > 0) {
-			if (deliverableToUpdate.image_urls) {
-				await Promise.all(
-					deliverableToUpdate.image_urls.map(url => deleteFile(url))
-				)
+			// If replaceAll, clear existing and delete them; otherwise append new files
+			if (replaceAll && currentUrls.length > 0) {
+				await Promise.all(currentUrls.map(url => deleteFile(url)))
+				currentUrls = []
 			}
 			const uploadPromises = files.map(file => {
 				const uniqueFilename = generateUniqueFilename(file.originalname)
@@ -107,9 +158,18 @@ class DeliverableService {
 				return uploadFile(file.buffer, s3Path)
 			})
 			const uploadResults = await Promise.all(uploadPromises)
-			deliverableToUpdate.image_urls = uploadResults.map(
-				result => result.Location
-			)
+			const newUrls = uploadResults.map(result => result.Location)
+			const merged = [...currentUrls, ...newUrls]
+			// Deduplicate while preserving order
+			const seen = new Set()
+			deliverableToUpdate.image_urls = merged.filter(u => {
+				if (!u || seen.has(u)) return false
+				seen.add(u)
+				return true
+			})
+		} else {
+			// No new files; just persist the possibly updated currentUrls
+			deliverableToUpdate.image_urls = currentUrls
 		}
 
 		Object.assign(deliverableToUpdate, updateData)
