@@ -84,7 +84,7 @@ export const NewsForAdmin = () => {
 
 	// Delete news
 	const handleDeleteNews = async newsId => {
-		if (!window.confirm('Are you sure you want to delete this news?')) {
+		if (!window.confirm(t('confirmDeleteNews'))) {
 			return
 		}
 
@@ -314,7 +314,7 @@ export const NewsForAdmin = () => {
 						padding: '8px 16px',
 					}}
 				>
-					+新しい
+					{t('addNews')}
 				</Button>
 			</div>
 
@@ -433,10 +433,10 @@ export const NewsForAdmin = () => {
 						}}
 					>
 						<div style={{ fontSize: '18px', marginBottom: '8px' }}>
-							No news found
+							{t('noNewsFound')}
 						</div>
 						<div style={{ fontSize: '14px' }}>
-							Try adjusting your search terms
+							{t('tryAdjusting')}
 						</div>
 					</div>
 				) : (
@@ -488,7 +488,7 @@ export const NewsForAdmin = () => {
 												padding: '20px',
 											}}
 										>
-											No Image Available
+											{t('noImageAvailable')}
 										</div>
 									)}
 								</div>
@@ -724,7 +724,7 @@ export const NewsForAdmin = () => {
 							value={newNews.hashtags}
 							onChange={e => handleInputChange('hashtags', e.target.value)}
 							fullWidth
-							placeholder='e.g., technology, news, update'
+							placeholder={t('hashtagPlaceholder')}
 							required
 						/>
 						<TextField
@@ -810,7 +810,7 @@ export const NewsForAdmin = () => {
 							value={newNews.hashtags}
 							onChange={e => handleInputChange('hashtags', e.target.value)}
 							fullWidth
-							placeholder='e.g., technology, news, update'
+							placeholder={t('hashtagPlaceholder')}
 							required
 						/>
 						<TextField
@@ -837,7 +837,7 @@ export const NewsForAdmin = () => {
 							})
 						}}
 					>
-						Cancel
+						{t('cancel')}
 					</Button>
 					<Button
 						onClick={handleUpdateNews}
@@ -847,7 +847,7 @@ export const NewsForAdmin = () => {
 						{editLoading ? (
 							<CircularProgress size={20} color='inherit' />
 						) : (
-							'Update'
+							t('updateNews')
 						)}
 					</Button>
 				</DialogActions>
