@@ -16,6 +16,7 @@
 .contentBox {
 	width: 100%;
 	padding: 32px;
+	margin-top: 32px;
 	margin-bottom: 32px;
 	background-color: #fff;
 	border-radius: 12px;
@@ -150,6 +151,44 @@
 	width: 100%;
 }
 
+/* Make header Tagline full-width under company name in edit mode */
+.chipContainer :global(.MuiTextField-root),
+.chipContainer .customTextField,
+.chipContainer .customTextField :global(.MuiOutlinedInput-root) {
+	width: 100% !important;
+	box-sizing: border-box;
+}
+
+.chipContainer {
+	margin-top: 4px;
+}
+
+/* Header tagline row (label + input) */
+.taglineRow {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+}
+
+.headerInlineLabel {
+	font-weight: 600;
+	color: #000;
+	white-space: nowrap;
+}
+
+.taglineInputWrap {
+	flex: 1 1 auto;
+	width: 100%;
+}
+
+.taglineRow :global(.MuiTextField-root),
+.taglineRow .customTextField,
+.taglineRow .customTextField :global(.MuiOutlinedInput-root) {
+	width: 100% !important;
+	box-sizing: border-box;
+}
+
 
 
 /* Control Buttons */
@@ -188,14 +227,52 @@
 	overflow: hidden;
 }
 
+/* Ensure strict alternating row backgrounds regardless of conditional rendering */
+.companyInfoContainer>.infoRow:nth-child(odd) {
+	background: rgba(249, 250, 251, 1);
+}
+
+.companyInfoContainer>.infoRow:nth-child(even) {
+	background: rgba(255, 255, 255, 1);
+}
+
+/* Edit mode: make inputs full-width within right column */
+.companyInfoContainerEdit {
+	composes: companyInfoContainer;
+}
+
+.companyInfoContainerEdit .value {
+	flex: 1 1 auto;
+	width: 100%;
+	align-items: stretch;
+}
+
+.companyInfoContainerEdit .value :global(.MuiTextField-root),
+.companyInfoContainerEdit .value :global(.MuiFormControl-root) {
+	width: 100% !important;
+	box-sizing: border-box;
+}
+
+.companyInfoContainerEdit .value .customTextField,
+.companyInfoContainerEdit .value .customTextField :global(.MuiOutlinedInput-root) {
+	width: 100% !important;
+	box-sizing: border-box;
+}
+
 .infoRow {
 	display: flex;
 	align-items: center;
 	min-height: 60px;
+	padding: 5px 0px;
+
 }
+
+
 
 .infoRowOdd {
 	background: rgba(249, 250, 251, 1);
+	padding: 5px 0px;
+
 }
 
 .infoRowEven {
@@ -224,6 +301,14 @@
 	background-color: inherit;
 }
 
+/* Helper: stack multiple values vertically within a row */
+.valueColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+}
+
 /* Section Headers */
 .sectionHeader {
 	display: flex;
@@ -249,7 +334,7 @@
 
 /* Display Text Components */
 .displayText {
-	background-color: #fff;
+	/* background-color: #fff; */
 	color: #000;
 	line-height: 1.6;
 }
@@ -419,6 +504,19 @@
 
 .businessOverviewContent {
 	flex: 1;
+}
+
+/* New: Separate saved items in view mode */
+.businessOverviewItem {
+	margin-bottom: 8px;
+}
+
+/* Add padding to saved Business Overview items to match inputs */
+.businessOverviewContent .displayText {
+	padding: 10px 14px;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background-color: #fff;
 }
 
 /* Recruitment Requirements with Icon */
@@ -668,7 +766,6 @@
 .recruitmentEditColumn {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
 }
 
 /* Base styles for saved items - UPDATED */

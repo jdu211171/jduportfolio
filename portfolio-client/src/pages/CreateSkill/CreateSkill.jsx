@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import axios from '../../utils/axiosUtils'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import Tabs from '@mui/material/Tabs'

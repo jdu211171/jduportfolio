@@ -13,7 +13,7 @@ import {
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
-import axios from 'axios'
+import axios from '../../utils/axiosUtils'
 import PropTypes from 'prop-types'
 
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -35,7 +35,8 @@ const SkillSelector = ({
 }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
-	const [databaseSkills, setDatabaseSkills] = useState([])
+    const [databaseSkills, setDatabaseSkills] = useState([])
+    const [inputValue, setInputValue] = useState('')
 	const [loadingSkills, setLoadingSkills] = useState(false)
 
 	const { language } = useLanguage()
@@ -48,21 +49,21 @@ const SkillSelector = ({
 		}
 	}, [showAutocomplete])
 
-	const fetchSkillsFromDatabase = async (search = '') => {
-		try {
-			setLoadingSkills(true)
-			const url = search 
-				? `/api/itskills?search=${encodeURIComponent(search)}` 
-				: '/api/itskills'
-			const response = await axios.get(url)
-			setDatabaseSkills(response.data || [])
-		} catch (error) {
-			// Fallback to local skills if database fails
-			setDatabaseSkills([])
-		} finally {
-			setLoadingSkills(false)
-		}
-	}
+    const fetchSkillsFromDatabase = async (search = '') => {
+        try {
+            setLoadingSkills(true)
+            const url = search 
+                ? `/api/itskills?search=${encodeURIComponent(search)}` 
+                : '/api/itskills'
+            const response = await axios.get(url)
+            setDatabaseSkills(response.data || [])
+        } catch (error) {
+            // Fallback to local skills if database fails
+            setDatabaseSkills([])
+        } finally {
+            setLoadingSkills(false)
+        }
+    }
 
 	// Get skills to use in autocomplete (database skills if available, otherwise local skills)
 	const getSkillsForAutocomplete = () => {
@@ -118,16 +119,17 @@ const SkillSelector = ({
 
 
 		// Update the data
-		try {
-			updateEditData(keyName, updatedSkills, parentKey)
+        try {
+            updateEditData(keyName, updatedSkills, parentKey)
 
-			// Reset form
-			setSelectedSkill(null)
-			setSelectedLevel('初級')
+            // Reset form
+            setSelectedSkill(null)
+            setSelectedLevel('初級')
+            setInputValue('')
 
-		} catch (error) {
-		}
-	}
+        } catch (error) {
+        }
+    }
 
 	const handleDeleteSkill = (skillToDelete, level) => {
 
@@ -200,30 +202,41 @@ const SkillSelector = ({
 					className={styles.addSkillForm}
 				>
 					{showAutocomplete ? (
-						<Autocomplete
-							options={getSkillsForAutocomplete()}
-							getOptionLabel={option => option.name || ''}
-							value={selectedSkill}
-							onChange={(event, newValue) => {
-								setSelectedSkill(newValue)
-							}}
-							onInputChange={(event, newInputValue) => {
-								// Search skills when user types
-								if (newInputValue && newInputValue.length > 0) {
-									fetchSkillsFromDatabase(newInputValue)
-								}
-							}}
-							loading={loadingSkills}
-							sx={{ width: 200 }}
-							renderInput={params => (
-								<TextField
-									{...params}
-									label={t('selectSkill')}
-									variant='outlined'
-									size='small'
-								/>
-							)}
-						/>
+                    <Autocomplete
+                        options={getSkillsForAutocomplete()}
+                        getOptionLabel={option => option.name || ''}
+                        value={selectedSkill}
+                        onChange={(event, newValue) => {
+                            setSelectedSkill(newValue)
+                        }}
+                        inputValue={inputValue}
+                        onInputChange={(event, newInputValue) => {
+                            setInputValue(newInputValue || '')
+                            // Search skills when user types
+                            if (newInputValue && newInputValue.length > 0) {
+                                fetchSkillsFromDatabase(newInputValue)
+                            } else {
+                                // When cleared, reload full list
+                                fetchSkillsFromDatabase('')
+                            }
+                        }}
+                        onOpen={() => {
+                            // Ensure full list appears when opening without a search term
+                            if (!inputValue) {
+                                fetchSkillsFromDatabase('')
+                            }
+                        }}
+                        loading={loadingSkills}
+                        sx={{ width: 200 }}
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                label={t('selectSkill')}
+                                variant='outlined'
+                                size='small'
+                            />
+                        )}
+                    />
 					) : (
 						<TextField
 							value={selectedSkill?.name || ''}
