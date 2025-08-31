@@ -494,6 +494,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		filter: 'Filter',
 		clear: 'Clear',
 		apply: 'Confirm',
+		noSkills: 'No skills available.',
 	},
 	ja: {
 		tagline: '一行PR',
@@ -1027,6 +1028,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		filter: 'フィルター',
 		clear: 'クリア',
 		apply: '決定',
+		noSkills: '利用可能なスキルはありません。',
 	},
 	uz: {
 		tagline: 'Bir jumlalik PR',
@@ -1567,6 +1569,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		filter: 'Filtr',
 		clear: 'Tozalash',
 		apply: 'Tasdiqlash',
+		noSkills: 'Hech qanday ko‘nikma mavjud emas.',
 	},
 	ru: {
 		rank: 'Ранг',
@@ -2034,6 +2037,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		filter: 'Фильтр',
 		clear: 'Очистить',
 		apply: 'Применить',
+		noSkills: 'Нет доступных навыков.',
 	},
 }
 
