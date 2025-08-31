@@ -66,7 +66,6 @@ const Filter = ({
 	// IMPORTANT: Call parent immediately on mount with saved filter state
 	useEffect(() => {
 		if (isInitialMount.current) {
-
 			// Always call parent with current state (whether empty or with filters)
 			onFilterChange(localFilterState)
 			isInitialMount.current = false
@@ -567,7 +566,7 @@ const Filter = ({
 				>
 					<div className={style.filterModal} onClick={e => e.stopPropagation()}>
 						<div className={style.filterModalHeader}>
-							<h3 className={style.filterModalTitle}>フィルター</h3>
+							<h3 className={style.filterModalTitle}>{t('filter')}</h3>
 							<button
 								onClick={handleFilterModalClose}
 								className={style.filterModalCloseButton}
@@ -587,13 +586,13 @@ const Filter = ({
 								onClick={handleFilterClear}
 								className={style.filterClearButton}
 							>
-								クリア
+								{t('clear')}
 							</button>
 							<button
 								onClick={handleFilterApply}
 								className={style.filterApplyButton}
 							>
-								決定
+								{t('apply')}
 							</button>
 						</div>
 					</div>
