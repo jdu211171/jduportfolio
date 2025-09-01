@@ -153,9 +153,9 @@ const QA = ({
 	const [isFirstTime, setIsFirstTime] = useState(false)
 	const [isDataLoaded, setIsDataLoaded] = useState(false)
 	const [isSaving, setIsSaving] = useState(false)
-	const [deleteConfirmation, setDeleteConfirmation] = useState({ 
-		open: false, 
-		itemToDelete: null 
+	const [deleteConfirmation, setDeleteConfirmation] = useState({
+		open: false,
+		itemToDelete: null,
 	})
 
 	const [confirmMode, setConfirmMode] = useState(false)
@@ -188,7 +188,6 @@ const QA = ({
 	}, [currentDraft])
 
 	const fetchStudent = async () => {
-		
 		// Prevent fetching if already loaded (only for non-student roles)
 		if (isDataLoaded && role !== 'Student') return
 
@@ -198,7 +197,7 @@ const QA = ({
 			const questions = JSON.parse(questionsResponse.data.value)
 
 			let answers = null
-			
+
 			// For Top page, use provided data as answers
 			if (isFromTopPage && data && Object.keys(data).length > 0) {
 				answers = data
@@ -206,8 +205,7 @@ const QA = ({
 				// Otherwise fetch answers from API
 				try {
 					answers = (await axios.get(`/api/qa/student/${id}`)).data
-				} catch (err) {
-				}
+				} catch (err) {}
 			}
 
 			let response
@@ -215,16 +213,17 @@ const QA = ({
 				// Student view with answers
 				const combinedData = {}
 				// Check if this is first time or has idList
-				let firsttime = !answers.idList || Object.keys(answers.idList || {}).length === 0
+				let firsttime =
+					!answers.idList || Object.keys(answers.idList || {}).length === 0
 				if (firsttime) {
 					setIsFirstTime(true)
 				}
-				
+
 				// Add idList if missing (for Top page data)
 				if (!answers.idList) {
 					answers.idList = {}
 				}
-				
+
 				for (const category in questions) {
 					if (category == 'idList') {
 						combinedData[category] = answers[category] || {}
@@ -233,9 +232,10 @@ const QA = ({
 						for (const key in questions[category]) {
 							combinedData[category][key] = {
 								question: questions[category][key].question || '',
-								answer: !answers[category] || !answers[category][key]
-									? ''
-									: answers[category][key].answer || '',
+								answer:
+									!answers[category] || !answers[category][key]
+										? ''
+										: answers[category][key].answer || '',
 							}
 						}
 					}
@@ -304,13 +304,13 @@ const QA = ({
 					},
 				}
 			}
-			
+
 			// If called from Top page, update parent with the latest data
 			if (isFromTopPage && handleQAUpdate) {
 				// Use the updated data, not the stale editData
 				handleQAUpdate(updatedEditData)
 			}
-			
+
 			return updatedEditData
 		})
 	}
@@ -359,12 +359,10 @@ const QA = ({
 
 	const approveProfile = async value => {
 		try {
-
 			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
 				status: value,
 				comments: comment.comments,
 			})
-
 
 			// Update local draft status to reflect the change
 			setPassedDraft(prevDraft => ({
@@ -388,7 +386,7 @@ const QA = ({
 			const res = await axios.put(`/api/students/${id}`, {
 				visibility: visibility,
 			})
-			
+
 			// Check if response contains warning
 			if (res.data && res.data.warning && res.data.requiresStaffApproval) {
 				setWarningModal({
@@ -397,11 +395,9 @@ const QA = ({
 				})
 				return
 			}
-			
+
 			showAlert(
-				visibility 
-					? t('profileVisibilityEnabled') 
-					: t('profileHidden'), 
+				visibility ? t('profileVisibilityEnabled') : t('profileHidden'),
 				'success'
 			)
 		} catch (error) {
@@ -413,10 +409,9 @@ const QA = ({
 
 	const handleSave = async () => {
 		if (isSaving) return // Prevent multiple simultaneous saves
-		
+
 		setIsSaving(true)
 		try {
-
 			if (role == 'Admin') {
 				let questions = removeKey(editData, 'answer')
 
@@ -444,15 +439,15 @@ const QA = ({
 
 				// Update local state with server response
 				setStudentQA(res.data)
-				
+
 				// Set isFirstTime to false after successful save
 				if (isFirstTime && res.data.idList) {
 					setIsFirstTime(false)
 				}
-				
+
 				// Sync editData with the latest server data
 				const updatedEditData = { ...editData }
-				
+
 				// Update editData with the response data
 				Object.keys(res.data).forEach(category => {
 					if (category !== 'idList') {
@@ -462,7 +457,7 @@ const QA = ({
 				if (res.data.idList) {
 					updatedEditData.idList = res.data.idList
 				}
-				
+
 				setEditData(updatedEditData)
 
 				// If called from Top page, update parent component
@@ -492,12 +487,12 @@ const QA = ({
 			setEditData(studentQA)
 			setEditMode(false)
 			setTopEditMode(false)
-			
+
 			// If called from Top page, sync with parent
 			if (isFromTopPage && handleQAUpdate) {
 				handleQAUpdate(studentQA)
 			}
-			
+
 			showAlert('Changes cancelled', 'info')
 		} catch (error) {
 			// Fallback: re-fetch from server
@@ -542,17 +537,17 @@ const QA = ({
 		}
 	}
 
-	const showDeleteConfirmation = (indexToDelete) => {
+	const showDeleteConfirmation = indexToDelete => {
 		setDeleteConfirmation({
 			open: true,
-			itemToDelete: indexToDelete
+			itemToDelete: indexToDelete,
 		})
 	}
 
 	const handleDeleteConfirm = async () => {
 		const indexToDelete = deleteConfirmation.itemToDelete
 		setDeleteConfirmation({ open: false, itemToDelete: null })
-		
+
 		await handleDelete(indexToDelete)
 	}
 
@@ -562,7 +557,6 @@ const QA = ({
 
 	const handleDelete = async indexToDelete => {
 		try {
-			
 			// Optimistic update: immediately update local state
 			setEditData(prevEditData => {
 				const updatedEditData = { ...prevEditData }
@@ -591,7 +585,7 @@ const QA = ({
 			showAlert('Item deleted successfully!', 'success')
 		} catch (error) {
 			showAlert('Error deleting item. Please try again.', 'error')
-			
+
 			// Rollback optimistic update on error
 			fetchStudent()
 		}
@@ -876,23 +870,35 @@ const QA = ({
 			>
 				{!editMode &&
 					Object.entries(getCategoryData(subTabIndex)).map(
-						([key, { question, answer }], idx) =>
-							!(question.split(']')[0] == '[任意]' && !answer) && (
-								<QAAccordion
-									key={key}
-									question={question}
-									answer={answer ? answer : '回答なし'}
-									notExpand={id ? false : true}
-									// Reviewer experience: only first arrow, toggles all
-									expanded={isReviewer ? allExpanded : undefined}
-									showExpandIcon={isReviewer ? idx === 0 : true}
-									onToggle={
-										isReviewer && idx === 0
-											? () => setAllExpanded(prev => !prev)
-											: undefined
-									}
-								/>
+						([key, { question, answer }], idx) => {
+							// Hide unanswered sections for viewer roles (Admin, Staff, Recruiter)
+							const isViewerRole = ['Admin', 'Staff', 'Recruiter'].includes(
+								role
 							)
+							const shouldHideUnanswered =
+								isViewerRole && (!answer || answer.trim() === '')
+							const shouldHideOptional =
+								question.split(']')[0] == '[任意]' && !answer
+
+							return (
+								!(shouldHideUnanswered || shouldHideOptional) && (
+									<QAAccordion
+										key={key}
+										question={question}
+										answer={answer ? answer : '回答なし'}
+										notExpand={id ? false : true}
+										// Reviewer experience: only first arrow, toggles all
+										expanded={isReviewer ? allExpanded : undefined}
+										showExpandIcon={isReviewer ? idx === 0 : true}
+										onToggle={
+											isReviewer && idx === 0
+												? () => setAllExpanded(prev => !prev)
+												: undefined
+										}
+									/>
+								)
+							)
+						}
 					)}
 			</Box>
 
@@ -916,27 +922,30 @@ const QA = ({
 				onClose={toggleConfirmMode}
 				onConfirm={handleConfirmProfile}
 			/>
-			
+
 			{/* ---- DELETE CONFIRMATION DIALOG ---- */}
 			<Dialog
 				open={deleteConfirmation.open}
 				onClose={handleDeleteCancel}
-				maxWidth="sm"
+				maxWidth='sm'
 				fullWidth
 			>
-				<DialogTitle>
-					{t('confirmDelete') || 'Confirm Delete'}
-				</DialogTitle>
+				<DialogTitle>{t('confirmDelete') || 'Confirm Delete'}</DialogTitle>
 				<DialogContent>
 					<Typography>
-						{t('confirmDeleteMessage') || 'Are you sure you want to delete this Q&A item? This action cannot be undone.'}
+						{t('confirmDeleteMessage') ||
+							'Are you sure you want to delete this Q&A item? This action cannot be undone.'}
 					</Typography>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleDeleteCancel} color="primary">
+					<Button onClick={handleDeleteCancel} color='primary'>
 						{t('cancel') || 'Cancel'}
 					</Button>
-					<Button onClick={handleDeleteConfirm} color="error" variant="contained">
+					<Button
+						onClick={handleDeleteConfirm}
+						color='error'
+						variant='contained'
+					>
 						{t('delete') || 'Delete'}
 					</Button>
 				</DialogActions>
@@ -1081,24 +1090,26 @@ const QA = ({
 					)}
 				</Box>
 			)}
-			
+
 			{/* Warning Modal */}
 			<Dialog
 				open={warningModal.open}
 				onClose={() => setWarningModal({ open: false, message: '' })}
-				aria-labelledby="warning-dialog-title"
-				aria-describedby="warning-dialog-description"
+				aria-labelledby='warning-dialog-title'
+				aria-describedby='warning-dialog-description'
 			>
-				<DialogTitle id="warning-dialog-title">
-					{t('warning')}
-				</DialogTitle>
+				<DialogTitle id='warning-dialog-title'>{t('warning')}</DialogTitle>
 				<DialogContent>
-					<DialogContentText id="warning-dialog-description">
+					<DialogContentText id='warning-dialog-description'>
 						{warningModal.message}
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setWarningModal({ open: false, message: '' })} color="primary" autoFocus>
+					<Button
+						onClick={() => setWarningModal({ open: false, message: '' })}
+						color='primary'
+						autoFocus
+					>
 						{t('ok')}
 					</Button>
 				</DialogActions>
