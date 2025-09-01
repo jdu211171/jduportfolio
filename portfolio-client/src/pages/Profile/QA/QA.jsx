@@ -315,11 +315,30 @@ const QA = ({
 		})
 	}
 
-	const updateComment = (key, value) => {
-		setComment(() => ({
-			[key]: value,
-		}))
-	}
+    const updateComment = (key, value) => {
+        const next = { [key]: value }
+        setComment(next)
+        try {
+            if (id) {
+                localStorage.setItem(`qa_comment_draft_${id}`, JSON.stringify(next))
+            }
+        } catch (e) {}
+    }
+
+    // Restore saved comment draft when opening this student's QA
+    useEffect(() => {
+        try {
+            if (id) {
+                const saved = localStorage.getItem(`qa_comment_draft_${id}`)
+                if (saved) {
+                    const parsed = JSON.parse(saved)
+                    if (parsed && typeof parsed.comments === 'string') {
+                        setComment(parsed)
+                    }
+                }
+            }
+        } catch (e) {}
+    }, [id])
 
 	const toggleEditMode = () => {
 		setEditMode(prev => !prev)
@@ -357,12 +376,12 @@ const QA = ({
 		}
 	}
 
-	const approveProfile = async value => {
-		try {
-			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
-				status: value,
-				comments: comment.comments,
-			})
+    const approveProfile = async value => {
+        try {
+            const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
+                status: value,
+                comments: comment.comments,
+            })
 
 			// Update local draft status to reflect the change
 			setPassedDraft(prevDraft => ({
@@ -371,15 +390,18 @@ const QA = ({
 			}))
 			// Update parent's currentDraft state
 			updateCurrentDraft(value)
-			// Clear comment input after successful submission
-			setComment({ comments: '' })
-			showAlert(t('profileConfirmed'), 'success')
-		} catch (error) {
-			showAlert(t('errorConfirmingProfile'), 'error')
-		} finally {
-			setConfirmMode(false)
-		}
-	}
+            // Clear comment input after successful submission
+            setComment({ comments: '' })
+            try {
+                if (id) localStorage.removeItem(`qa_comment_draft_${id}`)
+            } catch (e) {}
+            showAlert(t('profileConfirmed'), 'success')
+        } catch (error) {
+            showAlert(t('errorConfirmingProfile'), 'error')
+        } finally {
+            setConfirmMode(false)
+        }
+    }
 
 	const setProfileVisible = async visibility => {
 		try {
@@ -868,38 +890,41 @@ const QA = ({
 				my={2}
 				sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
 			>
-				{!editMode &&
-					Object.entries(getCategoryData(subTabIndex)).map(
-						([key, { question, answer }], idx) => {
-							// Hide unanswered sections for viewer roles (Admin, Staff, Recruiter)
-							const isViewerRole = ['Admin', 'Staff', 'Recruiter'].includes(
-								role
-							)
-							const shouldHideUnanswered =
-								isViewerRole && (!answer || answer.trim() === '')
-							const shouldHideOptional =
-								question.split(']')[0] == '[任意]' && !answer
+				{!editMode && (() => {
+					const entries = Object.entries(getCategoryData(subTabIndex))
+					const isViewerRole = ['Admin', 'Staff', 'Recruiter'].includes(role)
+					const hasAnyAnswered = entries.some(([, { answer }]) =>
+						answer && String(answer).trim() !== ''
+					)
+					// Decide which row shows the global toggle icon for reviewers
+					const iconRowIdx = isReviewer && hasAnyAnswered ? 0 : -1
 
-							return (
-								!(shouldHideUnanswered || shouldHideOptional) && (
-									<QAAccordion
-										key={key}
-										question={question}
-										answer={answer ? answer : '回答なし'}
-										notExpand={id ? false : true}
-										// Reviewer experience: only first arrow, toggles all
-										expanded={isReviewer ? allExpanded : undefined}
-										showExpandIcon={isReviewer ? idx === 0 : true}
-										onToggle={
-											isReviewer && idx === 0
-												? () => setAllExpanded(prev => !prev)
-												: undefined
-										}
-									/>
-								)
-							)
-						}
-					)}
+					return entries.map(([key, { question, answer }], idx) => {
+						const noAnswer = !answer || String(answer).trim() === ''
+						// Disable expansion if no student id (e.g., Top page) or unanswered for viewer roles
+						const disableExpand = !id || (isViewerRole && noAnswer)
+						const isIconRow = idx === iconRowIdx
+
+						return (
+							<QAAccordion
+								key={key}
+								question={question}
+								answer={answer ? answer : ''}
+								notExpand={disableExpand}
+								expanded={isReviewer && !disableExpand ? allExpanded : undefined}
+								showExpandIcon={
+									isReviewer ? isIconRow : !disableExpand
+								}
+								allowToggleWhenNotExpand={isReviewer && isIconRow && disableExpand}
+								onToggle={
+									isReviewer && isIconRow
+										? () => setAllExpanded(prev => !prev)
+										: undefined
+								}
+							/>
+						)
+					})
+				})()}
 			</Box>
 
 			<Snackbar

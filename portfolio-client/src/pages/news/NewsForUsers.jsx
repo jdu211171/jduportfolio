@@ -58,7 +58,7 @@ export const NewsForUsers = () => {
                 color: '#7f8c8d',
                 fontSize: '18px'
             }}>
-                No news available
+                {t('noNewsAvailable')}
             </div>
         );
     }

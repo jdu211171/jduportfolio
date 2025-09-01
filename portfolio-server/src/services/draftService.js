@@ -151,14 +151,17 @@ class DraftService {
 					} else if (key === 'other_information') {
 						queryOther[key] =
 							filter[key] === '有り' ? { [Op.ne]: null } : { [Op.is]: null }
-					} else if (
-						key === 'jlpt' ||
-						key === 'ielts' ||
-						key === 'jdu_japanese_certification'
-					) {
+					} else if (key === 'jlpt' || key === 'jdu_japanese_certification') {
+						// Match only the highest level within stored JSON string
 						queryOther[Op.and].push({
 							[Op.or]: filter[key].map(level => ({
-								[key]: { [Op.iLike]: `%${level}"%` },
+								[key]: { [Op.iLike]: `%\"highest\":\"${level}\"%` },
+							})),
+						})
+					} else if (key === 'ielts') {
+						queryOther[Op.and].push({
+							[Op.or]: filter[key].map(level => ({
+								[key]: { [Op.iLike]: `%${level}%` },
 							})),
 						})
 					} else if (Array.isArray(filter[key])) {

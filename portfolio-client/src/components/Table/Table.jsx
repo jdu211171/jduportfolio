@@ -618,20 +618,22 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													key={`data${getUniqueKey(header)}_${header.id}`}
 													align={header.type === 'avatar' ? 'left' : 'center'}
 													padding={header.disablePadding ? 'none' : 'normal'}
-													onClick={() => {
-														// Don't trigger profile navigation for delete icon
-														if (header.type === 'delete_icon') {
-															return
-														}
+                                        onClick={() => {
+                                            // Don't trigger profile navigation for delete icon
+                                            if (header.type === 'delete_icon') {
+                                                return
+                                            }
 
-														// Find the avatar header to get the profile navigation function
-														const avatarHeader = tableProps.headers.find(
-															h => h.type === 'avatar'
-														)
-														if (avatarHeader && avatarHeader.onClickAction) {
-															avatarHeader.onClickAction(row)
-														}
-													}}
+                                            // Find the avatar header to get the profile navigation function
+                                            const avatarHeader = tableProps.headers.find(
+                                                h => h.type === 'avatar'
+                                            )
+                                            if (avatarHeader && avatarHeader.onClickAction) {
+                                                avatarHeader.onClickAction(row)
+                                            } else if (header.onClickAction) {
+                                                header.onClickAction(row)
+                                            }
+                                        }}
 													sx={{
 														minWidth: (() => {
 															// Set specific minWidth based on column label
@@ -1246,10 +1248,46 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														) : (
 															header.map[row[header.id] ? row[header.id] : '']
 														)
-													) : header.type === 'action' ? (
-														<div
-															style={{
-																display: 'flex',
+                                            ) : header.type === 'company_summary' ? (
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'flex-start',
+                                                        gap: 2,
+                                                        width: '100%',
+                                                        textAlign: 'left',
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            flex: '0 0 auto',
+                                                            minWidth: '220px',
+                                                            maxWidth: '320px',
+                                                            fontSize: '16px',
+                                                            fontWeight: 600,
+                                                            color: '#111827',
+                                                            wordBreak: 'break-word',
+                                                        }}
+                                                    >
+                                                        {row.company_name || 'N/A'}
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            flex: '1 1 auto',
+                                                            color: '#4b5563',
+                                                            fontSize: '14px',
+                                                            lineHeight: 1.6,
+                                                            whiteSpace: 'pre-wrap',
+                                                            wordBreak: 'break-word',
+                                                        }}
+                                                    >
+                                                        {row.tagline || ''}
+                                                    </div>
+                                                </Box>
+                                            ) : header.type === 'action' ? (
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
 																justifyContent: 'flex-end',
 															}}
 															onClick={e => e.stopPropagation()}

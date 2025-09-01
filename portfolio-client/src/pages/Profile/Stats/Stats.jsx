@@ -221,12 +221,13 @@ const Stats = () => {
 					title='資格'
 					headers={{
 						JLPT: '',
-						JDU日本語認定試験: '',
+						JDU_JLPT: '',
 					}}
 					data={certificates}
 					editData={editData}
 					showAutocomplete={true}
 					showHeaders={false}
+					showEmptyAsNotSubmitted={true}
 					keyName='main'
 				/>
 				<SkillSelector
