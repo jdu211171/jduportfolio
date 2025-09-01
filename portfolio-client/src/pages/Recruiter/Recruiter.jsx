@@ -9,9 +9,10 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
 const Recruiter = () => {
-	const { language } = useLanguage()
-	const t = key => translations[language][key] || key
-	const navigate = useNavigate()
+    const { language } = useLanguage()
+    const t = key => translations[language][key] || key
+    const navigate = useNavigate()
+    const role = sessionStorage.getItem('role')
 
 	const navigateToCompanyProfile = recruiter => {
 		navigate(`/companyprofile`, {
@@ -19,46 +20,68 @@ const Recruiter = () => {
 		})
 	}
 
-	const headers = [
-		{
-			id: 'name',
-			numeric: false,
-			disablePadding: true,
-			label: t('recruiter'),
-			type: 'avatar',
-			minWidth: '160px',
-			onClickAction: navigateToCompanyProfile,
-		},
-		{
-			id: 'company_name',
-			numeric: false,
-			disablePadding: false,
-			label: t('company_name'),
-			minWidth: '220px',
-		},
-		{
-			id: 'phone',
-			numeric: true,
-			disablePadding: false,
-			label: t('phone_number'),
-			minWidth: '160px',
-		},
-		{
-			id: 'email',
-			numeric: false,
-			disablePadding: false,
-			label: t('email'),
-			type: 'email',
-			minWidth: '220px',
-			visibleTo: ['Admin', 'Staff'],
-		},
-	]
+    const headers = role === 'Student'
+        ? [
+              {
+                  id: 'company_summary',
+                  numeric: false,
+                  disablePadding: false,
+                  label: t('company_name'),
+                  type: 'company_summary',
+                  minWidth: '480px',
+                  onClickAction: navigateToCompanyProfile,
+              },
+          ]
+        : [
+              {
+                  id: 'name',
+                  numeric: false,
+                  disablePadding: true,
+                  label: t('recruiter'),
+                  type: 'avatar',
+                  minWidth: '160px',
+                  onClickAction: navigateToCompanyProfile,
+              },
+              {
+                  id: 'company_name',
+                  numeric: false,
+                  disablePadding: false,
+                  label: t('company_name'),
+                  minWidth: '220px',
+              },
+              {
+                  id: 'phone',
+                  numeric: true,
+                  disablePadding: false,
+                  label: t('phone_number'),
+                  minWidth: '160px',
+              },
+              {
+                  id: 'email',
+                  numeric: false,
+                  disablePadding: false,
+                  label: t('email'),
+                  type: 'email',
+                  minWidth: '220px',
+                  visibleTo: ['Admin', 'Staff'],
+              },
+          ]
 
 	const [filterState, setFilterState] = useState({})
 	// must match with db table col names
-	const filterProps = [
-		{ key: 'name', label: t('name'), type: 'text', minWidth: '160px' },
-	]
+    const filterProps =
+        role === 'Student'
+            ? [
+                  {
+                      key: 'company_name',
+                      label: t('company_name'),
+                      type: 'text',
+                      minWidth: '200px',
+                  },
+              ]
+            : [
+                  { key: 'name', label: t('name'), type: 'text', minWidth: '160px' },
+              ]
 
 	const tableProps = {
 		headers: headers,

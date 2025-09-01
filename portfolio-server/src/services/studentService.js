@@ -327,13 +327,20 @@ class StudentService {
 						} else if (filter[key] === '無し') {
 							queryOther['other_information'] = { [Op.is]: null }
 						}
-					} else if (
-						['jlpt', 'ielts', 'jdu_japanese_certification'].includes(key)
-					) {
+					} else if (['jlpt', 'jdu_japanese_certification'].includes(key)) {
+						if (Array.isArray(filter[key])) {
+							// Match only the highest level inside stored JSON string e.g. {"highest":"N5"}
+							queryOther[Op.and].push({
+								[Op.or]: filter[key].map(level => ({
+									[key]: { [Op.iLike]: `%"highest":"${level}"%` },
+								})),
+							})
+						}
+					} else if (key === 'ielts') {
 						if (Array.isArray(filter[key])) {
 							queryOther[Op.and].push({
 								[Op.or]: filter[key].map(level => ({
-									[key]: { [Op.iLike]: `%${level}"%` },
+									[key]: { [Op.iLike]: `%${level}%` },
 								})),
 							})
 						}

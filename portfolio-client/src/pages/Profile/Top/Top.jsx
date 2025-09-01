@@ -148,38 +148,48 @@ const Top = () => {
 
 	const t = key => translations[language][key] || key
 
-	// Helper function to safely parse JLPT data
-	const getJLPTData = jlptString => {
-		try {
-			if (!jlptString) return { highest: 'なし' }
+    // Helper function to safely parse JLPT and JDU certification (JSON or plain) with null handling
+    const getJLPTData = jlptString => {
+        try {
+            // Treat empty, 'null', or 'undefined' as not submitted
+            if (
+                jlptString === null ||
+                jlptString === undefined ||
+                (typeof jlptString === 'string' &&
+                    (jlptString.trim() === '' ||
+                        jlptString.trim().toLowerCase() === 'null' ||
+                        jlptString.trim().toLowerCase() === 'undefined'))
+            ) {
+                return { highest: '未提出', list: [] }
+            }
 
-			// If it's already a plain string (not JSON), return it as highest value
-			if (typeof jlptString === 'string') {
-				// First, try to parse as JSON
-				try {
-					const parsed = JSON.parse(jlptString)
-					// If it's a valid JSON object with highest property, return it
-					if (parsed && typeof parsed === 'object' && parsed.highest) {
-						return parsed
-					}
-					// If it's a valid JSON but not the expected structure, treat as plain string
-					return { highest: jlptString }
-				} catch (jsonError) {
-					// If JSON parsing fails, it's a plain string, return it as highest value
-					return { highest: jlptString }
-				}
-			}
+            if (typeof jlptString === 'string') {
+                // Try to parse JSON first
+                try {
+                    const parsed = JSON.parse(jlptString)
+                    if (parsed === null) return { highest: '未提出', list: [] }
+                    if (parsed && typeof parsed === 'object' && parsed.highest) {
+                        return parsed
+                    }
+                    // Not expected JSON structure; treat original as plain value (e.g., 'N2')
+                    return { highest: jlptString }
+                } catch {
+                    // Not JSON; treat as plain value
+                    return { highest: jlptString }
+                }
+            }
 
-			// If it's already an object, return it
-			if (typeof jlptString === 'object' && jlptString !== null) {
-				return jlptString.highest ? jlptString : { highest: 'なし' }
-			}
+            if (typeof jlptString === 'object') {
+                return jlptString && jlptString.highest
+                    ? jlptString
+                    : { highest: '未提出', list: [] }
+            }
 
-			return { highest: 'なし' }
-		} catch (error) {
-			return { highest: 'なし' }
-		}
-	}
+            return { highest: '未提出', list: [] }
+        } catch {
+            return { highest: '未提出', list: [] }
+        }
+    }
 
 	// Helper function to safely parse certificate data (for japanese_speech_contest and it_contest)
 	const getCertificateData = certificateString => {
