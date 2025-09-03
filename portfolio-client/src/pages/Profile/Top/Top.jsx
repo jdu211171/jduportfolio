@@ -1229,6 +1229,11 @@ const Top = () => {
 					</Box>
 				)}
 
+			{/* Past staff comment history for students */}
+			{role === 'Student' && (
+				<HistoryComments />
+			)}
+
 			{role === 'Staff' &&
 			!isLoading &&
 			currentDraft &&
@@ -2232,6 +2237,53 @@ const Top = () => {
 			</Dialog>
 		</Box>
 	)
+}
+
+// --- Helper component: Student's past staff comment history (from notifications) ---
+function HistoryComments() {
+  const [items, setItems] = useState([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await axios.get('/api/notification/history')
+        const list = res?.data?.notifications || []
+        const filtered = list
+          .filter(n => typeof n.message === 'string' && n.message.includes('|||COMMENT_SEPARATOR|||'))
+          .slice(0, 2)
+        if (mounted) setItems(filtered)
+      } catch (e) {
+        // ignore
+      } finally {
+        if (mounted) setLoaded(true)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  if (!loaded || items.length === 0) return null
+
+  return (
+    <Box sx={{ my: 2, mx: 2, p: 2, backgroundColor: '#f7f7f7', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+      <Typography sx={{ fontWeight: 600, mb: 1 }}>過去のスタッフコメント</Typography>
+      {items.map((n, idx) => {
+        const parts = n.message.split('|||COMMENT_SEPARATOR|||')
+        const comment = parts[1] || ''
+        return (
+          <Box key={n.id || idx} sx={{ p: 1.5, mb: 1, backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #eee' }}>
+            <Typography sx={{ whiteSpace: 'pre-wrap' }}>{comment}</Typography>
+            <Typography variant='caption' color='text.secondary'>
+              {new Date(n.createdAt).toLocaleString()}
+            </Typography>
+          </Box>
+        )
+      })}
+    </Box>
+  )
 }
 
 export default Top
