@@ -1682,7 +1682,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 																/>
 															</Box>
 															<Box className={styles.requirementContent}>
-																<DisplayText>{safeStringValue(item)}</DisplayText>
+																<DisplayText>
+																	{safeStringValue(item)}
+																</DisplayText>
 															</Box>
 														</Box>
 													)
@@ -1810,7 +1812,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 																/>
 															</Box>
 															<Box className={styles.requirementContent}>
-																<DisplayText>{safeStringValue(item)}</DisplayText>
+																<DisplayText>
+																	{safeStringValue(item)}
+																</DisplayText>
 															</Box>
 														</Box>
 													)
@@ -1938,7 +1942,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 																/>
 															</Box>
 															<Box className={styles.requirementContent}>
-																<DisplayText>{safeStringValue(item)}</DisplayText>
+																<DisplayText>
+																	{safeStringValue(item)}
+																</DisplayText>
 															</Box>
 														</Box>
 													)
@@ -2247,7 +2253,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 																/>
 															</Box>
 															<Box className={styles.requirementContent}>
-																<DisplayText>{safeStringValue(item)}</DisplayText>
+																<DisplayText>
+																	{safeStringValue(item)}
+																</DisplayText>
 															</Box>
 														</Box>
 													)
@@ -2257,613 +2265,627 @@ const CompanyProfile = ({ userId = 0 }) => {
 									</Box>
 								</Box>
 							)}
-						{/* Required Skills */}
-						{((role === 'Recruiter' && editMode) ||
-							hasContent(company.required_skills)) && (
-							<Box
-								className={`${styles.infoRow} ${styles.infoRowOdd}`}
-								sx={{ m: 0, p: 0 }}
-							>
-								<Typography variant='subtitle1' className={styles.label}>
-									{t.required_skills}
-								</Typography>
-								<Box className={styles.value}>
-									{editMode && role === 'Recruiter' ? (
-										<Box className={styles.recruitmentEditColumn}>
-											{safeArrayRender(editData.required_skills).map(
-												(item, index) => (
-													<Box
-														key={`required-${index}`}
-														className={styles.recruitmentSavedItem}
-													>
-														<CustomTextField
-															value={safeStringValue(item)}
-															onChange={e =>
-																handleArrayChange(
-																	'required_skills',
-																	index,
-																	e.target.value
-																)
-															}
-															placeholder={t.required_skills_placeholder}
-															fieldKey={`required_skills_${index}`}
-															inputRef={createInputRef(
-																`required_skills_${index}`
-															)}
-															maxLength={500}
-														/>
-														<button
-															type='button'
-															className={styles.recruitmentDeleteButton}
-															onClick={e => {
-																e.preventDefault()
-																const currentArray = safeArrayRender(
-																	editData.required_skills
-																)
-																const newArray = currentArray.filter(
-																	(_, i) => i !== index
-																)
-																handleUpdateEditData('required_skills', newArray)
-															}}
+							{/* Required Skills */}
+							{((role === 'Recruiter' && editMode) ||
+								hasContent(company.required_skills)) && (
+								<Box
+									className={`${styles.infoRow} ${styles.infoRowOdd}`}
+									sx={{ m: 0, p: 0 }}
+								>
+									<Typography variant='subtitle1' className={styles.label}>
+										{t.required_skills}
+									</Typography>
+									<Box className={styles.value}>
+										{editMode && role === 'Recruiter' ? (
+											<Box className={styles.recruitmentEditColumn}>
+												{safeArrayRender(editData.required_skills).map(
+													(item, index) => (
+														<Box
+															key={`required-${index}`}
+															className={styles.recruitmentSavedItem}
 														>
-															<img
-																src={DeleteIcon}
-																alt='delete'
-																className={styles.deleteIcon}
+															<CustomTextField
+																value={safeStringValue(item)}
+																onChange={e =>
+																	handleArrayChange(
+																		'required_skills',
+																		index,
+																		e.target.value
+																	)
+																}
+																placeholder={t.required_skills_placeholder}
+																fieldKey={`required_skills_${index}`}
+																inputRef={createInputRef(
+																	`required_skills_${index}`
+																)}
+																maxLength={500}
 															/>
-														</button>
-													</Box>
-												)
-											)}
-											<Box className={styles.recruitmentInputContainer}>
-												<CustomTextField
-													value={safeStringValue(editData.newRequiredSkill)}
-													onChange={e => {
-														const val = e.target.value
-														handleUpdateEditData('newRequiredSkill', val)
-													}}
-													onKeyPress={e => {
-														if (e.key === 'Enter') {
-															e.preventDefault()
-															const newValue = safeStringValue(
-																editData.newRequiredSkill
-															).trim()
-															if (newValue) {
-																const currentArray = safeArrayRender(
-																	editData.required_skills
-																)
-																handleUpdateEditData('required_skills', [
-																	...currentArray,
-																	newValue,
-																])
-																handleUpdateEditData('newRequiredSkill', '')
+															<button
+																type='button'
+																className={styles.recruitmentDeleteButton}
+																onClick={e => {
+																	e.preventDefault()
+																	const currentArray = safeArrayRender(
+																		editData.required_skills
+																	)
+																	const newArray = currentArray.filter(
+																		(_, i) => i !== index
+																	)
+																	handleUpdateEditData(
+																		'required_skills',
+																		newArray
+																	)
+																}}
+															>
+																<img
+																	src={DeleteIcon}
+																	alt='delete'
+																	className={styles.deleteIcon}
+																/>
+															</button>
+														</Box>
+													)
+												)}
+												<Box className={styles.recruitmentInputContainer}>
+													<CustomTextField
+														value={safeStringValue(editData.newRequiredSkill)}
+														onChange={e => {
+															const val = e.target.value
+															handleUpdateEditData('newRequiredSkill', val)
+														}}
+														onKeyPress={e => {
+															if (e.key === 'Enter') {
+																e.preventDefault()
+																const newValue = safeStringValue(
+																	editData.newRequiredSkill
+																).trim()
+																if (newValue) {
+																	const currentArray = safeArrayRender(
+																		editData.required_skills
+																	)
+																	handleUpdateEditData('required_skills', [
+																		...currentArray,
+																		newValue,
+																	])
+																	handleUpdateEditData('newRequiredSkill', '')
+																}
 															}
+														}}
+														placeholder={t.required_skills_placeholder}
+														fieldKey='newRequiredSkill'
+														inputRef={createInputRef('newRequiredSkill')}
+														maxLength={500}
+													/>
+												</Box>
+											</Box>
+										) : (
+											<Box className={styles.recruitmentViewColumn}>
+												{safeArrayRender(company.required_skills).map(
+													(item, index) => (
+														<Box
+															key={`view-req-${index}`}
+															className={styles.requirementItemWithIcon}
+														>
+															<Box className={styles.iconContainerRed}>
+																<img
+																	src={CheckIcon}
+																	alt='check'
+																	className={styles.checkIcon}
+																/>
+															</Box>
+															<Box className={styles.requirementContent}>
+																<DisplayText>
+																	{safeStringValue(item)}
+																</DisplayText>
+															</Box>
+														</Box>
+													)
+												)}
+											</Box>
+										)}
+									</Box>
+								</Box>
+							)}
+
+							{/* Welcome Skills */}
+							{((role === 'Recruiter' && editMode) ||
+								hasContent(company.welcome_skills)) && (
+								<Box
+									className={`${styles.infoRow} ${styles.infoRowOdd}`}
+									sx={{ m: 0, p: 0 }}
+								>
+									<Typography variant='subtitle1' className={styles.label}>
+										{t.welcome_skills}
+									</Typography>
+									<Box className={styles.value}>
+										{editMode && role === 'Recruiter' ? (
+											<Box className={styles.recruitmentEditColumn}>
+												{safeArrayRender(editData.welcome_skills).map(
+													(item, index) => (
+														<Box
+															key={`welcome-${index}`}
+															className={styles.recruitmentSavedItem}
+														>
+															<CustomTextField
+																value={safeStringValue(item)}
+																onChange={e =>
+																	handleArrayChange(
+																		'welcome_skills',
+																		index,
+																		e.target.value
+																	)
+																}
+																placeholder={t.preferred_skills_placeholder}
+																fieldKey={`welcome_skills_${index}`}
+																inputRef={createInputRef(
+																	`welcome_skills_${index}`
+																)}
+																maxLength={500}
+															/>
+															<button
+																type='button'
+																className={styles.recruitmentDeleteButton}
+																onClick={e => {
+																	e.preventDefault()
+																	const currentArray = safeArrayRender(
+																		editData.welcome_skills
+																	)
+																	const newArray = currentArray.filter(
+																		(_, i) => i !== index
+																	)
+																	handleUpdateEditData(
+																		'welcome_skills',
+																		newArray
+																	)
+																}}
+															>
+																<img
+																	src={DeleteIcon}
+																	alt='delete'
+																	className={styles.deleteIcon}
+																/>
+															</button>
+														</Box>
+													)
+												)}
+												<Box className={styles.recruitmentInputContainer}>
+													<CustomTextField
+														value={safeStringValue(editData.newWelcomeSkill)}
+														onChange={e => {
+															const val = e.target.value
+															handleUpdateEditData('newWelcomeSkill', val)
+														}}
+														onKeyPress={e => {
+															if (e.key === 'Enter') {
+																e.preventDefault()
+																const newValue = safeStringValue(
+																	editData.newWelcomeSkill
+																).trim()
+																if (newValue) {
+																	const currentArray = safeArrayRender(
+																		editData.welcome_skills
+																	)
+																	handleUpdateEditData('welcome_skills', [
+																		...currentArray,
+																		newValue,
+																	])
+																	handleUpdateEditData('newWelcomeSkill', '')
+																}
+															}
+														}}
+														placeholder={t.preferred_skills_placeholder}
+														fieldKey='newWelcomeSkill'
+														inputRef={createInputRef('newWelcomeSkill')}
+														maxLength={500}
+													/>
+												</Box>
+											</Box>
+										) : (
+											<Box className={styles.recruitmentViewColumn}>
+												{safeArrayRender(company.welcome_skills).map(
+													(item, index) => (
+														<Box
+															key={`view-wel-${index}`}
+															className={styles.requirementItemWithIcon}
+														>
+															<Box className={styles.iconContainerPurple}>
+																<img
+																	src={CheckIcon}
+																	alt='check'
+																	className={styles.checkIcon}
+																/>
+															</Box>
+															<Box className={styles.requirementContent}>
+																<DisplayText>
+																	{safeStringValue(item)}
+																</DisplayText>
+															</Box>
+														</Box>
+													)
+												)}
+											</Box>
+										)}
+									</Box>
+								</Box>
+							)}
+
+							{/* Compensation & Benefits (給与・待遇・福利厚生) */}
+							<Box sx={{ paddingTop: 4 }}>
+								<SectionHeader
+									icon={InfoIcon}
+									title={t.compensation_benefits || 'Compensation & Benefits'}
+								/>
+								<Box
+									className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
+								>
+									{/* Salary */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.salary)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.salary}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.salary)}
+														onChange={e =>
+															handleUpdateEditData('salary', e.target.value)
 														}
-													}}
-													placeholder={t.required_skills_placeholder}
-													fieldKey='newRequiredSkill'
-													inputRef={createInputRef('newRequiredSkill')}
-													maxLength={500}
-												/>
+														placeholder={t.salary}
+														fieldKey='salary'
+														inputRef={createInputRef('salary')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.salary)}
+													</DisplayText>
+												)}
 											</Box>
 										</Box>
-									) : (
-										<Box className={styles.recruitmentViewColumn}>
-											{safeArrayRender(company.required_skills).map(
-												(item, index) => (
-													<Box
-														key={`view-req-${index}`}
-														className={styles.requirementItemWithIcon}
-													>
-														<Box className={styles.iconContainerRed}>
-															<img
-																src={CheckIcon}
-																alt='check'
-																className={styles.checkIcon}
-															/>
-														</Box>
-														<Box className={styles.requirementContent}>
-															<DisplayText>{safeStringValue(item)}</DisplayText>
-														</Box>
-													</Box>
-												)
-											)}
+									)}
+
+									{/* Work Hours */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.work_hours)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.work_hours}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.work_hours)}
+														onChange={e =>
+															handleUpdateEditData('work_hours', e.target.value)
+														}
+														placeholder={t.work_hours}
+														fieldKey='work_hours'
+														inputRef={createInputRef('work_hours')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.work_hours)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Benefits */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.benefits)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.benefits || 'Benefits'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.benefits)}
+														onChange={e =>
+															handleUpdateEditData('benefits', e.target.value)
+														}
+														multiline
+														minRows={3}
+														placeholder={t.benefits || 'Benefits'}
+														fieldKey='benefits'
+														inputRef={createInputRef('benefits')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.benefits)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Salary Increase */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.salary_increase)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.salary_increase || '昇給'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.salary_increase)}
+														onChange={e =>
+															handleUpdateEditData(
+																'salary_increase',
+																e.target.value
+															)
+														}
+														placeholder={t.salary_increase || '昇給'}
+														fieldKey='salary_increase'
+														inputRef={createInputRef('salary_increase')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.salary_increase)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Bonus */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.bonus)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.bonus || '賞与'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.bonus)}
+														onChange={e =>
+															handleUpdateEditData('bonus', e.target.value)
+														}
+														placeholder={t.bonus || '賞与'}
+														fieldKey='bonus'
+														inputRef={createInputRef('bonus')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.bonus)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Holidays & Vacation */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.holidays_vacation)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.holidays_vacation || '休日・休暇'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.holidays_vacation)}
+														onChange={e =>
+															handleUpdateEditData(
+																'holidays_vacation',
+																e.target.value
+															)
+														}
+														multiline
+														minRows={3}
+														placeholder={t.holidays_vacation || '休日・休暇'}
+														fieldKey='holidays_vacation'
+														inputRef={createInputRef('holidays_vacation')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.holidays_vacation)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Allowances */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.allowances)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.allowances || 'その他手当（福利厚生）'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.allowances)}
+														onChange={e =>
+															handleUpdateEditData('allowances', e.target.value)
+														}
+														multiline
+														minRows={3}
+														placeholder={
+															t.allowances || 'その他手当（福利厚生）'
+														}
+														fieldKey='allowances'
+														inputRef={createInputRef('allowances')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.allowances)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Retirement Benefit */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.retirement_benefit)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.retirement_benefit || '退職金'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.retirement_benefit)}
+														onChange={e =>
+															handleUpdateEditData(
+																'retirement_benefit',
+																e.target.value
+															)
+														}
+														placeholder={t.retirement_benefit || '退職金'}
+														fieldKey='retirement_benefit'
+														inputRef={createInputRef('retirement_benefit')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.retirement_benefit)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Telework Availability */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.telework_availability)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.telework_availability || 'テレワークの有無'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(
+															editData.telework_availability
+														)}
+														onChange={e =>
+															handleUpdateEditData(
+																'telework_availability',
+																e.target.value
+															)
+														}
+														placeholder={
+															t.telework_availability || 'テレワークの有無'
+														}
+														fieldKey='telework_availability'
+														inputRef={createInputRef('telework_availability')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.telework_availability)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Housing Availability */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.housing_availability)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.housing_availability || '寮、社宅等の有無'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(
+															editData.housing_availability
+														)}
+														onChange={e =>
+															handleUpdateEditData(
+																'housing_availability',
+																e.target.value
+															)
+														}
+														placeholder={
+															t.housing_availability || '寮、社宅等の有無'
+														}
+														fieldKey='housing_availability'
+														inputRef={createInputRef('housing_availability')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.housing_availability)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Relocation Support */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.relocation_support)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.relocation_support || '航空券代・赴任費用の負担'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.relocation_support)}
+														onChange={e =>
+															handleUpdateEditData(
+																'relocation_support',
+																e.target.value
+															)
+														}
+														multiline
+														minRows={3}
+														placeholder={
+															t.relocation_support || '航空券代・赴任費用の負担'
+														}
+														fieldKey='relocation_support'
+														inputRef={createInputRef('relocation_support')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.relocation_support)}
+													</DisplayText>
+												)}
+											</Box>
+										</Box>
+									)}
+
+									{/* Airport Pickup */}
+									{((role === 'Recruiter' && editMode) ||
+										hasContent(company.airport_pickup)) && (
+										<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
+											<Typography variant='subtitle1' className={styles.label}>
+												{t.airport_pickup || '来日時の送迎'}
+											</Typography>
+											<Box className={styles.value}>
+												{editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData.airport_pickup)}
+														onChange={e =>
+															handleUpdateEditData(
+																'airport_pickup',
+																e.target.value
+															)
+														}
+														placeholder={t.airport_pickup || '来日時の送迎'}
+														fieldKey='airport_pickup'
+														inputRef={createInputRef('airport_pickup')}
+													/>
+												) : (
+													<DisplayText>
+														{safeStringValue(company.airport_pickup)}
+													</DisplayText>
+												)}
+											</Box>
 										</Box>
 									)}
 								</Box>
 							</Box>
-						)}
 
-						{/* Welcome Skills */}
-						{((role === 'Recruiter' && editMode) ||
-							hasContent(company.welcome_skills)) && (
-							<Box
-								className={`${styles.infoRow} ${styles.infoRowOdd}`}
-								sx={{ m: 0, p: 0 }}
-							>
-								<Typography variant='subtitle1' className={styles.label}>
-									{t.welcome_skills}
-								</Typography>
-								<Box className={styles.value}>
-									{editMode && role === 'Recruiter' ? (
-										<Box className={styles.recruitmentEditColumn}>
-											{safeArrayRender(editData.welcome_skills).map(
-												(item, index) => (
-													<Box
-														key={`welcome-${index}`}
-														className={styles.recruitmentSavedItem}
-													>
-														<CustomTextField
-															value={safeStringValue(item)}
-															onChange={e =>
-																handleArrayChange(
-																	'welcome_skills',
-																	index,
-																	e.target.value
-																)
-															}
-															placeholder={t.preferred_skills_placeholder}
-															fieldKey={`welcome_skills_${index}`}
-															inputRef={createInputRef(
-																`welcome_skills_${index}`
-															)}
-															maxLength={500}
-														/>
-														<button
-															type='button'
-															className={styles.recruitmentDeleteButton}
-															onClick={e => {
-																e.preventDefault()
-																const currentArray = safeArrayRender(
-																	editData.welcome_skills
-																)
-																const newArray = currentArray.filter(
-																	(_, i) => i !== index
-																)
-																handleUpdateEditData('welcome_skills', newArray)
-															}}
-														>
-															<img
-																src={DeleteIcon}
-																alt='delete'
-																className={styles.deleteIcon}
-															/>
-														</button>
-													</Box>
-												)
-											)}
-											<Box className={styles.recruitmentInputContainer}>
-												<CustomTextField
-													value={safeStringValue(editData.newWelcomeSkill)}
-													onChange={e => {
-														const val = e.target.value
-														handleUpdateEditData('newWelcomeSkill', val)
-													}}
-													onKeyPress={e => {
-														if (e.key === 'Enter') {
-															e.preventDefault()
-															const newValue = safeStringValue(
-																editData.newWelcomeSkill
-															).trim()
-															if (newValue) {
-																const currentArray = safeArrayRender(
-																	editData.welcome_skills
-																)
-																handleUpdateEditData('welcome_skills', [
-																	...currentArray,
-																	newValue,
-																])
-																handleUpdateEditData('newWelcomeSkill', '')
-															}
-														}
-													}}
-													placeholder={t.preferred_skills_placeholder}
-													fieldKey='newWelcomeSkill'
-													inputRef={createInputRef('newWelcomeSkill')}
-													maxLength={500}
-												/>
-											</Box>
-										</Box>
-									) : (
-										<Box className={styles.recruitmentViewColumn}>
-											{safeArrayRender(company.welcome_skills).map(
-												(item, index) => (
-													<Box
-														key={`view-wel-${index}`}
-														className={styles.requirementItemWithIcon}
-													>
-														<Box className={styles.iconContainerPurple}>
-															<img
-																src={CheckIcon}
-																alt='check'
-																className={styles.checkIcon}
-															/>
-														</Box>
-														<Box className={styles.requirementContent}>
-															<DisplayText>{safeStringValue(item)}</DisplayText>
-														</Box>
-													</Box>
-												)
-											)}
-										</Box>
-									)}
-								</Box>
-							</Box>
-						)}
-
-						{/* Compensation & Benefits (給与・待遇・福利厚生) */}
-						<Box sx={{ paddingTop: 4 }}>
-							<SectionHeader
-								icon={InfoIcon}
-								title={t.compensation_benefits || 'Compensation & Benefits'}
-							/>
-							<Box
-								className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
-							>
-								{/* Salary */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.salary)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.salary}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.salary)}
-													onChange={e =>
-														handleUpdateEditData('salary', e.target.value)
-													}
-													placeholder={t.salary}
-													fieldKey='salary'
-													inputRef={createInputRef('salary')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.salary)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Work Hours */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.work_hours)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.work_hours}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.work_hours)}
-													onChange={e =>
-														handleUpdateEditData('work_hours', e.target.value)
-													}
-													placeholder={t.work_hours}
-													fieldKey='work_hours'
-													inputRef={createInputRef('work_hours')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.work_hours)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Benefits */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.benefits)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.benefits || 'Benefits'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.benefits)}
-													onChange={e =>
-														handleUpdateEditData('benefits', e.target.value)
-													}
-													multiline
-													minRows={3}
-													placeholder={t.benefits || 'Benefits'}
-													fieldKey='benefits'
-													inputRef={createInputRef('benefits')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.benefits)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Salary Increase */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.salary_increase)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.salary_increase || '昇給'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.salary_increase)}
-													onChange={e =>
-														handleUpdateEditData(
-															'salary_increase',
-															e.target.value
-														)
-													}
-													placeholder={t.salary_increase || '昇給'}
-													fieldKey='salary_increase'
-													inputRef={createInputRef('salary_increase')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.salary_increase)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Bonus */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.bonus)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.bonus || '賞与'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.bonus)}
-													onChange={e =>
-														handleUpdateEditData('bonus', e.target.value)
-													}
-													placeholder={t.bonus || '賞与'}
-													fieldKey='bonus'
-													inputRef={createInputRef('bonus')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.bonus)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Holidays & Vacation */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.holidays_vacation)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.holidays_vacation || '休日・休暇'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.holidays_vacation)}
-													onChange={e =>
-														handleUpdateEditData(
-															'holidays_vacation',
-															e.target.value
-														)
-													}
-													multiline
-													minRows={3}
-													placeholder={t.holidays_vacation || '休日・休暇'}
-													fieldKey='holidays_vacation'
-													inputRef={createInputRef('holidays_vacation')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.holidays_vacation)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Allowances */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.allowances)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.allowances || 'その他手当（福利厚生）'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.allowances)}
-													onChange={e =>
-														handleUpdateEditData('allowances', e.target.value)
-													}
-													multiline
-													minRows={3}
-													placeholder={t.allowances || 'その他手当（福利厚生）'}
-													fieldKey='allowances'
-													inputRef={createInputRef('allowances')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.allowances)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Retirement Benefit */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.retirement_benefit)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.retirement_benefit || '退職金'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.retirement_benefit)}
-													onChange={e =>
-														handleUpdateEditData(
-															'retirement_benefit',
-															e.target.value
-														)
-													}
-													placeholder={t.retirement_benefit || '退職金'}
-													fieldKey='retirement_benefit'
-													inputRef={createInputRef('retirement_benefit')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.retirement_benefit)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Telework Availability */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.telework_availability)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.telework_availability || 'テレワークの有無'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(
-														editData.telework_availability
-													)}
-													onChange={e =>
-														handleUpdateEditData(
-															'telework_availability',
-															e.target.value
-														)
-													}
-													placeholder={
-														t.telework_availability || 'テレワークの有無'
-													}
-													fieldKey='telework_availability'
-													inputRef={createInputRef('telework_availability')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.telework_availability)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Housing Availability */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.housing_availability)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.housing_availability || '寮、社宅等の有無'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.housing_availability)}
-													onChange={e =>
-														handleUpdateEditData(
-															'housing_availability',
-															e.target.value
-														)
-													}
-													placeholder={
-														t.housing_availability || '寮、社宅等の有無'
-													}
-													fieldKey='housing_availability'
-													inputRef={createInputRef('housing_availability')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.housing_availability)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Relocation Support */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.relocation_support)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.relocation_support || '航空券代・赴任費用の負担'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.relocation_support)}
-													onChange={e =>
-														handleUpdateEditData(
-															'relocation_support',
-															e.target.value
-														)
-													}
-													multiline
-													minRows={3}
-													placeholder={
-														t.relocation_support || '航空券代・赴任費用の負担'
-													}
-													fieldKey='relocation_support'
-													inputRef={createInputRef('relocation_support')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.relocation_support)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-
-								{/* Airport Pickup */}
-								{((role === 'Recruiter' && editMode) ||
-									hasContent(company.airport_pickup)) && (
-									<Box className={`${styles.infoRow} ${styles.infoRowEven}`}>
-										<Typography variant='subtitle1' className={styles.label}>
-											{t.airport_pickup || '来日時の送迎'}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData.airport_pickup)}
-													onChange={e =>
-														handleUpdateEditData(
-															'airport_pickup',
-															e.target.value
-														)
-													}
-													placeholder={t.airport_pickup || '来日時の送迎'}
-													fieldKey='airport_pickup'
-													inputRef={createInputRef('airport_pickup')}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company.airport_pickup)}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								)}
-							</Box>
-						</Box>
-
-						{/* Compensation & Benefits (給与・待遇・福利厚生) */}
+							{/* Compensation & Benefits (給与・待遇・福利厚生) */}
 							{/* Other (その他) - placed at the very end */}
 							{hasContent(company.other_notes) && (
 								<>
