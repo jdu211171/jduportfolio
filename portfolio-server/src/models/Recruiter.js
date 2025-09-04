@@ -170,6 +170,8 @@ module.exports = (sequelize, DataTypes) => {
             relocation_support: { type: DataTypes.TEXT, allowNull: true },
             airport_pickup: { type: DataTypes.STRING, allowNull: true },
             intro_page_thumbnail: { type: DataTypes.STRING, allowNull: true },
+            // New: multiple intro page links (max 4 at validation)
+            intro_page_links: { type: DataTypes.JSONB, allowNull: true, defaultValue: [] },
 		},
 		{
 			sequelize,
