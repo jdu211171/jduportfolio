@@ -247,13 +247,15 @@ DisplayText.propTypes = {
 const SectionHeader = ({ icon, title }) => (
 	<Box className={styles.sectionHeader}>
 		<img src={icon} alt={title} className={styles.sectionIcon} />
-		<Typography
-			variant='h6'
-			className={styles.sectionTitle}
-			sx={{ fontWeight: 600 }}
-		>
-			{title}
-		</Typography>
+		{title ? (
+			<Typography
+				variant='h6'
+				className={styles.sectionTitle}
+				sx={{ fontWeight: 600 }}
+			>
+				{title}
+			</Typography>
+		) : null}
 	</Box>
 )
 
@@ -1091,10 +1093,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 			{activeTab === 'company' && (
 				<>
 					{/* Company Information (会社情報) */}
-					<SectionHeader
-						icon={BusinessIcon}
-						title={t.company_information || '会社情報'}
-					/>
+					<SectionHeader icon={BusinessIcon} />
 					<Box
 						className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
 					>
@@ -1521,18 +1520,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 						</ContentBox>
 					)}
 
-					{/* Company Documents (資料) */}
-					{(role === 'Recruiter' ||
-						role === 'Admin' ||
-						role === 'Staff' ||
-						role === 'Student') && (
-						<RecruiterFiles
-							editMode={editMode}
-							recruiterId={id}
-							currentRole={role}
-						/>
-					)}
-
 					{/* Intro Page Links (up to 4, blue links, new tab) */}
 					{(editMode ||
 						role === 'Recruiter' ||
@@ -1541,7 +1528,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 						<ContentBox>
 							<SectionHeader
 								icon={BusinessIcon}
-								title={t.intro_page_thumbnail || '紹介ページ サムネイルあり'}
+								title={t.intro_page_thumbnail || '紹介ページ'}
 							/>
 							{editMode ? (
 								<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -1649,19 +1636,81 @@ const CompanyProfile = ({ userId = 0 }) => {
 							)}
 						</ContentBox>
 					)}
+
+					{/* Company Documents (資料) — moved after Intro Page Links */}
+					{(role === 'Recruiter' ||
+						role === 'Admin' ||
+						role === 'Staff' ||
+						role === 'Student') && (
+						<RecruiterFiles
+							editMode={editMode}
+							recruiterId={id}
+							currentRole={role}
+						/>
+					)}
 				</>
 			)}
 
 			{activeTab === 'recruitment' && (
 				<>
 					<ContentBox>
-						<SectionHeader icon={WorkIcon} title={'募集概要'} />
+						<SectionHeader icon={WorkIcon} />
 						<Box
 							className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
 							sx={{ p: 0, m: 0 }}
 						>
-							{/* Job Details */}
 							{[
+								// 1-2 基本
+								{
+									key: 'job_title',
+									label: t.job_title,
+									multiline: false,
+									maxLength: 500,
+								},
+								{
+									key: 'job_description',
+									label: t.job_description,
+									multiline: true,
+									maxLength: 1000,
+								},
+								// 3 対象
+								{
+									key: 'target_audience',
+									label: t.target_audience || '対象',
+									multiline: false,
+									maxLength: 500,
+									type: 'target',
+								},
+								// 4-5 応募要件
+								{
+									key: 'japanese_level',
+									label: t.japanese_level,
+									multiline: false,
+									maxLength: 500,
+								},
+								{
+									key: 'application_requirements_other',
+									label: t.application_requirements_other,
+									multiline: true,
+									maxLength: 500,
+								},
+								// 6-8 推奨
+								{
+									key: 'recommended_skills',
+									label: t.recommended_skills || '推奨：経験やスキル',
+									type: 'array',
+								},
+								{
+									key: 'recommended_licenses',
+									label: t.recommended_licenses || '推奨：資格や免許',
+									type: 'array',
+								},
+								{
+									key: 'recommended_other',
+									label: t.recommended_other || '推奨：その他',
+									type: 'array',
+								},
+								// 9-13 募集詳細
 								{
 									key: 'number_of_openings',
 									label: t.number_of_openings,
@@ -1692,630 +1741,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									multiline: false,
 									maxLength: 500,
 								},
-							]
-								.filter(
-									({ key }) =>
-										role === 'Recruiter' ||
-										(editMode && role === 'Recruiter') ||
-										hasContent(company[key])
-								)
-								.map(({ key, label, multiline, maxLength }, idx) => (
-									<Box
-										key={key}
-										className={`${styles.infoRow} ${idx % 2 === 0 ? styles.infoRowOdd : styles.infoRowEven}`}
-										sx={{ m: 0, p: 0 }}
-									>
-										<Typography variant='subtitle1' className={styles.label}>
-											{label}
-										</Typography>
-										<Box className={styles.value}>
-											{editMode && role === 'Recruiter' ? (
-												<CustomTextField
-													value={safeStringValue(editData[key])}
-													onChange={e =>
-														handleUpdateEditData(key, e.target.value)
-													}
-													multiline={multiline}
-													minRows={multiline ? 3 : 1}
-													placeholder={label}
-													fieldKey={key}
-													inputRef={createInputRef(key)}
-													maxLength={maxLength}
-													showCounter={!!maxLength}
-												/>
-											) : (
-												<DisplayText>
-													{safeStringValue(company[key])}
-												</DisplayText>
-											)}
-										</Box>
-									</Box>
-								))}
-
-							{/* Recruitment Overview fields */}
-							{[
-								{
-									key: 'job_title',
-									label: t.job_title,
-									multiline: false,
-									maxLength: 500,
-								},
-								{
-									key: 'job_description',
-									label: t.job_description,
-									multiline: true,
-									maxLength: 1000,
-								},
-								{
-									key: 'japanese_level',
-									label: t.japanese_level,
-									multiline: false,
-									maxLength: 500,
-								},
-								{
-									key: 'application_requirements_other',
-									label: t.application_requirements_other,
-									multiline: true,
-									maxLength: 500,
-								},
-							].map(({ key, label, multiline, maxLength }, idx) => (
-								<Box
-									key={key}
-									className={`${styles.infoRow} ${idx % 2 === 0 ? styles.infoRowOdd : styles.infoRowEven}`}
-									sx={{ m: 0, p: 0 }}
-								>
-									<Typography variant='subtitle1' className={styles.label}>
-										{label}
-									</Typography>
-									<Box className={styles.value}>
-										{editMode ? (
-											<CustomTextField
-												value={safeStringValue(editData[key])}
-												onChange={e =>
-													handleUpdateEditData(key, e.target.value)
-												}
-												multiline={multiline}
-												minRows={multiline ? 3 : 1}
-												placeholder={label}
-												fieldKey={key}
-												inputRef={createInputRef(key)}
-												maxLength={maxLength}
-												showCounter={!!maxLength}
-											/>
-										) : (
-											<DisplayText>{safeStringValue(company[key])}</DisplayText>
-										)}
-									</Box>
-								</Box>
-							))}
-
-							{/* Recommended Qualifications (no extra container margins) */}
-							<Box sx={{ p: 0, m: 0 }}>
-								{editMode ? (
-									<Grid container spacing={0} direction='column'>
-										{/* Recommended Skills */}
-										<Grid item xs={12}>
-											<Typography
-												variant='subtitle1'
-												className={styles.fieldLabel}
-											>
-												{t.recommended_skills || 'Recommended Skills'}
-											</Typography>
-											<Box className={styles.recruitmentEditColumn}>
-												{safeArrayRender(editData.recommended_skills).map(
-													(item, index) => (
-														<Box
-															key={`reco-skill-${index}`}
-															className={styles.recruitmentSavedItem}
-														>
-															<CustomTextField
-																value={safeStringValue(item)}
-																onChange={e =>
-																	handleArrayChange(
-																		'recommended_skills',
-																		index,
-																		e.target.value
-																	)
-																}
-																placeholder={
-																	t.recommended_skills_placeholder ||
-																	'e.g., TypeScript, Docker'
-																}
-																fieldKey={`recommended_skills_${index}`}
-																inputRef={createInputRef(
-																	`recommended_skills_${index}`
-																)}
-															/>
-															<button
-																type='button'
-																className={styles.recruitmentDeleteButton}
-																onClick={e => {
-																	e.preventDefault()
-																	const arr = safeArrayRender(
-																		editData.recommended_skills
-																	)
-																	handleUpdateEditData(
-																		'recommended_skills',
-																		arr.filter((_, i) => i !== index)
-																	)
-																}}
-															>
-																<img
-																	src={DeleteIcon}
-																	alt='delete'
-																	className={styles.deleteIcon}
-																/>
-															</button>
-														</Box>
-													)
-												)}
-												<Box className={styles.recruitmentInputContainer}>
-													<CustomTextField
-														value={safeStringValue(
-															editData.newRecommendedSkill
-														)}
-														onChange={e =>
-															handleUpdateEditData(
-																'newRecommendedSkill',
-																e.target.value
-															)
-														}
-														placeholder={
-															t.recommended_skills_placeholder ||
-															'e.g., TypeScript, Docker'
-														}
-														fieldKey='newRecommendedSkill'
-														inputRef={createInputRef('newRecommendedSkill')}
-													/>
-													<button
-														type='button'
-														className={styles.recruitmentSaveButton}
-														onClick={e => {
-															e.preventDefault()
-															const val = safeStringValue(
-																editData.newRecommendedSkill
-															).trim()
-															if (val) {
-																const arr = safeArrayRender(
-																	editData.recommended_skills
-																)
-																handleUpdateEditData('recommended_skills', [
-																	...arr,
-																	val,
-																])
-																handleUpdateEditData('newRecommendedSkill', '')
-															}
-														}}
-													>
-														{t.save || 'Save'}
-													</button>
-												</Box>
-											</Box>
-										</Grid>
-
-										{/* Recommended Licenses */}
-										<Grid item xs={12}>
-											<Typography
-												variant='subtitle1'
-												className={styles.fieldLabel}
-											>
-												{t.recommended_licenses || 'Recommended Licenses'}
-											</Typography>
-											<Box className={styles.recruitmentEditColumn}>
-												{safeArrayRender(editData.recommended_licenses).map(
-													(item, index) => (
-														<Box
-															key={`reco-lic-${index}`}
-															className={styles.recruitmentSavedItem}
-														>
-															<CustomTextField
-																value={safeStringValue(item)}
-																onChange={e =>
-																	handleArrayChange(
-																		'recommended_licenses',
-																		index,
-																		e.target.value
-																	)
-																}
-																placeholder={
-																	t.recommended_licenses_placeholder ||
-																	'e.g., JLPT N2'
-																}
-																fieldKey={`recommended_licenses_${index}`}
-																inputRef={createInputRef(
-																	`recommended_licenses_${index}`
-																)}
-															/>
-															<button
-																type='button'
-																className={styles.recruitmentDeleteButton}
-																onClick={e => {
-																	e.preventDefault()
-																	const arr = safeArrayRender(
-																		editData.recommended_licenses
-																	)
-																	handleUpdateEditData(
-																		'recommended_licenses',
-																		arr.filter((_, i) => i !== index)
-																	)
-																}}
-															>
-																<img
-																	src={DeleteIcon}
-																	alt='delete'
-																	className={styles.deleteIcon}
-																/>
-															</button>
-														</Box>
-													)
-												)}
-												<Box className={styles.recruitmentInputContainer}>
-													<CustomTextField
-														value={safeStringValue(
-															editData.newRecommendedLicense
-														)}
-														onChange={e =>
-															handleUpdateEditData(
-																'newRecommendedLicense',
-																e.target.value
-															)
-														}
-														placeholder={
-															t.recommended_licenses_placeholder ||
-															'e.g., JLPT N2'
-														}
-														fieldKey='newRecommendedLicense'
-														inputRef={createInputRef('newRecommendedLicense')}
-													/>
-													<button
-														type='button'
-														className={styles.recruitmentSaveButton}
-														onClick={e => {
-															e.preventDefault()
-															const val = safeStringValue(
-																editData.newRecommendedLicense
-															).trim()
-															if (val) {
-																const arr = safeArrayRender(
-																	editData.recommended_licenses
-																)
-																handleUpdateEditData('recommended_licenses', [
-																	...arr,
-																	val,
-																])
-																handleUpdateEditData(
-																	'newRecommendedLicense',
-																	''
-																)
-															}
-														}}
-													>
-														{t.save || 'Save'}
-													</button>
-												</Box>
-											</Box>
-										</Grid>
-
-										{/* Recommended Other */}
-										<Grid item xs={12}>
-											<Typography
-												variant='subtitle1'
-												className={styles.fieldLabel}
-											>
-												{t.recommended_other || 'Other Recommendations'}
-											</Typography>
-											<Box className={styles.recruitmentEditColumn}>
-												{safeArrayRender(editData.recommended_other).map(
-													(item, index) => (
-														<Box
-															key={`reco-oth-${index}`}
-															className={styles.recruitmentSavedItem}
-														>
-															<CustomTextField
-																value={safeStringValue(item)}
-																onChange={e =>
-																	handleArrayChange(
-																		'recommended_other',
-																		index,
-																		e.target.value
-																	)
-																}
-																placeholder={
-																	t.recommended_other_placeholder ||
-																	'e.g., Internship experience'
-																}
-																fieldKey={`recommended_other_${index}`}
-																inputRef={createInputRef(
-																	`recommended_other_${index}`
-																)}
-															/>
-															<button
-																type='button'
-																className={styles.recruitmentDeleteButton}
-																onClick={e => {
-																	e.preventDefault()
-																	const arr = safeArrayRender(
-																		editData.recommended_other
-																	)
-																	handleUpdateEditData(
-																		'recommended_other',
-																		arr.filter((_, i) => i !== index)
-																	)
-																}}
-															>
-																<img
-																	src={DeleteIcon}
-																	alt='delete'
-																	className={styles.deleteIcon}
-																/>
-															</button>
-														</Box>
-													)
-												)}
-												<Box className={styles.recruitmentInputContainer}>
-													<CustomTextField
-														value={safeStringValue(
-															editData.newRecommendedOther
-														)}
-														onChange={e =>
-															handleUpdateEditData(
-																'newRecommendedOther',
-																e.target.value
-															)
-														}
-														placeholder={
-															t.recommended_other_placeholder ||
-															'e.g., Internship experience'
-														}
-														fieldKey='newRecommendedOther'
-														inputRef={createInputRef('newRecommendedOther')}
-													/>
-													<button
-														type='button'
-														className={styles.recruitmentSaveButton}
-														onClick={e => {
-															e.preventDefault()
-															const val = safeStringValue(
-																editData.newRecommendedOther
-															).trim()
-															if (val) {
-																const arr = safeArrayRender(
-																	editData.recommended_other
-																)
-																handleUpdateEditData('recommended_other', [
-																	...arr,
-																	val,
-																])
-																handleUpdateEditData('newRecommendedOther', '')
-															}
-														}}
-													>
-														{t.save || 'Save'}
-													</button>
-												</Box>
-											</Box>
-										</Grid>
-									</Grid>
-								) : (
-									<Grid container spacing={0} direction='column'>
-										{[
-											{
-												label: t.recommended_skills || 'Recommended Skills',
-												items: safeArrayRender(company.recommended_skills),
-											},
-											{
-												label: t.recommended_licenses || 'Recommended Licenses',
-												items: safeArrayRender(company.recommended_licenses),
-											},
-											{
-												label: t.recommended_other || 'Other Recommendations',
-												items: safeArrayRender(company.recommended_other),
-											},
-										]
-											.map(col =>
-												role === 'Recruiter'
-													? col
-													: {
-															...col,
-															items: col.items.filter(item => hasContent(item)),
-														}
-											)
-											.filter(
-												col => role === 'Recruiter' || col.items.length > 0
-											)
-											.map((col, idx) => (
-												<Grid item xs={12} key={`reco-col-${idx}`}>
-													<Typography
-														variant='subtitle1'
-														className={styles.fieldLabel}
-													>
-														{col.label}
-													</Typography>
-													{col.items.map((item, i) => (
-														<DisplayText key={`reco-item-${idx}-${i}`}>
-															{safeStringValue(item)}
-														</DisplayText>
-													))}
-												</Grid>
-											))}
-									</Grid>
-								)}
-							</Box>
-
-							{/* Target Audience */}
-							<Box className={styles.sectionRow} sx={{ m: 0, p: 0 }}>
-								<Typography variant='subtitle1' className={styles.sectionRowLabel}>
-									{t.target_person}
-								</Typography>
-								<Box className={styles.sectionRowValue}>
-									{editMode ? (
-										<CustomTextField
-											value={Array.isArray(editData.target_audience) ? editData.target_audience.join(', ') : safeStringValue(editData.target_audience)}
-											onChange={e => handleUpdateEditData('target_audience', e.target.value)}
-											placeholder={t.target_audience_placeholder}
-											fieldKey='target_audience'
-											inputRef={createInputRef('target_audience')}
-										/>
-									) : (
-										<Box className={styles.chipContainer}>
-											{safeArrayRender(company.target_audience).map((item, index) => (
-												<Chip
-													key={`target-chip-${index}`}
-													label={safeStringValue(item)}
-													variant='filled'
-													sx={{ backgroundColor: '#efeafc', color: '#5627db', fontWeight: 500 }}
-												/>
-											))}
-										</Box>
-									)}
-								</Box>
-
-								{/* Selection Process */}
-								{[
-									{
-										key: 'selection_process',
-										label: t.selection_process,
-										multiline: true,
-									},
-									{
-										key: 'interview_method',
-										label: t.interview_method,
-										multiline: false,
-									},
-								]
-									.filter(
-										({ key }) =>
-											role === 'Recruiter' ||
-											editMode ||
-											hasContent(company[key])
-									)
-									.map(({ key, label, multiline }, idx) => (
-										<Box key={key} className={styles.sectionRow} sx={{ m: 0, p: 0 }}>
-											<Typography variant='subtitle1' className={styles.sectionRowLabel}>
-												{label}
-											</Typography>
-											<Box className={styles.sectionRowValue}>
-												{editMode && role === 'Recruiter' ? (
-													<CustomTextField
-														value={safeStringValue(editData[key])}
-														onChange={e => handleUpdateEditData(key, e.target.value)}
-														multiline={multiline}
-														minRows={multiline ? 3 : 1}
-														placeholder={label}
-														fieldKey={key}
-														inputRef={createInputRef(key)}
-													/>
-												) : (
-													<DisplayText>
-														{safeStringValue(company[key])}
-													</DisplayText>
-												)}
-											</Box>
-										</Box>
-									))}
-
-								{/* Recruitment Requirements - Required/Welcome Skills as label-left, input-right */}
-								{editMode ? (
-									<Box>
-										<Box className={styles.sectionRow}>
-											<Typography variant='subtitle1' className={styles.sectionRowLabel}>
-												{t.required_skills}
-											</Typography>
-											<Box className={styles.sectionRowValue}>
-												<CustomTextField
-													value={Array.isArray(editData.required_skills) ? editData.required_skills.join(', ') : safeStringValue(editData.required_skills)}
-													onChange={e => handleUpdateEditData('required_skills', e.target.value)}
-													placeholder={t.required_skills_placeholder}
-													fieldKey='required_skills'
-													inputRef={createInputRef('required_skills')}
-												/>
-											</Box>
-										</Box>
-										<Box className={styles.sectionRow}>
-											<Typography variant='subtitle1' className={styles.sectionRowLabel}>
-												{t.welcome_skills}
-											</Typography>
-											<Box className={styles.sectionRowValue}>
-												<CustomTextField
-													value={Array.isArray(editData.welcome_skills) ? editData.welcome_skills.join(', ') : safeStringValue(editData.welcome_skills)}
-													onChange={e => handleUpdateEditData('welcome_skills', e.target.value)}
-													placeholder={t.preferred_skills_placeholder}
-													fieldKey='welcome_skills'
-													inputRef={createInputRef('welcome_skills')}
-												/>
-											</Box>
-										</Box>
-									</Box>
-								) : (
-									<Box>
-										<Box className={styles.sectionRow}>
-											<Typography
-												variant='subtitle1'
-												className={styles.sectionRowLabel}
-											>
-												{t.required_skills}
-											</Typography>
-											<Box className={styles.sectionRowValue}>
-												<Box className={styles.chipContainer}>
-													{safeArrayRender(company.required_skills).map(
-														(item, index) => (
-															<Chip
-																key={`req-chip-${index}`}
-																label={safeStringValue(item)}
-																variant='filled'
-																sx={{
-																	backgroundColor: '#efeafc',
-																	color: '#5627db',
-																	fontWeight: 500,
-																}}
-															/>
-														)
-													)}
-												</Box>
-											</Box>
-										</Box>
-										<Box className={styles.sectionRow}>
-											<Typography
-												variant='subtitle1'
-												className={styles.sectionRowLabel}
-											>
-												{t.welcome_skills}
-											</Typography>
-											<Box className={styles.sectionRowValue}>
-												<Box className={styles.chipContainer}>
-													{safeArrayRender(company.welcome_skills).map(
-														(item, index) => (
-															<Chip
-																key={`wel-chip-${index}`}
-																label={safeStringValue(item)}
-																variant='filled'
-																sx={{
-																	backgroundColor: '#efeafc',
-																	color: '#5627db',
-																	fontWeight: 500,
-																}}
-															/>
-														)
-													)}
-												</Box>
-											</Box>
-										</Box>
-									</Box>
-								)}
-							</Box>
-						</Box>
-					</ContentBox>
-
-					{/* Compensation & Benefits (給与・待遇・福利厚生) */}
-					<ContentBox>
-						<SectionHeader
-							icon={InfoIcon}
-							title={t.compensation_benefits || 'Compensation & Benefits'}
-						/>
-						<Box
-							className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
-						>
-							{[
+								// 14-25 給与・待遇
 								{ key: 'salary', label: t.salary, multiline: false },
 								{
 									key: 'salary_increase',
@@ -2364,35 +1790,91 @@ const CompanyProfile = ({ userId = 0 }) => {
 									label: t.airport_pickup || '来日時の送迎',
 									multiline: false,
 								},
+								// 26-27 フロー・その他
+								{
+									key: 'selection_process',
+									label: t.selection_process || '採用までの流れ',
+									multiline: true,
+								},
+								{
+									key: 'other_notes',
+									label: t.other_notes || 'その他',
+									multiline: true,
+								},
 							]
 								.filter(
 									({ key }) =>
 										role === 'Recruiter' || editMode || hasContent(company[key])
 								)
-								.map(({ key, label, multiline }, idx) => (
+								.map((f, idx) => (
 									<Box
-										key={key}
+										key={f.key}
 										className={`${styles.infoRow} ${idx % 2 === 0 ? styles.infoRowOdd : styles.infoRowEven}`}
+										sx={{ m: 0, p: 0 }}
 									>
 										<Typography variant='subtitle1' className={styles.label}>
-											{label}
+											{f.label}
 										</Typography>
 										<Box className={styles.value}>
-											{editMode ? (
+											{/* Array-style fields */}
+											{f.type === 'array' ? (
+												editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeArrayRender(editData[f.key]).join(', ')}
+														onChange={e => {
+															const arr = String(e.target.value || '')
+																.split(',')
+																.map(s => s.trim())
+																.filter(Boolean)
+															handleUpdateEditData(f.key, arr)
+														}}
+														placeholder={f.label}
+														fieldKey={f.key}
+														inputRef={createInputRef(f.key)}
+													/>
+												) : (
+													<DisplayText>
+														{safeArrayRender(company[f.key]).join('、')}
+													</DisplayText>
+												)
+											) : f.type === 'target' ? (
+												/* Special render for 対象: accept comma-separated string, display gracefully */
+												editMode && role === 'Recruiter' ? (
+													<CustomTextField
+														value={safeStringValue(editData[f.key])}
+														onChange={e =>
+															handleUpdateEditData(f.key, e.target.value)
+														}
+														placeholder={f.label}
+														fieldKey={f.key}
+														inputRef={createInputRef(f.key)}
+														maxLength={f.maxLength}
+													/>
+												) : (
+													<DisplayText>
+														{Array.isArray(company[f.key])
+															? company[f.key].join('、')
+															: safeStringValue(company[f.key])}
+													</DisplayText>
+												)
+											) : /* Default text fields */
+											editMode && role === 'Recruiter' ? (
 												<CustomTextField
-													value={safeStringValue(editData[key])}
+													value={safeStringValue(editData[f.key])}
 													onChange={e =>
-														handleUpdateEditData(key, e.target.value)
+														handleUpdateEditData(f.key, e.target.value)
 													}
-													multiline={multiline}
-													minRows={multiline ? 3 : 1}
-													placeholder={label}
-													fieldKey={key}
-													inputRef={createInputRef(key)}
+													multiline={!!f.multiline}
+													minRows={f.multiline ? 3 : 1}
+													placeholder={f.label}
+													fieldKey={f.key}
+													inputRef={createInputRef(f.key)}
+													maxLength={f.maxLength}
+													showCounter={!!f.maxLength}
 												/>
 											) : (
 												<DisplayText>
-													{safeStringValue(company[key])}
+													{safeStringValue(company[f.key])}
 												</DisplayText>
 											)}
 										</Box>
@@ -2400,43 +1882,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 								))}
 						</Box>
 					</ContentBox>
-
-					{/* Other (その他) - placed at the very end */}
-					{(editMode || hasContent(company.other_notes)) && (
-						<ContentBox>
-							<SectionHeader icon={InfoIcon} title={t.other || 'その他'} />
-							<Box
-								className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
-							>
-								<Box className={`${styles.infoRow} ${styles.infoRowOdd}`}>
-									<Typography variant='subtitle1' className={styles.label}>
-										{t.other_notes}
-									</Typography>
-									<Box className={styles.value}>
-										{editMode && role === 'Recruiter' ? (
-											<CustomTextField
-												value={safeStringValue(editData.other_notes)}
-												onChange={e =>
-													handleUpdateEditData('other_notes', e.target.value)
-												}
-												multiline
-												minRows={3}
-												placeholder={t.other_notes}
-												fieldKey='other_notes'
-												inputRef={createInputRef('other_notes')}
-											/>
-										) : (
-											<DisplayText>
-												{safeStringValue(company.other_notes)}
-											</DisplayText>
-										)}
-									</Box>
-								</Box>
-							</Box>
-						</ContentBox>
-					)}
-
-					{/* Additional Information removed — fields moved to 募集概要 */}
 				</>
 			)}
 

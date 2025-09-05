@@ -1,4 +1,6 @@
 const { Draft, Student, sequelize } = require('../models')
+const SettingsService = require('./settingService')
+const QAService = require('./qaService')
 const _ = require('lodash') // Used for deep object comparison
 const { uploadFile, deleteFile } = require('../utils/storageService')
 const generateUniqueFilename = require('../utils/uniqueFilename')
@@ -290,6 +292,61 @@ class DraftService {
 			throw new Error(
 				'Sizda allaqachon tekshiruvga yuborilgan faol qoralama mavjud. Yangisini yuborish uchun avvalgisining natijasini kuting.'
 			)
+		}
+
+
+		// Server-side validation: ensure all required QA answers are filled
+		try {
+			const settingsRaw = await SettingsService.getSetting('studentQA')
+			if (settingsRaw) {
+				let settings
+				try {
+					settings = JSON.parse(settingsRaw)
+				} catch {
+					settings = null
+				}
+                if (settings && typeof settings === 'object') {
+                    // Prefer answers from current draft.profile_data.qa if present
+                    const profileQA = (draft.profile_data && draft.profile_data.qa) || null
+
+                    let answersByCategory = {}
+                    if (profileQA && typeof profileQA === 'object') {
+                        answersByCategory = profileQA
+                    } else {
+                        // Fallback to persisted QA rows
+                        const student = await Student.findOne({ where: { student_id: draft.student_id } })
+                        if (student) {
+                            const qaRows = await QAService.findQAByStudentId(student.id)
+                            for (const row of qaRows) {
+                                answersByCategory[row.category] = row.qa_list || {}
+                            }
+                        }
+                    }
+
+                    const missing = []
+                    for (const category of Object.keys(settings)) {
+                        if (category === 'idList') continue
+                        const questions = settings[category] || {}
+                        const answers = answersByCategory[category] || {}
+                        for (const key of Object.keys(questions)) {
+                            const q = questions[key]
+                            if (q && q.required === true) {
+                                const ans = answers[key]?.answer
+                                if (!ans || String(ans).trim() === '') {
+                                    missing.push({ category, key })
+                                }
+                            }
+                        }
+                    }
+                    if (missing.length > 0) {
+                        throw new Error(
+                            `Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`
+                        )
+                    }
+                }
+			}
+		} catch (e) {
+			throw e
 		}
 
 		draft.status = 'submitted'

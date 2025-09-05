@@ -19,6 +19,7 @@ import {
 	Dialog,
 	DialogActions,
 	DialogContent,
+	DialogContentText,
 	DialogTitle,
 	LinearProgress,
 	TextField as MuiTextField,
@@ -697,7 +698,9 @@ const Top = () => {
 			}, {}),
 		}
 	}
-	const handleSubmitDraft = async () => {
+    const [warningModal, setWarningModal] = useState({ open: false, message: '' })
+
+    const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
 				const response = await axios.put(
@@ -720,8 +723,23 @@ const Top = () => {
 			} else {
 				showAlert(t('noDraftToSubmit'), 'error')
 			}
-		} catch (error) {
-			showAlert(t('errorSubmittingDraft'), 'error')
+        } catch (error) {
+            const status = error?.response?.status
+            const serverMsg = error?.response?.data?.error
+            // For validation errors (e.g., missing required answers), prefer localized message
+            if (status === 400) {
+                setWarningModal({
+                    open: true,
+                    message: t('pleaseAnswerRequired') || serverMsg || 'Required questions are missing.',
+                })
+            } else if (serverMsg) {
+                setWarningModal({ open: true, message: serverMsg })
+            } else {
+                setWarningModal({
+                    open: true,
+                    message: t('errorSubmittingDraft') || 'Error submitting draft',
+                })
+            }
 		} finally {
 			setConfirmMode(false)
 		}
@@ -2140,9 +2158,9 @@ const Top = () => {
 				</DialogActions>
 			</Dialog>
 
-			{/* Unsaved changes warning */}
-			<Dialog
-				open={showUnsavedWarning}
+    {/* Unsaved changes warning */}
+    <Dialog
+        open={showUnsavedWarning}
 				onClose={() => {
 					setShowUnsavedWarning(false)
 					if (pendingLanguageChange) {
@@ -2234,7 +2252,33 @@ const Top = () => {
 						</Button>
 					)}
 				</DialogActions>
-			</Dialog>
+    </Dialog>
+
+    {/* Submit warning modal (e.g., missing required QA answers) */}
+    <Dialog
+        open={warningModal.open}
+        onClose={() => setWarningModal({ open: false, message: '' })}
+        aria-labelledby='submit-warning-title'
+        aria-describedby='submit-warning-desc'
+    >
+        <DialogTitle id='submit-warning-title'>
+            {t('warning') || 'Warning'}
+        </DialogTitle>
+        <DialogContent>
+            <DialogContentText id='submit-warning-desc'>
+                {warningModal.message}
+            </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button
+                onClick={() => setWarningModal({ open: false, message: '' })}
+                color='primary'
+                autoFocus
+            >
+                {t('ok')}
+            </Button>
+        </DialogActions>
+    </Dialog>
 		</Box>
 	)
 }

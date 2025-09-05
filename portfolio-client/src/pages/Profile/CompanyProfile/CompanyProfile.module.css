@@ -15,8 +15,8 @@
 /* Content Box */
 .contentBox {
 	width: 100%;
-	padding: 32px;
-	margin-top: 32px;
+	padding: 10px;
+	margin-top: 16px;
 	margin-bottom: 32px;
 	background-color: #fff;
 	border-radius: 12px;
@@ -284,9 +284,9 @@
 }
 
 .label {
-	width: 20%;
+	width: 25%;
 	padding: 16px 32px;
-	font-weight: 500;
+	font-weight: 600 !important;
 	color: #333;
 	margin: 0 !important;
 	background-color: inherit;
@@ -299,6 +299,8 @@
 	display: flex;
 	align-items: center;
 	background-color: inherit;
+	font-size: 14px;
+	/* Ensure value text is 14px */
 }
 
 /* Column layout for sections that must stack label above content */
@@ -323,7 +325,7 @@
 /* Row layout for label-left, input-right sections (local, not global) */
 .sectionRow {
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-items: flex-start;
 	gap: 16px;
 	padding: 8px 0;
@@ -369,7 +371,7 @@
 	display: flex;
 	align-items: center;
 	border-radius: 8px;
-	margin-bottom: 16px;
+	padding: 10px 10px;
 }
 
 .sectionIcon {
@@ -398,11 +400,13 @@
 	color: rgba(30, 30, 30, 0.7) !important;
 	margin-bottom: 4px;
 	white-space: pre-wrap;
+	font-size: 14px;
+	/* Match value font size */
 }
 
 /* Field Labels */
 .businessOverviewLabel {
-	font-weight: bold;
+	font-weight: 600;
 	margin-bottom: 8px;
 	color: #000;
 }
@@ -410,7 +414,7 @@
 .targetAudienceLabel {
 	margin-bottom: 8px;
 	color: #000;
-	font-weight: 500;
+	font-weight: 600;
 	font-size: 18px;
 }
 
@@ -460,6 +464,17 @@
 /* FIXED: Removed problematic focus styles that were causing scroll issues */
 .customTextField .MuiInputBase-input:focus {
 	outline: none;
+}
+
+/* Ensure input text inside value fields is 14px across the board */
+.companyInfoContainer .value :global(.MuiInputBase-input),
+.companyInfoContainerEdit .value :global(.MuiInputBase-input) {
+	font-size: 14px !important;
+}
+
+.companyInfoContainer .value :global(.MuiTypography-root),
+.companyInfoContainerEdit .value :global(.MuiTypography-root) {
+	font-size: 14px !important;
 }
 
 /* Edit Input Styles */
