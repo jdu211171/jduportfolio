@@ -201,8 +201,39 @@ exports.validateRecruiterUpdate = [
         .optional({ nullable: true })
         .isArray({ max: 4 })
         .withMessage('intro_page_links must be an array (max 4)')
-        .custom(arr => arr.every(u => typeof u === 'string'))
-        .withMessage('All intro_page_links must be strings'),
+        // Normalize to array of { title, url }
+        .customSanitizer(arr => {
+            if (!Array.isArray(arr)) return arr
+            return arr
+                .map(item => {
+                    if (typeof item === 'string') {
+                        return { title: '', url: String(item).trim() }
+                    }
+                    if (item && typeof item === 'object') {
+                        return {
+                            title: item.title != null ? String(item.title).trim() : '',
+                            url: item.url != null ? String(item.url).trim() : '',
+                        }
+                    }
+                    return null
+                })
+                .filter(v => v && v.url)
+        })
+        .custom(arr =>
+            arr.every(
+                v =>
+                    v && typeof v.url === 'string' && v.url.length > 0 &&
+                    (v.title == null || typeof v.title === 'string')
+            )
+        )
+        .withMessage('Each intro link must be an object { title?, url } with non-empty url'),
+    // Enforce title length <= 50
+    body('intro_page_links')
+        .optional({ nullable: true })
+        .custom(arr =>
+            arr.every(v => (v.title ? String(v.title).length <= 50 : true))
+        )
+        .withMessage('Intro link title must be at most 50 characters'),
 
     // Arrays
     body('company_video_url')

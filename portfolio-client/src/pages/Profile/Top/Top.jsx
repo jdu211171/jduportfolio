@@ -2316,7 +2316,11 @@ function HistoryComments() {
       <Typography sx={{ fontWeight: 600, mb: 1 }}>過去のスタッフコメント</Typography>
       {items.map((n, idx) => {
         const parts = n.message.split('|||COMMENT_SEPARATOR|||')
-        const comment = parts[1] || ''
+        const commentRaw = parts[1] || ''
+        const comment = (() => {
+          const lines = String(commentRaw).split('\n')
+          return lines.length > 1 ? lines.slice(1).join('\n').trim() : commentRaw.trim()
+        })()
         return (
           <Box key={n.id || idx} sx={{ p: 1.5, mb: 1, backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #eee' }}>
             <Typography sx={{ whiteSpace: 'pre-wrap' }}>{comment}</Typography>

@@ -311,14 +311,46 @@ class StudentController {
 			console.log('Final update payload:', updatePayload)
 
 			// Studentni bir marta yangilash
-			const updatedStudent = await StudentService.updateStudent(
-				id,
-				updatePayload
-			)
+            const updatedStudent = await StudentService.updateStudent(
+                id,
+                updatePayload
+            )
 
-			console.log('Updated student:', updatedStudent.dataValues)
+            console.log('Updated student:', updatedStudent.dataValues)
 
-			res.status(200).json(updatedStudent)
+            // Notify recruiters when a student's profile is made public
+            try {
+                const becamePublic = studentData.visibility === true && student.visibility !== true
+                if (becamePublic) {
+                    const { Recruiter } = require('../models')
+                    const NotificationService = require('../services/notificationService')
+                    const recruiters = await Recruiter.findAll({ attributes: ['id'] })
+                    if (Array.isArray(recruiters) && recruiters.length > 0) {
+                        const sid = updatedStudent.student_id || id
+                        const msgJA = `学生 (ID: ${sid}) のプロフィールが公開されました。`
+                        const msgEN = `Student (ID: ${sid}) profile has been made public.`
+                        const msgUZ = `Talaba (ID: ${sid}) profili ommaga ochildi.`
+                        const msgRU = `Профиль студента (ID: ${sid}) стал публичным.`
+                        const message = `【JA】${msgJA}\n【EN】${msgEN}\n【UZ】${msgUZ}\n【RU】${msgRU}`
+                        await Promise.all(
+                            recruiters.map(r =>
+                                NotificationService.create({
+                                    user_id: String(r.id),
+                                    user_role: 'recruiter',
+                                    type: 'etc',
+                                    status: 'unread',
+                                    message,
+                                    related_id: updatedStudent.id,
+                                })
+                            )
+                        )
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to notify recruiters on publish:', e)
+            }
+
+            res.status(200).json(updatedStudent)
 		} catch (error) {
 			console.error('Error updating student:', error)
 			res.status(500).json({ error: error.message })

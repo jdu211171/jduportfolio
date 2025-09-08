@@ -331,7 +331,12 @@ class DraftService {
                         for (const key of Object.keys(questions)) {
                             const q = questions[key]
                             if (q && q.required === true) {
-                                const ans = answers[key]?.answer
+                                // Accept legacy answer shapes: object { answer } or plain string
+                                const raw = answers[key]
+                                const ans =
+                                    raw && typeof raw === 'object' && raw !== null && 'answer' in raw
+                                        ? raw.answer
+                                        : raw
                                 if (!ans || String(ans).trim() === '') {
                                     missing.push({ category, key })
                                 }

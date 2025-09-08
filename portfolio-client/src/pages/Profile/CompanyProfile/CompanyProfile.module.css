@@ -15,7 +15,7 @@
 /* Content Box */
 .contentBox {
 	width: 100%;
-	padding: 10px;
+	/* padding: 10px; */
 	margin-top: 16px;
 	margin-bottom: 32px;
 	background-color: #fff;
@@ -285,7 +285,7 @@
 
 .label {
 	width: 25%;
-	padding: 16px 32px;
+	padding: 0px 16px;
 	font-weight: 600 !important;
 	color: #333;
 	margin: 0 !important;
@@ -293,7 +293,7 @@
 }
 
 .value {
-	/* width: 300px; */
+	width: 100%;
 	/* margin-right: 26.875rem; */
 	color: #555;
 	display: flex;
@@ -655,6 +655,15 @@
 .targetAudienceViewCard:hover {
 	border-color: #5627dc;
 	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.1);
+}
+
+/* Intro Page Links: Title + URL row padding */
+.introLinkItem {
+    padding: 0px 0px 10px 16px;
+}
+
+.introLinkTitle {
+    font-weight: 600;
 }
 
 .targetAudienceText {
