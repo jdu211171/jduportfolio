@@ -11,8 +11,10 @@ class NotificationService {
 	// }
 
 	static async getByUserId(user_id, filter = {}) {
+		// Normalize to string because column type is STRING
+		const normalizedUserId = user_id != null ? String(user_id) : user_id
 		return Notification.findAll({
-			where: { user_id, ...filter },
+			where: { user_id: normalizedUserId, ...filter },
 			order: [['createdAt', 'DESC']],
 		})
 	}
@@ -38,8 +40,9 @@ class NotificationService {
 	}
 
 	static async markOneAsRead(notificationId, user_id) {
+		const normalizedUserId = user_id != null ? String(user_id) : user_id
 		const notification = await Notification.findOne({
-			where: { id: notificationId, user_id, status: 'unread' },
+			where: { id: notificationId, user_id: normalizedUserId, status: 'unread' },
 		})
 
 		if (!notification) return null
@@ -56,19 +59,11 @@ class NotificationService {
 				userType,
 			})
 
-			// Handle Recruiter case - recruiters don't have notifications in the current system
-			if (userType.toLowerCase() === 'recruiter') {
-				console.log(
-					'NotificationService.markAllAsRead - Recruiter detected, returning 0 (no notifications)'
-				)
-				return 0 // Return 0 updated records since recruiters don't have notifications
-			}
-
 			let whereClause = {}
 
 			if (userType.toLowerCase() === 'student') {
 				whereClause = {
-					user_id: userId,
+					user_id: String(userId),
 					user_role: 'student',
 					status: { [Op.ne]: 'read' },
 				}
@@ -76,7 +71,7 @@ class NotificationService {
 				whereClause = { user_role: 'admin', status: { [Op.ne]: 'read' } }
 			} else {
 				whereClause = {
-					user_id: userId,
+					user_id: String(userId),
 					user_role: userType.toLowerCase(),
 					status: { [Op.ne]: 'read' },
 				}

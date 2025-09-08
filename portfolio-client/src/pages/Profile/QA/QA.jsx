@@ -33,19 +33,19 @@ import {
 } from '@mui/icons-material'
 import axios from '../../../utils/axiosUtils'
 import {
-	Box,
-	// Tabs,
-	// Tab,
-	Button,
-	Snackbar,
-	Alert,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogContentText,
-	DialogActions,
-	Typography,
-	// IconButton,
+    Box,
+    // Tabs,
+    // Tab,
+    Button,
+    Snackbar,
+    Alert,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Typography,
+    // IconButton,
 } from '@mui/material'
 
 import translations from '../../../locales/translations'
@@ -169,9 +169,15 @@ const QA = ({
 		message: '',
 	})
 
+	// Staff approve/reject confirm dialog state
+	const [staffConfirm, setStaffConfirm] = useState({
+		open: false,
+		action: null,
+	})
+
 	// Reviewer view: allow a single arrow to toggle all
-	const isReviewer = ['Admin', 'Staff', 'Recruiter'].includes(role) && !!id
-	const [allExpanded, setAllExpanded] = useState(true)
+const isReviewer = ['Admin', 'Staff', 'Recruiter'].includes(role) && !!id
+const [allExpanded, setAllExpanded] = useState(true)
 
 	// Debug logging to track state changes
 
@@ -186,6 +192,26 @@ const QA = ({
 	useEffect(() => {
 		setPassedDraft(currentDraft)
 	}, [currentDraft])
+
+	// Fallback: if reviewer and no currentDraft passed, fetch student's latest draft
+	useEffect(() => {
+		const shouldFetch =
+			isReviewer &&
+			(!currentDraft || Object.keys(currentDraft || {}).length === 0) &&
+			id
+		if (!shouldFetch) return
+		;(async () => {
+			try {
+				const res = await axios.get(`/api/draft/student/${id}`)
+				if (res?.data) {
+					setPassedDraft(res.data)
+					setReviewMode(false)
+				}
+			} catch (e) {
+				// ignore silently
+			}
+		})()
+	}, [isReviewer, id])
 
 	const fetchStudent = async () => {
 		// Prevent fetching if already loaded (only for non-student roles)
@@ -229,21 +255,23 @@ const QA = ({
 						combinedData[category] = answers[category] || {}
 					} else {
 						combinedData[category] = {}
-						for (const key in questions[category]) {
-							combinedData[category][key] = {
-								question: questions[category][key].question || '',
-								answer:
-									!answers[category] || !answers[category][key]
-										? ''
-										: answers[category][key].answer || '',
-							}
-						}
+                for (const key in questions[category]) {
+                    combinedData[category][key] = {
+                        question: questions[category][key].question || '',
+                        required: !!questions[category][key].required,
+                        answer:
+                            !answers[category] || !answers[category][key]
+                                ? ''
+                                : answers[category][key].answer || '',
+                    }
+                }
 					}
 				}
 				response = combinedData
 			} else if (id) {
 				// Student view without answers (first time)
-				response = { ...questions, idList: {} }
+            // Preserve required flags for first-time student
+            response = { ...questions, idList: {} }
 				setIsFirstTime(true)
 			} else {
 				// Admin view - just questions, no answers needed
@@ -292,18 +320,18 @@ const QA = ({
 		setEditMode(topEditMode)
 	}, [topEditMode])
 
-	const handleUpdate = (category, keyName, value, qa) => {
-		setEditData(prevEditData => {
-			const updatedEditData = { ...prevEditData }
-			if (updatedEditData[category]) {
-				updatedEditData[category] = {
-					...updatedEditData[category],
-					[keyName]: {
-						...updatedEditData[category][keyName],
-						[qa]: value,
-					},
-				}
-			}
+    const handleUpdate = (category, keyName, value, qa) => {
+        setEditData(prevEditData => {
+            const updatedEditData = { ...prevEditData }
+            if (updatedEditData[category]) {
+                updatedEditData[category] = {
+                    ...updatedEditData[category],
+                    [keyName]: {
+                        ...updatedEditData[category][keyName],
+                        [qa]: value,
+                    },
+                }
+            }
 
 			// If called from Top page, update parent with the latest data
 			if (isFromTopPage && handleQAUpdate) {
@@ -315,30 +343,30 @@ const QA = ({
 		})
 	}
 
-    const updateComment = (key, value) => {
-        const next = { [key]: value }
-        setComment(next)
-        try {
-            if (id) {
-                localStorage.setItem(`qa_comment_draft_${id}`, JSON.stringify(next))
-            }
-        } catch (e) {}
-    }
+	const updateComment = (key, value) => {
+		const next = { [key]: value }
+		setComment(next)
+		try {
+			if (id) {
+				localStorage.setItem(`qa_comment_draft_${id}`, JSON.stringify(next))
+			}
+		} catch (e) {}
+	}
 
-    // Restore saved comment draft when opening this student's QA
-    useEffect(() => {
-        try {
-            if (id) {
-                const saved = localStorage.getItem(`qa_comment_draft_${id}`)
-                if (saved) {
-                    const parsed = JSON.parse(saved)
-                    if (parsed && typeof parsed.comments === 'string') {
-                        setComment(parsed)
-                    }
-                }
-            }
-        } catch (e) {}
-    }, [id])
+	// Restore saved comment draft when opening this student's QA
+	useEffect(() => {
+		try {
+			if (id) {
+				const saved = localStorage.getItem(`qa_comment_draft_${id}`)
+				if (saved) {
+					const parsed = JSON.parse(saved)
+					if (parsed && typeof parsed.comments === 'string') {
+						setComment(parsed)
+					}
+				}
+			}
+		} catch (e) {}
+	}, [id])
 
 	const toggleEditMode = () => {
 		setEditMode(prev => !prev)
@@ -348,40 +376,42 @@ const QA = ({
 		setConfirmMode(prev => !prev)
 	}
 
-	const handleConfirmProfile = async () => {
-		try {
-			const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
-			if (res.status == 200) {
-				// Update parent's currentDraft state to 'submitted'
-				updateCurrentDraft('submitted')
-				showAlert(t('profileConfirmed'), 'success')
-			}
-		} catch (error) {
-			// Backend'dan kelgan yangi xatolik xabarini handle qilamiz
-			if (
-				error.response?.data?.error?.includes(
-					'allaqachon tekshiruvga yuborilgan'
-				)
-			) {
-				showAlert(
-					t('draftAlreadySubmitted') ||
-						"Avvalgi so'rovingiz hali ko'rib chiqilmagan. Yangisini yuborish uchun natijani kuting.",
-					'warning'
-				)
-			} else {
-				showAlert(t('errorConfirmingProfile'), 'error')
-			}
-		} finally {
-			setConfirmMode(false)
-		}
-	}
-
-    const approveProfile = async value => {
+    const handleConfirmProfile = async () => {
         try {
-            const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
-                status: value,
-                comments: comment.comments,
-            })
+            const res = await axios.put(`/api/draft/${currentDraft.id}/submit`)
+            if (res.status == 200) {
+                // Update parent's currentDraft state to 'submitted'
+                updateCurrentDraft('submitted')
+                showAlert(t('profileConfirmed'), 'success')
+            }
+        } catch (error) {
+            const status = error?.response?.status
+            const serverMsg = error?.response?.data?.error
+            if (status === 400) {
+                // Prefer localized, student-friendly message for validation errors
+                setWarningModal({
+                    open: true,
+                    message: t('pleaseAnswerRequired') || serverMsg || 'Required questions are missing.',
+                })
+            } else if (serverMsg) {
+                setWarningModal({ open: true, message: serverMsg })
+            } else {
+                setWarningModal({
+                    open: true,
+                    message: t('errorConfirmingProfile') || '送信時にエラーが発生しました。',
+                })
+            }
+        } finally {
+            setConfirmMode(false)
+        }
+    }
+
+	const approveProfile = async value => {
+		try {
+			const res = await axios.put(`/api/draft/status/${currentDraft.id}`, {
+				status: value,
+				comments: comment.comments,
+			})
 
 			// Update local draft status to reflect the change
 			setPassedDraft(prevDraft => ({
@@ -390,18 +420,25 @@ const QA = ({
 			}))
 			// Update parent's currentDraft state
 			updateCurrentDraft(value)
-            // Clear comment input after successful submission
-            setComment({ comments: '' })
-            try {
-                if (id) localStorage.removeItem(`qa_comment_draft_${id}`)
-            } catch (e) {}
-            showAlert(t('profileConfirmed'), 'success')
-        } catch (error) {
-            showAlert(t('errorConfirmingProfile'), 'error')
-        } finally {
-            setConfirmMode(false)
-        }
-    }
+			// Clear comment input after successful submission
+			setComment({ comments: '' })
+			try {
+				if (id) localStorage.removeItem(`qa_comment_draft_${id}`)
+			} catch (e) {}
+			if (value === 'approved') {
+				showAlert(t('approvedSuccessfully') || '承認しました', 'success')
+			} else if (value === 'resubmission_required') {
+				showAlert(t('sentBackForRevision') || '差し戻しました', 'warning')
+			} else {
+				showAlert(t('profileConfirmed') || '更新しました', 'success')
+			}
+		} catch (error) {
+			showAlert(t('errorConfirmingProfile') || 'エラーが発生しました', 'error')
+		} finally {
+			setConfirmMode(false)
+			setStaffConfirm({ open: false, action: null })
+		}
+	}
 
 	const setProfileVisible = async visibility => {
 		try {
@@ -524,7 +561,7 @@ const QA = ({
 		}
 	}
 
-	const handleAdd = async () => {
+const handleAdd = async (isRequired = false) => {
 		let keys = Object.keys(getCategoryData(subTabIndex))
 		if (keys.length === 0) {
 			// Start from q1 if there are no existing questions
@@ -534,10 +571,10 @@ const QA = ({
 				if (!updatedEditData[category]) {
 					updatedEditData[category] = {}
 				}
-				updatedEditData[category]['q1'] = { question: '', answer: '' }
-				return updatedEditData
-			})
-		} else {
+            updatedEditData[category]['q1'] = { question: '', answer: '', required: !!isRequired }
+            return updatedEditData
+        })
+    } else {
 			let lastKey = keys[keys.length - 1]
 			let nextKeyNumber = parseInt(lastKey.slice(1)) + 1
 			let nextKey = 'q' + nextKeyNumber
@@ -548,16 +585,17 @@ const QA = ({
 				if (updatedEditData[category]) {
 					updatedEditData[category] = {
 						...updatedEditData[category],
-						[nextKey]: {
-							question: '',
-							answer: '',
-						},
-					}
-				}
-				return updatedEditData
-			})
-		}
-	}
+                    [nextKey]: {
+                        question: '',
+                        answer: '',
+                        required: !!isRequired,
+                    },
+                }
+            }
+            return updatedEditData
+        })
+    }
+}
 
 	const showDeleteConfirmation = indexToDelete => {
 		setDeleteConfirmation({
@@ -690,6 +728,44 @@ const QA = ({
 		return (editData && editData[category]) || {}
 	}
 
+	// --- Required (必須) validation helpers ---
+    const collectMissingRequiredAnswers = () => {
+        const missing = []
+        labels.forEach(category => {
+            const items = (editData && editData[category]) || {}
+            for (const key in items) {
+                const { question, answer, required } = items[key] || {}
+                if (required === true) {
+                    if (!answer || String(answer).trim() === '') {
+                        missing.push({ category, key, question })
+                    }
+                }
+            }
+        })
+        return missing
+    }
+
+    const handleStudentSubmitClick = () => {
+		// Validate required answers before allowing submit
+		const missing = collectMissingRequiredAnswers()
+        if (missing.length > 0) {
+            // Jump to the first category with missing answer to help the student
+            const first = missing[0]
+            const idx = labels.findIndex(l => l === first.category)
+            if (idx >= 0) setSubTabIndex(idx)
+            // Ensure student can edit to fill answers
+            if (!editMode) setEditMode(true)
+            setWarningModal({
+                open: true,
+                message:
+                    `${t('pleaseAnswerRequired') || '必須の質問に回答してください'}（未回答: ${missing.length}）`,
+            })
+            return
+        }
+        // Open confirmation dialog if all required answers provided
+        toggleConfirmMode()
+    }
+
 	// Debug logging to understand the state
 
 	// For Admin viewing QA management, we don't need an ID
@@ -715,16 +791,27 @@ const QA = ({
 				<>
 					{editMode ? (
 						<>
-							{role == 'Admin' && (
-								<Button
-									onClick={handleAdd}
-									variant='outlined'
-									color='primary'
-									size='small'
-								>
-									{t('add')}
-								</Button>
-							)}
+                            {role == 'Admin' && (
+                                <>
+                                    <Button
+                                        onClick={() => handleAdd(true)}
+                                        variant='contained'
+                                        color='warning'
+                                        size='small'
+                                    >
+                                        {t('add_required') || '必須追加'}
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleAdd(false)}
+                                        variant='outlined'
+                                        color='primary'
+                                        size='small'
+                                        sx={{ ml: 1 }}
+                                    >
+                                        {t('add_optional') || '任意追加'}
+                                    </Button>
+                                </>
+                            )}
 							{!isHonban && (
 								<Button
 									onClick={() => handleDraftUpsert(true)}
@@ -771,14 +858,14 @@ const QA = ({
 								currentDraft &&
 								(currentDraft.status === 'draft' ||
 									currentDraft.status === 'resubmission_required') && (
-									<Button
-										onClick={toggleConfirmMode}
-										variant='contained'
-										color='secondary'
-										size='small'
-									>
-										{t('submitAgree')}
-									</Button>
+										<Button
+											onClick={handleStudentSubmitClick}
+											variant='contained'
+											color='secondary'
+											size='small'
+										>
+											{t('submitAgree')}
+										</Button>
 								)}
 							<Button
 								onClick={toggleEditMode}
@@ -866,65 +953,77 @@ const QA = ({
 				<Tab icon={<TrendingUp />} iconPosition='top' label='キャリア目標' />
 			</Tabs> */}
 
-			<Box my={2}>
-				{editMode &&
-					Object.entries(getCategoryData(subTabIndex)).map(
-						([key, { question }]) => (
-							<QATextField
-								key={key}
-								data={studentQA}
-								editData={editData}
-								category={labels[subTabIndex]}
-								question={question}
-								keyName={key}
-								aEdit={role == 'Admin'}
-								qEdit={role == 'Student'}
-								updateEditData={handleUpdate}
-								DeleteQA={showDeleteConfirmation}
-							/>
-						)
-					)}
-			</Box>
+            <Box my={2}>
+                {editMode &&
+                    Object.entries(getCategoryData(subTabIndex)).map(
+                        ([key, { question }]) => (
+                            <QATextField
+                                key={key}
+                                data={studentQA}
+                                editData={editData}
+                                category={labels[subTabIndex]}
+                                question={question}
+                                keyName={key}
+                                aEdit={role == 'Admin'}
+                                qEdit={role == 'Student'}
+                                updateEditData={handleUpdate}
+                                DeleteQA={showDeleteConfirmation}
+                            />
+                        )
+                    )}
+            </Box>
 
 			<Box
 				my={2}
 				sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
 			>
-				{!editMode && (() => {
-					const entries = Object.entries(getCategoryData(subTabIndex))
-					const isViewerRole = ['Admin', 'Staff', 'Recruiter'].includes(role)
-					const hasAnyAnswered = entries.some(([, { answer }]) =>
-						answer && String(answer).trim() !== ''
-					)
-					// Decide which row shows the global toggle icon for reviewers
-					const iconRowIdx = isReviewer && hasAnyAnswered ? 0 : -1
+				{!editMode &&
+					(() => {
+                    const entries = Object.entries(getCategoryData(subTabIndex))
+                    const isViewerRole = ['Admin', 'Staff', 'Recruiter'].includes(role)
+                    const isAdminQA = role === 'Admin' && window.location.pathname === '/student-qa'
 
-					return entries.map(([key, { question, answer }], idx) => {
-						const noAnswer = !answer || String(answer).trim() === ''
-						// Disable expansion if no student id (e.g., Top page) or unanswered for viewer roles
-						const disableExpand = !id || (isViewerRole && noAnswer)
-						const isIconRow = idx === iconRowIdx
+						// For viewer roles, only show answered questions
+                    // Admin on /student-qa should see all questions (template), even without answers
+                    const visibleEntries = isAdminQA
+                        ? entries
+                        : isViewerRole
+                        ? entries.filter(
+                                ([, { answer }]) => answer && String(answer).trim() !== ''
+                            )
+                        : entries
 
-						return (
-							<QAAccordion
-								key={key}
-								question={question}
-								answer={answer ? answer : ''}
-								notExpand={disableExpand}
-								expanded={isReviewer && !disableExpand ? allExpanded : undefined}
-								showExpandIcon={
-									isReviewer ? isIconRow : !disableExpand
-								}
-								allowToggleWhenNotExpand={isReviewer && isIconRow && disableExpand}
-								onToggle={
-									isReviewer && isIconRow
-										? () => setAllExpanded(prev => !prev)
-										: undefined
-								}
-							/>
-						)
-					})
-				})()}
+						const hasAnyAnswered = visibleEntries.length > 0
+						// Decide which row shows the global toggle icon for reviewers
+						const iconRowIdx = isReviewer && hasAnyAnswered ? 0 : -1
+
+                    return visibleEntries.map(([key, { question, answer }], idx) => {
+                        // Disable expansion if no student id (e.g., Top page preview)
+                        const disableExpand = !id
+                        const isIconRow = idx === iconRowIdx
+
+							return (
+                            <QAAccordion
+                                key={key}
+                                question={question}
+                                answer={answer ? answer : ''}
+                                notExpand={disableExpand}
+									expanded={
+										isReviewer && !disableExpand ? allExpanded : undefined
+									}
+									showExpandIcon={isReviewer ? isIconRow : !disableExpand}
+									allowToggleWhenNotExpand={
+										isReviewer && isIconRow && disableExpand
+									}
+									onToggle={
+										isReviewer && isIconRow
+											? () => setAllExpanded(prev => !prev)
+											: undefined
+									}
+								/>
+							)
+						})
+					})()}
 			</Box>
 
 			<Snackbar
@@ -947,6 +1046,41 @@ const QA = ({
 				onClose={toggleConfirmMode}
 				onConfirm={handleConfirmProfile}
 			/>
+
+			{/* ---- STAFF APPROVE/REJECT CONFIRM ---- */}
+			<Dialog
+				open={staffConfirm.open}
+				onClose={() => setStaffConfirm({ open: false, action: null })}
+			>
+				<DialogTitle>
+					{staffConfirm.action === 'approved'
+						? t('confirmApprove') || '承認しますか？'
+						: t('confirmSendBack') || '差し戻しますか？'}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						{staffConfirm.action === 'approved'
+							? t('confirmApproveDesc') ||
+								'この操作は学生に「承認済」通知を送ります。続行しますか？'
+							: t('confirmSendBackDesc') ||
+								'この操作は学生に差し戻し通知をコメント付きで送ります。続行しますか？'}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button
+						onClick={() => setStaffConfirm({ open: false, action: null })}
+					>
+						{t('cancel')}
+					</Button>
+					<Button
+						variant='contained'
+						color={staffConfirm.action === 'approved' ? 'primary' : 'warning'}
+						onClick={() => approveProfile(staffConfirm.action)}
+					>
+						{t('ok')}
+					</Button>
+				</DialogActions>
+			</Dialog>
 
 			{/* ---- DELETE CONFIRMATION DIALOG ---- */}
 			<Dialog
@@ -994,6 +1128,8 @@ const QA = ({
 										editMode={true}
 										updateEditData={updateComment}
 										keyName='comments'
+										maxLength={500}
+										showCounter={true}
 									/>
 
 									<Box
@@ -1004,7 +1140,9 @@ const QA = ({
 										}}
 									>
 										<Button
-											onClick={() => approveProfile('approved')}
+											onClick={() =>
+												setStaffConfirm({ open: true, action: 'approved' })
+											}
 											variant='contained'
 											color='primary'
 											size='small'
@@ -1012,7 +1150,12 @@ const QA = ({
 											承認する
 										</Button>
 										<Button
-											onClick={() => approveProfile('resubmission_required')}
+											onClick={() =>
+												setStaffConfirm({
+													open: true,
+													action: 'resubmission_required',
+												})
+											}
 											variant='contained'
 											color='primary'
 											size='small'
@@ -1063,6 +1206,8 @@ const QA = ({
 										editMode={true}
 										updateEditData={updateComment}
 										keyName='comments'
+										maxLength={500}
+										showCounter={true}
 									/>
 									<Box
 										sx={{
@@ -1073,7 +1218,12 @@ const QA = ({
 										}}
 									>
 										<Button
-											onClick={() => approveProfile('resubmission_required')}
+											onClick={() =>
+												setStaffConfirm({
+													open: true,
+													action: 'resubmission_required',
+												})
+											}
 											variant='contained'
 											color='warning'
 											size='small'

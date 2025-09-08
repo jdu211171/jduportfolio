@@ -15,8 +15,8 @@
 /* Content Box */
 .contentBox {
 	width: 100%;
-	padding: 32px;
-	margin-top: 32px;
+	/* padding: 10px; */
+	margin-top: 16px;
 	margin-bottom: 32px;
 	background-color: #fff;
 	border-radius: 12px;
@@ -284,29 +284,86 @@
 }
 
 .label {
-	width: 20%;
-	padding: 16px 32px;
-	font-weight: 500;
+	width: 25%;
+	padding: 0px 16px;
+	font-weight: 600 !important;
 	color: #333;
 	margin: 0 !important;
 	background-color: inherit;
 }
 
 .value {
-	/* width: 300px; */
+	width: 100%;
 	/* margin-right: 26.875rem; */
 	color: #555;
 	display: flex;
 	align-items: center;
 	background-color: inherit;
+	font-size: 14px;
+	/* Ensure value text is 14px */
+}
+
+/* Column layout for sections that must stack label above content */
+.sectionColumn {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px 0;
+}
+
+.sectionColumn .value {
+	display: block;
+	width: 100%;
+}
+
+.sectionLabel {
+	font-weight: 600;
+	margin-bottom: 4px;
+	color: #000;
+}
+
+/* Row layout for label-left, input-right sections (local, not global) */
+.sectionRow {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 16px;
+	padding: 8px 0;
+	flex-wrap: nowrap;
+}
+
+.sectionRowLabel {
+	width: 20%;
+	padding: 16px 32px;
+	font-weight: 600;
+	color: #000;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	line-height: 1.4;
+}
+
+.sectionRowValue {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	/* flex-direction: row; */
+	gap: 8px;
+}
+
+/* Ensure inputs in row value fill width */
+.sectionRowValue :global(.MuiTextField-root),
+.sectionRowValue :global(.MuiFormControl-root) {
+	width: 100% !important;
+	box-sizing: border-box;
 }
 
 /* Helper: stack multiple values vertically within a row */
 .valueColumn {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
 }
 
 /* Section Headers */
@@ -314,7 +371,7 @@
 	display: flex;
 	align-items: center;
 	border-radius: 8px;
-	margin-bottom: 16px;
+	padding: 10px 10px;
 }
 
 .sectionIcon {
@@ -343,11 +400,13 @@
 	color: rgba(30, 30, 30, 0.7) !important;
 	margin-bottom: 4px;
 	white-space: pre-wrap;
+	font-size: 14px;
+	/* Match value font size */
 }
 
 /* Field Labels */
 .businessOverviewLabel {
-	font-weight: bold;
+	font-weight: 600;
 	margin-bottom: 8px;
 	color: #000;
 }
@@ -355,7 +414,7 @@
 .targetAudienceLabel {
 	margin-bottom: 8px;
 	color: #000;
-	font-weight: 500;
+	font-weight: 600;
 	font-size: 18px;
 }
 
@@ -405,6 +464,17 @@
 /* FIXED: Removed problematic focus styles that were causing scroll issues */
 .customTextField .MuiInputBase-input:focus {
 	outline: none;
+}
+
+/* Ensure input text inside value fields is 14px across the board */
+.companyInfoContainer .value :global(.MuiInputBase-input),
+.companyInfoContainerEdit .value :global(.MuiInputBase-input) {
+	font-size: 14px !important;
+}
+
+.companyInfoContainer .value :global(.MuiTypography-root),
+.companyInfoContainerEdit .value :global(.MuiTypography-root) {
+	font-size: 14px !important;
 }
 
 /* Edit Input Styles */
@@ -585,6 +655,15 @@
 .targetAudienceViewCard:hover {
 	border-color: #5627dc;
 	box-shadow: 0 2px 8px rgba(86, 39, 220, 0.1);
+}
+
+/* Intro Page Links: Title + URL row padding */
+.introLinkItem {
+    padding: 0px 0px 10px 16px;
+}
+
+.introLinkTitle {
+    font-weight: 600;
 }
 
 .targetAudienceText {
@@ -881,6 +960,8 @@
 	background: #000;
 	border-radius: 8px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	width: 85%;
+	margin: 0 auto;
 }
 
 .videoIframe {
@@ -910,12 +991,15 @@
 /* Video Carousel Styles */
 .videoCarouselContainer {
 	margin-top: 8px;
+	overflow: hidden;
+	/* keep inside the box for clean UI */
 }
 
 .videoSwiper {
 	width: 100%;
 	border-radius: 12px;
 	overflow: hidden;
+	/* avoid spilling outside the content box */
 	--swiper-theme-color: #1976d2;
 }
 
@@ -929,7 +1013,7 @@
 .videoSwiper :global(.swiper-button-next),
 .videoSwiper :global(.swiper-button-prev) {
 	color: #1976d2;
-	background: rgba(255, 255, 255, 0.9);
+	background: rgba(255, 255, 255, 0.95);
 	border-radius: 50%;
 	width: 44px;
 	height: 44px;
@@ -937,13 +1021,23 @@
 	backdrop-filter: blur(8px);
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	transition: all 0.3s ease;
-	z-index: 10;
+	z-index: 1002;
+	/* ensure above iframe */
+	pointer-events: auto;
 }
 
 .videoSwiper :global(.swiper-button-next):hover,
 .videoSwiper :global(.swiper-button-prev):hover {
 	background: rgba(255, 255, 255, 1);
 	transform: scale(1.1);
+}
+
+.videoSwiper :global(.swiper-button-next) {
+	right: 8px;
+}
+
+.videoSwiper :global(.swiper-button-prev) {
+	left: 8px;
 }
 
 .videoSwiper :global(.swiper-button-next::after),
@@ -954,7 +1048,7 @@
 
 /* Swiper Pagination */
 .videoSwiper :global(.swiper-pagination) {
-	bottom: 16px;
+	bottom: 8px;
 	z-index: 10;
 }
 
@@ -975,6 +1069,9 @@
 
 /* Hide navigation on mobile for better UX */
 @media (max-width: 768px) {
+	.videoContainer {
+		width: 100%;
+	}
 
 	.videoSwiper :global(.swiper-button-next),
 	.videoSwiper :global(.swiper-button-prev) {
@@ -990,6 +1087,47 @@
 /* Video Edit/Save Styles */
 .videoEditItem {
 	margin-bottom: 16px;
+}
+
+/* Thumbnails below the video */
+.videoThumbs {
+	margin-top: 10px;
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.thumbBtn {
+	width: 96px;
+	height: 54px;
+	border-radius: 6px;
+	cursor: pointer;
+	opacity: 0.8;
+	border: 2px solid transparent;
+	transition: opacity 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+	background: none;
+	padding: 0;
+	position: relative;
+}
+
+.thumbBtn::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 4px;
+	background-size: cover;
+	background-position: center;
+}
+
+.thumbBtn:hover {
+	opacity: 0.95;
+	transform: translateY(-2px);
+}
+
+.thumbActive {
+	opacity: 1;
+	border-color: #1976d2;
 }
 
 .videoEditContent {

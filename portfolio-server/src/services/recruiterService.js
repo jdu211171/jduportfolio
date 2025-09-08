@@ -124,7 +124,7 @@ class RecruiterService {
 
 			// Only include fields that are actually provided (not undefined)
 			const updatedData = {}
-			const fields = [
+            const fields = [
 				'first_name','last_name','first_name_furigana','last_name_furigana',
 				'phone','email','company_name','company_description','gallery',
 				'photo','date_of_birth','active','kintone_id','company_Address',
@@ -140,8 +140,8 @@ class RecruiterService {
 				// Additional fields
 				'japanese_level','application_requirements_other','retirement_benefit',
 				'telework_availability','housing_availability','relocation_support',
-				'airport_pickup','intro_page_thumbnail'
-			]
+                'airport_pickup','intro_page_thumbnail','intro_page_links'
+            ]
 			
 			fields.forEach(field => {
 				if (data[field] !== undefined) {

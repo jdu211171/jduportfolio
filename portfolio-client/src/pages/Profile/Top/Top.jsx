@@ -19,6 +19,7 @@ import {
 	Dialog,
 	DialogActions,
 	DialogContent,
+	DialogContentText,
 	DialogTitle,
 	LinearProgress,
 	TextField as MuiTextField,
@@ -697,7 +698,9 @@ const Top = () => {
 			}, {}),
 		}
 	}
-	const handleSubmitDraft = async () => {
+    const [warningModal, setWarningModal] = useState({ open: false, message: '' })
+
+    const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
 				const response = await axios.put(
@@ -720,8 +723,23 @@ const Top = () => {
 			} else {
 				showAlert(t('noDraftToSubmit'), 'error')
 			}
-		} catch (error) {
-			showAlert(t('errorSubmittingDraft'), 'error')
+        } catch (error) {
+            const status = error?.response?.status
+            const serverMsg = error?.response?.data?.error
+            // For validation errors (e.g., missing required answers), prefer localized message
+            if (status === 400) {
+                setWarningModal({
+                    open: true,
+                    message: t('pleaseAnswerRequired') || serverMsg || 'Required questions are missing.',
+                })
+            } else if (serverMsg) {
+                setWarningModal({ open: true, message: serverMsg })
+            } else {
+                setWarningModal({
+                    open: true,
+                    message: t('errorSubmittingDraft') || 'Error submitting draft',
+                })
+            }
 		} finally {
 			setConfirmMode(false)
 		}
@@ -1228,6 +1246,11 @@ const Top = () => {
 						</Box>
 					</Box>
 				)}
+
+			{/* Past staff comment history for students */}
+			{role === 'Student' && (
+				<HistoryComments />
+			)}
 
 			{role === 'Staff' &&
 			!isLoading &&
@@ -2135,9 +2158,9 @@ const Top = () => {
 				</DialogActions>
 			</Dialog>
 
-			{/* Unsaved changes warning */}
-			<Dialog
-				open={showUnsavedWarning}
+    {/* Unsaved changes warning */}
+    <Dialog
+        open={showUnsavedWarning}
 				onClose={() => {
 					setShowUnsavedWarning(false)
 					if (pendingLanguageChange) {
@@ -2229,9 +2252,86 @@ const Top = () => {
 						</Button>
 					)}
 				</DialogActions>
-			</Dialog>
+    </Dialog>
+
+    {/* Submit warning modal (e.g., missing required QA answers) */}
+    <Dialog
+        open={warningModal.open}
+        onClose={() => setWarningModal({ open: false, message: '' })}
+        aria-labelledby='submit-warning-title'
+        aria-describedby='submit-warning-desc'
+    >
+        <DialogTitle id='submit-warning-title'>
+            {t('warning') || 'Warning'}
+        </DialogTitle>
+        <DialogContent>
+            <DialogContentText id='submit-warning-desc'>
+                {warningModal.message}
+            </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button
+                onClick={() => setWarningModal({ open: false, message: '' })}
+                color='primary'
+                autoFocus
+            >
+                {t('ok')}
+            </Button>
+        </DialogActions>
+    </Dialog>
 		</Box>
 	)
+}
+
+// --- Helper component: Student's past staff comment history (from notifications) ---
+function HistoryComments() {
+  const [items, setItems] = useState([])
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await axios.get('/api/notification/history')
+        const list = res?.data?.notifications || []
+        const filtered = list
+          .filter(n => typeof n.message === 'string' && n.message.includes('|||COMMENT_SEPARATOR|||'))
+          .slice(0, 2)
+        if (mounted) setItems(filtered)
+      } catch (e) {
+        // ignore
+      } finally {
+        if (mounted) setLoaded(true)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  if (!loaded || items.length === 0) return null
+
+  return (
+    <Box sx={{ my: 2, mx: 2, p: 2, backgroundColor: '#f7f7f7', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
+      <Typography sx={{ fontWeight: 600, mb: 1 }}>過去のスタッフコメント</Typography>
+      {items.map((n, idx) => {
+        const parts = n.message.split('|||COMMENT_SEPARATOR|||')
+        const commentRaw = parts[1] || ''
+        const comment = (() => {
+          const lines = String(commentRaw).split('\n')
+          return lines.length > 1 ? lines.slice(1).join('\n').trim() : commentRaw.trim()
+        })()
+        return (
+          <Box key={n.id || idx} sx={{ p: 1.5, mb: 1, backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #eee' }}>
+            <Typography sx={{ whiteSpace: 'pre-wrap' }}>{comment}</Typography>
+            <Typography variant='caption' color='text.secondary'>
+              {new Date(n.createdAt).toLocaleString()}
+            </Typography>
+          </Box>
+        )
+      })}
+    </Box>
+  )
 }
 
 export default Top

@@ -22,11 +22,6 @@ class NotificationController {
 					.json({ error: 'User ID and user type are required' })
 			}
 
-			// Handle Recruiter case - recruiters don't have notifications in the current system
-			if (userType === 'Recruiter') {
-				return res.status(200).json([])
-			}
-
 			let user_id = id
 			let user_role = userType.toLowerCase()
 
@@ -38,7 +33,8 @@ class NotificationController {
 				user_id = student.student_id
 			}
 
-			let filter = { user_id, status: { [Op.ne]: 'read' } }
+			// Do not include user_id inside filter; it's passed separately
+			let filter = { status: { [Op.ne]: 'read' } }
 
 			if (user_role === 'admin') {
 				filter = { user_role: 'admin', status: { [Op.ne]: 'read' } }
@@ -46,12 +42,11 @@ class NotificationController {
 				filter.user_role = 'student'
 			} else if (user_role === 'staff') {
 				filter.user_role = 'staff'
+			} else if (user_role === 'recruiter') {
+				filter.user_role = 'recruiter'
 			}
 
-			const notifications = await NotificationService.getByUserId(
-				user_id,
-				filter
-			)
+			const notifications = await NotificationService.getByUserId(user_id, filter)
 
 			return res.status(200).json(notifications)
 		} catch (error) {
@@ -183,16 +178,6 @@ class NotificationController {
 				return res
 					.status(400)
 					.json({ error: 'User ID and user type are required' })
-			}
-
-			// Handle Recruiter case early - recruiters don't have notifications in the current system
-			if (userType === 'Recruiter') {
-				console.log(
-					'markNotificationAsReadAll - Recruiter detected, returning success with 0 updates'
-				)
-				return res.status(200).json({
-					message: '0 notification(s) marked as read for this user.',
-				})
 			}
 
 			let user_id = id

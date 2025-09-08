@@ -98,27 +98,36 @@ class DraftController {
 		}
 	}
 
-	static async updateStatus(req, res) {
-		try {
-			const { id } = req.params
-			const { status, comments } = req.body
-			const reviewed_by = req.user.id
+    static async updateStatus(req, res) {
+        try {
+            const { id } = req.params
+            let { status, comments } = req.body
+            const reviewed_by = req.user.id
 
 			if (req.user.userType.toLowerCase() !== 'staff') {
 				return res.status(403).json({
 					error: "Ruxsat yo'q. Faqat xodimlar statusni o'zgartira oladi.",
 				})
 			}
-			if (!status) {
-				return res.status(400).json({ error: 'Status yuborilishi shart.' })
-			}
+            if (!status) {
+                return res.status(400).json({ error: 'Status yuborilishi shart.' })
+            }
 
-			const draft = await DraftService.updateStatusByStaff(
-				id,
-				status,
-				comments,
-				reviewed_by
-			)
+            // Normalize and validate comments
+            if (typeof comments === 'string') {
+                comments = comments.trim()
+                if (comments.length === 0) comments = null
+            }
+            if (comments && comments.length > 2000) {
+                return res.status(400).json({ error: 'コメントが長すぎます（最大2000文字）。' })
+            }
+
+            const draft = await DraftService.updateStatusByStaff(
+                id,
+                status,
+                comments,
+                reviewed_by
+            )
 			const student = await Student.findOne({
 				where: { student_id: draft.student_id },
 			})
@@ -165,20 +174,56 @@ class DraftController {
 				)
 			}
 
-			// Talabaga bildirishnoma yuborish
+			// Talabaga bildirishnoma yuborish (multi-language)
 			const staffMember = await StaffService.getStaffById(draft.reviewed_by)
-			let staffName = 'スタッフによって'
-			if (staffMember) {
-				staffName =
-					`${staffMember.first_name || ''} ${
-						staffMember.last_name || ''
-					}`.trim() + ' によって'
-			}
+			const staffDisplayName = staffMember
+				? `${staffMember.first_name || ''} ${staffMember.last_name || ''}`.trim()
+				: 'JDU Staff'
 
-			let notificationMessage = `あなたの情報は${staffName} 「${status}」ステータスに変更されました。`
-			if (comments && status.toLowerCase() !== 'approved') {
-				notificationMessage += `|||COMMENT_SEPARATOR|||📝 **スタッフからのコメント:**\n${comments}`
-			}
+            const statusKey = String(status || '').toLowerCase()
+            const statusLabels = {
+                ja: {
+                    approved: '確認済',
+                    checking: '確認中',
+                    resubmission_required: '要修正',
+                    disapproved: '差し戻し',
+                },
+                en: {
+                    approved: 'Approved',
+                    checking: 'Checking',
+                    resubmission_required: 'Resubmission required',
+                    disapproved: 'Disapproved',
+                },
+                uz: {
+                    approved: 'Tasdiqlangan',
+                    checking: 'Tekshirilmoqda',
+                    resubmission_required: 'Qayta topshirish talab etildi',
+                    disapproved: 'Rad etildi',
+                },
+                ru: {
+                    approved: 'Одобрено',
+                    checking: 'Проверка',
+                    resubmission_required: 'Требуется повторная отправка',
+                    disapproved: 'Отклонено',
+                },
+            }
+
+            const statusJa = statusLabels.ja[statusKey] || status
+            const statusEn = statusLabels.en[statusKey] || status
+            const statusUz = statusLabels.uz[statusKey] || status
+            const statusRu = statusLabels.ru[statusKey] || status
+
+            let notificationMessage = [
+                `【JA】あなたの情報は${staffDisplayName} によって「${statusJa}」ステータスに変更されました。`,
+                `【EN】Your profile status has been changed to "${statusEn}" by ${staffDisplayName}.`,
+                `【UZ】Sizning profilingiz holati "${statusUz}" ga o'zgartirildi (${staffDisplayName} tomonidan).`,
+                `【RU】Статус вашего профиля изменен на «${statusRu}» (${staffDisplayName}).`,
+            ].join('\n')
+
+            // Always include staff comment in notification if provided (including approved)
+            if (comments) {
+                notificationMessage += `|||COMMENT_SEPARATOR|||📝 **スタッフからのコメント / Staff comment / Xodim izohi / Комментарий сотрудника:**\n${comments}`
+            }
 
 			await NotificationService.create({
 				message: notificationMessage,

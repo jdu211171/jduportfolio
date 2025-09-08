@@ -244,12 +244,9 @@ const Layout = () => {
 						</div>
 
 						{/* notifications */}
-						{
-							(role === 'Recruiter',
-							'Admin',
-							'Staff',
-							'Student' && <Notifications />)
-						}
+						{['Recruiter', 'Admin', 'Staff', 'Student'].includes(role) && (
+							<Notifications />
+						)}
 
 						{/* USER IMAGE */}
 						<div className={style.loginUser}>
