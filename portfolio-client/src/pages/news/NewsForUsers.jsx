@@ -4,6 +4,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import translations from '../../locales/translations';
 import LaunchIcon from '@mui/icons-material/Launch';
 import axios from '../../utils/axiosUtils';
+import styles from './NewsForUsers.module.css';
 
 export const NewsForUsers = () => {
     const { language } = useLanguage();
@@ -12,6 +13,7 @@ export const NewsForUsers = () => {
     // State management
     const [newsData, setNewsData] = useState([]);
     const [loading, setLoading] = useState(false);
+    // scroll variant: no expand state needed
 
     // Fetch news data from API
     const fetchNews = async () => {
@@ -87,94 +89,37 @@ export const NewsForUsers = () => {
             </div>
 
             {/* News Grid */}
-            <div style={{
-                margin: '0 auto',
-                padding: '0 20px',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, minmax(350px, 1fr))',
-                gap: '10px',
-                gridAutoRows: 'auto'
-            }}>
-                {newsData.map((news, index) => (
-                    <div key={news.id || index} style={{
-                        backgroundColor: 'white',
-                        borderRadius: '20px',
-                        overflow: 'hidden',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        border:'1px solid #e6e6e6'
-                    }}>
+            <div className={styles.grid}>
+                {newsData.map((news, index) => {
+                    const itemKey = news.id ?? `i-${index}`;
+                    return (
+                    <div key={itemKey} className={styles.card}>
                         {/* Image Section */}
-                        <div style={{
-                            height: '250px',
-                            backgroundColor: '#f8f9fa',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            overflow: 'hidden'
-                        }}>
+                        <div className={styles.image}>
                             {news.image_url ? (
-                                <img 
-                                    src={news.image_url} 
+                                <img
+                                    className={styles.img}
+                                    src={news.image_url}
                                     alt={news.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover'
-                                    }}
                                 />
                             ) : (
-                                <div style={{
-                                    color: '#6c757d',
-                                    fontSize: '16px',
-                                    textAlign: 'center'
-                                }}>
-                                    No Image Available
-                                </div>
+                                <div className={styles.noImage}>{t('noImageAvailable')}</div>
                             )}
                         </div>
 
                         {/* Content Section */}
-                        <div style={{
-                            padding: '24px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1
-                        }}>
+                        <div className={styles.content}>
                             {/* Title */}
-                            <h2 style={{
-                                fontSize: 'clamp(18px, 3vw, 22px)',
-                                fontWeight: '600',
-                                color: '#2c3e50',
-                                marginBottom: '12px',
-                                lineHeight: '1.3'
-                            }}>
-                                {news.title}
-                            </h2>
+                            <h2 className={styles.title}>{news.title}</h2>
 
-                            {/* Description */}
-                            <p style={{
-                                fontSize: 'clamp(14px, 2vw, 16px)',
-                                color: '#7f8c8d',
-                                lineHeight: '1.6',
-                                marginBottom: '16px',
-                                flexGrow: 1,
-                                overflow: 'hidden',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 3,
-                                WebkitBoxOrient: 'vertical'
-                            }}>
-                                {news.description}
-                            </p>
+                            {/* Description scroll variant */}
+                            <div className={styles.descScroll}>
+                                <p className={styles.descText}>{news.description}</p>
+                            </div>
 
                             {/* Hashtags */}
                             {news.hashtags && Array.isArray(news.hashtags) && news.hashtags.length > 0 && (
-                                <div style={{
-                                    marginBottom: '16px',
-                                    display: 'flex',
-                                    flexWrap: 'wrap',
-                                    gap: '6px'
-                                }}>
+                                <div className={styles.tags}>
                                     {news.hashtags.slice(0, 3).map((hashtag, idx) => (
                                         <Chip
                                             key={idx}
@@ -191,49 +136,21 @@ export const NewsForUsers = () => {
                             )}
 
                             {/* Footer */}
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                flexWrap: 'wrap',
-                                gap: '10px',
-                                paddingTop: '16px',
-                                borderTop: '1px solid #f1f3f4'
-                            }}>
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px'
-                                }}>
-                                    <span style={{
-                                        fontSize: '13px',
-                                        color: '#95a5a6'
-                                    }}>
-                                        {news.createdAt?.split('T')[0]}
-                                    </span>
-                                    <span style={{
-                                        fontSize: '13px',
-                                        color: '#2c3e50',
-                                        fontWeight: '500',
-                                        textTransform: 'capitalize'
-                                    }}>
-                                        {news.type}
-                                    </span>
+                            <div className={styles.footer}>
+                                <div className={styles.meta}>
+                                    <span className={styles.date}>{news.createdAt?.split('T')[0]}</span>
+                                    <span className={styles.type}>{news.type}</span>
                                 </div>
 
                                 {/* Source Link */}
                                 {news.source_link && (
                                     <IconButton
+                                        className={styles.linkButton}
                                         component="a"
                                         href={news.source_link}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{
-                                            backgroundColor: '#2c3e50',
-                                            color: 'white',
-                                            width: '36px',
-                                            height: '36px'
-                                        }}
+                                        size="small"
                                     >
                                         <LaunchIcon style={{ fontSize: '16px' }} />
                                     </IconButton>
@@ -241,7 +158,7 @@ export const NewsForUsers = () => {
                             </div>
                         </div>
                     </div>
-                ))}
+                )})}
             </div>
 
         </div>
