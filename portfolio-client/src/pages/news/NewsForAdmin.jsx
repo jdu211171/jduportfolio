@@ -36,6 +36,7 @@ export const NewsForAdmin = () => {
 	const [editDialogOpen, setEditDialogOpen] = useState(false)
 	const [editLoading, setEditLoading] = useState(false)
 	const [editingNews, setEditingNews] = useState(null)
+	const [removeImage, setRemoveImage] = useState(false)
 	const [toastOpen, setToastOpen] = useState(false)
 	const [toastMessage, setToastMessage] = useState('')
 	const [newNews, setNewNews] = useState({
@@ -120,6 +121,15 @@ export const NewsForAdmin = () => {
 		setToastMessage(msg)
 		setToastOpen(true)
 	}
+
+	const toggleExpand = key => {
+		setExpandedKeys(prev => {
+			const next = new Set(prev)
+			if (next.has(key)) next.delete(key)
+			else next.add(key)
+			return next
+		})
+	}
 	// Create new news
 	const handleCreateNews = async () => {
 		setCreateLoading(true)
@@ -197,6 +207,7 @@ export const NewsForAdmin = () => {
 			image: null,
 			source_link: news.source_link || '',
 		})
+		setRemoveImage(false)
 		setEditDialogOpen(true)
 	}
 
@@ -229,6 +240,11 @@ export const NewsForAdmin = () => {
 				formData.append('image', newNews.image)
 			}
 
+			// communicate removeImage intent if no new file selected
+			if (!newNews.image && removeImage) {
+				formData.append('removeImage', 'true')
+			}
+
 			const response = await axios.put(
 				`/api/news/${editingNews.id}`,
 				formData,
@@ -258,6 +274,7 @@ export const NewsForAdmin = () => {
 				source_link: '',
 			})
 			setEditingNews(null)
+			setRemoveImage(false)
 			setEditDialogOpen(false)
 		} catch (err) {
 			setError(
@@ -435,237 +452,234 @@ export const NewsForAdmin = () => {
 						<div style={{ fontSize: '18px', marginBottom: '8px' }}>
 							{t('noNewsFound')}
 						</div>
-						<div style={{ fontSize: '14px' }}>
-							{t('tryAdjusting')}
-						</div>
+						<div style={{ fontSize: '14px' }}>{t('tryAdjusting')}</div>
 					</div>
 				) : (
-					newsData.map(news => (
-						<div
-							key={news.id}
-							style={{
-								backgroundColor: '#FFFFFF',
-								borderRadius: '16px',
-								border: '1px solid #e1e8ed',
-								cursor: 'pointer',
-								height: 'auto',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-								flexDirection: 'column',
-							}}
-						>
-							{/* News Image */}
-							<div>
-								<div
-									style={{
-										width: '100%',
-										height: 'clamp(150px, 25vw, 200px)',
-										backgroundColor: '#f8f9fa',
-										borderRadius: '12px 12px 0 0',
-										overflow: 'hidden',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-									}}
-								>
-									{news.image_url ? (
-										<img
-											src={news.image_url}
-											alt={news.title}
-											style={{
-												width: '100%',
-												height: '100%',
-												objectFit: 'cover',
-											}}
-										/>
-									) : (
-										<div
-											style={{
-												color: '#6c757d',
-												fontSize: 'clamp(12px, 2vw, 14px)',
-												textAlign: 'center',
-												padding: '20px',
-											}}
-										>
-											{t('noImageAvailable')}
-										</div>
-									)}
-								</div>
-
-								<div
-									style={{
-										padding: 'clamp(8px, 2vw, 12px)',
-									}}
-								>
-									{/* News Title */}
-
-									<h3
-										style={{
-											fontSize: 'clamp(16px, 3vw, 20px)',
-											fontWeight: '600',
-											color: '#2c3e50',
-											marginBottom: '12px',
-											lineHeight: '1.4',
-											overflow: 'hidden',
-											textOverflow: 'ellipsis',
-											display: '-webkit-box',
-											WebkitLineClamp: 2,
-											WebkitBoxOrient: 'vertical',
-										}}
-									>
-										{news.title}
-									</h3>
-
-									{/* News Description */}
-									<p
-										style={{
-											fontSize: 'clamp(12px, 2vw, 14px)',
-											color: '#7f8c8d',
-											lineHeight: '1.6',
-											marginBottom: '16px',
-											overflow: 'hidden',
-											textOverflow: 'ellipsis',
-											display: '-webkit-box',
-											WebkitLineClamp: 3,
-											WebkitBoxOrient: 'vertical',
-										}}
-									>
-										{news.description}
-									</p>
-
-									{/* Hashtags */}
-									{news.hashtags &&
-										Array.isArray(news.hashtags) &&
-										news.hashtags.length > 0 && (
-											<div
-												style={{
-													display: 'flex',
-													flexWrap: 'wrap',
-													gap: '6px',
-												}}
-											>
-												{news.hashtags.map((hashtag, index) => (
-													<Chip
-														key={index}
-														label={`${hashtag}`}
-														size='small'
-														style={{
-															backgroundColor: '#e3f2fd',
-															color: '#1976d2',
-															fontSize: 'clamp(10px, 1.5vw, 12px)',
-															height: 'clamp(20px, 3vw, 24px)',
-														}}
-													/>
-												))}
-											</div>
-										)}
-								</div>
-							</div>
-							<div style={{ padding: 10, width: '100%' }}>
-								{/* Footer */}
-								<div
-									style={{
-										width: '100%',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'space-between',
-										marginBottom: 10,
-									}}
-								>
+					newsData.map(news => {
+						return (
+							<div
+								key={news.id}
+								style={{
+									backgroundColor: '#FFFFFF',
+									borderRadius: '16px',
+									border: '1px solid #e1e8ed',
+									cursor: 'pointer',
+									height: 'auto',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									flexDirection: 'column',
+								}}
+							>
+								{/* News Image */}
+								<div>
 									<div
 										style={{
-											textTransform: 'capitalize',
-											color: 'black',
-											fontWeight: '500',
-											fontSize: 'clamp(14px, 2.5vw, 18px)',
+											width: '100%',
+											height: 'clamp(150px, 25vw, 200px)',
+											backgroundColor: '#f8f9fa',
+											borderRadius: '12px 12px 0 0',
+											overflow: 'hidden',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
 										}}
 									>
-										{news.type}
+										{news.image_url ? (
+											<img
+												src={news.image_url}
+												alt={news.title}
+												style={{
+													width: '100%',
+													height: '100%',
+													objectFit: 'cover',
+												}}
+											/>
+										) : (
+											<div
+												style={{
+													color: '#6c757d',
+													fontSize: 'clamp(12px, 2vw, 14px)',
+													textAlign: 'center',
+													padding: '20px',
+												}}
+											>
+												{t('noImageAvailable')}
+											</div>
+										)}
 									</div>
-									<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>
-										{news.createdAt.split('T')[0]}
+
+									<div
+										style={{
+											padding: 'clamp(8px, 2vw, 12px)',
+										}}
+									>
+										{/* News Title */}
+
+										<h3
+											style={{
+												fontSize: 'clamp(16px, 3vw, 20px)',
+												fontWeight: '600',
+												color: '#2c3e50',
+												marginBottom: '12px',
+												lineHeight: '1.4',
+												overflow: 'hidden',
+												textOverflow: 'ellipsis',
+												display: '-webkit-box',
+												WebkitLineClamp: 2,
+												WebkitBoxOrient: 'vertical',
+											}}
+										>
+											{news.title}
+										</h3>
+
+									{/* News Description - scroll variant */}
+									<div
+										style={{
+											maxHeight: '8.8em',
+											overflow: 'auto',
+											marginBottom: '8px',
+											paddingRight: 4,
+										}}
+									>
+										<p
+											style={{
+												fontSize: 'clamp(12px, 2vw, 14px)',
+												color: '#7f8c8d',
+												lineHeight: '1.6',
+												margin: 0,
+												wordBreak: 'break-word',
+												overflowWrap: 'anywhere',
+										}}
+										>
+											{news.description}
+										</p>
+									</div>
+
+										{/* Hashtags */}
+										{news.hashtags &&
+											Array.isArray(news.hashtags) &&
+											news.hashtags.length > 0 && (
+												<div
+													style={{
+														display: 'flex',
+														flexWrap: 'wrap',
+														gap: '6px',
+													}}
+												>
+													{news.hashtags.map((hashtag, index) => (
+														<Chip
+															key={index}
+															label={`${hashtag}`}
+															size='small'
+															style={{
+																backgroundColor: '#e3f2fd',
+																color: '#1976d2',
+																fontSize: 'clamp(10px, 1.5vw, 12px)',
+																height: 'clamp(20px, 3vw, 24px)',
+															}}
+														/>
+													))}
+												</div>
+											)}
 									</div>
 								</div>
-								{/* Action Buttons */}
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: 'clamp(6px, 1vw, 8px)',
-										flexWrap: 'wrap',
-									}}
-								>
-									<IconButton
+								<div style={{ padding: 10, width: '100%' }}>
+									{/* Footer */}
+									<div
 										style={{
-											backgroundColor: 'rgba(255, 255, 255, 0.9)',
-											backdropFilter: 'blur(10px)',
-											width: 'clamp(32px, 5vw, 36px)',
-											height: 'clamp(32px, 5vw, 36px)',
-											borderRadius: 9,
-											border: '1px solid gray',
+											width: '100%',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
+											marginBottom: 10,
 										}}
-										size='small'
+									>
+										<div
+											style={{
+												textTransform: 'capitalize',
+												color: 'black',
+												fontWeight: '500',
+												fontSize: 'clamp(14px, 2.5vw, 18px)',
+											}}
+										>
+											{news.type}
+										</div>
+										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>
+											{news.createdAt.split('T')[0]}
+										</div>
+									</div>
+									{/* Action Buttons */}
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											gap: 'clamp(6px, 1vw, 8px)',
+											flexWrap: 'wrap',
+										}}
 									>
 										{news.source_link && (
-											<a
+											<IconButton
+												style={{
+													backgroundColor: 'rgba(255, 255, 255, 0.9)',
+													backdropFilter: 'blur(10px)',
+													width: 'clamp(32px, 5vw, 36px)',
+													height: 'clamp(32px, 5vw, 36px)',
+													borderRadius: 9,
+													border: '1px solid gray',
+												}}
+												size='small'
+												component='a'
 												href={news.source_link}
 												target='_blank'
 												rel='noopener noreferrer'
-												style={{
-													textDecoration: 'none',
-													color: '#626262',
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-												}}
 												onClick={e => e.stopPropagation()}
 											>
 												<LinkIcon />
-											</a>
+											</IconButton>
 										)}
-									</IconButton>
-									<IconButton
-										onClick={e => {
-											e.stopPropagation()
-											handleEditNews(news)
-										}}
-										style={{
-											width: 'clamp(32px, 5vw, 36px)',
-											height: 'clamp(32px, 5vw, 36px)',
-											borderRadius: 9,
-											border: '1px solid gray',
-										}}
-										size='small'
-									>
-										<EditIcon />
-									</IconButton>
-									<IconButton
-										onClick={e => {
-											e.stopPropagation()
-											handleDeleteNews(news.id)
-										}}
-										disabled={deleteLoading === news.id}
-										style={{
-											width: 'clamp(32px, 5vw, 36px)',
-											height: 'clamp(32px, 5vw, 36px)',
-											color: '#dc3545',
-											borderRadius: 9,
-											border: '1px solid gray',
-										}}
-										size='small'
-									>
-										{deleteLoading === news.id ? (
-											<CircularProgress size={18} color='inherit' />
-										) : (
-											<DeleteIcon />
-										)}
-									</IconButton>
+										<IconButton
+											onClick={e => {
+												e.stopPropagation()
+												handleEditNews(news)
+											}}
+											style={{
+												width: 'clamp(32px, 5vw, 36px)',
+												height: 'clamp(32px, 5vw, 36px)',
+												borderRadius: 9,
+												border: '1px solid gray',
+											}}
+											size='small'
+										>
+											<EditIcon />
+										</IconButton>
+										<IconButton
+											onClick={e => {
+												e.stopPropagation()
+												handleDeleteNews(news.id)
+											}}
+											disabled={deleteLoading === news.id}
+											style={{
+												width: 'clamp(32px, 5vw, 36px)',
+												height: 'clamp(32px, 5vw, 36px)',
+												color: '#dc3545',
+												borderRadius: 9,
+												border: '1px solid gray',
+											}}
+											size='small'
+										>
+											{deleteLoading === news.id ? (
+												<CircularProgress size={18} color='inherit' />
+											) : (
+												<DeleteIcon />
+											)}
+										</IconButton>
+									</div>
 								</div>
 							</div>
-						</div>
-					))
+						)
+					})
 				)}
 			</div>
 
@@ -717,6 +731,7 @@ export const NewsForAdmin = () => {
 							fullWidth
 							multiline
 							rows={4}
+							maxRows={6}
 							required
 						/>
 						<TextField
@@ -733,12 +748,14 @@ export const NewsForAdmin = () => {
 							onChange={e => handleInputChange('source_link', e.target.value)}
 							fullWidth
 							placeholder='https://example.com'
-							required
+							// optional: link may be empty
 						/>
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setCreateDialogOpen(false)}>{t('cencel')}</Button>
+					<Button onClick={() => setCreateDialogOpen(false)}>
+						{t('cencel')}
+					</Button>
 					<Button
 						onClick={handleCreateNews}
 						variant='contained'
@@ -746,9 +763,9 @@ export const NewsForAdmin = () => {
 					>
 						{createLoading ? (
 							<CircularProgress size={20} color='inherit' />
-						) : 
+						) : (
 							t('create')
-						}
+						)}
 					</Button>
 				</DialogActions>
 			</Dialog>
@@ -766,6 +783,7 @@ export const NewsForAdmin = () => {
 						image: null,
 						source_link: '',
 					})
+					setRemoveImage(false)
 				}}
 				maxWidth='md'
 				fullWidth
@@ -783,12 +801,28 @@ export const NewsForAdmin = () => {
 							/>
 							<label htmlFor='edit-image-upload'>
 								<Button variant='outlined' component='span' fullWidth>
-									{newNews.image
-										? newNews.image.name
-										: t('upload_picture')}
+									{newNews.image ? newNews.image.name : t('upload_picture')}
 								</Button>
 							</label>
 						</Box>
+						{editingNews?.image_url && !removeImage && !newNews.image && (
+							<Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+								<img
+									src={editingNews.image_url}
+									alt={editingNews.title}
+									style={{
+										width: 160,
+										height: 90,
+										objectFit: 'cover',
+										borderRadius: 8,
+										border: '1px solid #e0e0e0',
+									}}
+								/>
+								<Button color='error' onClick={() => setRemoveImage(true)}>
+									{t('remove') || 'Remove Image'}
+								</Button>
+							</Box>
+						)}
 						<TextField
 							label={t('title')}
 							value={newNews.title}
@@ -803,6 +837,7 @@ export const NewsForAdmin = () => {
 							fullWidth
 							multiline
 							rows={4}
+							maxRows={6}
 							required
 						/>
 						<TextField
@@ -819,7 +854,6 @@ export const NewsForAdmin = () => {
 							onChange={e => handleInputChange('source_link', e.target.value)}
 							fullWidth
 							placeholder='https://example.com'
-							required
 						/>
 					</Box>
 				</DialogContent>
