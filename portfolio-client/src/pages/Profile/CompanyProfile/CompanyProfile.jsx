@@ -492,6 +492,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 			airport_pickup: data.airport_pickup || '',
 			intro_page_thumbnail: data.intro_page_thumbnail || '',
 
+			// Enforce one-line PR (tagline) length <= 50
+			tagline: (data.tagline || '').slice(0, 50),
+
 			// These should be strings (TEXT in database)
 			business_overview: data.business_overview || '',
 			target_audience: Array.isArray(data.target_audience)
@@ -1043,6 +1046,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 											placeholder={t.tagline}
 											fieldKey='tagline_header'
 											inputRef={createInputRef('tagline_header')}
+											maxLength={50}
+											showCounter
 										/>
 									</Box>
 								</Box>
