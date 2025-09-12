@@ -429,40 +429,40 @@ const CompanyProfile = ({ userId = 0 }) => {
 			return Array.from(new Set(valid))
 		}
 
-    // Normalize intro links to objects { title, url } and include new pair if provided
-    const normalizeIntroLinks = (links, newTitle, newUrl) => {
-        const out = []
-        const pushObj = (t, u) => {
-            const url = String(u || '').trim()
-            const title = String(t || '').trim()
-            if (!url) return
-            out.push({ title, url })
-        }
-        ;(Array.isArray(links) ? links : []).forEach(item => {
-            if (typeof item === 'string') {
-                pushObj('', item)
-            } else if (item && typeof item === 'object') {
-                pushObj(item.title, item.url)
-            }
-        })
-        pushObj(newTitle, newUrl)
-        // Deduplicate by url keeping first title
-        const seen = new Set()
-        const deduped = []
-        for (const it of out) {
-            const key = it.url.toLowerCase()
-            if (seen.has(key)) continue
-            seen.add(key)
-            deduped.push(it)
-        }
-        return deduped.slice(0, 4)
-    }
+		// Normalize intro links to objects { title, url } and include new pair if provided
+		const normalizeIntroLinks = (links, newTitle, newUrl) => {
+			const out = []
+			const pushObj = (t, u) => {
+				const url = String(u || '').trim()
+				const title = String(t || '').trim()
+				if (!url) return
+				out.push({ title, url })
+			}
+			;(Array.isArray(links) ? links : []).forEach(item => {
+				if (typeof item === 'string') {
+					pushObj('', item)
+				} else if (item && typeof item === 'object') {
+					pushObj(item.title, item.url)
+				}
+			})
+			pushObj(newTitle, newUrl)
+			// Deduplicate by url keeping first title
+			const seen = new Set()
+			const deduped = []
+			for (const it of out) {
+				const key = it.url.toLowerCase()
+				if (seen.has(key)) continue
+				seen.add(key)
+				deduped.push(it)
+			}
+			return deduped.slice(0, 4)
+		}
 
-    const mergedIntroLinks = normalizeIntroLinks(
-        data.intro_page_links,
-        data.newIntroLinkTitle,
-        data.newIntroLinkUrl
-    )
+		const mergedIntroLinks = normalizeIntroLinks(
+			data.intro_page_links,
+			data.newIntroLinkTitle,
+			data.newIntroLinkUrl
+		)
 
 		// Merge existing array + new input (allow users to paste multiple links at once)
 		const mergedVideoList = normalizeYouTubeUrls([
@@ -516,7 +516,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 			// These should remain as arrays (JSONB in database)
 			gallery: Array.isArray(data.gallery) ? data.gallery : [],
 			company_video_url: mergedVideoList,
-        intro_page_links: mergedIntroLinks,
+			intro_page_links: mergedIntroLinks,
 		}
 
 		// Remove any temporary fields that shouldn't be sent to backend
@@ -1011,7 +1011,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 			{/* Header Section */}
 			<HeaderContentBox>
 				<Box className={styles.headerContainer}>
-					<Box className={styles.avatarContainer}>
+					<Box className={styles.avatarContainer} style={{ display: 'none' }}>
 						<Avatar
 							src={company.photo}
 							alt={`${safeStringValue(company.first_name)} ${safeStringValue(company.last_name)}`}
@@ -1567,160 +1567,191 @@ const CompanyProfile = ({ userId = 0 }) => {
 							/>
 							{editMode ? (
 								<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                {(Array.isArray(editData.intro_page_links)
-                                    ? editData.intro_page_links
-                                    : []
-                                ).map((link, idx) => {
-                                    const item =
-                                        typeof link === 'string'
-                                            ? { title: '', url: link }
-                                            : link || { title: '', url: '' }
-                                    return (
-                                        <Box
-                                            key={`intro-link-${idx}`}
-                                            sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
-                                        >
-                                            <CustomTextField
-                                                value={safeStringValue(item.title)}
-                                                onChange={e => {
-                                                    const arr = Array.isArray(editData.intro_page_links)
-                                                        ? [...editData.intro_page_links]
-                                                        : []
-                                                    const next = {
-                                                        ...(typeof arr[idx] === 'object' ? arr[idx] : { url: arr[idx] || '' }),
-                                                        title: e.target.value,
-                                                    }
-                                                    arr[idx] = next
-                                                    handleUpdateEditData('intro_page_links', arr)
-                                                }}
-                                                placeholder={t.intro_link_title || 'タイトル'}
-                                                fieldKey={`intro_page_links_title_${idx}`}
-                                                inputRef={createInputRef(`intro_page_links_title_${idx}`)}
-                                            />
-                                            <CustomTextField
-                                                value={safeStringValue(item.url)}
-                                                onChange={e => {
-                                                    const arr = Array.isArray(editData.intro_page_links)
-                                                        ? [...editData.intro_page_links]
-                                                        : []
-                                                    const next = {
-                                                        ...(typeof arr[idx] === 'object' ? arr[idx] : { title: '' }),
-                                                        url: e.target.value,
-                                                    }
-                                                    arr[idx] = next
-                                                    handleUpdateEditData('intro_page_links', arr)
-                                                }}
-                                                placeholder={'https://example.com/page'}
-                                                fieldKey={`intro_page_links_url_${idx}`}
-                                                inputRef={createInputRef(`intro_page_links_url_${idx}`)}
-                                            />
-                                            <button
-                                                type='button'
-                                                className={styles.videoDeleteButton}
-                                                onClick={e => {
-                                                    e.preventDefault()
-                                                    const arr = Array.isArray(editData.intro_page_links)
-                                                        ? [...editData.intro_page_links]
-                                                        : []
-                                                    handleUpdateEditData(
-                                                        'intro_page_links',
-                                                        arr.filter((_, i) => i !== idx)
-                                                    )
-                                                }}
-                                            >
-                                                <img
-                                                    src={DeleteIcon}
-                                                    alt='delete'
-                                                    className={styles.deleteIcon}
-                                                />
-                                            </button>
-                                        </Box>
-                                    )})}
-                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                                    <CustomTextField
-                                        value={safeStringValue(editData.newIntroLinkTitle)}
-                                        onChange={e =>
-                                            handleUpdateEditData('newIntroLinkTitle', e.target.value)
-                                        }
-                                        placeholder={t.intro_link_title || 'タイトル'}
-                                        fieldKey='newIntroLinkTitle'
-                                        inputRef={createInputRef('newIntroLinkTitle')}
-                                    />
-                                    <CustomTextField
-                                        value={safeStringValue(editData.newIntroLinkUrl)}
-                                        onChange={e =>
-                                            handleUpdateEditData('newIntroLinkUrl', e.target.value)
-                                        }
-                                        placeholder={'https://example.com/page'}
-                                        fieldKey='newIntroLinkUrl'
-                                        inputRef={createInputRef('newIntroLinkUrl')}
-                                    />
-                                    <button
-                                        type='button'
-                                        className={styles.videoSaveButton}
-                                        onClick={e => {
-                                            e.preventDefault()
-                                            const url = safeStringValue(editData.newIntroLinkUrl).trim()
-                                            const title = safeStringValue(editData.newIntroLinkTitle).trim()
-                                            if (!url) return
-                                            const arr = Array.isArray(editData.intro_page_links)
-                                                ? [...editData.intro_page_links]
-                                                : []
-                                            if (arr.length >= 4) {
-                                                showAlert(
-                                                    t.max_four_links || '最大4件まで追加できます',
-                                                    'warning'
-                                                )
-                                                return
-                                            }
-                                            arr.push({ title, url })
-                                            handleUpdateEditData('intro_page_links', arr)
-                                            handleUpdateEditData('newIntroLinkTitle', '')
-                                            handleUpdateEditData('newIntroLinkUrl', '')
-                                        }}
-                                    >
-                                        {t.save_button}
-                                    </button>
-                                </Box>
-                            </Box>
-                        ) : (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                {(Array.isArray(company.intro_page_links)
-                                    ? company.intro_page_links
-                                    : []
-                                )
-                                    .slice(0, 4)
-                                    .map((entry, i) => {
-                                        const obj =
-                                            typeof entry === 'string'
-                                                ? { title: '', url: entry }
-                                                : entry || { title: '', url: '' }
-                                        const u = obj.url
-                                        const title = obj.title || u
-                                    return (
-                                        <Box key={`intro-a-${i}`} className={styles.introLinkItem} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                            {title && title.trim().length > 0 && (
-                                                <Typography variant='body1' color='text.primary' className={styles.introLinkTitle} sx={{ fontWeight: 600 }}>
-                                                    {title}
-                                                </Typography>
-                                            )}
-                                            <a
-                                                href={u && u.startsWith('http') ? u : `https://${u}`}
-                                                target='_blank'
-                                                rel='noopener noreferrer'
-                                                style={{
-                                                    color: '#1976d2',
-                                                    textDecoration: 'underline',
-                                                    wordBreak: 'break-all',
-                                                }}
-                                            >
-                                                {u}
-                                            </a>
-                                        </Box>
-                                    )
-                                    })}
-                            </Box>
-                        )}
+									{(Array.isArray(editData.intro_page_links)
+										? editData.intro_page_links
+										: []
+									).map((link, idx) => {
+										const item =
+											typeof link === 'string'
+												? { title: '', url: link }
+												: link || { title: '', url: '' }
+										return (
+											<Box
+												key={`intro-link-${idx}`}
+												sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
+											>
+												<CustomTextField
+													value={safeStringValue(item.title)}
+													onChange={e => {
+														const arr = Array.isArray(editData.intro_page_links)
+															? [...editData.intro_page_links]
+															: []
+														const next = {
+															...(typeof arr[idx] === 'object'
+																? arr[idx]
+																: { url: arr[idx] || '' }),
+															title: e.target.value,
+														}
+														arr[idx] = next
+														handleUpdateEditData('intro_page_links', arr)
+													}}
+													placeholder={t.intro_link_title || 'タイトル'}
+													fieldKey={`intro_page_links_title_${idx}`}
+													inputRef={createInputRef(
+														`intro_page_links_title_${idx}`
+													)}
+												/>
+												<CustomTextField
+													value={safeStringValue(item.url)}
+													onChange={e => {
+														const arr = Array.isArray(editData.intro_page_links)
+															? [...editData.intro_page_links]
+															: []
+														const next = {
+															...(typeof arr[idx] === 'object'
+																? arr[idx]
+																: { title: '' }),
+															url: e.target.value,
+														}
+														arr[idx] = next
+														handleUpdateEditData('intro_page_links', arr)
+													}}
+													placeholder={'https://example.com/page'}
+													fieldKey={`intro_page_links_url_${idx}`}
+													inputRef={createInputRef(
+														`intro_page_links_url_${idx}`
+													)}
+												/>
+												<button
+													type='button'
+													className={styles.videoDeleteButton}
+													onClick={e => {
+														e.preventDefault()
+														const arr = Array.isArray(editData.intro_page_links)
+															? [...editData.intro_page_links]
+															: []
+														handleUpdateEditData(
+															'intro_page_links',
+															arr.filter((_, i) => i !== idx)
+														)
+													}}
+												>
+													<img
+														src={DeleteIcon}
+														alt='delete'
+														className={styles.deleteIcon}
+													/>
+												</button>
+											</Box>
+										)
+									})}
+									<Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+										<CustomTextField
+											value={safeStringValue(editData.newIntroLinkTitle)}
+											onChange={e =>
+												handleUpdateEditData(
+													'newIntroLinkTitle',
+													e.target.value
+												)
+											}
+											placeholder={t.intro_link_title || 'タイトル'}
+											fieldKey='newIntroLinkTitle'
+											inputRef={createInputRef('newIntroLinkTitle')}
+										/>
+										<CustomTextField
+											value={safeStringValue(editData.newIntroLinkUrl)}
+											onChange={e =>
+												handleUpdateEditData('newIntroLinkUrl', e.target.value)
+											}
+											placeholder={'https://example.com/page'}
+											fieldKey='newIntroLinkUrl'
+											inputRef={createInputRef('newIntroLinkUrl')}
+										/>
+										<button
+											type='button'
+											className={styles.videoSaveButton}
+											onClick={e => {
+												e.preventDefault()
+												const url = safeStringValue(
+													editData.newIntroLinkUrl
+												).trim()
+												const title = safeStringValue(
+													editData.newIntroLinkTitle
+												).trim()
+												if (!url) return
+												const arr = Array.isArray(editData.intro_page_links)
+													? [...editData.intro_page_links]
+													: []
+												if (arr.length >= 4) {
+													showAlert(
+														t.max_four_links || '最大4件まで追加できます',
+														'warning'
+													)
+													return
+												}
+												arr.push({ title, url })
+												handleUpdateEditData('intro_page_links', arr)
+												handleUpdateEditData('newIntroLinkTitle', '')
+												handleUpdateEditData('newIntroLinkUrl', '')
+											}}
+										>
+											{t.save_button}
+										</button>
+									</Box>
+								</Box>
+							) : (
+								<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+									{(Array.isArray(company.intro_page_links)
+										? company.intro_page_links
+										: []
+									)
+										.slice(0, 4)
+										.map((entry, i) => {
+											const obj =
+												typeof entry === 'string'
+													? { title: '', url: entry }
+													: entry || { title: '', url: '' }
+											const u = obj.url
+											const title = obj.title || u
+											return (
+												<Box
+													key={`intro-a-${i}`}
+													className={styles.introLinkItem}
+													sx={{
+														display: 'flex',
+														flexDirection: 'column',
+														gap: 0.5,
+													}}
+												>
+													{title && title.trim().length > 0 && (
+														<Typography
+															variant='body1'
+															color='text.primary'
+															className={styles.introLinkTitle}
+															sx={{ fontWeight: 600 }}
+														>
+															{title}
+														</Typography>
+													)}
+													<a
+														href={
+															u && u.startsWith('http') ? u : `https://${u}`
+														}
+														target='_blank'
+														rel='noopener noreferrer'
+														style={{
+															color: '#1976d2',
+															textDecoration: 'underline',
+															wordBreak: 'break-all',
+														}}
+													>
+														{u}
+													</a>
+												</Box>
+											)
+										})}
+								</Box>
+							)}
 						</ContentBox>
 					)}
 
@@ -1761,13 +1792,13 @@ const CompanyProfile = ({ userId = 0 }) => {
 									maxLength: 1000,
 								},
 								// 3 対象
-                        {
-                            key: 'target_audience',
-                            label: t.target_audience || '対象',
-                            multiline: true,
-                            maxLength: 1000,
-                            type: 'target',
-                        },
+								{
+									key: 'target_audience',
+									label: t.target_audience || '対象',
+									multiline: true,
+									maxLength: 1000,
+									type: 'target',
+								},
 								// 4-5 応募要件
 								{
 									key: 'japanese_level',
@@ -1798,18 +1829,18 @@ const CompanyProfile = ({ userId = 0 }) => {
 									type: 'array',
 								},
 								// 9-13 募集詳細
-                        {
-                            key: 'number_of_openings',
-                            label: t.number_of_openings,
-                            multiline: true,
-                            maxLength: 500,
-                        },
-                        {
-                            key: 'employment_type',
-                            label: t.employment_type,
-                            multiline: true,
-                            maxLength: 500,
-                        },
+								{
+									key: 'number_of_openings',
+									label: t.number_of_openings,
+									multiline: true,
+									maxLength: 500,
+								},
+								{
+									key: 'employment_type',
+									label: t.employment_type,
+									multiline: true,
+									maxLength: 500,
+								},
 								{
 									key: 'probation_period',
 									label: t.probation_period,
@@ -1822,21 +1853,21 @@ const CompanyProfile = ({ userId = 0 }) => {
 									multiline: true,
 									maxLength: 500,
 								},
-                        {
-                            key: 'work_location',
-                            label: t.work_location,
-                            multiline: true,
-                            maxLength: 1000,
-                        },
+								{
+									key: 'work_location',
+									label: t.work_location,
+									multiline: true,
+									maxLength: 1000,
+								},
 								// 14-25 給与・待遇
-                        { key: 'salary', label: t.salary, multiline: true },
-                        {
-                            key: 'salary_increase',
-                            label: t.salary_increase || '昇給',
-                            multiline: true,
-                        },
-                        { key: 'bonus', label: t.bonus || '賞与', multiline: true },
-                        { key: 'work_hours', label: t.work_hours, multiline: true },
+								{ key: 'salary', label: t.salary, multiline: true },
+								{
+									key: 'salary_increase',
+									label: t.salary_increase || '昇給',
+									multiline: true,
+								},
+								{ key: 'bonus', label: t.bonus || '賞与', multiline: true },
+								{ key: 'work_hours', label: t.work_hours, multiline: true },
 								{
 									key: 'holidays_vacation',
 									label: t.holidays_vacation || '休日・休暇',
@@ -1852,31 +1883,31 @@ const CompanyProfile = ({ userId = 0 }) => {
 									label: t.allowances || 'その他手当（福利厚生）',
 									multiline: true,
 								},
-                        {
-                            key: 'retirement_benefit',
-                            label: t.retirement_benefit || '退職金',
-                            multiline: true,
-                        },
-                        {
-                            key: 'telework_availability',
-                            label: t.telework_availability || 'テレワークの有無',
-                            multiline: true,
-                        },
-                        {
-                            key: 'housing_availability',
-                            label: t.housing_availability || '寮、社宅等の有無',
-                            multiline: true,
-                        },
+								{
+									key: 'retirement_benefit',
+									label: t.retirement_benefit || '退職金',
+									multiline: true,
+								},
+								{
+									key: 'telework_availability',
+									label: t.telework_availability || 'テレワークの有無',
+									multiline: true,
+								},
+								{
+									key: 'housing_availability',
+									label: t.housing_availability || '寮、社宅等の有無',
+									multiline: true,
+								},
 								{
 									key: 'relocation_support',
 									label: t.relocation_support || '航空券代・赴任費用の負担',
 									multiline: true,
 								},
-                        {
-                            key: 'airport_pickup',
-                            label: t.airport_pickup || '来日時の送迎',
-                            multiline: true,
-                        },
+								{
+									key: 'airport_pickup',
+									label: t.airport_pickup || '来日時の送迎',
+									multiline: true,
+								},
 								// 26-27 フロー・その他
 								{
 									key: 'selection_process',
@@ -1906,41 +1937,41 @@ const CompanyProfile = ({ userId = 0 }) => {
 											{/* Array-style fields */}
 											{f.type === 'array' ? (
 												editMode && role === 'Recruiter' ? (
-                                            <CustomTextField
-                                                value={safeArrayRender(editData[f.key]).join('\n')}
-                                                multiline
-                                                minRows={3}
-                                                onChange={e => {
-                                                    const arr = String(e.target.value || '')
-                                                        .split(/[\n,]+/)
-                                                        .map(s => s.trim())
-                                                        .filter(Boolean)
-                                                    handleUpdateEditData(f.key, arr)
-                                                }}
-                                                placeholder={f.label}
-                                                fieldKey={f.key}
-                                                inputRef={createInputRef(f.key)}
-                                            />
+													<CustomTextField
+														value={safeArrayRender(editData[f.key]).join('\n')}
+														multiline
+														minRows={3}
+														onChange={e => {
+															const arr = String(e.target.value || '')
+																.split(/[\n,]+/)
+																.map(s => s.trim())
+																.filter(Boolean)
+															handleUpdateEditData(f.key, arr)
+														}}
+														placeholder={f.label}
+														fieldKey={f.key}
+														inputRef={createInputRef(f.key)}
+													/>
 												) : (
-                                            <DisplayText>
-                                                {safeArrayRender(company[f.key]).join('\n')}
-                                            </DisplayText>
+													<DisplayText>
+														{safeArrayRender(company[f.key]).join('\n')}
+													</DisplayText>
 												)
 											) : f.type === 'target' ? (
 												/* Special render for 対象: accept comma-separated string, display gracefully */
 												editMode && role === 'Recruiter' ? (
-                                            <CustomTextField
-                                                value={safeStringValue(editData[f.key])}
-                                                onChange={e =>
-                                                    handleUpdateEditData(f.key, e.target.value)
-                                                }
-                                                placeholder={f.label}
-                                                fieldKey={f.key}
-                                                inputRef={createInputRef(f.key)}
-                                                maxLength={f.maxLength}
-                                                multiline
-                                                minRows={3}
-                                            />
+													<CustomTextField
+														value={safeStringValue(editData[f.key])}
+														onChange={e =>
+															handleUpdateEditData(f.key, e.target.value)
+														}
+														placeholder={f.label}
+														fieldKey={f.key}
+														inputRef={createInputRef(f.key)}
+														maxLength={f.maxLength}
+														multiline
+														minRows={3}
+													/>
 												) : (
 													<DisplayText>
 														{Array.isArray(company[f.key])
