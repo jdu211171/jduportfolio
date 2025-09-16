@@ -148,7 +148,6 @@ const CustomTextField = React.memo(
 		onBlur = null,
 		inputRef = null,
 		maxLength,
-		showCounter = false,
 	}) => {
 		const handleChange = useCallback(
 			e => {
@@ -177,6 +176,11 @@ const CustomTextField = React.memo(
 			[onBlur]
 		)
 
+		// Check if character limit is exceeded (90% of maxLength)
+		const isOverLimit =
+			maxLength && String(value || '').length >= Math.floor(maxLength * 0.9)
+		const isAtLimit = maxLength && String(value || '').length >= maxLength
+
 		return (
 			<TextField
 				ref={inputRef}
@@ -191,10 +195,32 @@ const CustomTextField = React.memo(
 				minRows={multiline ? minRows : 1}
 				placeholder={placeholder}
 				className={styles.customTextField}
+				error={isAtLimit}
 				sx={{
 					'& .MuiOutlinedInput-root': {
 						position: 'relative',
 						zIndex: 1000,
+						'& fieldset': {
+							borderColor: isOverLimit
+								? isAtLimit
+									? '#f44336'
+									: '#ff9800'
+								: undefined,
+						},
+						'&:hover fieldset': {
+							borderColor: isOverLimit
+								? isAtLimit
+									? '#f44336'
+									: '#ff9800'
+								: undefined,
+						},
+						'&.Mui-focused fieldset': {
+							borderColor: isOverLimit
+								? isAtLimit
+									? '#f44336'
+									: '#ff9800'
+								: undefined,
+						},
 					},
 					'& .MuiInputBase-input': {
 						zIndex: 1000,
@@ -203,11 +229,6 @@ const CustomTextField = React.memo(
 				autoComplete='off'
 				spellCheck='false'
 				inputProps={maxLength ? { maxLength } : undefined}
-				helperText={
-					showCounter && maxLength
-						? `${String(value || '').length}/${maxLength}`
-						: undefined
-				}
 			/>
 		)
 	}
@@ -261,7 +282,7 @@ const SectionHeader = ({ icon, title }) => (
 
 SectionHeader.propTypes = {
 	icon: PropTypes.string.isRequired,
-	title: PropTypes.string.isRequired,
+	title: PropTypes.string,
 }
 
 const CompanyProfile = ({ userId = 0 }) => {
@@ -1047,7 +1068,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 											fieldKey='tagline_header'
 											inputRef={createInputRef('tagline_header')}
 											maxLength={50}
-											showCounter
 										/>
 									</Box>
 								</Box>
@@ -1120,15 +1140,22 @@ const CompanyProfile = ({ userId = 0 }) => {
 					textColor='primary'
 					indicatorColor='primary'
 				>
-					<Tab label='会社情報' value='company' />
-					<Tab label='募集概要' value='recruitment' />
+					<Tab label='会社情報' value='company' sx={{ fontWeight: '600' }} />
+					<Tab
+						label='募集概要'
+						value='recruitment'
+						sx={{ fontWeight: '600' }}
+					/>
 				</Tabs>
 			</Box>
 
 			{activeTab === 'company' && (
 				<>
 					{/* Company Information (会社情報) */}
-					<SectionHeader icon={BusinessIcon} />
+					<SectionHeader
+						icon={BusinessIcon}
+						// title={t.company_information || 'Company Information'}
+					/>
 					<Box
 						className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
 					>
@@ -1772,7 +1799,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 			{activeTab === 'recruitment' && (
 				<>
 					<ContentBox>
-						<SectionHeader icon={WorkIcon} />
+						<SectionHeader
+							icon={WorkIcon}
+							// title={t.work_information || 'Work Information'}
+						/>
 						<Box
 							className={`${styles.companyInfoContainer} ${editMode ? styles.companyInfoContainerEdit : ''}`}
 							sx={{ p: 0, m: 0 }}
@@ -1992,7 +2022,6 @@ const CompanyProfile = ({ userId = 0 }) => {
 													fieldKey={f.key}
 													inputRef={createInputRef(f.key)}
 													maxLength={f.maxLength}
-													showCounter={!!f.maxLength}
 												/>
 											) : (
 												<DisplayText>
