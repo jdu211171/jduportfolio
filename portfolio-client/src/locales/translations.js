@@ -554,7 +554,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		salary: '給与',
 		salary_increase: '昇給',
 		bonus: '賞与',
-		allowances: 'その他手当（福利厚生）',
+		allowances: 'その他手当\n福利厚生',
 		holidays_vacation: '休日・休暇',
 		benefits: '社会・保険',
 
@@ -1056,7 +1056,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		salary: '給与',
 		salary_increase: '昇給',
 		bonus: '賞与',
-		allowances: 'その他手当・福利厚生',
+		allowances: 'その他手当\n福利厚生',
 		holidays_vacation: '休日休暇',
 		benefits: '社会・保険',
 		other: 'その他',
