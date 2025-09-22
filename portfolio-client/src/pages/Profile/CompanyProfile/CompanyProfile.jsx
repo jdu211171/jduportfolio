@@ -1910,7 +1910,11 @@ const CompanyProfile = ({ userId = 0 }) => {
 								},
 								{
 									key: 'allowances',
-									label: t.allowances || 'その他手当（福利厚生）',
+									label: (
+										<span style={{ whiteSpace: 'pre-line' }}>
+											{t.allowances || 'その他手当\n福利厚生'}
+										</span>
+									),
 									multiline: true,
 								},
 								{

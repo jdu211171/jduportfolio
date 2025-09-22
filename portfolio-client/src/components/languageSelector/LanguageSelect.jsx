@@ -32,6 +32,7 @@ export const LanguageSelect = ({
 		{ code: 'ja', name: '日本語', flag: '🇯🇵', shortName: 'JP' },
 		{ code: 'en', name: 'English', flag: '🇺🇸', shortName: 'EN' },
 		{ code: 'uz', name: "O'zbek", flag: '🇺🇿', shortName: 'UZ' },
+		{ code: 'ru', name: 'Русский', flag: '🇷🇺', shortName: 'RU' },
 	]
 
 	const sizeClasses = {
