@@ -83,6 +83,14 @@ const Deliverables = ({
 	})
 	const [selectedFiles, setSelectedFiles] = useState([])
 	const [previewUrls, setPreviewUrls] = useState([])
+	const [removeUrls, setRemoveUrls] = useState([])
+
+	const toggleRemoveUrl = url => {
+		setRemoveUrls(prev =>
+			prev.includes(url) ? prev.filter(u => u !== url) : [...prev, url]
+		)
+	}
+
 
 	// Initialize deliverables from data
 	useEffect(() => {
@@ -172,10 +180,11 @@ const Deliverables = ({
 		clearForm()
 	}
 
-	const handleEditDialogClose = () => {
+const handleEditDialogClose = () => {
 		setEditDialogOpen(false)
 		clearForm()
-	}
+		setRemoveUrls([])
+}
 
 	// Handle create deliverable
 	const handleCreate = async () => {
@@ -253,17 +262,22 @@ const Deliverables = ({
 				selectedFiles.forEach(file => {
 					formDataToSend.append('files', file)
 				})
-			}
-
-			const response = await axios.put(
-				`/api/deliverables/${currentDeliverable.id}`,
-				formDataToSend,
-				{
-					headers: {
-						'Content-Type': 'multipart/form-data',
-					},
 				}
-			)
+
+				// Mark images for removal
+				if (removeUrls.length > 0) {
+					formDataToSend.append('remove_image_urls', JSON.stringify(removeUrls))
+				}
+
+				const response = await axios.put(
+					`/api/deliverables/${currentDeliverable.id}`,
+					formDataToSend,
+					{
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+					}
+				)
 
 			// Update local state
 			const updatedDeliverables = response.data.profile_data?.deliverables || []
@@ -834,27 +848,54 @@ const Deliverables = ({
 									[]
 								return (
 									images.length > 0 && (
-										<Box sx={{ mb: 2 }}>
-											<Typography variant='subtitle2' gutterBottom>
-												{t('currentImages') || 'Current Images'}:
-											</Typography>
-											<ImageList cols={3} gap={8}>
-												{images.map((url, index) => (
-													<ImageListItem key={index}>
-														<img
-															src={url}
-															alt={`Current ${index + 1}`}
-															style={{
-																width: '100%',
-																height: 100,
-																objectFit: 'cover',
-																borderRadius: 4,
-															}}
-														/>
-													</ImageListItem>
-												))}
-											</ImageList>
-										</Box>
+											<Box sx={{ mb: 2 }}>
+												<Typography variant='subtitle2' gutterBottom>
+													{t('currentImages') || 'Current Images'}
+												</Typography>
+												<Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+													<Button size='small' onClick={() => {
+														const imgs = currentDeliverable?.image_urls || currentDeliverable?.files || []
+														setRemoveUrls(imgs)
+													}}>
+														{t('removeAll') || 'Mark all for removal'}
+													</Button>
+													<Button size='small' onClick={() => setRemoveUrls([])}>
+														{t('undoRemoveAll') || 'Unmark all'}
+													</Button>
+												</Box>
+												<ImageList cols={3} gap={8}>
+													{images.map((url, index) => (
+														<ImageListItem key={index} sx={{ position: 'relative' }}>
+															<img
+																src={url}
+																alt={`Current ${index + 1}`}
+																style={{
+																	width: '100%',
+																	height: 100,
+																	objectFit: 'cover',
+																	borderRadius: 4,
+																	opacity: removeUrls.includes(url) ? 0.4 : 1,
+																	outline: removeUrls.includes(url) ? '2px solid #d32f2f' : 'none',
+																}}
+															/>
+															<Tooltip title={removeUrls.includes(url) ? (t('unmarkRemoval') || 'Unmark removal') : (t('markForRemoval') || 'Mark for removal')}>
+																<IconButton
+																	size='small'
+																	onClick={() => toggleRemoveUrl(url)}
+																	sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'rgba(255,255,255,0.85)' }}
+																>
+																	<DeleteIcon fontSize='small' color={removeUrls.includes(url) ? 'error' : 'action'} />
+																</IconButton>
+															</Tooltip>
+															{removeUrls.includes(url) && (
+																<Box component='span' sx={{ position: 'absolute', bottom: 4, left: 4, backgroundColor: 'rgba(211,47,47,0.9)', color: 'white', px: 1, py: 0.25, borderRadius: 1, fontSize: '0.75rem' }}>
+																	{t('markedForRemoval') || 'Will remove'}
+																</Box>
+															)}
+														</ImageListItem>
+													))}
+												</ImageList>
+											</Box>
 									)
 								)
 							})()}

@@ -1201,6 +1201,7 @@ const Top = () => {
 
 			{/* Staff Comment Display Section for Students */}
 			{role === 'Student' &&
+				subTabIndex === 0 &&
 				currentDraft &&
 				currentDraft.comments &&
 				(currentDraft.status === 'resubmission_required' ||
@@ -1247,8 +1248,8 @@ const Top = () => {
 					</Box>
 				)}
 
-			{/* Past staff comment history for students */}
-			{role === 'Student' && (
+			{/* Past staff comment history for students (only on 自己紹介 tab) */}
+			{role === 'Student' && subTabIndex === 0 && (
 				<HistoryComments />
 			)}
 
@@ -2002,7 +2003,7 @@ const Top = () => {
 					<Deliverables
 						data={student.draft.deliverables}
 						editMode={editMode}
-						editData={editData.draft.deliverables}
+						editData={editData.draft}
 						updateEditData={handleUpdateEditData}
 						onImageUpload={handleImageUpload}
 						keyName='deliverables'

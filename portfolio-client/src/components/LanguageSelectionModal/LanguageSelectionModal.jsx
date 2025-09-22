@@ -35,6 +35,13 @@ const languages = [
 		flag: '🇺🇿',
 		description: "Portfolio tizimini o'zbek tilida ishlating",
 	},
+    {
+        code: 'ru',
+        name: 'Русский',
+        englishName: 'Russian',
+        flag: '🇷🇺',
+        description: 'Используйте систему портфолио на русском языке',
+    },
 ]
 
 const LanguageSelectionModal = ({ open, onClose }) => {
@@ -71,7 +78,7 @@ const LanguageSelectionModal = ({ open, onClose }) => {
 		>
 			<DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
 				<Typography variant='h5' fontWeight='bold'>
-					Welcome! 歡迎! Xush kelibsiz!
+					Welcome! 歡迎! Xush kelibsiz! Добро пожаловать!
 				</Typography>
 				<Typography variant='body2' color='text.secondary' sx={{ mt: 1 }}>
 					Please select your preferred language

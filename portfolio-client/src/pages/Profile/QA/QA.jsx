@@ -746,14 +746,14 @@ const QA = ({
 				return prevEditData
 			}
 
-			// Reorder the entries
+			// Reorder the entries but keep the original keys stable
+			// so that student answers remain mapped correctly by key.
 			const reorderedEntries = arrayMove(entries, activeIndex, overIndex)
 
-			// Reassign keys (q1, q2, q3, etc.) based on new order
+			// Preserve keys; only change property order
 			const reorderedData = {}
-			reorderedEntries.forEach(([oldKey, value], index) => {
-				const newKey = `q${index + 1}`
-				reorderedData[newKey] = value
+			reorderedEntries.forEach(([key, value]) => {
+				reorderedData[key] = value
 			})
 
 			return {
