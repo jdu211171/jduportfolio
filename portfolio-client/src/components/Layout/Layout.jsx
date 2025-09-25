@@ -1,4 +1,5 @@
 import { colors, Modal, Dialog, DialogTitle, DialogContent, DialogActions, Button, DialogContentText } from '@mui/material'
+import Cookies from 'js-cookie'
 import { useContext, useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -41,10 +42,10 @@ const Layout = () => {
 	const [editMode, setEditMode] = useAtom(editModeAtom)
 	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
 
-	const handleLogout = () => {
-		sessionStorage.clear()
-		window.location.href = '/login'
-	}
+  const handleLogout = () => {
+      sessionStorage.clear()
+      window.location.href = '/login'
+  }
 
 	const handleNavigation = (e, to) => {
 		// Check if in edit mode
@@ -159,10 +160,13 @@ const Layout = () => {
 		},
 	]
 
-	const { activeUser } = useContext(UserContext)
+  const { activeUser } = useContext(UserContext)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
-	const [role] = useState(sessionStorage.getItem('role'))
+  // Read role from sessionStorage; if missing (e.g., new tab), fall back to cookie set by server
+  const [role] = useState(
+      sessionStorage.getItem('role') || Cookies.get('userType') || null
+  )
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
