@@ -834,7 +834,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 				business_overview: Array.isArray(companyData.business_overview)
 					? companyData.business_overview.join('\n')
 					: companyData.business_overview || '',
-				target_audience: safeParse(companyData.target_audience),
+				target_audience: Array.isArray(companyData.target_audience)
+					? companyData.target_audience.join('、')
+					: companyData.target_audience || '',
 				required_skills: safeParse(companyData.required_skills),
 				welcome_skills: safeParse(companyData.welcome_skills),
 				company_video_url: Array.isArray(companyData.company_video_url)
@@ -1253,7 +1255,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 													{url}
 												</a>
 											) : (
-												<Typography variant='body1'>-</Typography>
+												<Typography variant='body1'></Typography>
 											)
 										})()
 									)}
@@ -1340,6 +1342,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 											placeholder={t.employee_count_placeholder}
 											fieldKey='employee_Count'
 											inputRef={createInputRef('employee_Count')}
+											multiline
+											minRows={2}
 										/>
 									) : (
 										<Typography variant='body1'>
@@ -1728,12 +1732,31 @@ const CompanyProfile = ({ userId = 0 }) => {
 								</Box>
 							) : (
 								<Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-									{(Array.isArray(company.intro_page_links)
-										? company.intro_page_links
-										: []
-									)
-										.slice(0, 4)
-										.map((entry, i) => {
+									{(() => {
+										const links = Array.isArray(company.intro_page_links)
+											? company.intro_page_links
+											: []
+										const filteredLinks = links
+											.filter(entry => {
+												const obj =
+													typeof entry === 'string'
+														? { title: '', url: entry }
+														: entry || { title: '', url: '' }
+												return obj.url && obj.url.trim().length > 0
+											})
+											.slice(0, 4)
+
+										if (filteredLinks.length === 0) {
+											return (
+												<Box sx={{ textAlign: 'center', py: 3 }}>
+													<Typography color='text.secondary'>
+														{t.no_intro_pages_set}
+													</Typography>
+												</Box>
+											)
+										}
+
+										return filteredLinks.map((entry, i) => {
 											const obj =
 												typeof entry === 'string'
 													? { title: '', url: entry }
@@ -1776,7 +1799,8 @@ const CompanyProfile = ({ userId = 0 }) => {
 													</a>
 												</Box>
 											)
-										})}
+										})
+									})()}
 								</Box>
 							)}
 						</ContentBox>
@@ -1812,7 +1836,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								{
 									key: 'job_title',
 									label: t.job_title,
-									multiline: false,
+									multiline: true,
 									maxLength: 500,
 								},
 								{
@@ -1833,7 +1857,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 								{
 									key: 'japanese_level',
 									label: t.japanese_level,
-									multiline: false,
+									multiline: true,
 									maxLength: 500,
 								},
 								{
@@ -1982,7 +2006,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 																.filter(Boolean)
 															handleUpdateEditData(f.key, arr)
 														}}
-														placeholder={f.label}
+														placeholder={
+															t[`${f.key}_placeholder`] ||
+															(typeof f.label === 'string' ? f.label : '')
+														}
 														fieldKey={f.key}
 														inputRef={createInputRef(f.key)}
 													/>
@@ -1999,7 +2026,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 														onChange={e =>
 															handleUpdateEditData(f.key, e.target.value)
 														}
-														placeholder={f.label}
+														placeholder={
+															t[`${f.key}_placeholder`] ||
+															(typeof f.label === 'string' ? f.label : '')
+														}
 														fieldKey={f.key}
 														inputRef={createInputRef(f.key)}
 														maxLength={f.maxLength}
@@ -2022,7 +2052,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 													}
 													multiline={!!f.multiline}
 													minRows={f.multiline ? 3 : 1}
-													placeholder={f.label}
+													placeholder={
+														t[`${f.key}_placeholder`] ||
+														(typeof f.label === 'string' ? f.label : '')
+													}
 													fieldKey={f.key}
 													inputRef={createInputRef(f.key)}
 													maxLength={f.maxLength}
