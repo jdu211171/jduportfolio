@@ -1357,7 +1357,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 						{/* Removed Capital, Revenue, Representative per request */}
 					</Box>
 					{/* Company Introduction Video */}
-					{(company?.company_video_url?.length > 0 || role === 'Recruiter') && (
+					{(company?.company_video_url?.length > 0 ||
+						role === 'Recruiter' ||
+						editMode) && (
 						<ContentBox>
 							<Box
 								className={styles.sectionHeader}
@@ -1978,10 +1980,35 @@ const CompanyProfile = ({ userId = 0 }) => {
 									multiline: true,
 								},
 							]
-								.filter(
-									({ key }) =>
-										role === 'Recruiter' || editMode || hasContent(company[key])
-								)
+								.filter(({ key }) => {
+									// Fields that should be hidden when empty for non-Recruiters
+									const hideWhenEmpty = [
+										'company_video_url', // 紹介動画
+										'intro_page_links', // 紹介ページ
+										'files', // 資料
+										'application_requirements_other', // 応募要件：その他
+										'recommended_skills', // 推奨：経験やスキル
+										'recommended_licenses', // 推奨：資格や免許
+										'recommended_other', // 推奨：その他
+										'number_of_openings', // 募集人数
+										'allowances', // その他手当 福利厚生
+										'retirement_benefit', // 退職金
+										'other_notes', // その他
+									]
+
+									// Always show for Recruiters or in edit mode
+									if (role === 'Recruiter' || editMode) {
+										return true
+									}
+
+									// For other roles, hide only specified fields when empty
+									if (hideWhenEmpty.includes(key)) {
+										return hasContent(company[key])
+									}
+
+									// Show all other fields regardless of content
+									return true
+								})
 								.map((f, idx) => (
 									<Box
 										key={f.key}
