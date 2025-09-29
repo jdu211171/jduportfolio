@@ -81,9 +81,10 @@ const safeParse = data => {
 			const parsed = JSON.parse(data)
 			return Array.isArray(parsed) ? parsed : []
 		} catch {
-			// If JSON parse fails, treat as comma-separated string
-			return data
-				.split(',')
+			// If JSON parse fails, split by newlines or commas (preserve user formatting as lines)
+			return String(data)
+				.replace(/\r/g, '')
+				.split(/[\n,]+/)
 				.map(item => item.trim())
 				.filter(item => item)
 		}
@@ -176,10 +177,10 @@ const CustomTextField = React.memo(
 			[onBlur]
 		)
 
-		// Check if character limit is exceeded (90% of maxLength)
-		const isOverLimit =
-			maxLength && String(value || '').length >= Math.floor(maxLength * 0.9)
-		const isAtLimit = maxLength && String(value || '').length >= maxLength
+		// Live limit indicators
+		const currentLength = String(value || '').length
+		const isNearLimit = maxLength && currentLength >= Math.floor(maxLength * 0.9)
+		const isOverLimit = maxLength && currentLength > maxLength
 
 		return (
 			<TextField
@@ -195,31 +196,31 @@ const CustomTextField = React.memo(
 				minRows={multiline ? minRows : 1}
 				placeholder={placeholder}
 				className={styles.customTextField}
-				error={isAtLimit}
+				error={isOverLimit}
 				sx={{
 					'& .MuiOutlinedInput-root': {
 						position: 'relative',
 						zIndex: 1000,
 						'& fieldset': {
-							borderColor: isOverLimit
-								? isAtLimit
+								borderColor: isOverLimit
 									? '#f44336'
-									: '#ff9800'
-								: undefined,
+									: isNearLimit
+										? '#ff9800'
+										: undefined,
 						},
 						'&:hover fieldset': {
-							borderColor: isOverLimit
-								? isAtLimit
+								borderColor: isOverLimit
 									? '#f44336'
-									: '#ff9800'
-								: undefined,
+									: isNearLimit
+										? '#ff9800'
+										: undefined,
 						},
 						'&.Mui-focused fieldset': {
-							borderColor: isOverLimit
-								? isAtLimit
+								borderColor: isOverLimit
 									? '#f44336'
-									: '#ff9800'
-								: undefined,
+									: isNearLimit
+										? '#ff9800'
+										: undefined,
 						},
 					},
 					'& .MuiInputBase-input': {
@@ -416,16 +417,19 @@ const CompanyProfile = ({ userId = 0 }) => {
 		}
 	}
 
-	// Simple update function
-	const handleUpdate = async data => {
-		// Process the data correctly
-		// Helpers to normalize list arrays
-		const normalizeArray = arr => {
-			const list = Array.isArray(arr) ? arr : []
-			const trimmed = list.map(x => String(x || '').trim()).filter(Boolean)
-			const uniq = Array.from(new Set(trimmed))
-			return uniq
-		}
+		// Simple update function
+		const handleUpdate = async data => {
+			// Process the data correctly
+			// Helpers to normalize list arrays
+			const normalizeArray = arr => {
+				const list = Array.isArray(arr) ? arr : []
+				const trimmed = list.map(x => String(x || '').trim()).filter(Boolean)
+				const uniq = Array.from(new Set(trimmed))
+				return uniq
+			}
+
+			// Clamp helper to ensure server-side max length compliance
+			const clamp = (val, max) => (max ? String(val || '').slice(0, max) : String(val || ''))
 
 		// Tokenize, filter and validate YouTube URLs (supports arrays, comma/newline separated inputs)
 		const normalizeYouTubeUrls = input => {
@@ -491,48 +495,54 @@ const CompanyProfile = ({ userId = 0 }) => {
 			data.newVideoUrl || '',
 		]).slice(0, 3)
 
-		const processedData = {
-			...data,
-			// Convert null to empty strings for text fields
-			company_Address: data.company_Address || '',
-			established_Date: data.established_Date || '',
-			employee_Count: data.employee_Count || '',
-			work_location: data.work_location || '',
-			work_hours: data.work_hours || '',
-			salary: data.salary || '',
-			benefits: data.benefits || '',
-			selection_process: data.selection_process || '',
+			const processedData = {
+				...data,
+				// Convert null to empty strings for text fields
+				company_Address: clamp(data.company_Address, 1000),
+				established_Date: data.established_Date || '',
+				employee_Count: clamp(data.employee_Count, 500),
+				work_location: clamp(data.work_location, 1000),
+				work_hours: clamp(data.work_hours, 500),
+				salary: clamp(data.salary, 500),
+				benefits: clamp(data.benefits, 500),
+				selection_process: clamp(data.selection_process, 500),
 
 			// New optional strings
-			japanese_level: data.japanese_level || '',
-			application_requirements_other: data.application_requirements_other || '',
-			retirement_benefit: data.retirement_benefit || '',
-			telework_availability: data.telework_availability || '',
-			housing_availability: data.housing_availability || '',
-			relocation_support: data.relocation_support || '',
-			airport_pickup: data.airport_pickup || '',
-			intro_page_thumbnail: data.intro_page_thumbnail || '',
+				japanese_level: clamp(data.japanese_level, 100),
+				application_requirements_other: clamp(data.application_requirements_other, 500),
+				retirement_benefit: clamp(data.retirement_benefit, 500),
+				telework_availability: clamp(data.telework_availability, 200),
+				housing_availability: clamp(data.housing_availability, 200),
+				relocation_support: data.relocation_support || '',
+				airport_pickup: clamp(data.airport_pickup, 200),
+				intro_page_thumbnail: clamp(data.intro_page_thumbnail, 500),
+
+				// Recruitment text fields with explicit caps
+				job_title: clamp(data.job_title, 200),
+				job_description: clamp(data.job_description, 1000),
+				number_of_openings: clamp(data.number_of_openings, 500),
+				employment_type: clamp(data.employment_type, 100),
+				probation_period: clamp(data.probation_period, 500),
+				employment_period: clamp(data.employment_period, 500),
 
 			// Enforce one-line PR (tagline) length <= 50
 			tagline: (data.tagline || '').slice(0, 50),
 
 			// These should be strings (TEXT in database)
-			business_overview: data.business_overview || '',
-			target_audience: Array.isArray(data.target_audience)
-				? data.target_audience.join(', ')
-				: data.target_audience || '',
-			required_skills: Array.isArray(data.required_skills)
-				? data.required_skills.join(', ')
-				: data.required_skills || '',
-			welcome_skills: Array.isArray(data.welcome_skills)
-				? data.welcome_skills.join(', ')
-				: data.welcome_skills || '',
-			// New arrays-as-text
-			recommended_skills: normalizeArray(data.recommended_skills).join(', '),
-			recommended_licenses: normalizeArray(data.recommended_licenses).join(
-				', '
-			),
-			recommended_other: normalizeArray(data.recommended_other).join(', '),
+				business_overview: clamp(data.business_overview, 5000),
+				target_audience: Array.isArray(data.target_audience)
+					? data.target_audience.join('\n')
+					: clamp(data.target_audience, 1000),
+				required_skills: Array.isArray(data.required_skills)
+					? data.required_skills.join('\n')
+					: clamp(data.required_skills, 500),
+				welcome_skills: Array.isArray(data.welcome_skills)
+					? data.welcome_skills.join('\n')
+					: clamp(data.welcome_skills, 500),
+			// New arrays-as-text — preserve as newline-separated to keep user formatting
+				recommended_skills: clamp(normalizeArray(data.recommended_skills).join('\n'), 500),
+				recommended_licenses: clamp(normalizeArray(data.recommended_licenses).join('\n'), 500),
+				recommended_other: clamp(normalizeArray(data.recommended_other).join('\n'), 500),
 
 			// These should remain as arrays (JSONB in database)
 			gallery: Array.isArray(data.gallery) ? data.gallery : [],
@@ -1181,11 +1191,12 @@ const CompanyProfile = ({ userId = 0 }) => {
 											inputRef={createInputRef('company_name')}
 											multiline={true}
 											minRows={1}
+											maxLength={100}
 										/>
 									) : (
-										<Typography variant='body1'>
-											{safeStringValue(company.company_name)}
-										</Typography>
+											<DisplayText>
+												{safeStringValue(company.company_name)}
+											</DisplayText>
 									)}
 								</Box>
 							</Box>
@@ -1208,12 +1219,13 @@ const CompanyProfile = ({ userId = 0 }) => {
 											fieldKey='company_Address'
 											inputRef={createInputRef('company_Address')}
 											multiline={true}
-											minRows={1}
+											minRows={3}
+											maxLength={1000}
 										/>
 									) : (
-										<Typography variant='body1'>
+										<DisplayText>
 											{safeStringValue(company.company_Address)}
-										</Typography>
+										</DisplayText>
 									)}
 								</Box>
 							</Box>
@@ -1314,8 +1326,9 @@ const CompanyProfile = ({ userId = 0 }) => {
 										minRows={4}
 										placeholder={t.business_content_placeholder}
 										fieldKey='business_overview'
-										inputRef={createInputRef('business_overview')}
-									/>
+											inputRef={createInputRef('business_overview')}
+											maxLength={5000}
+										/>
 								) : (
 									<DisplayText>
 										{safeStringValue(company.business_overview)}
@@ -1344,11 +1357,12 @@ const CompanyProfile = ({ userId = 0 }) => {
 											inputRef={createInputRef('employee_Count')}
 											multiline
 											minRows={2}
+											maxLength={500}
 										/>
 									) : (
-										<Typography variant='body1'>
-											{safeStringValue(company.employee_Count)}
-										</Typography>
+											<DisplayText>
+												{safeStringValue(company.employee_Count)}
+											</DisplayText>
 									)}
 								</Box>
 							</Box>
@@ -1477,13 +1491,7 @@ const CompanyProfile = ({ userId = 0 }) => {
 									{Array.isArray(company?.company_video_url) &&
 									company.company_video_url.length > 0 ? (
 										<Box>
-											<Typography
-												variant='body2'
-												className={styles.videoDescription}
-												style={{ textAlign: 'center', marginBottom: '16px' }}
-											>
-												{t.company_introduction_video_description}
-											</Typography>
+											{/* Removed descriptive text under video as requested */}
 											{company.company_video_url.length === 1 ? (
 												(() => {
 													const videoId = extractYouTubeId(
@@ -1835,12 +1843,12 @@ const CompanyProfile = ({ userId = 0 }) => {
 						>
 							{[
 								// 1-2 基本
-								{
-									key: 'job_title',
-									label: t.job_title,
-									multiline: true,
-									maxLength: 500,
-								},
+									{
+										key: 'job_title',
+										label: t.job_title,
+										multiline: true,
+										maxLength: 200,
+									},
 								{
 									key: 'job_description',
 									label: t.job_description,
@@ -1856,34 +1864,37 @@ const CompanyProfile = ({ userId = 0 }) => {
 									type: 'target',
 								},
 								// 4-5 応募要件
-								{
-									key: 'japanese_level',
-									label: t.japanese_level,
-									multiline: true,
-									maxLength: 500,
-								},
-								{
-									key: 'application_requirements_other',
-									label: t.application_requirements_other,
-									multiline: true,
-									maxLength: 500,
-								},
+									{
+										key: 'japanese_level',
+										label: t.japanese_level,
+										multiline: true,
+										maxLength: 100,
+									},
+									{
+										key: 'application_requirements_other',
+										label: t.application_requirements_other,
+										multiline: true,
+										maxLength: 500,
+									},
 								// 6-8 推奨
-								{
-									key: 'recommended_skills',
-									label: t.recommended_skills || '推奨：経験やスキル',
-									type: 'array',
-								},
-								{
-									key: 'recommended_licenses',
-									label: t.recommended_licenses || '推奨：資格や免許',
-									type: 'array',
-								},
-								{
-									key: 'recommended_other',
-									label: t.recommended_other || '推奨：その他',
-									type: 'array',
-								},
+									{
+										key: 'recommended_skills',
+										label: t.recommended_skills || '推奨：経験やスキル',
+										type: 'array',
+										maxLength: 500,
+									},
+									{
+										key: 'recommended_licenses',
+										label: t.recommended_licenses || '推奨：資格や免許',
+										type: 'array',
+										maxLength: 500,
+									},
+									{
+										key: 'recommended_other',
+										label: t.recommended_other || '推奨：その他',
+										type: 'array',
+										maxLength: 500,
+									},
 								// 9-13 募集詳細
 								{
 									key: 'number_of_openings',
@@ -1891,12 +1902,12 @@ const CompanyProfile = ({ userId = 0 }) => {
 									multiline: true,
 									maxLength: 500,
 								},
-								{
-									key: 'employment_type',
-									label: t.employment_type,
-									multiline: true,
-									maxLength: 500,
-								},
+									{
+										key: 'employment_type',
+										label: t.employment_type,
+										multiline: true,
+										maxLength: 100,
+									},
 								{
 									key: 'probation_period',
 									label: t.probation_period,
@@ -1916,58 +1927,66 @@ const CompanyProfile = ({ userId = 0 }) => {
 									maxLength: 1000,
 								},
 								// 14-25 給与・待遇
-								{ key: 'salary', label: t.salary, multiline: true },
-								{
-									key: 'salary_increase',
-									label: t.salary_increase || '昇給',
-									multiline: true,
-								},
-								{ key: 'bonus', label: t.bonus || '賞与', multiline: true },
-								{ key: 'work_hours', label: t.work_hours, multiline: true },
-								{
-									key: 'holidays_vacation',
-									label: t.holidays_vacation || '休日・休暇',
-									multiline: true,
-								},
-								{
-									key: 'benefits',
-									label: t.benefits || '社会保険',
-									multiline: true,
-								},
-								{
-									key: 'allowances',
-									label: (
-										<span style={{ whiteSpace: 'pre-line' }}>
-											{t.allowances || 'その他手当\n福利厚生'}
-										</span>
-									),
-									multiline: true,
-								},
-								{
-									key: 'retirement_benefit',
-									label: t.retirement_benefit || '退職金',
-									multiline: true,
-								},
-								{
-									key: 'telework_availability',
-									label: t.telework_availability || 'テレワークの有無',
-									multiline: true,
-								},
-								{
-									key: 'housing_availability',
-									label: t.housing_availability || '寮、社宅等の有無',
-									multiline: true,
-								},
+									{ key: 'salary', label: t.salary, multiline: true, maxLength: 500 },
+									{
+										key: 'salary_increase',
+										label: t.salary_increase || '昇給',
+										multiline: true,
+										maxLength: 1000,
+									},
+									{ key: 'bonus', label: t.bonus || '賞与', multiline: true, maxLength: 1000 },
+									{ key: 'work_hours', label: t.work_hours, multiline: true, maxLength: 500 },
+									{
+										key: 'holidays_vacation',
+										label: t.holidays_vacation || '休日・休暇',
+										multiline: true,
+										maxLength: 500,
+									},
+									{
+										key: 'benefits',
+										label: t.benefits || '社会保険',
+										multiline: true,
+										maxLength: 500,
+									},
+									{
+										key: 'allowances',
+										label: (
+											<span style={{ whiteSpace: 'pre-line' }}>
+												{t.allowances || 'その他手当\n福利厚生'}
+											</span>
+										),
+										multiline: true,
+										maxLength: 500,
+									},
+									{
+										key: 'retirement_benefit',
+										label: t.retirement_benefit || '退職金',
+										multiline: true,
+										maxLength: 500,
+									},
+									{
+										key: 'telework_availability',
+										label: t.telework_availability || 'テレワークの有無',
+										multiline: true,
+										maxLength: 200,
+									},
+									{
+										key: 'housing_availability',
+										label: t.housing_availability || '寮、社宅等の有無',
+										multiline: true,
+										maxLength: 200,
+									},
 								{
 									key: 'relocation_support',
 									label: t.relocation_support || '航空券代・赴任費用の負担',
 									multiline: true,
 								},
-								{
-									key: 'airport_pickup',
-									label: t.airport_pickup || '来日時の送迎',
-									multiline: true,
-								},
+									{
+										key: 'airport_pickup',
+										label: t.airport_pickup || '来日時の送迎',
+										multiline: true,
+										maxLength: 200,
+									},
 								// 26-27 フロー・その他
 								{
 									key: 'selection_process',
@@ -2037,9 +2056,10 @@ const CompanyProfile = ({ userId = 0 }) => {
 															t[`${f.key}_placeholder`] ||
 															(typeof f.label === 'string' ? f.label : '')
 														}
-														fieldKey={f.key}
-														inputRef={createInputRef(f.key)}
-													/>
+															fieldKey={f.key}
+															inputRef={createInputRef(f.key)}
+															maxLength={f.maxLength}
+														/>
 												) : (
 													<DisplayText>
 														{safeArrayRender(company[f.key]).join('\n')}
