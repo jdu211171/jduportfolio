@@ -306,6 +306,7 @@
 	background-color: inherit;
 	font-size: 14px;
 	/* Ensure value text is 14px */
+	padding-right: 12px; /* space on the right so content doesn't stick to edge */
 }
 
 /* Column layout for sections that must stack label above content */
@@ -396,16 +397,19 @@
 
 /* Display Text Components */
 .displayText {
-	/* background-color: #fff; */
-	color: #000;
-	line-height: 1.6;
-	padding: 5px 0px;
+    /* background-color: #fff; */
+    color: #000;
+    line-height: 1.6;
+    padding: 5px 12px; /* horizontal padding for nicer right edge */
 }
 
 .displayTextContent {
 	color: rgba(30, 30, 30, 0.7) !important;
 	margin-bottom: 4px;
 	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+	hyphens: auto;
 	font-size: 14px;
 	/* Match value font size */
 }
@@ -475,7 +479,13 @@
 /* Ensure input text inside value fields is 14px across the board */
 .companyInfoContainer .value :global(.MuiInputBase-input),
 .companyInfoContainerEdit .value :global(.MuiInputBase-input) {
-	font-size: 14px !important;
+    font-size: 14px !important;
+}
+
+/* Ensure comfortable right padding inside outlined inputs */
+.companyInfoContainer .value :global(.MuiOutlinedInput-input),
+.companyInfoContainerEdit .value :global(.MuiOutlinedInput-input) {
+    padding-right: 14px !important;
 }
 
 .companyInfoContainer .value :global(.MuiTypography-root),
