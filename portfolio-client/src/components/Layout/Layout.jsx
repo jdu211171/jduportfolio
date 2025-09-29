@@ -53,7 +53,9 @@ const Layout = () => {
           try {
               Cookies.remove('token', { path: '/' })
               Cookies.remove('userType', { path: '/' })
-          } catch {}
+          } catch (err) {
+              console.error('Error removing cookies during logout:', err)
+          }
           sessionStorage.clear()
           window.location.href = '/login'
       }
