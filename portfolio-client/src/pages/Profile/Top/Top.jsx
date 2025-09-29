@@ -149,48 +149,48 @@ const Top = () => {
 
 	const t = key => translations[language][key] || key
 
-    // Helper function to safely parse JLPT and JDU certification (JSON or plain) with null handling
-    const getJLPTData = jlptString => {
-        try {
-            // Treat empty, 'null', or 'undefined' as not submitted
-            if (
-                jlptString === null ||
-                jlptString === undefined ||
-                (typeof jlptString === 'string' &&
-                    (jlptString.trim() === '' ||
-                        jlptString.trim().toLowerCase() === 'null' ||
-                        jlptString.trim().toLowerCase() === 'undefined'))
-            ) {
-                return { highest: '未提出', list: [] }
-            }
+	// Helper function to safely parse JLPT and JDU certification (JSON or plain) with null handling
+	const getJLPTData = jlptString => {
+		try {
+			// Treat empty, 'null', or 'undefined' as not submitted
+			if (
+				jlptString === null ||
+				jlptString === undefined ||
+				(typeof jlptString === 'string' &&
+					(jlptString.trim() === '' ||
+						jlptString.trim().toLowerCase() === 'null' ||
+						jlptString.trim().toLowerCase() === 'undefined'))
+			) {
+				return { highest: '未提出', list: [] }
+			}
 
-            if (typeof jlptString === 'string') {
-                // Try to parse JSON first
-                try {
-                    const parsed = JSON.parse(jlptString)
-                    if (parsed === null) return { highest: '未提出', list: [] }
-                    if (parsed && typeof parsed === 'object' && parsed.highest) {
-                        return parsed
-                    }
-                    // Not expected JSON structure; treat original as plain value (e.g., 'N2')
-                    return { highest: jlptString }
-                } catch {
-                    // Not JSON; treat as plain value
-                    return { highest: jlptString }
-                }
-            }
+			if (typeof jlptString === 'string') {
+				// Try to parse JSON first
+				try {
+					const parsed = JSON.parse(jlptString)
+					if (parsed === null) return { highest: '未提出', list: [] }
+					if (parsed && typeof parsed === 'object' && parsed.highest) {
+						return parsed
+					}
+					// Not expected JSON structure; treat original as plain value (e.g., 'N2')
+					return { highest: jlptString }
+				} catch {
+					// Not JSON; treat as plain value
+					return { highest: jlptString }
+				}
+			}
 
-            if (typeof jlptString === 'object') {
-                return jlptString && jlptString.highest
-                    ? jlptString
-                    : { highest: '未提出', list: [] }
-            }
+			if (typeof jlptString === 'object') {
+				return jlptString && jlptString.highest
+					? jlptString
+					: { highest: '未提出', list: [] }
+			}
 
-            return { highest: '未提出', list: [] }
-        } catch {
-            return { highest: '未提出', list: [] }
-        }
-    }
+			return { highest: '未提出', list: [] }
+		} catch {
+			return { highest: '未提出', list: [] }
+		}
+	}
 
 	// Helper function to safely parse certificate data (for japanese_speech_contest and it_contest)
 	const getCertificateData = certificateString => {
@@ -698,9 +698,9 @@ const Top = () => {
 			}, {}),
 		}
 	}
-    const [warningModal, setWarningModal] = useState({ open: false, message: '' })
+	const [warningModal, setWarningModal] = useState({ open: false, message: '' })
 
-    const handleSubmitDraft = async () => {
+	const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
 				const response = await axios.put(
@@ -723,23 +723,26 @@ const Top = () => {
 			} else {
 				showAlert(t('noDraftToSubmit'), 'error')
 			}
-        } catch (error) {
-            const status = error?.response?.status
-            const serverMsg = error?.response?.data?.error
-            // For validation errors (e.g., missing required answers), prefer localized message
-            if (status === 400) {
-                setWarningModal({
-                    open: true,
-                    message: t('pleaseAnswerRequired') || serverMsg || 'Required questions are missing.',
-                })
-            } else if (serverMsg) {
-                setWarningModal({ open: true, message: serverMsg })
-            } else {
-                setWarningModal({
-                    open: true,
-                    message: t('errorSubmittingDraft') || 'Error submitting draft',
-                })
-            }
+		} catch (error) {
+			const status = error?.response?.status
+			const serverMsg = error?.response?.data?.error
+			// For validation errors (e.g., missing required answers), prefer localized message
+			if (status === 400) {
+				setWarningModal({
+					open: true,
+					message:
+						t('pleaseAnswerRequired') ||
+						serverMsg ||
+						'Required questions are missing.',
+				})
+			} else if (serverMsg) {
+				setWarningModal({ open: true, message: serverMsg })
+			} else {
+				setWarningModal({
+					open: true,
+					message: t('errorSubmittingDraft') || 'Error submitting draft',
+				})
+			}
 		} finally {
 			setConfirmMode(false)
 		}
@@ -1249,9 +1252,7 @@ const Top = () => {
 				)}
 
 			{/* Past staff comment history for students (only on 自己紹介 tab) */}
-			{role === 'Student' && subTabIndex === 0 && (
-				<HistoryComments />
-			)}
+			{role === 'Student' && subTabIndex === 0 && <HistoryComments />}
 
 			{role === 'Staff' &&
 			!isLoading &&
@@ -1493,9 +1494,7 @@ const Top = () => {
 								</>
 							) : (
 								<>
-									<div
-										style={{ marginBottom: 15, color: '#666', lineHeight: 1.6 }}
-									>
+									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>
 										{editData.draft.hobbies_description ||
 											student.draft.hobbies ||
 											'SF映画を見ることです。最近観た映画はインターステラーです。他には卓球を友人とよくやります。'}
@@ -1716,9 +1715,7 @@ const Top = () => {
 								</>
 							) : (
 								<>
-									<div
-										style={{ marginBottom: 15, color: '#666', lineHeight: 1.6 }}
-									>
+									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>
 										{editData.draft.special_skills_description ||
 											student.draft.other_information ||
 											'ユーザー視点に立ってWebデザインを考え、機能性と美しさのバランスを取ったデザインに落とし込むのが得意です。'}
@@ -2108,9 +2105,9 @@ const Top = () => {
 				</DialogActions>
 			</Dialog>
 
-    {/* Unsaved changes warning */}
-    <Dialog
-        open={showUnsavedWarning}
+			{/* Unsaved changes warning */}
+			<Dialog
+				open={showUnsavedWarning}
 				onClose={() => {
 					setShowUnsavedWarning(false)
 					if (pendingLanguageChange) {
@@ -2202,86 +2199,112 @@ const Top = () => {
 						</Button>
 					)}
 				</DialogActions>
-    </Dialog>
+			</Dialog>
 
-    {/* Submit warning modal (e.g., missing required QA answers) */}
-    <Dialog
-        open={warningModal.open}
-        onClose={() => setWarningModal({ open: false, message: '' })}
-        aria-labelledby='submit-warning-title'
-        aria-describedby='submit-warning-desc'
-    >
-        <DialogTitle id='submit-warning-title'>
-            {t('warning') || 'Warning'}
-        </DialogTitle>
-        <DialogContent>
-            <DialogContentText id='submit-warning-desc'>
-                {warningModal.message}
-            </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-            <Button
-                onClick={() => setWarningModal({ open: false, message: '' })}
-                color='primary'
-                autoFocus
-            >
-                {t('ok')}
-            </Button>
-        </DialogActions>
-    </Dialog>
+			{/* Submit warning modal (e.g., missing required QA answers) */}
+			<Dialog
+				open={warningModal.open}
+				onClose={() => setWarningModal({ open: false, message: '' })}
+				aria-labelledby='submit-warning-title'
+				aria-describedby='submit-warning-desc'
+			>
+				<DialogTitle id='submit-warning-title'>
+					{t('warning') || 'Warning'}
+				</DialogTitle>
+				<DialogContent>
+					<DialogContentText id='submit-warning-desc'>
+						{warningModal.message}
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button
+						onClick={() => setWarningModal({ open: false, message: '' })}
+						color='primary'
+						autoFocus
+					>
+						{t('ok')}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</Box>
 	)
 }
 
 // --- Helper component: Student's past staff comment history (from notifications) ---
 function HistoryComments() {
-  const [items, setItems] = useState([])
-  const [loaded, setLoaded] = useState(false)
+	const [items, setItems] = useState([])
+	const [loaded, setLoaded] = useState(false)
 
-  useEffect(() => {
-    let mounted = true
-    ;(async () => {
-      try {
-        const res = await axios.get('/api/notification/history')
-        const list = res?.data?.notifications || []
-        const filtered = list
-          .filter(n => typeof n.message === 'string' && n.message.includes('|||COMMENT_SEPARATOR|||'))
-          .slice(0, 2)
-        if (mounted) setItems(filtered)
-      } catch (e) {
-        // ignore
-      } finally {
-        if (mounted) setLoaded(true)
-      }
-    })()
-    return () => {
-      mounted = false
-    }
-  }, [])
+	useEffect(() => {
+		let mounted = true
+		;(async () => {
+			try {
+				const res = await axios.get('/api/notification/history')
+				const list = res?.data?.notifications || []
+				const filtered = list
+					.filter(
+						n =>
+							typeof n.message === 'string' &&
+							n.message.includes('|||COMMENT_SEPARATOR|||')
+					)
+					.slice(0, 2)
+				if (mounted) setItems(filtered)
+			} catch (e) {
+				// ignore
+			} finally {
+				if (mounted) setLoaded(true)
+			}
+		})()
+		return () => {
+			mounted = false
+		}
+	}, [])
 
-  if (!loaded || items.length === 0) return null
+	if (!loaded || items.length === 0) return null
 
-  return (
-    <Box sx={{ my: 2, mx: 2, p: 2, backgroundColor: '#f7f7f7', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
-      <Typography sx={{ fontWeight: 600, mb: 1 }}>過去のスタッフコメント</Typography>
-      {items.map((n, idx) => {
-        const parts = n.message.split('|||COMMENT_SEPARATOR|||')
-        const commentRaw = parts[1] || ''
-        const comment = (() => {
-          const lines = String(commentRaw).split('\n')
-          return lines.length > 1 ? lines.slice(1).join('\n').trim() : commentRaw.trim()
-        })()
-        return (
-          <Box key={n.id || idx} sx={{ p: 1.5, mb: 1, backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #eee' }}>
-            <Typography sx={{ whiteSpace: 'pre-wrap' }}>{comment}</Typography>
-            <Typography variant='caption' color='text.secondary'>
-              {new Date(n.createdAt).toLocaleString()}
-            </Typography>
-          </Box>
-        )
-      })}
-    </Box>
-  )
+	return (
+		<Box
+			sx={{
+				my: 2,
+				mx: 2,
+				p: 2,
+				backgroundColor: '#f7f7f7',
+				borderRadius: '8px',
+				border: '1px solid #e0e0e0',
+			}}
+		>
+			<Typography sx={{ fontWeight: 600, mb: 1 }}>
+				過去のスタッフコメント
+			</Typography>
+			{items.map((n, idx) => {
+				const parts = n.message.split('|||COMMENT_SEPARATOR|||')
+				const commentRaw = parts[1] || ''
+				const comment = (() => {
+					const lines = String(commentRaw).split('\n')
+					return lines.length > 1
+						? lines.slice(1).join('\n').trim()
+						: commentRaw.trim()
+				})()
+				return (
+					<Box
+						key={n.id || idx}
+						sx={{
+							p: 1.5,
+							mb: 1,
+							backgroundColor: '#fff',
+							borderRadius: '6px',
+							border: '1px solid #eee',
+						}}
+					>
+						<Typography sx={{ whiteSpace: 'pre-wrap' }}>{comment}</Typography>
+						<Typography variant='caption' color='text.secondary'>
+							{new Date(n.createdAt).toLocaleString()}
+						</Typography>
+					</Box>
+				)
+			})}
+		</Box>
+	)
 }
 
 export default Top

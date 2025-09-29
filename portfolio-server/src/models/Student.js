@@ -65,6 +65,8 @@ module.exports = (sequelize, DataTypes) => {
 				defaultValue: '1',
 			},
 			partner_university: { type: DataTypes.STRING, allowNull: true },
+			faculty: { type: DataTypes.STRING, allowNull: true },
+			department: { type: DataTypes.STRING, allowNull: true },
 			student_status: { type: DataTypes.STRING, allowNull: true },
 			partner_university_credits: {
 				type: DataTypes.INTEGER,
@@ -158,6 +160,26 @@ module.exports = (sequelize, DataTypes) => {
 					}
 
 					return age
+				},
+			},
+			// Virtual field for expected graduation year combining year and season
+			expected_graduation_year: {
+				type: DataTypes.VIRTUAL,
+				get() {
+					const raw = this.getDataValue('graduation_year')
+					const season = this.getDataValue('graduation_season')
+					if (!raw && !season) return null
+
+					// If stored as ISO date (YYYY-MM-DD), format to 'YYYY年MM月'
+					if (raw && /^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+						const [Y, M] = raw.split('-')
+						const formatted = `${Y}年${M}月`
+						return season ? `${formatted}${season}` : formatted
+					}
+
+					// Fallback: return as-is, optionally append season
+					const yearText = raw || ''
+					return season ? `${yearText}${season}` : yearText || null
 				},
 			},
 		},

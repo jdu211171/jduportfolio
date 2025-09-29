@@ -906,10 +906,14 @@ class StudentService {
 					enrollment_date: data.jduDate,
 					partner_university_enrollment_date:
 						data.partnerUniversityEnrollmentDate,
+					// Kintone'dan yangi qo'shilgan maydonlar
+					faculty: data.faculty,
+					department: data.department,
 					semester: data.semester,
 					student_status: data.studentStatus,
 					partner_university: data.partnerUniversity,
-					graduation_year: data.graduationYear,
+					// Accept both snake_case and camelCase from Kintone formatter
+					graduation_year: data.graduation_year || data.graduationYear,
 					graduation_season: data.graduationSeason,
 					kintone_id: data.kintone_id_value,
 					world_language_university_credits:

@@ -56,7 +56,7 @@ const Setting = () => {
 	const [isEditing, setIsEditing] = useState(false)
 	const [selectedFile, setSelectedFile] = useState(null)
 	const [isLoading, setIsLoading] = useState(true)
-	
+
 	// Language change confirmation state
 	const [showLanguageConfirm, setShowLanguageConfirm] = useState(false)
 	const [pendingLanguage, setPendingLanguage] = useState(null)
@@ -91,7 +91,7 @@ const Setting = () => {
 		defaultValues,
 		mode: 'onChange',
 	})
-	
+
 	// Watch for form changes
 	useEffect(() => {
 		setHasUnsavedChanges(isDirty)
@@ -293,7 +293,6 @@ const Setting = () => {
 			setHasUnsavedChanges(false)
 			showAlert(t('profile_update_success'), 'success')
 		} catch (error) {
-
 			// File upload error handling
 			if (
 				error.config &&
@@ -435,7 +434,7 @@ const Setting = () => {
 							)}
 							<Typography variant='body2' className={SettingStyle.companyName}>
 								{user.first_name && user.last_name
-									? `${user.first_name}${user.last_name}`
+									? `${user.first_name} ${user.last_name}`
 									: t('user')}
 							</Typography>
 						</Box>
@@ -843,7 +842,7 @@ const Setting = () => {
 								<FormControl variant='outlined' fullWidth>
 									<Select
 										value={language}
-										onChange={(e) => {
+										onChange={e => {
 											if (isEditing && hasUnsavedChanges) {
 												setPendingLanguage(e.target.value)
 												setShowLanguageConfirm(true)
@@ -879,8 +878,13 @@ const Setting = () => {
 										</MenuItem>
 									</Select>
 								</FormControl>
-								<Typography variant='caption' color='textSecondary' sx={{ mt: 1, display: 'block' }}>
-									{t('language_change_notice') || 'アプリケーションの表示言語を変更します'}
+								<Typography
+									variant='caption'
+									color='textSecondary'
+									sx={{ mt: 1, display: 'block' }}
+								>
+									{t('language_change_notice') ||
+										'アプリケーションの表示言語を変更します'}
 								</Typography>
 							</Grid>
 						</Grid>
@@ -1006,25 +1010,26 @@ const Setting = () => {
 					</Card>
 				)}
 			</form>
-			
+
 			{/* Language Change Confirmation Dialog */}
 			<Dialog
 				open={showLanguageConfirm}
 				onClose={() => setShowLanguageConfirm(false)}
 			>
 				<DialogTitle>
-					{t('unsaved_changes_title') || 'O\'zgarishlar saqlanmagan'}
+					{t('unsaved_changes_title') || "O'zgarishlar saqlanmagan"}
 				</DialogTitle>
 				<DialogContent>
 					<Typography>
-						{t('language_change_unsaved_message') || 'Til o\'zgartirishdan oldin o\'zgarishlarni saqlaysizmi?'}
+						{t('language_change_unsaved_message') ||
+							"Til o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?"}
 					</Typography>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={() => setShowLanguageConfirm(false)}>
 						{t('cancel') || 'Bekor qilish'}
 					</Button>
-					<Button 
+					<Button
 						onClick={() => {
 							handleCancel()
 							setShowLanguageConfirm(false)
@@ -1034,7 +1039,7 @@ const Setting = () => {
 					>
 						{t('discard_changes') || 'Saqlamasdan davom etish'}
 					</Button>
-					<Button 
+					<Button
 						onClick={async () => {
 							await handleSubmit(onSubmit)()
 							setShowLanguageConfirm(false)

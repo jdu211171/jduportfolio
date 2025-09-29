@@ -104,18 +104,65 @@ const hasContent = value => {
 
 // Helper function to extract YouTube video ID from URL
 const extractYouTubeId = url => {
-	if (!url) return null
+    if (!url) return null
+    try {
+        const u = new URL(url)
+        // Standard watch URL
+        const v = u.searchParams.get('v')
+        if (v) return v
+        // Short links youtu.be/<id>
+        if (u.hostname.includes('youtu.be')) {
+            return u.pathname.split('/').filter(Boolean)[0] || null
+        }
+        // Embed URL
+        if (u.pathname.startsWith('/embed/')) {
+            return u.pathname.split('/')[2] || null
+        }
+        // Shorts URL
+        if (u.pathname.startsWith('/shorts/')) {
+            return u.pathname.split('/')[2] || u.pathname.split('/')[1] || null
+        }
+        // Live URL (sometimes /live/<id>)
+        if (u.pathname.startsWith('/live/')) {
+            return u.pathname.split('/')[2] || null
+        }
+    } catch {
+        // Fallback to regex if URL constructor fails
+        const regexPatterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+            /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+            /youtube\.com\/shorts\/([^&\n?#/]+)/,
+            /youtube\.com\/live\/([^&\n?#/]+)/,
+        ]
+        for (const pattern of regexPatterns) {
+            const match = String(url).match(pattern)
+            if (match) return match[1]
+        }
+    }
+    return null
+}
 
-	const regexPatterns = [
-		/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-		/youtube\.com\/watch\?.*v=([^&\n?#]+)/,
-	]
-
-	for (const pattern of regexPatterns) {
-		const match = url.match(pattern)
-		if (match) return match[1]
-	}
-	return null
+// Lightweight thumbnail component with graceful fallbacks
+const ThumbImage = ({ videoId, alt = 'Video thumbnail' }) => {
+    const [idx, setIdx] = useState(0)
+    const candidates = [
+        `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+        `https://i.ytimg.com/vi/${videoId}/sddefault.jpg`,
+        `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+        `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`,
+        `https://i.ytimg.com/vi/${videoId}/0.jpg`,
+        `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+    ]
+    const src = candidates[Math.min(idx, candidates.length - 1)]
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className={styles.thumbImg}
+            loading='lazy'
+            onError={() => setIdx(i => (i < candidates.length - 1 ? i + 1 : i))}
+        />
+    )
 }
 
 // Box style component for regular content
@@ -1560,24 +1607,22 @@ const CompanyProfile = ({ userId = 0 }) => {
 																const vid = extractYouTubeId(videoUrl)
 																if (!vid) return null
 																const isActive = idx === activeVideoIdx
-																return (
-																	<button
-																		key={`thumb-${idx}`}
-																		type='button'
-																		className={`${styles.thumbBtn} ${isActive ? styles.thumbActive : ''}`}
-																		aria-selected={isActive}
-																		role='tab'
-																		onClick={() => {
-																			if (videoSwiper?.slideTo)
-																				videoSwiper.slideTo(idx)
-																		}}
-																		style={{
-																			// Paint thumbnail image via CSS background on ::before
-																			// Fallback inline background for broader support
-																			backgroundImage: `url(https://img.youtube.com/vi/${vid}/hqdefault.jpg)`,
-																		}}
-																	/>
-																)
+                                                    return (
+                                                        <button
+                                                            key={`thumb-${idx}`}
+                                                            type='button'
+                                                            className={`${styles.thumbBtn} ${isActive ? styles.thumbActive : ''}`}
+                                                            aria-selected={isActive}
+                                                            role='tab'
+                                                            onClick={() => {
+                                                                if (videoSwiper?.slideTo)
+                                                                    videoSwiper.slideTo(idx)
+                                                            }}
+                                                            aria-label={`Video ${idx + 1}`}
+                                                        >
+                                                            <ThumbImage videoId={vid} />
+                                                        </button>
+                                                    )
 															})}
 													</Box>
 												</Box>

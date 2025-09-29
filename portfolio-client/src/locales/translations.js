@@ -303,6 +303,12 @@ const translations = {
 		delete: 'Delete',
 		loading: 'Loading...',
 		warning: 'Warning',
+		confirmApprove: 'Approve?',
+		confirmSendBack: 'Send Back?',
+		confirmApproveDesc:
+			'This action will send an "approved" notification to the student. Do you want to continue?',
+		confirmSendBackDesc:
+			'This action will send a rejection notification with comments to the student. Do you want to continue?',
 		studentNotApprovedByStaff: 'Student must be approved by staff',
 		profileVisibilityEnabled: 'Profile visibility enabled successfully',
 		profileHidden: 'Profile hidden successfully',
@@ -843,6 +849,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		ok: 'OK',
 		delete: '削除',
 		warning: '警告',
+		confirmApprove: '承認しますか？',
+		confirmSendBack: '差し戻しますか？',
+		confirmApproveDesc:
+			'この操作は学生に「承認済」通知を送ります。続行しますか？',
+		confirmSendBackDesc:
+			'この操作は学生に差し戻し通知をコメント付きで送ります。続行しますか？',
 		studentNotApprovedByStaff: '学生はスタッフによる承認が必要です',
 		profileVisibilityEnabled: 'プロフィールの公開設定が正常に有効化されました',
 		profileHidden: 'プロフィールが正常に非公開になりました',
@@ -960,7 +972,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		established_placeholder: '設立日',
 		employee_count: '従業員数',
 		employee_count_placeholder: '従業員数',
-		location_placeholder: '場所',
+		location_placeholder: '所在地',
 		company_description_placeholder: '企業の説明を',
 		saving: '保存中...',
 		// Language settings translations
@@ -1386,6 +1398,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		ok: 'OK',
 		delete: "O'chirish",
 		warning: 'Ogohlantirish',
+		confirmApprove: 'Tasdiqlaysizmi?',
+		confirmSendBack: 'Qaytarasizmi?',
+		confirmApproveDesc:
+			'Bu amal talabaga "tasdiqlandi" xabarini yuboradi. Davom etishni xohlaysizmi?',
+		confirmSendBackDesc:
+			'Bu amal talabaga izoh bilan qaytarish xabarini yuboradi. Davom etishni xohlaysizmi?',
 		studentNotApprovedByStaff: 'Talaba xodimlar tomonidan tasdiqlanishi kerak',
 		profileVisibilityEnabled: "Profil ko'rinishi muvaffaqiyatli yoqildi",
 		profileHidden: 'Profil muvaffaqiyatli yashirildi',
@@ -1896,6 +1914,12 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		delete: 'Удалить',
 		loading: 'Загрузка...',
 		warning: 'Предупреждение',
+		confirmApprove: 'Одобрить?',
+		confirmSendBack: 'Отправить обратно?',
+		confirmApproveDesc:
+			'Это действие отправит уведомление об «одобрении» студенту. Хотите продолжить?',
+		confirmSendBackDesc:
+			'Это действие отправит уведомление об отклонении с комментариями студенту. Хотите продолжить?',
 		studentNotApprovedByStaff: 'Студент должен быть одобрен персоналом',
 		profileVisibilityEnabled: 'Видимость профиля успешно включена',
 		profileHidden: 'Профиль успешно скрыт',
