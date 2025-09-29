@@ -1064,8 +1064,10 @@
 
 /* Swiper Pagination */
 .videoSwiper :global(.swiper-pagination) {
-	bottom: 8px;
-	z-index: 10;
+    bottom: 8px;
+    z-index: 10;
+    /* Don't block YouTube controls under it */
+    pointer-events: none;
 }
 
 .videoSwiper :global(.swiper-pagination-bullet) {
@@ -1125,6 +1127,11 @@
 	background: none;
 	padding: 0;
 	position: relative;
+    overflow: hidden;
+    /* Ensure inline background also works if used */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .thumbBtn::before {
@@ -1134,6 +1141,8 @@
 	border-radius: 4px;
 	background-size: cover;
 	background-position: center;
+	background-color: transparent;
+	z-index: 0;
 }
 
 .thumbBtn:hover {
@@ -1144,6 +1153,17 @@
 .thumbActive {
 	opacity: 1;
 	border-color: #1976d2;
+}
+
+/* Image element inside thumbnail button */
+.thumbImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    position: relative;
+    z-index: 1;
 }
 
 .videoEditContent {

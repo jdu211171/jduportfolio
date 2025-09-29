@@ -49,10 +49,15 @@ class StudentController {
 						parents_phone_number: record.parentsPhoneNumber?.value,
 						enrollment_date: record.jduDate?.value,
 						partner_university: record.partnerUniversity?.value,
+						faculty: record.faculty?.value,
+						department: record.department?.value,
 						partner_university_enrollment_date:
 							record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						student_status: record.studentStatus?.value,
+						// If Kintone field is a Date with field code 'graduation_year', prefer it
+						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
+						graduation_season: record.graduationSeason?.value,
 						kintone_id: record['$id']?.value,
 						active: record.semester?.value > 0, // Semestri bo'lsa, aktiv deb hisoblaymiz
 					}
@@ -93,15 +98,19 @@ class StudentController {
 						parents_phone_number: record.parentsPhoneNumber?.value,
 						enrollment_date: record.jduDate?.value,
 						partner_university: record.partnerUniversity?.value,
+						faculty: record.faculty?.value,
+						department: record.department?.value,
 						partner_university_enrollment_date:
 							record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						student_status: record.studentStatus?.value,
+						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
+						graduation_season: record.graduationSeason?.value,
 						active: record.semester?.value > 0,
 					}
 
 					// Servis orqali kintone_id bo'yicha yangilaymiz
-					const updatedStudent = await StudentService.updateStudentByKintoneID(
+					const updatedStudent = await StudentService.updateStudentWithKintoneID(
 						kintoneId,
 						studentData
 					)
@@ -311,46 +320,47 @@ class StudentController {
 			console.log('Final update payload:', updatePayload)
 
 			// Studentni bir marta yangilash
-            const updatedStudent = await StudentService.updateStudent(
-                id,
-                updatePayload
-            )
+			const updatedStudent = await StudentService.updateStudent(
+				id,
+				updatePayload
+			)
 
-            console.log('Updated student:', updatedStudent.dataValues)
+			console.log('Updated student:', updatedStudent.dataValues)
 
-            // Notify recruiters when a student's profile is made public
-            try {
-                const becamePublic = studentData.visibility === true && student.visibility !== true
-                if (becamePublic) {
-                    const { Recruiter } = require('../models')
-                    const NotificationService = require('../services/notificationService')
-                    const recruiters = await Recruiter.findAll({ attributes: ['id'] })
-                    if (Array.isArray(recruiters) && recruiters.length > 0) {
-                        const sid = updatedStudent.student_id || id
-                        const msgJA = `学生 (ID: ${sid}) のプロフィールが公開されました。`
-                        const msgEN = `Student (ID: ${sid}) profile has been made public.`
-                        const msgUZ = `Talaba (ID: ${sid}) profili ommaga ochildi.`
-                        const msgRU = `Профиль студента (ID: ${sid}) стал публичным.`
-                        const message = `【JA】${msgJA}\n【EN】${msgEN}\n【UZ】${msgUZ}\n【RU】${msgRU}`
-                        await Promise.all(
-                            recruiters.map(r =>
-                                NotificationService.create({
-                                    user_id: String(r.id),
-                                    user_role: 'recruiter',
-                                    type: 'etc',
-                                    status: 'unread',
-                                    message,
-                                    related_id: updatedStudent.id,
-                                })
-                            )
-                        )
-                    }
-                }
-            } catch (e) {
-                console.error('Failed to notify recruiters on publish:', e)
-            }
+			// Notify recruiters when a student's profile is made public
+			try {
+				const becamePublic =
+					studentData.visibility === true && student.visibility !== true
+				if (becamePublic) {
+					const { Recruiter } = require('../models')
+					const NotificationService = require('../services/notificationService')
+					const recruiters = await Recruiter.findAll({ attributes: ['id'] })
+					if (Array.isArray(recruiters) && recruiters.length > 0) {
+						const sid = updatedStudent.student_id || id
+						const msgJA = `学生 (ID: ${sid}) のプロフィールが公開されました。`
+						const msgEN = `Student (ID: ${sid}) profile has been made public.`
+						const msgUZ = `Talaba (ID: ${sid}) profili ommaga ochildi.`
+						const msgRU = `Профиль студента (ID: ${sid}) стал публичным.`
+						const message = `【JA】${msgJA}\n【EN】${msgEN}\n【UZ】${msgUZ}\n【RU】${msgRU}`
+						await Promise.all(
+							recruiters.map(r =>
+								NotificationService.create({
+									user_id: String(r.id),
+									user_role: 'recruiter',
+									type: 'etc',
+									status: 'unread',
+									message,
+									related_id: updatedStudent.id,
+								})
+							)
+						)
+					}
+				}
+			} catch (e) {
+				console.error('Failed to notify recruiters on publish:', e)
+			}
 
-            res.status(200).json(updatedStudent)
+			res.status(200).json(updatedStudent)
 		} catch (error) {
 			console.error('Error updating student:', error)
 			res.status(500).json({ error: error.message })

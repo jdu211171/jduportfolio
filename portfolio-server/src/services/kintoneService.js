@@ -164,11 +164,16 @@ class KintoneService {
 						parentsPhoneNumber: record.parentsPhoneNumber?.value,
 						jduDate: record.jduDate?.value,
 						partnerUniversity: record.partnerUniversity?.value,
+						// Newly added fields from Kintone student app
+						faculty: record.faculty?.value,
+						department: record.department?.value,
 						partnerUniversityEnrollmentDate:
 							record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						studentStatus: record.studentStatus?.value,
+						// Graduation can come as a Date (YYYY-MM-DD). Support both field codes.
 						graduationYear: record.graduationYear?.value,
+						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
 						graduationSeason: record.graduationSeason?.value,
 						kintone_id_value: record['$id']?.value,
 						...studentCredits,

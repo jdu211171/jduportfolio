@@ -65,7 +65,7 @@ const StudentProfile = ({ userId = 0 }) => {
 				setStudent(response.data)
 				setLoading(false)
 			} catch (error) {
-					setError(error.response?.data?.message || 'Error fetching student data')
+				setError(error.response?.data?.message || 'Error fetching student data')
 				setLoading(false)
 			}
 		}
@@ -215,17 +215,40 @@ const StudentProfile = ({ userId = 0 }) => {
 								</div>
 							)}
 							{/* student id and birthday */}
-							<div style={{ display: 'flex', gap: 10 }}>
+							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
 								<div style={{ display: 'flex' }}>
-									<div style={{ color: '#787878' }}>{t.student_id}:</div>
+									<div style={{ color: '#787878' }}>学籍番号:</div>
 									<div>{student.student_id || 'N/A'}</div>
 								</div>
 								<div style={{ display: 'flex' }}>
-									<div style={{ color: '#787878' }}>{t.age}:</div>
+									<div style={{ color: '#787878' }}>年齢:</div>
 									<div>
 										{student.date_of_birth
 											? calculateAge(student.date_of_birth)
-											: 'N/A'}
+											: '0'}
+									</div>
+								</div>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>JDU卒業予定年月:</div>
+									<div>{student.expected_graduation_year || '未設定'}</div>
+								</div>
+							</div>
+							{/* partner university info */}
+							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>在籍提携大学（学部）:</div>
+									<div>
+										{student.partner_university &&
+										student.faculty &&
+										student.department
+											? [
+												student.partner_university,
+												student.faculty,
+												student.department,
+											]
+												.filter(Boolean)
+												.join(' ')
+											: student.partner_university || '未設定'}
 									</div>
 								</div>
 							</div>

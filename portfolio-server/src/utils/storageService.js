@@ -58,6 +58,11 @@ const uploadFile = async (fileBuffer, objectName) => {
 			Key: objectName,
 			Body: fileBuffer,
 			ACL: 'public-read',
+			ContentType: 'image/*',
+			CacheControl: 'max-age=31536000',
+			Metadata: {
+				'original-name': 'uploaded-file',
+			},
 		}
 		const command = new PutObjectCommand(uploadParams)
 		await s3Client.send(command)
