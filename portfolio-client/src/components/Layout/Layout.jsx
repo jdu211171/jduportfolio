@@ -1,5 +1,6 @@
 import { colors, Modal, Dialog, DialogTitle, DialogContent, DialogActions, Button, DialogContentText } from '@mui/material'
 import Cookies from 'js-cookie'
+import axios from '../../utils/axiosUtils'
 import { useContext, useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -42,9 +43,20 @@ const Layout = () => {
 	const [editMode, setEditMode] = useAtom(editModeAtom)
 	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
 
-  const handleLogout = () => {
-      sessionStorage.clear()
-      window.location.href = '/login'
+  const handleLogout = async () => {
+      try {
+          await axios.post('/api/auth/logout')
+      } catch (e) {
+          console.error('Logout error:', e)
+      } finally {
+          // Remove auth cookies and any client-side session
+          try {
+              Cookies.remove('token', { path: '/' })
+              Cookies.remove('userType', { path: '/' })
+          } catch {}
+          sessionStorage.clear()
+          window.location.href = '/login'
+      }
   }
 
 	const handleNavigation = (e, to) => {
