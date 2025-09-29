@@ -64,8 +64,8 @@ exports.validateRecruiterUpdate = [
     body('company_Address')
         .optional({ nullable: true })
         .isString()
-        .isLength({ max: 100 })
-        .withMessage('Company address must be a string'),
+        .isLength({ max: 1000 })
+        .withMessage('Company address must be a string (<=1000 chars)'),
     body('established_Date')
         .optional({ nullable: true })
         .isString()
@@ -98,8 +98,8 @@ exports.validateRecruiterUpdate = [
     body('work_location')
         .optional({ nullable: true })
         .isString()
-        .isLength({ max: 500 })
-        .withMessage('Work location must be a string'),
+        .isLength({ max: 1000 })
+        .withMessage('Work location must be a string (<=1000 chars)'),
     body('work_hours')
         .optional({ nullable: true })
         .isString()

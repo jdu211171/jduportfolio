@@ -2015,58 +2015,7 @@ const Top = () => {
 					/>
 				</Box>
 			)}
-			{/* Credits section - temporarily disabled
-			{subTabIndex === 3 && (
-				<Box my={2} backgroundColor={'#FFFFFF'} padding={3}>
-					<div style={{ display: 'flex', gap: 10 }}>
-						{[
-							'JDU',
-							partnerUniversityName,
-							'University of World Languages',
-						].map((item, ind) => (
-							<Button
-								key={ind}
-								variant={item === activeUniver ? 'contained' : 'outlined'}
-								onClick={() => {
-									setActiveUniver(item)
-								}}
-							>
-								{item}
-							</Button>
-						))}
-					</div>
-
-					<Box
-						sx={{
-							color: '#1E1E1ECC',
-							marginBlock: '20px',
-						}}
-						my={2}
-					>
-						<div>{t('studentCredits')}</div>
-						<div>
-							<span style={{ fontSize: 32, fontWeight: 600, color: 'black' }}>
-								{creditMap[activeUniver] ?? 0}
-							</span>
-							/
-							{activeUniver === 'JDU' ||
-							activeUniver === 'University of World Languages'
-								? 76
-								: 124}
-						</div>
-					</Box>
-					<CreditsProgressBar
-						studentId={student?.student_id || id}
-						student={{
-							totalCredits: creditMap[activeUniver] ?? 0,
-							semester: student?.semester,
-							university: activeUniver,
-						}}
-						credit_details={student?.credit_details || []}
-					/>
-				</Box>
-			)}
-			*/}
+			{/* Credits section is temporarily disabled */}
 			{/* QA */}
 			{subTabIndex === 3 && (
 				<Box my={2}>
