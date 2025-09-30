@@ -19,6 +19,11 @@ const fileRoutes = require('./routes/file-routes')
 const imageRoutes = require('./routes/image-routes')
 const kintoneRoutes = require('./routes/kintone-routes')
 const webhookRoutes = require('./routes/webhook-routes')
+const itSkillRoutes = require('./routes/itSkillRoutes')
+const skillRoutes = require('./routes/skillRoutes')
+const recruiterFileRoutes = require('./routes/recruiterFileRoutes')
+const deliverableRoutes = require('./routes/deliverableRoutes')
+const healthRoute = require('./routes/health-route')
 
 /**
  * @swagger
@@ -57,6 +62,15 @@ const configureRoutes = app => {
 	// Auth routes
 	app.use('/api/auth', authRoute)
 
+	// Health (no auth)
+	app.use('/api/health', healthRoute)
+
+	// Public routes
+	app.get(
+		'/api/students/:studentId/credit-details',
+		require('./controllers/studentController').getStudentWithCreditDetails
+	)
+
 	// Protected routes
 	app.use('/api/admin', adminRoute)
 	app.use('/api/recruiters', authMiddleware, recruiterRoute)
@@ -72,9 +86,12 @@ const configureRoutes = app => {
 	app.use('/api/log', logRoute)
 	app.use('/api/images', imageRoutes)
 	app.use('/api/notification', authMiddleware, notificationRoute)
-	app.use('/api/news' , newsRoute)
+	app.use('/api/news', newsRoute)
 	app.use('/api/file-records', authMiddleware, fileRecordRoute)
+	app.use('/api/itskills', authMiddleware, itSkillRoutes)
+	app.use('/api/skills', authMiddleware, skillRoutes)
+	app.use('/api/recruiter-files', authMiddleware, recruiterFileRoutes)
+	app.use('/api/deliverables', authMiddleware, deliverableRoutes)
 }
 
 module.exports = configureRoutes
-

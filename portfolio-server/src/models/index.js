@@ -39,9 +39,11 @@ db.Setting = require('./Settings')(sequelize, Sequelize)
 db.Draft = require('./Draft')(sequelize, Sequelize)
 db.Log = require('./Log')(sequelize, Sequelize)
 db.Notification = require('./Notification')(sequelize, Sequelize)
-db.Image = require('./Image')(sequelize, Sequelize); // Image modelini qo'shish
+db.Image = require('./Image')(sequelize, Sequelize); 
 db.UserFile = require('./userFile')(sequelize, Sequelize);
-db.News = require('./News')(sequelize, Sequelize); // News modelini qo'shish
+db.News = require('./News')(sequelize, Sequelize); 
+db.ItSkill = require('./itskill')(sequelize, Sequelize); 
+db.Skill = require('./skill')(sequelize, Sequelize);
 
 
 // Load other models here if needed
@@ -99,7 +101,9 @@ module.exports = {
 	Draft: db.Draft,
 	Log: db.Log,
 	Notification: db.Notification,
-	Image: db.Image, // Image modelini eksport qilish
+	Image: db.Image, 
 	UserFile: db.UserFile,
-	News: db.News, // News modelini eksport qilish
+	News: db.News, 
+	ItSkill: db.ItSkill,
+	Skill: db.Skill,
 }

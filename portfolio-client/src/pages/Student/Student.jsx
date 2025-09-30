@@ -1,68 +1,92 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Box } from '@mui/material'
-import Table from '../../components/Table/Table'
+import PropTypes from 'prop-types'
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Filter from '../../components/Filter/Filter'
-import PasswordCell from '../../components/Table/PasswordCell'
+import Table from '../../components/Table/Table'
 
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
-import { useLanguage } from '../../contexts/LanguageContext' // Подключение контекста языка
-import translations from '../../locales/translations' // Подключение переводов
+
+// localStorage dan viewMode ni o'qish yoki default qiymat
+const getInitialViewMode = () => {
+	try {
+		const saved = localStorage.getItem('studentTableViewMode')
+		return saved || 'table'
+	} catch (error) {
+		console.error('Error reading viewMode from localStorage:', error)
+		return 'table'
+	}
+}
+
+// localStorage dan filter state ni o'qish yoki default qiymat
+const getInitialFilterState = () => {
+	const defaultState = {
+		search: '',
+		it_skills: [],
+		jlpt: [],
+		jdu_japanese_certification: [],
+		partner_university: [],
+		other_information: '',
+	}
+
+	try {
+		const saved = localStorage.getItem('students-filter-v1')
+		if (saved) {
+			const parsedState = JSON.parse(saved)
+			// Validate va merge with default state
+			return { ...defaultState, ...parsedState }
+		}
+	} catch (error) {
+		console.error('Error reading filter state from localStorage:', error)
+	}
+	return defaultState
+}
 
 const Student = ({ OnlyBookmarked = false }) => {
-	const { language } = useLanguage() // Получение текущего языка из контекста
-	const t = key => translations[language][key] || key // Функция перевода
-	const [filterState, setFilterState] = useState({})
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
+
+	// Initial filter state - localStorage dan olish
+	const initialFilterState = getInitialFilterState()
+
+	const [filterState, setFilterState] = useState(initialFilterState)
+	const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
 	const [updatedBookmark, setUpdatedBookmark] = useState({
 		studentId: null,
 		timestamp: new Date().getTime(),
 	})
 	const recruiterId = JSON.parse(sessionStorage.getItem('loginUser')).id
 
-	const filterProps = [
-		//{
-		//  key: "semester",
-		//  label: t("grade"), // Переводится
-		//  type: "checkbox",
-		//  options: [t("grade1"), t("grade2"), t("grade3"), t("grade4")],
-		//  minWidth: "120px",
-		//},
+	// localStorage ga viewMode ni saqlash
+	useEffect(() => {
+		try {
+			localStorage.setItem('studentTableViewMode', viewMode)
+		} catch (error) {
+			console.error('Error saving viewMode to localStorage:', error)
+		}
+	}, [viewMode])
+
+	const filterFields = [
 		{
 			key: 'it_skills',
 			label: t('programming_languages'),
 			type: 'checkbox',
 			options: ['JS', 'Python', 'Java', 'SQL'],
-			minWidth: '160px',
 		},
 		{
 			key: 'jlpt',
 			label: t('jlpt'),
 			type: 'checkbox',
 			options: ['N1', 'N2', 'N3', 'N4', 'N5'],
-			minWidth: '160px',
 		},
-		// {  //deleted from table // todo, disscuss, whether it is managed by student?
-		//   key: "ielts",
-		//   label: t("ielts"),
-		//   type: "checkbox",
-		//   options: ["6.0", "6.5", "7.0", "7.5", "8.0"],
-		//   minWidth: "160px",
-		// },
 		{
 			key: 'jdu_japanese_certification',
 			label: t('jdu_certification'),
 			type: 'checkbox',
 			options: ['Q1', 'Q2', 'Q3', 'Q4', 'Q5'],
-			minWidth: '160px',
 		},
-		//{
-		//  key: "partner_university_credits",
-		//  label: t("credits"),
-		//  type: "radio",
-		//  options: ["20", "40", "60", "80", "100"],
-		//  unit: t("credits_unit"),
-		//  minWidth: "160px",
-		//},
 		{
 			key: 'partner_university',
 			label: t('partner_university'),
@@ -73,26 +97,35 @@ const Student = ({ OnlyBookmarked = false }) => {
 				t('kyoto_university'),
 				t('otemae_university'),
 				t('niigata_university'),
+				t('sanno_university'),
+				t('forty_credit_model'),
 			],
-			minWidth: '160px',
 		},
 		{
 			key: 'other_information',
 			label: t('special_skills'),
 			type: 'radio',
 			options: [t('yes'), t('no')],
-			minWidth: '160px',
 		},
 	]
 
-	const handleFilterChange = newFilterState => {
+	const handleFilterChange = useCallback(newFilterState => {
 		setFilterState(newFilterState)
-	}
+		// console.log('Filter changed:', newFilterState)
+	}, [])
+
+	// ✅ viewMode change handler
+	const handleViewModeChange = useCallback(
+		newMode => {
+			setViewMode(newMode)
+		},
+		[]
+	)
 
 	const navigate = useNavigate()
 
 	const navigateToProfile = student => {
-		navigate(`profile/${student.id}`)
+		navigate(`profile/${student.student_id}`)
 	}
 
 	const addToBookmark = async student => {
@@ -112,15 +145,6 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const headers = [
 		{
-			id: 'bookmark',
-			numeric: false,
-			disablePadding: true,
-			label: '',
-			type: 'bookmark',
-			role: 'Recruiter',
-			onClickAction: addToBookmark,
-		},
-		{
 			id: 'first_name',
 			numeric: false,
 			disablePadding: true,
@@ -128,15 +152,24 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'avatar',
 			minWidth: '220px',
 			onClickAction: navigateToProfile,
+			isSort: true,
 		},
 		{
-			id: 'email',
+			id: 'student_id',
 			numeric: false,
 			disablePadding: false,
-			label: t('email'),
-			type: 'email',
-			minWidth: '160px',
-			visibleTo: ['Admin', 'Staff'],
+			label: t('student_id'),
+			minWidth: '120px',
+			isSort: true,
+		},
+		{
+			id: 'age',
+			numeric: true,
+			disablePadding: false,
+			label: '年齢',
+			minWidth: '80px !important',
+			suffix: ' 歳',
+			isSort: true,
 		},
 		{
 			id: 'jlpt',
@@ -154,13 +187,22 @@ const Student = ({ OnlyBookmarked = false }) => {
 			isJSON: false,
 		},
 		{
-			id: 'password',
-			label: t('password'),
-			type: 'custom',
-			minWidth: '120px',
-			visibleTo: ['Admin'],
-			renderCell: row => <PasswordCell studentId={row.id} />
-		  },
+			id: 'expected_graduation_year',
+			numeric: true,
+			disablePadding: false,
+			label: '卒業予定年（月）',
+			minWidth: '160px',
+			isSort: true,
+		},
+		{
+			id: 'bookmark',
+			numeric: false,
+			disablePadding: true,
+			label: '',
+			type: 'bookmark',
+			role: 'Recruiter',
+			onClickAction: addToBookmark,
+		},
 	]
 
 	const tableProps = {
@@ -173,18 +215,27 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-			{' '}
-			{/* Перерендеринг при смене языка */}
 			<Box sx={{ width: '100%', height: '100px' }}>
 				<Filter
-					fields={filterProps}
+					fields={filterFields}
 					filterState={filterState}
 					onFilterChange={handleFilterChange}
+					viewMode={viewMode}
+					onViewModeChange={handleViewModeChange}
+					persistKey='students-filter-v1'
 				/>
 			</Box>
-			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
+			<Table
+				tableProps={tableProps}
+				updatedBookmark={updatedBookmark}
+				viewMode={viewMode}
+			/>
 		</div>
 	)
+}
+
+Student.propTypes = {
+	OnlyBookmarked: PropTypes.bool,
 }
 
 export default Student

@@ -1,8 +1,8 @@
 const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const { Recruiter } = require('../models')
-const { formatRecruiterWelcomeEmail } = require('../utils/emailToRecruiter');
-const generatePassword = require('generate-password'); 
+const { formatRecruiterWelcomeEmail } = require('../utils/emailToRecruiter')
+const generatePassword = require('generate-password')
 
 class RecruiterService {
 	// Service method to create a new recruiter
@@ -13,47 +13,74 @@ class RecruiterService {
 		} catch (error) {
 			throw error // Throw the error for the controller to handle
 		}
-		å
 	}
 
 	// Service method to retrieve all recruiters
 	static async getAllRecruiters(filter) {
 		try {
-			let query = {} // Initialize an empty query object
-			const searchableColumns = [
-				'email',
-				'first_name',
-				'last_name',
-				'company_name',
-				'company_description',
-				'phone',
-			] // Example list of searchable columns
+			let whereCondition = {}
 
-			// Iterate through filter keys
+			// Ensure filter is a valid object
+			if (!filter || typeof filter !== 'object') {
+				filter = {}
+			}
+
+			// Handle search across multiple columns
+			if (filter.search && filter.search.trim() !== '') {
+				const searchValue = String(filter.search).trim()
+				const searchableColumns = [
+					'email',
+					'first_name',
+					'last_name',
+					'company_name',
+					'company_description',
+					'phone',
+					'company_Address',
+					// New recruiter profile fields included in search
+					'tagline',
+					'company_website',
+					'company_representative',
+					'job_title',
+					'job_description',
+					'employment_type',
+					'work_location',
+				]
+
+				whereCondition[Op.or] = searchableColumns.map(column => ({
+					[column]: { [Op.iLike]: `%${searchValue}%` },
+				}))
+			}
+
+			// Handle other filters
 			Object.keys(filter).forEach(key => {
-				if (filter[key]) {
-					// Handle different types of filter values
-					if (key === 'search') {
-						// Search across all searchable columns
-						query[Op.or] = searchableColumns.map(column => {
-							// Use Op.iLike for case insensitive search on other columns
-							return { [column]: { [Op.iLike]: `%${filter[key]}%` } }
-						})
-					} else if (Array.isArray(filter[key])) {
-						// If filter value is an array, use $in operator
-						query[key] = { [Op.in]: filter[key] }
+				if (key !== 'search' && filter[key]) {
+					if (Array.isArray(filter[key])) {
+						whereCondition[key] = { [Op.in]: filter[key] }
 					} else if (typeof filter[key] === 'string') {
-						query[key] = { [Op.like]: `%${filter[key]}%` }
+						whereCondition[key] = { [Op.iLike]: `%${filter[key]}%` }
 					} else {
-						// Handle other types of filter values as needed
-						query[key] = filter[key]
+						whereCondition[key] = filter[key]
 					}
 				}
 			})
-			const recruiters = await Recruiter.findAll({ where: query })
+
+			const recruiters = await Recruiter.findAll({
+				where: whereCondition,
+				order: [
+					['first_name', 'ASC'],
+					['last_name', 'ASC'],
+				],
+			})
+
 			return recruiters
 		} catch (error) {
-			throw error
+			console.error(
+				'Error in getAllRecruiters service:',
+				error.message,
+				error.stack
+			)
+			// Return empty array instead of throwing to prevent 500 errors
+			return []
 		}
 	}
 
@@ -95,26 +122,58 @@ class RecruiterService {
 				throw new Error('Recruiter not found')
 			}
 
-			const updatedData = {
-				first_name: data.first_name,
-				last_name: data.last_name,
-				phone: data.phone,
-				email: data.email,
-				company_name: data.company_name,
-				company_description: data.company_description,
-				gallery: data.gallery,
-				photo: data.photo,
-				date_of_birth: data.date_of_birth,
-				active: data.active,
-				kintone_id: data.kintone_id,
-			}
+			// Only include fields that are actually provided (not undefined)
+			const updatedData = {}
+            const fields = [
+				'first_name','last_name','first_name_furigana','last_name_furigana',
+				'phone','email','company_name','company_description','gallery',
+				'photo','date_of_birth','active','kintone_id','company_Address',
+				'established_Date','employee_Count','business_overview','target_audience',
+				'required_skills','welcome_skills','work_location','work_hours',
+				'salary','benefits','selection_process','company_video_url',
+				// New fields
+				'tagline','company_website','company_capital','company_revenue','company_representative',
+				'job_title','job_description','number_of_openings','employment_type','probation_period','employment_period',
+				'recommended_skills','recommended_licenses','recommended_other',
+				'salary_increase','bonus','allowances','holidays_vacation',
+				'other_notes','interview_method',
+				// Additional fields
+				'japanese_level','application_requirements_other','retirement_benefit',
+				'telework_availability','housing_availability','relocation_support',
+                'airport_pickup','intro_page_thumbnail','intro_page_links'
+            ]
+			
+			fields.forEach(field => {
+				if (data[field] !== undefined) {
+					updatedData[field] = data[field]
+				}
+			})
 
-			if (data.password) {
+			// Handle password separately with verification
+			if (data.currentPassword && data.password) {
+				const bcrypt = require('bcrypt')
+				const isValidPassword = await bcrypt.compare(
+					data.currentPassword,
+					recruiter.password
+				)
+				if (!isValidPassword) {
+					throw new Error('Current password is incorrect')
+				}
+				updatedData.password = await bcrypt.hash(data.password, 10)
+			} else if (data.password && !data.currentPassword) {
+				// Direct password update (for admin or initial setup)
 				updatedData.password = data.password
 			}
 
-			return await recruiter.update(updatedData)
+			console.log('Update request data:', data)
+			console.log('Constructed update data:', updatedData)
+			
+			const result = await recruiter.update(updatedData)
+			console.log('Update result:', result.toJSON())
+			
+			return result
 		} catch (error) {
+			console.error('Update recruiter error:', error)
 			throw error
 		}
 	}
@@ -129,58 +188,80 @@ class RecruiterService {
 	}
 
 	static async updateRecruiterByKintoneId(kintoneId, data) {
-        const [affectedRows, updatedRecruiters] = await Recruiter.update(data, {
-            where: { kintone_id: kintoneId },
-            returning: true,
-        });
-        return updatedRecruiters ? updatedRecruiters[0] : null;
-    }
+		const [affectedRows, updatedRecruiters] = await Recruiter.update(data, {
+			where: { kintone_id: kintoneId },
+			returning: true,
+		})
+		return updatedRecruiters ? updatedRecruiters[0] : null
+	}
 
 	static async deleteRecruiterByKintoneId(kintoneId) {
-        return await Recruiter.destroy({ where: { kintone_id: kintoneId } });
-    }
+		return await Recruiter.destroy({ where: { kintone_id: kintoneId } })
+	}
 
 	/**
-     * Kintone'dan kelgan rekruterlar ro'yxatini sinxronizatsiya qiladi.
-     * @param {Array} recruiterRecords - Kintone'dan olingan rekruterlar ro'yxati.
-     * @returns {Array} Yangi rekruterlar uchun email vazifalari massivi.
-     */
-    static async syncRecruiterData(recruiterRecords) {
-        console.log(`Rekruter sinxronizatsiyasi boshlandi: ${recruiterRecords.length} ta yozuv topildi.`);
-        const emailTasks = [];
-        for (const record of recruiterRecords) {
-            const kintoneId = record['$id']?.value;
-            if (!kintoneId) continue;
+	 * Kintone'dan kelgan rekruterlar ro'yxatini sinxronizatsiya qiladi.
+	 * @param {Array} recruiterRecords - Kintone'dan olingan rekruterlar ro'yxati.
+	 * @returns {Array} Yangi rekruterlar uchun email vazifalari massivi.
+	 */
+	static async syncRecruiterData(recruiterRecords) {
+		console.log(
+			`Rekruter sinxronizatsiyasi boshlandi: ${recruiterRecords.length} ta yozuv topildi.`
+		)
+		const emailTasks = []
+		for (const record of recruiterRecords) {
+			const kintoneId = record['$id']?.value
+			if (!kintoneId) continue
 
-            const existingRecruiter = await Recruiter.findOne({ where: { kintone_id: kintoneId } });
-			// console.log(`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`);
-            if (!existingRecruiter) {
-                console.log(`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`);
-                const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
-                
-                const recruiterData = {
-                    email: record.recruiterEmail?.value,
-                    password: password,
-                    first_name: record.recruiterFirstName?.value,
-                    last_name: record.recruiterLastName?.value,
-                    company_name: record.recruiterCompany?.value,
-                    phone: record.recruiterPhone?.value,
-                    kintone_id: kintoneId,
-                    active: true,
-                };
+			const existingRecruiter = await Recruiter.findOne({
+				where: { kintone_id: kintoneId },
+			})
+			console.log(
+				`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`
+			)
+			if (!existingRecruiter) {
+				console.log(
+					`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`
+				)
+				const password = generatePassword.generate({
+					length: 12,
+					numbers: true,
+					symbols: false,
+					uppercase: true,
+				})
 
-                const newRecruiter = await this.createRecruiter(recruiterData);
+				const recruiterData = {
+					email: record.recruiterEmail?.value,
+					password: password,
+					first_name: record.recruiterFirstName?.value,
+					last_name: record.recruiterLastName?.value,
+					company_name: record.recruiterCompany?.value,
+					phone: record.recruiterPhone?.value,
+					kintone_id: kintoneId,
+					active: true,
+				}
+				console.log('====================================')
+				console.log("Yangi rekruter ma'lumotlari:", recruiterData)
+				console.log('====================================')
 
-                if (newRecruiter) {
-                    // >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
-                    emailTasks.push(formatRecruiterWelcomeEmail(newRecruiter.email, password, newRecruiter.first_name, newRecruiter.last_name));
-                }
-            }
-        }
-        console.log("Rekruter sinxronizatsiyasi yakunlandi.");
-        return emailTasks;
-    }
+				const newRecruiter = await this.createRecruiter(recruiterData)
 
+				if (newRecruiter) {
+					// >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
+					emailTasks.push(
+						formatRecruiterWelcomeEmail(
+							newRecruiter.email,
+							password,
+							newRecruiter.first_name,
+							newRecruiter.last_name
+						)
+					)
+				}
+			}
+		}
+		console.log('Rekruter sinxronizatsiyasi yakunlandi.')
+		return emailTasks
+	}
 }
 
 module.exports = RecruiterService

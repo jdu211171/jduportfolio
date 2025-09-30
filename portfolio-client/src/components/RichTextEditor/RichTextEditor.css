@@ -1,10 +1,12 @@
-.ql-container{
-    max-height: 50vh !important;
+.ql-snow {
+  border-radius: 8px;
 }
+
 
 .ql-snow {
   .ql-picker {
     &.ql-size {
+
       .ql-picker-label,
       .ql-picker-item {
         &::before {

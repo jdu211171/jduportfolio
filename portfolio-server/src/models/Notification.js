@@ -30,12 +30,12 @@ module.exports = (sequelize, DataTypes) => {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			user_id: {
-				type: DataTypes.BIGINT,
-				allowNull: false,
-			},
+            user_id: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
 			user_role: {
-				type: DataTypes.ENUM('student', 'staff', 'admin'),
+				type: DataTypes.ENUM('student', 'staff', 'admin', 'recruiter'),
 				allowNull: false,
 			},
 			type: {

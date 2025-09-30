@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
     },
-    purpose: {
+    imageType: { // 'purpose' -> 'imageType'
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
     owner_type: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    file_size: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0,
     },
   }, {
     sequelize,

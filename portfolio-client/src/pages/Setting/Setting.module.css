@@ -1,46 +1,378 @@
-.setting-container {
-  padding-top: 20px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100vh;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+/* Profile Header Card */
+.profileCard {
+  margin-bottom: 24px;
+  border-radius: 16px;
+  border: none;
+  box-shadow:
+    0 0 1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 2px 0 rgba(0, 0, 0, 0.07),
+    0 4px 2px 0 rgba(0, 0, 0, 0.06),
+    0 6px 2px 0 rgba(0, 0, 0, 0.05),
+    0 10px 3px 0 rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease;
 }
 
-.button-group {
+.profileCard:hover {
+  box-shadow:
+    0 0 2px 0 rgba(0, 0, 0, 0.12),
+    0 4px 4px 0 rgba(0, 0, 0, 0.10),
+    0 8px 4px 0 rgba(0, 0, 0, 0.09),
+    0 12px 4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 6px 0 rgba(0, 0, 0, 0.04);
+}
+
+.profileCardContent {
+  padding: 32px !important;
+}
+
+.profileHeader {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: 40%;
-  justify-content: end;
-  flex-grow: 1;
+  gap: 24px;
 }
-.save-button,
-.cancel-button {
-  width: 200px;
+
+.avatarSection {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.avatar {
+  width: 120px !important;
+  height: 120px !important;
+  border: 4px solid #f0f0f0;
+}
+
+.cameraButton {
+  position: absolute;
+  right: 115px;
+  background-color: white !important;
+  /* padding: 30px !important; */
+  width: 110px !important;
+  height: 110px !important;
+  opacity: 0.3 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cameraButton:hover {
+  background-color: rgb(171, 171, 171) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.userInfo {
+  flex: 1;
+  align-items: center;
+  font-size: 5rem;
+  font-weight: bold;
+}
+
+/* Settings component - updated styles */
+.userName {
+  /* Now used for company name (main title) */
+  font-size: 1rem;
+  font-weight: bold;
+  color: #000;
+}
+
+.companyName {
+  /* Now used for user name (smaller text) */
+  font-size: 2rem;
+  font-weight: 400;
+  color: #555;
+}
+
+.userName {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.companyName {
+  font-size: 1.25rem !important;
+  margin-top: 8px !important;
+  color: #555;
+}
+
+/* Sync Section */
+.syncSection {
+  margin-top: 70px;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .syncButton {
+  background-color: #6366f1 !important;
+  color: white !important;
+  padding: 8px 24px !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+}
+
+.syncButton:hover {
+  background-color: #5856eb !important;
+}
+
+/* Section Cards */
+.sectionCard {
+  margin-bottom: 24px;
+  border-radius: 16px;
+  border: none;
+  box-shadow:
+    0 0 1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 2px 0 rgba(0, 0, 0, 0.07),
+    0 4px 2px 0 rgba(0, 0, 0, 0.06),
+    0 6px 2px 0 rgba(0, 0, 0, 0.05),
+    0 10px 3px 0 rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease;
+}
+
+.sectionCard:hover {
+  box-shadow:
+    0 0 2px 0 rgba(0, 0, 0, 0.12),
+    0 4px 4px 0 rgba(0, 0, 0, 0.10),
+    0 8px 4px 0 rgba(0, 0, 0, 0.09),
+    0 12px 4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 6px 0 rgba(0, 0, 0, 0.04);
+}
+
+.sectionHeader {
   display: flex;
-  justify-content: end;
-}
-.section {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-
-.userTitle {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 900;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.h2 {
-  margin-bottom: 20px;
+.sectionIcon {
+  color: #6366f1 !important;
+  font-size: 24px !important;
 }
 
-.MuiTextField-root {
-  margin-bottom: 16px;
+.sectionTitle {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  color: #333;
+  margin: 0 !important;
+}
+
+.formGrid {
+  margin-top: 0 !important;
+}
+
+.fieldLabel {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #666;
+  margin-bottom: 8px !important;
+  display: block;
+}
+
+.textField {
+  margin-top: 0 !important;
+}
+
+.textField .MuiOutlinedInput-root {
+  border-radius: 8px;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.textField .MuiOutlinedInput-root:hover {
+  background-color: #f5f5f5;
+}
+
+.textField .MuiOutlinedInput-root.Mui-focused {
+  background-color: white;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+}
+
+.textField .MuiOutlinedInput-root.Mui-disabled {
+  background-color: #f9f9f9;
+  color: #666;
+}
+
+.textField .MuiOutlinedInput-notchedOutline {
+  border-color: #e0e0e0;
+}
+
+.textField .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #d0d0d0;
+}
+
+.textField .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #6366f1;
+  border-width: 2px;
+}
+
+.textField .MuiOutlinedInput-input {
+  padding: 14px 16px;
+  font-size: 16px;
+}
+
+/* Edit Button Container */
+.editButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 70px;
+  gap: 16px;
+}
+
+.editButton {
+  border: 2px solid #6366f1 !important;
+  color: #6366f1 !important;
+  padding: 12px 32px !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  min-width: 120px;
+  box-shadow:
+    0 0 1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 2px 0 rgba(0, 0, 0, 0.07),
+    0 4px 2px 0 rgba(0, 0, 0, 0.06),
+    0 6px 2px 0 rgba(0, 0, 0, 0.05),
+    0 10px 3px 0 rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.editButton:hover {
+  background-color: rgba(99, 102, 241, 0.05) !important;
+  border-color: #5856eb !important;
+  color: #5856eb !important;
+  box-shadow:
+    0 0 2px 0 rgba(0, 0, 0, 0.12),
+    0 4px 4px 0 rgba(0, 0, 0, 0.10),
+    0 8px 4px 0 rgba(0, 0, 0, 0.09),
+    0 12px 4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 6px 0 rgba(0, 0, 0, 0.04);
+}
+
+.editingButtons {
+  display: flex;
+  gap: 16px;
+}
+
+.cancelButton {
+  border: 2px solid #9ca3af !important;
+  color: #9ca3af !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  box-shadow:
+    0 0 1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 2px 0 rgba(0, 0, 0, 0.07),
+    0 4px 2px 0 rgba(0, 0, 0, 0.06),
+    0 6px 2px 0 rgba(0, 0, 0, 0.05),
+    0 10px 3px 0 rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: rgba(156, 163, 175, 0.05) !important;
+  border-color: #6b7280 !important;
+  color: #6b7280 !important;
+  box-shadow:
+    0 0 2px 0 rgba(0, 0, 0, 0.12),
+    0 4px 4px 0 rgba(0, 0, 0, 0.10),
+    0 8px 4px 0 rgba(0, 0, 0, 0.09),
+    0 12px 4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 6px 0 rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.saveButton {
+  background-color: #6366f1 !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  box-shadow:
+    0 0 1px 0 rgba(0, 0, 0, 0.08),
+    0 2px 2px 0 rgba(0, 0, 0, 0.07),
+    0 4px 2px 0 rgba(0, 0, 0, 0.06),
+    0 6px 2px 0 rgba(0, 0, 0, 0.05),
+    0 10px 3px 0 rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.saveButton:hover {
+  background-color: #5856eb !important;
+  box-shadow:
+    0 0 2px 0 rgba(0, 0, 0, 0.12),
+    0 4px 4px 0 rgba(0, 0, 0, 0.10),
+    0 8px 4px 0 rgba(0, 0, 0, 0.09),
+    0 12px 4px 0 rgba(0, 0, 0, 0.08),
+    0 20px 6px 0 rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .userName {
+    font-size: 14px !important;
+  }
+
+  .editButtonContainer {
+    justify-content: center;
+  }
+
+  .editingButtons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .editButton,
+  .cancelButton,
+  .saveButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.sectionIcon {
+  width: 24px;
+  height: 24px;
+  filter: invert(40%) sepia(77%) saturate(2476%) hue-rotate(229deg) brightness(94%) contrast(92%);
+}
+
+@media (max-width: 480px) {
+  .avatar {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .userName {
+    font-size: 16px !important;
+  }
+
+  .companyName {
+    font-size: 2rem !important;
+  }
+
+  .sectionTitle {
+    font-size: 18px !important;
+  }
 }

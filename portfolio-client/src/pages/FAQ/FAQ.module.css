@@ -1,55 +1,170 @@
-.faq-title {
-  font-family: Georgia, "Times New Roman", Times, serif !important;
-}
-.accordion-box {
-  width: 70%;
-}
-.title-accordion {
-  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif !important;
-  font-size: 20px !important;
-}
-.body-accordion {
-  font-family: Times, Helvetica, sans-serif !important;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #fafafa;
+  min-height: 100vh;
 }
 
-.help-info-box {
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 32px !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+  margin: 0 !important;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+}
+
+/* Content */
+.content {
+  margin-bottom: 60px;
+  min-height: 500px;
+  transition: all 0.3s ease;
+}
+
+.editSection {
+  margin-bottom: 24px;
+}
+
+.faqList {
+  background-color: transparent;
+  min-height: 400px;
+  transition: all 0.3s ease;
+}
+
+.faqList>* {
+  margin-bottom: 4px;
+}
+
+/* Contact Card */
+.contactCard {
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: box-shadow 0.3s ease !important;
   margin-top: 40px;
+  position: relative;
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+.contactCard:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 4px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.contactContent {
+  padding: 24px !important;
+}
+
+.contactItem {
   display: flex;
-  justify-content: space-around;
-}
-.faq-box {
-  display: flex;
-}
-.faq-icons {
-  margin-right: 0.5rem;
-  background-color: rgba(79, 78, 78, 0.1);
-  border-radius: 5px;
-  padding: 5px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
 }
 
-.faq-content {
-  overflow: auto;
-  height: 64vh;
+.contactIcon {
+  width: 24px;
+  height: 24px;
 }
 
-.faq-content::-webkit-scrollbar {
-  display: none;
+.contactIcon[alt="Email"] {
+  filter: invert(31%) sepia(76%) saturate(6166%) hue-rotate(267deg) brightness(95%) contrast(92%);
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.faq-content {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+.contactIcon[alt="Phone"] {
+  filter: invert(31%) sepia(76%) saturate(6166%) hue-rotate(267deg) brightness(95%) contrast(92%);
 }
 
-@media screen and (max-width: 600px) {
-  .faq-content {
-    height: 56vh;
+.contactIcon[alt="Working Hours"] {
+  filter: invert(31%) sepia(76%) saturate(6166%) hue-rotate(267deg) brightness(95%) contrast(92%);
+}
+
+.contactIcon[alt="Location"] {
+  filter: invert(31%) sepia(76%) saturate(6166%) hue-rotate(267deg) brightness(95%) contrast(92%);
+}
+
+.contactText {
+  font-size: 16px !important;
+  color: #374151 !important;
+  font-weight: 400 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+
+  .title {
+    font-size: 24px !important;
+  }
+
+  .buttonGroup {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .content {
+    margin-bottom: 40px;
+    min-height: 300px;
+  }
+
+  .contactContent {
+    padding: 20px !important;
+  }
+
+  .contactItem {
+    justify-content: flex-start;
+  }
+
+  .contactText {
+    font-size: 15px !important;
   }
 }
 
-@media screen and (max-width: 400px) {
-  .faq-content {
-    height: 48vh;
+@media (max-width: 480px) {
+  .container {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 20px !important;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .contactContent {
+    padding: 16px !important;
+  }
+
+  .contactText {
+    font-size: 14px !important;
   }
 }

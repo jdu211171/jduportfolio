@@ -10,7 +10,7 @@ import {
 	Divider,
 	Box
 } from '@mui/material'
-import { useTranslation } from 'react-i18next'
+import PropTypes from 'prop-types'
 import translations from '../../locales/translations.js'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 
@@ -214,6 +214,12 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 		</Dialog>
 
 	)
+}
+
+ConfirmationDialog.propTypes = {
+	open: PropTypes.bool.isRequired,
+	onClose: PropTypes.func.isRequired,
+	onConfirm: PropTypes.func.isRequired,
 }
 
 export default ConfirmationDialog

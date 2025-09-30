@@ -1,5 +1,5 @@
-import React from 'react'
 import { TextField as MuiTextField } from '@mui/material'
+import PropTypes from 'prop-types'
 import styles from './LinkBox.module.css'
 const TextField = ({
 	title,
@@ -31,6 +31,15 @@ const TextField = ({
 			</div>
 		</div>
 	)
+}
+
+TextField.propTypes = {
+	title: PropTypes.string.isRequired,
+	data: PropTypes.any,
+	editData: PropTypes.object,
+	editMode: PropTypes.bool,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string,
 }
 
 export default TextField

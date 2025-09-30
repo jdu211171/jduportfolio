@@ -1,14 +1,48 @@
-import CircleNotificationsIcon from '@mui/icons-material/CircleNotifications'
-import CheckIcon from '@mui/icons-material/Check'
-import axios from '../../utils/axiosUtils.js'
-import { useState, useEffect, useRef } from 'react'
-import { shortText } from '../functions.js'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
-import styles from './Notifications.module.css'
-import translations from '../../locales/translations.js'
-import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
+import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined'
+import { useEffect, useRef, useState } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import translations from '../../locales/translations.js'
+import axios from '../../utils/axiosUtils.js'
+import { shortText } from '../functions.js'
+import styles from './Notifications.module.css'
+
+// Extract localized message from multi-language text with tags like 【JA】...【EN】... etc.
+function extractLocalizedMessage(message, lang) {
+    try {
+        if (typeof message !== 'string') return ''
+        const tagMap = { ja: 'JA', en: 'EN', uz: 'UZ', ru: 'RU' }
+        const tag = tagMap[lang]
+        if (!tag || message.indexOf('【') === -1) return message
+        const startToken = `【${tag}】`
+        const startIdx = message.indexOf(startToken)
+        if (startIdx === -1) return message
+        const tokens = ['【JA】', '【EN】', '【UZ】', '【RU】']
+        let next = -1
+        for (const tk of tokens) {
+            if (tk === startToken) continue
+            const i = message.indexOf(tk, startIdx + startToken.length)
+            if (i !== -1) next = next === -1 ? i : Math.min(next, i)
+        }
+        const chunk = next === -1
+            ? message.slice(startIdx + startToken.length)
+            : message.slice(startIdx + startToken.length, next)
+        return chunk.trim()
+    } catch {
+        return message
+    }
+}
+
+// Drop multilingual header in the comment section, keep only the actual comment body
+function extractCommentBody(commentSection) {
+    if (!commentSection || typeof commentSection !== 'string') return ''
+    const parts = commentSection.split('\n')
+    if (parts.length <= 1) return commentSection.trim()
+    return parts.slice(1).join('\n').trim()
+}
 
 export default function Notifications() {
 	const { language } = useLanguage()
@@ -18,7 +52,7 @@ export default function Notifications() {
 	const [modalIsVisible, setModalIsVisible] = useState(false)
 	const [selectedMessage, setSelectedMessage] = useState(null)
 	const [messages, setMessages] = useState([])
-	const [userData,] = useState({
+	const [userData] = useState({
 		students: [],
 		staff: {},
 		admin: {},
@@ -59,7 +93,9 @@ export default function Notifications() {
 					.get('/api/notification/user')
 					.catch(() => ({ data: [] }))
 				fetchedMessages = Array.isArray(unreadRes.data) ? unreadRes.data : []
-				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+				fetchedMessages.sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+				)
 			} else if (statusFilter === 'read') {
 				const readRes = await axios
 					.get('/api/notification/history')
@@ -67,13 +103,15 @@ export default function Notifications() {
 				fetchedMessages = Array.isArray(readRes.data.notifications)
 					? readRes.data.notifications
 					: []
-				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+				fetchedMessages.sort(
+					(a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+				)
 			}
 			setMessages(fetchedMessages)
 			setUnreadCount(
 				Array.isArray(fetchedMessages)
 					? fetchedMessages.filter(msg => msg.status === 'unread').length
-					: 0,
+					: 0
 			)
 		} catch (error) {
 			console.error('Xatolik yuz berdi:', error)
@@ -163,14 +201,17 @@ export default function Notifications() {
 
 	return (
 		<div className={styles.notificationContainer}>
-			<div onClick={() => setIsVisible(!isVisible)}>
+			<div
+				onClick={() => setIsVisible(!isVisible)}
+				className={styles.notificationsIconBox}
+			>
 				{unreadCount > 0 && (
 					<span className={styles.notificationBadge}>
 						{unreadCount > 99 ? '99+' : unreadCount}
 					</span>
 				)}
-				<CircleNotificationsIcon
-					fontSize="large"
+				<NotificationsNoneOutlinedIcon
+					color=''
 					className={styles.notificationIcon}
 				/>
 			</div>
@@ -195,7 +236,7 @@ export default function Notifications() {
 								) : (
 									<>
 										<CheckIcon
-											fontSize="small"
+											fontSize='small'
 											style={{ marginRight: '4px' }}
 										/>
 										{t('mark_all_read')}
@@ -235,11 +276,12 @@ export default function Notifications() {
 						{messages.length > 0 ? (
 							messages.map(item => (
 								<div
+									key={item.id || item.createdAt}
 									onClick={() => handleClick(item)}
-									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''}`}
+									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}
 								>
 									<div className={styles.messageContainer}>
-										<div>{shortText(item.message, 28)}</div>
+										<div>{shortText(extractLocalizedMessage(item.message, language), 28)}</div>
 										<div>{shortText(item.createdAt, 10, true)}</div>
 									</div>
 									{item.status === 'unread' && (
@@ -269,8 +311,41 @@ export default function Notifications() {
 						>
 							<CloseIcon />
 						</button>
-						<div className={styles.messageBody}>
-							<p className={styles.messageText}>{selectedMessage.message}</p>
+						<div
+							className={`${styles.messageBody} ${selectedMessage.type === 'approved' ? styles.approvedMessageBody : ''}`}
+						>
+							{(() => {
+								// Parse message to separate main message and comment
+								const messageParts = selectedMessage.message.split(
+									'|||COMMENT_SEPARATOR|||'
+								)
+									const mainMessageRaw = messageParts[0]
+									const commentSection = messageParts[1]
+									const mainMessage = extractLocalizedMessage(mainMessageRaw, language)
+									const commentBody = extractCommentBody(commentSection)
+
+								return (
+									<>
+										<p className={styles.messageText}>{mainMessage}</p>
+										{commentBody && (
+											<p
+												className={styles.commentText}
+												style={{
+													backgroundColor: '#fff3e0',
+													padding: '10px',
+													borderRadius: '6px',
+													border: '1px solid #ff9800',
+													marginTop: '10px',
+													whiteSpace: 'pre-wrap',
+													fontWeight: 'bold',
+												}}
+											>
+												<strong>{t('comments') || 'Comments'}</strong>\n{commentBody}
+											</p>
+										)}
+									</>
+								)
+							})()}
 							<p className={styles.messageDate}>
 								📅 {shortText(selectedMessage.createdAt, 10, true)}
 							</p>

@@ -51,6 +51,14 @@ class NewsService {
             const s3Path = `news/${user.userType.toLowerCase()}/${uniqueFilename}`;
             const uploadResult = await uploadFile(file.buffer, s3Path);
             updateData.image_url = uploadResult.Location;
+        } else {
+            // optional: explicit remove image when no new file provided
+            const removeImage = updateData.removeImage === true || updateData.removeImage === 'true';
+            if (removeImage && news.image_url) {
+                await deleteFile(news.image_url);
+                updateData.image_url = null;
+            }
+            delete updateData.removeImage;
         }
         if (isOwner && user.userType === 'Recruiter' && news.status === 'rejected') {
             updateData.status = 'pending';

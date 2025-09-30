@@ -11,8 +11,10 @@ class NotificationService {
 	// }
 
 	static async getByUserId(user_id, filter = {}) {
+		// Normalize to string because column type is STRING
+		const normalizedUserId = user_id != null ? String(user_id) : user_id
 		return Notification.findAll({
-			where: { user_id, ...filter },
+			where: { user_id: normalizedUserId, ...filter },
 			order: [['createdAt', 'DESC']],
 		})
 	}
@@ -38,8 +40,9 @@ class NotificationService {
 	}
 
 	static async markOneAsRead(notificationId, user_id) {
+		const normalizedUserId = user_id != null ? String(user_id) : user_id
 		const notification = await Notification.findOne({
-			where: { id: notificationId, user_id, status: 'unread' },
+			where: { id: notificationId, user_id: normalizedUserId, status: 'unread' },
 		})
 
 		if (!notification) return null
@@ -50,22 +53,50 @@ class NotificationService {
 	}
 
 	static async markAllAsRead(userId, userType) {
-        let whereClause = {};
+		try {
+			console.log('NotificationService.markAllAsRead - Input:', {
+				userId,
+				userType,
+			})
 
-        if (userType.toLowerCase() === 'student') {
-            whereClause = { user_id: userId, user_role: 'student', status: { [Op.ne]: 'read' } };
-        } else if (userType.toLowerCase() === 'admin') {
-            whereClause = { user_role: 'admin', status: { [Op.ne]: 'read' } };
-        } else {
-            whereClause = { user_id: userId, user_role: userType.toLowerCase(), status: { [Op.ne]: 'read' } };
-        }
+			let whereClause = {}
 
-        const [updatedCount] = await Notification.update(
-            { status: 'read' },
-            { where: whereClause }
-        );
-        return updatedCount;
-    }
+			if (userType.toLowerCase() === 'student') {
+				whereClause = {
+					user_id: String(userId),
+					user_role: 'student',
+					status: { [Op.ne]: 'read' },
+				}
+			} else if (userType.toLowerCase() === 'admin') {
+				whereClause = { user_role: 'admin', status: { [Op.ne]: 'read' } }
+			} else {
+				whereClause = {
+					user_id: String(userId),
+					user_role: userType.toLowerCase(),
+					status: { [Op.ne]: 'read' },
+				}
+			}
+
+			console.log(
+				'NotificationService.markAllAsRead - Where clause:',
+				whereClause
+			)
+
+			const [updatedCount] = await Notification.update(
+				{ status: 'read' },
+				{ where: whereClause }
+			)
+
+			console.log(
+				'NotificationService.markAllAsRead - Updated count:',
+				updatedCount
+			)
+			return updatedCount
+		} catch (error) {
+			console.error('Error in NotificationService.markAllAsRead:', error)
+			throw error
+		}
+	}
 }
 
 module.exports = NotificationService

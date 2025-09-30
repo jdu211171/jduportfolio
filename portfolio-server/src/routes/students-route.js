@@ -73,6 +73,35 @@ router.get('/', StudentController.getAllStudents)
 
 /**
  * @swagger
+ * /api/students/ids:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get student IDs for autocomplete
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter student IDs
+ *     responses:
+ *       200:
+ *         description: List of student IDs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   student_id:
+ *                     type: string
+ *                   name:
+ *                     type: string
+ */
+router.get('/ids', StudentController.getStudentIds)
+
+/**
+ * @swagger
  * /api/students/{id}:
  *   get:
  *     tags: [Students]
@@ -98,6 +127,50 @@ router.get('/', StudentController.getAllStudents)
  */
 // GET /api/students/:id
 router.get('/:id', StudentController.getStudentById)
+
+/**
+ * @swagger
+ * /api/students/{id}/credit-details:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get credit details for a student
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student ID
+ *     responses:
+ *       200:
+ *         description: Credit details retrieved successfully
+ *       404:
+ *         description: Student not found
+ */
+// GET /api/students/:id/credit-details
+router.get('/:id/credit-details', StudentController.getCreditDetails)
+
+/**
+ * @swagger
+ * /api/students/{id}/sync-credit-details:
+ *   post:
+ *     tags: [Students]
+ *     summary: Sync credit details for a student from Kintone
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student ID
+ *     responses:
+ *       200:
+ *         description: Credit details synced successfully
+ *       404:
+ *         description: Student not found
+ */
+// POST /api/students/:id/sync-credit-details
+router.post('/:id/sync-credit-details', StudentController.syncStudentCreditDetails)
 
 /**
  * @swagger
@@ -158,4 +231,3 @@ router.delete('/:id', StudentController.deleteStudent)
 // router.get('/pending-drafts', StudentController.getStudentsWithPendingDrafts);
 
 module.exports = router
-

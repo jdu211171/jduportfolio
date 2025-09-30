@@ -10,8 +10,12 @@ const Logout = () => {
 			try {
 				await axios.post('/api/auth/logout')
 
-				Cookies.remove('token')
-				Cookies.remove('userType')
+				// Remove auth cookies and client-side session
+				try {
+					Cookies.remove('token', { path: '/' })
+					Cookies.remove('userType', { path: '/' })
+				} catch {}
+				sessionStorage.clear()
 
 				navigate('/login')
 			} catch (error) {

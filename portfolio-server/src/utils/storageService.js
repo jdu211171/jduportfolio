@@ -1,65 +1,143 @@
+// utils/storageService.js
+
 const {
 	S3Client,
 	PutObjectCommand,
 	DeleteObjectCommand,
 	GetObjectCommand,
 } = require('@aws-sdk/client-s3')
-const https = require('https')
-const fs = require('fs')
 
 const s3Client = new S3Client({
-    endpoint: process.env.AWS_S3_ENDPOINT,
-    region: process.env.AWS_S3_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_S3_SECRET_KEY,
-    },
-    forcePathStyle: true, // MinIO uchun kerak
-    requestHandler: new https.Agent({
-        rejectUnauthorized: process.env.NODE_TLS_REJECT_UNAUTHORIZED !== '0',
-    }),
-});
+	region: process.env.AWS_S3_REGION,
+	credentials: {
+		accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+		secretAccessKey: process.env.AWS_S3_SECRET_KEY,
+	},
+})
 
 const bucketName = process.env.AWS_S3_BUCKET_NAME
 
 const uploadFile = async (fileBuffer, objectName) => {
-    try {
-        const uploadParams = {
-            Bucket: bucketName,
-            Key: objectName,
-            Body: fileBuffer,
-            ACL: 'public-read',
-        };
-        const command = new PutObjectCommand(uploadParams);
-        await s3Client.send(command);
+	try {
+		// Check if AWS credentials are configured
+		if (
+			!process.env.AWS_S3_ACCESS_KEY ||
+			!process.env.AWS_S3_SECRET_KEY ||
+			!bucketName
+		) {
+			// Fallback to local storage
+			const fs = require('fs')
+			const path = require('path')
 
-        // Correctly construct the file URL
-        const Location = `${process.env.AWS_S3_ENDPOINT}/${bucketName}/${objectName}`;
+			// Create uploads directory if it doesn't exist
+			const uploadsDir = path.join(__dirname, '../../uploads')
+			if (!fs.existsSync(uploadsDir)) {
+				fs.mkdirSync(uploadsDir, { recursive: true })
+			}
 
-        return { Location };
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        throw error;
-    }
-};
+			// Create subdirectories based on objectName
+			const filePath = path.join(uploadsDir, objectName)
+			const fileDir = path.dirname(filePath)
+			if (!fs.existsSync(fileDir)) {
+				fs.mkdirSync(fileDir, { recursive: true })
+			}
 
-const deleteFile = async (fileUrl) => {
-    try {
-        const url = new URL(fileUrl);
-        const objectName = decodeURIComponent(url.pathname.substring(1)); // Remove leading '/'
-        const deleteParams = {
-            Bucket: bucketName,
-            Key: objectName,
-        };
-        const command = new DeleteObjectCommand(deleteParams);
-        await s3Client.send(command);
-    } catch (error) {
-        console.error('Error deleting file:', error);
-        throw error;
-    }
-};
+			// Save file locally
+			fs.writeFileSync(filePath, fileBuffer)
 
-// Function to download a file
+			// Return local URL
+			const Location = `http://localhost:${
+				process.env.PORT || 3001
+			}/uploads/${objectName}`
+			console.log('File uploaded locally:', Location)
+			return { Location }
+		}
+
+		const uploadParams = {
+			Bucket: bucketName,
+			Key: objectName,
+			Body: fileBuffer,
+			ACL: 'public-read',
+			ContentType: 'image/*',
+			CacheControl: 'max-age=31536000',
+			Metadata: {
+				'original-name': 'uploaded-file',
+			},
+		}
+		const command = new PutObjectCommand(uploadParams)
+		await s3Client.send(command)
+
+		// Correctly construct the file URL
+		const Location = `https://${bucketName}.s3.${process.env.AWS_S3_REGION}.amazonaws.com/${objectName}`
+
+		return { Location }
+	} catch (error) {
+		console.error('Error uploading file:', error)
+
+		// Fallback to local storage on S3 error
+		try {
+			const fs = require('fs')
+			const path = require('path')
+
+			const uploadsDir = path.join(__dirname, '../../uploads')
+			if (!fs.existsSync(uploadsDir)) {
+				fs.mkdirSync(uploadsDir, { recursive: true })
+			}
+
+			const filePath = path.join(uploadsDir, objectName)
+			const fileDir = path.dirname(filePath)
+			if (!fs.existsSync(fileDir)) {
+				fs.mkdirSync(fileDir, { recursive: true })
+			}
+
+			fs.writeFileSync(filePath, fileBuffer)
+
+			const Location = `http://localhost:${
+				process.env.PORT || 3001
+			}/uploads/${objectName}`
+			console.log('File uploaded locally (fallback):', Location)
+			return { Location }
+		} catch (fallbackError) {
+			console.error('Error with fallback storage:', fallbackError)
+			throw error
+		}
+	}
+}
+
+const deleteFile = async objectName => {
+	try {
+		// Check if AWS credentials are configured
+		if (
+			!process.env.AWS_S3_ACCESS_KEY ||
+			!process.env.AWS_S3_SECRET_KEY ||
+			!bucketName
+		) {
+			// Local storage deletion
+			const fs = require('fs')
+			const path = require('path')
+			const filePath = path.join(__dirname, '../../uploads', objectName)
+
+			if (fs.existsSync(filePath)) {
+				fs.unlinkSync(filePath)
+				console.log('Local file deleted:', filePath)
+			}
+			return
+		}
+
+		// S3 deletion
+		const deleteParams = {
+			Bucket: bucketName,
+			Key: objectName,
+		}
+		const command = new DeleteObjectCommand(deleteParams)
+		await s3Client.send(command)
+		console.log('S3 file deleted:', objectName)
+	} catch (error) {
+		console.error('Error deleting file:', error)
+		throw error
+	}
+}
+
 const getFile = async (objectName, downloadPath) => {
 	try {
 		const downloadParams = {
@@ -71,9 +149,9 @@ const getFile = async (objectName, downloadPath) => {
 		const data = await s3Client.send(command)
 
 		// Write the file to disk
+		const fs = require('fs')
 		const body = await streamToBuffer(data.Body)
 		fs.writeFileSync(downloadPath, body)
-		// console.log(`File ${objectName} downloaded to ${downloadPath}`)
 	} catch (error) {
 		console.error('Error downloading file:', error)
 		throw error

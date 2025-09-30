@@ -6,19 +6,34 @@
 
 .notificationBadge {
 	position: absolute;
-	top: -8px;
-	right: -8px;
+	top: -2px;
+	right: -4px;
+	color: #fff;
 	background-color: #5627dc;
-	color: white;
 	border-radius: 50%;
 	padding: 2px 6px;
+	width: 10px;
 	font-size: 12px;
-	min-width: 18px;
 	text-align: center;
 }
 
+.notificationsIconBox {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 8px;
+	gap: 10px;
+	box-sizing: content-box;
+	background: rgba(86, 39, 219, 0.2);
+}
+
 .notificationIcon {
+	color: rgba(86, 39, 219, 1);
 	cursor: pointer;
+
 }
 
 .dropdown {
@@ -40,7 +55,7 @@
 	height: 0;
 	border-left: 0.5rem solid transparent;
 	border-right: 0.5rem solid transparent;
-	border-bottom: 0.5rem solid #4682b4;
+	border-bottom: 0.5rem solid #5627dc !important;
 	z-index: 2001;
 }
 
@@ -105,6 +120,11 @@
 .unread {
 	border-left: 3px solid #5627dc;
 	background-color: rgba(86, 39, 220, 0.05);
+}
+
+.approved {
+	border-left: 3px solid #4caf50;
+	background-color: rgba(76, 175, 80, 0.05);
 }
 
 .newIndicator {
@@ -182,6 +202,12 @@
 	overflow-wrap: break-word;
 }
 
+.approvedMessageBody {
+	background-color: #f0f9f4 !important;
+	/* Light green background for approved notifications */
+	border: 1px solid #4ade80;
+}
+
 .messageText {
 	color: #1f2937;
 }
@@ -208,7 +234,8 @@
 	cursor: pointer;
 }
 
-.okButton, .markAllButton {
+.okButton,
+.markAllButton {
 	background-color: #5627dc;
 	color: white;
 	border: none;
@@ -222,7 +249,8 @@
 	transition: background-color 0.2s;
 }
 
-.okButton:hover, .markAllButton:hover {
+.okButton:hover,
+.markAllButton:hover {
 	background-color: #4720b5;
 }
 
@@ -260,6 +288,7 @@
 	color: #666;
 	transition: background-color 0.3s ease;
 }
+
 .closeButton:hover {
 	background-color: #e0e0e0;
 	color: #333;
@@ -323,6 +352,17 @@
 	justify-content: space-between;
 	align-items: center;
 	font-weight: bold;
+}
+
+/* Approved notification styling */
+.approved {
+	background-color: #f0f9f4 !important;
+	border-left: 4px solid #4ade80 !important;
+}
+
+.approvedMessageBody {
+	background-color: #f0f9f4 !important;
+	border: 1px solid #4ade80 !important;
 }
 
 /* Media queries */

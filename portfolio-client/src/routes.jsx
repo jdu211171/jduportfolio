@@ -29,6 +29,8 @@ import NotFound from './pages/NotFound/NotFound'
 import Unauthorized from './pages/Unauthorized/Unauthorized'
 import LogOut from './components/LogOut'
 import GoogleAuthCallback from './pages/GoogleAuthCallback.jsx'
+import { CreateSkill } from './pages/CreateSkill/CreateSkill.jsx'
+import { News } from './pages/news/News.jsx'
 const AppRoutes = () => {
 	const { role, userId, updateUser, language } = useContext(UserContext)
 
@@ -55,6 +57,7 @@ const AppRoutes = () => {
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -67,6 +70,7 @@ const AppRoutes = () => {
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -81,31 +85,61 @@ const AppRoutes = () => {
 						</Route>
 
 						<Route
-							path='/companyprofile'
+							path='/create-skill'
+							element={<ProtectedLayout allowedRoles={['Admin', 'Staff']} />}
+						>
+							<Route index element={<CreateSkill />} />
+						</Route>
+
+						<Route
+							path='/news'
 							element={
 								<ProtectedLayout
 									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
 								/>
 							}
 						>
-							<Route
-								index
-								element={
-									<CompanyProfile userId={role === 'Recruiter' ? userId : 0} />
-								}
-							/>
+							<Route index element={<News />} />
 						</Route>
+
+                    <Route
+                        path='/companyprofile'
+                        element={
+                            <ProtectedLayout
+                                allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
+                            />
+                        }
+                    >
+                        <Route
+                            index
+                            element={
+                                <CompanyProfile userId={role === 'Recruiter' ? userId : 0} />
+                            }
+                        />
+                    </Route>
+                    <Route
+                        path='/companyprofile/:id'
+                        element={
+                            <ProtectedLayout
+                                allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
+                            />
+                        }
+                    >
+                        <Route index element={<CompanyProfile userId={0} />} />
+                    </Route>
 
 						<Route
 							path='/profile'
 							element={<ProtectedLayout allowedRoles={['Student']} />}
 						>
+							{' '}
 							<Route path='*' element={<StudentProfile userId={userId} />}>
 								<Route
 									index
 									element={<Navigate to='top' state={{ userId: userId }} />}
 								/>
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -135,6 +169,7 @@ const AppRoutes = () => {
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
 								<Route index element={<Navigate to='top' />} />{' '}
 								<Route path='top' element={<Top />} />
+								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
@@ -144,7 +179,7 @@ const AppRoutes = () => {
 					</Route>
 					<Route path='/unauthorized' element={<Unauthorized />} />
 				</Route>
-				<Route path='/credit-details' element={<CreditDetails />} />
+				<Route path='/credit-details/:studentId' element={<CreditDetails />} />
 				<Route path='*' element={<NotFound lang={language} />} />
 				<Route path='/login' element={<Login />} />
 				<Route path='/logout' element={<LogOut updateUser={updateUser} />} />
