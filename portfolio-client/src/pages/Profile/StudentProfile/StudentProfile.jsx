@@ -236,18 +236,18 @@ const StudentProfile = ({ userId = 0 }) => {
 							{/* partner university info */}
 							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
 								<div style={{ display: 'flex' }}>
-									<div style={{ color: '#787878' }}>在籍提携大学（学部）:</div>
+									<div style={{ color: '#787878' }}>在籍提携大学:</div>
 									<div>
 										{student.partner_university &&
 										student.faculty &&
 										student.department
 											? [
-												student.partner_university,
-												student.faculty,
-												student.department,
-											]
-												.filter(Boolean)
-												.join(' ')
+													student.partner_university,
+													student.faculty,
+													student.department,
+												]
+													.filter(Boolean)
+													.join(' ')
 											: student.partner_university || '未設定'}
 									</div>
 								</div>
