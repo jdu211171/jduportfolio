@@ -23,7 +23,7 @@ const itSkillRoutes = require('./routes/itSkillRoutes')
 const skillRoutes = require('./routes/skillRoutes')
 const recruiterFileRoutes = require('./routes/recruiterFileRoutes')
 const deliverableRoutes = require('./routes/deliverableRoutes')
-const healthRoute = require('./routes/health-route')
+// const healthRoute = require('./routes/health-route')
 
 /**
  * @swagger
@@ -63,7 +63,7 @@ const configureRoutes = app => {
 	app.use('/api/auth', authRoute)
 
 	// Health (no auth)
-	app.use('/api/health', healthRoute)
+	// app.use('/api/health', healthRoute)
 
 	// Public routes
 	app.get(
