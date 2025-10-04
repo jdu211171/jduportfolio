@@ -119,6 +119,11 @@ cron.schedule('0 4 * * *', async () => {
 	await KintoneService.syncData()
 })
 
+
+// NewsViews routes qo'shish
+const newsViewsRoutes = require('./routes/newsViewsRoutes')
+app.use('/api/news-views', newsViewsRoutes)
+
 CronService.scheduleJobs()
 
 // Updated Swagger UI setup with enhanced options

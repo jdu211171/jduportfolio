@@ -49,5 +49,19 @@ class NewsController {
             next(err);
         }
     }
+
+    static async getAllWithUnreadCount(req, res, next) {
+        try {
+            const { user } = req
+            const filters = req.query
+    
+            const result = await NewsService.getNewsWithUnreadCount(filters, user)
+    
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    }
+
 }
 module.exports = NewsController;

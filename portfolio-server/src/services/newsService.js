@@ -1,4 +1,5 @@
 const { News, Staff, Recruiter, Admin } = require('../models');
+const NewsViewsService = require('./newsViewsService')
 const { Op } = require('sequelize');
 const { uploadFile, deleteFile } = require('../utils/storageService');
 const generateUniqueFilename = require('../utils/uniqueFilename');
@@ -165,6 +166,8 @@ class NewsService {
         return cleanNewsList;
     }
 
+    
+
 
 
     static async moderateNews(newsId, action, reason, moderator) {
@@ -181,6 +184,47 @@ class NewsService {
         await news.save();
         return news;
     }
+
+    static async getNewsWithUnreadCount(filters, user) {
+        try {
+            const news = await this.getNews(filters, user)
+
+            let unreadCount = 0
+            if (user && user.id && user.userType) {
+                let userId = user.id
+                let userRole = user.userType.toLowerCase()
+
+                // Map Student to business ID to match NewsViews/Notifications
+                if (userRole === 'student') {
+                    const { getStudentById } = require('./studentService')
+                    const student = await getStudentById(user.id)
+                    if (student) {
+                        userId = student.student_id
+                    }
+                }
+
+                // Derive unread count strictly from the same news list we return,
+                // so filters (hashtags, recruiter name, etc.) are perfectly aligned.
+                const newsIds = (news || []).map(n => n.id)
+                unreadCount = await NewsViewsService.getUnreadCountForNewsIds(
+                    String(userId),
+                    userRole,
+                    newsIds
+                )
+            }
+
+            return {
+                news,
+                unreadCount,
+                totalCount: news.length,
+            }
+        } catch (error) {
+            console.error('Error getting news with unread count:', error)
+            throw error
+        }
+    }
+
+    
 }
 
 module.exports = NewsService;

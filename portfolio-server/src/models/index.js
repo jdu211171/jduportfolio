@@ -44,6 +44,7 @@ db.UserFile = require('./userFile')(sequelize, Sequelize);
 db.News = require('./News')(sequelize, Sequelize); 
 db.ItSkill = require('./itskill')(sequelize, Sequelize); 
 db.Skill = require('./skill')(sequelize, Sequelize);
+db.NewsViews = require('./NewsViews')(sequelize, Sequelize)
 
 
 // Load other models here if needed
@@ -65,6 +66,9 @@ db.Staff.hasMany(db.News, { foreignKey: 'moderatorId', constraints: false, scope
 
 db.News.belongsTo(db.Admin, { foreignKey: 'moderatorId', constraints: false, as: 'moderatorAdmin' });
 db.News.belongsTo(db.Staff, { foreignKey: 'moderatorId', constraints: false, as: 'moderatorStaff' });
+
+db.News.hasMany(db.NewsViews, { foreignKey: 'news_id', as: 'views' })
+db.NewsViews.belongsTo(db.News, { foreignKey: 'news_id', as: 'news' })
 
 db.Recruiter.hasMany(db.Bookmark, {
 	foreignKey: 'recruiterId',
@@ -106,4 +110,5 @@ module.exports = {
 	News: db.News, 
 	ItSkill: db.ItSkill,
 	Skill: db.Skill,
+	NewsViews: db.NewsViews  // ← Bu qator qo'shildi!
 }
