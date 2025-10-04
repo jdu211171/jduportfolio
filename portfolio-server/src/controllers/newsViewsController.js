@@ -1,4 +1,5 @@
 const NewsViewsService = require('../services/newsViewsService')
+const { getStudentById } = require('../services/studentService')
 
 class NewsViewsController {
 	static async getUnreadNewsCount(req, res) {
@@ -14,11 +15,14 @@ class NewsViewsController {
 
 			console.log('Original user:', { id, userType })
 
-			// Admin uchun ID'ni to'g'ridan-to'g'ri ishlatamiz
-			if (userRole === 'admin' || userRole === 'staff' || userRole === 'recruiter') {
-				userId = String(id)
-			} else if (userRole === 'student') {
-				// Student uchun keyinroq student_id mapping qo'shamiz
+			// Map Student to business ID (student_id) to keep parity with notifications
+			if (userRole === 'student') {
+				const student = await getStudentById(id)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				userId = student.student_id
+			} else {
 				userId = String(id)
 			}
 
@@ -56,6 +60,15 @@ class NewsViewsController {
 			let userId = String(id)
 			let userRole = userType.toLowerCase()
 
+			// Map Student to business ID
+			if (userRole === 'student') {
+				const student = await getStudentById(id)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				userId = String(student.student_id)
+			}
+
 			const { newsView, created } = await NewsViewsService.markAsViewed(
 				newsId,
 				userId,
@@ -91,6 +104,15 @@ class NewsViewsController {
 			let userId = String(id)
 			let userRole = userType.toLowerCase()
 
+			// Map Student to business ID
+			if (userRole === 'student') {
+				const student = await getStudentById(id)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				userId = String(student.student_id)
+			}
+
 			const viewedNews = await NewsViewsService.getViewedNewsByUser(userId, userRole)
 
 			return res.status(200).json({ 
@@ -116,6 +138,15 @@ class NewsViewsController {
 
 			let userId = String(id)
 			let userRole = userType.toLowerCase()
+
+			// Map Student to business ID
+			if (userRole === 'student') {
+				const student = await getStudentById(id)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				userId = String(student.student_id)
+			}
 
 			// Get filters from query params
 			const filters = {}
