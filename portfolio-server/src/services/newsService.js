@@ -1,4 +1,5 @@
 const { News, Staff, Recruiter, Admin } = require('../models');
+const NewsViewsService = require('./newsViewsService')
 const { Op } = require('sequelize');
 const { uploadFile, deleteFile } = require('../utils/storageService');
 const generateUniqueFilename = require('../utils/uniqueFilename');
@@ -187,13 +188,13 @@ class NewsService {
     static async getNewsWithUnreadCount(filters, user) {
         try {
             const news = await this.getNews(filters, user)
-            
+
             let unreadCount = 0
             if (user && user.id && user.userType) {
                 let userId = user.id
                 let userRole = user.userType.toLowerCase()
-    
-                // Handle student ID mapping similar to notification system
+
+                // Map Student to business ID to match NewsViews/Notifications
                 if (userRole === 'student') {
                     const { getStudentById } = require('./studentService')
                     const student = await getStudentById(user.id)
@@ -201,14 +202,21 @@ class NewsService {
                         userId = student.student_id
                     }
                 }
-    
-                unreadCount = await NewsViewsService.getUnreadNewsCount(userId, userRole)
+
+                // Derive unread count strictly from the same news list we return,
+                // so filters (hashtags, recruiter name, etc.) are perfectly aligned.
+                const newsIds = (news || []).map(n => n.id)
+                unreadCount = await NewsViewsService.getUnreadCountForNewsIds(
+                    String(userId),
+                    userRole,
+                    newsIds
+                )
             }
-    
+
             return {
                 news,
                 unreadCount,
-                totalCount: news.length
+                totalCount: news.length,
             }
         } catch (error) {
             console.error('Error getting news with unread count:', error)

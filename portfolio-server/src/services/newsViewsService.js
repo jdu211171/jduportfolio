@@ -1,4 +1,5 @@
 const { News, NewsViews } = require('../models')
+const { Op } = require('sequelize')
 
 class NewsViewsService {
     static async getUnreadNewsCount(userId, userRole) {
@@ -29,7 +30,7 @@ class NewsViewsService {
                 where: {
                     user_id: userId,
                     user_role: userRole,
-                    news_id: newsIds
+                    news_id: { [Op.in]: newsIds },
                 },
                 attributes: ['news_id']
             })
@@ -139,7 +140,7 @@ class NewsViewsService {
                 where: {
                     user_id: userId,
                     user_role: userRole,
-                    news_id: newsIds
+                    news_id: { [Op.in]: newsIds },
                 },
                 attributes: ['news_id']
             })
@@ -159,6 +160,28 @@ class NewsViewsService {
 
         } catch (error) {
             console.error('Error getting news with view status:', error)
+            throw error
+        }
+    }
+
+    // Returns unread count limited to provided newsIds
+    static async getUnreadCountForNewsIds(userId, userRole, newsIds = []) {
+        try {
+            if (!Array.isArray(newsIds) || newsIds.length === 0) return 0
+
+            const viewed = await NewsViews.findAll({
+                where: {
+                    user_id: String(userId),
+                    user_role: userRole,
+                    news_id: { [Op.in]: newsIds },
+                },
+                attributes: ['news_id'],
+            })
+
+            const viewedCount = viewed.length
+            return Math.max(0, newsIds.length - viewedCount)
+        } catch (error) {
+            console.error('Error in getUnreadCountForNewsIds:', error)
             throw error
         }
     }
