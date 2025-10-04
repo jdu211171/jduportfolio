@@ -165,6 +165,8 @@ class NewsService {
         return cleanNewsList;
     }
 
+    
+
 
 
     static async moderateNews(newsId, action, reason, moderator) {
@@ -181,6 +183,40 @@ class NewsService {
         await news.save();
         return news;
     }
+
+    static async getNewsWithUnreadCount(filters, user) {
+        try {
+            const news = await this.getNews(filters, user)
+            
+            let unreadCount = 0
+            if (user && user.id && user.userType) {
+                let userId = user.id
+                let userRole = user.userType.toLowerCase()
+    
+                // Handle student ID mapping similar to notification system
+                if (userRole === 'student') {
+                    const { getStudentById } = require('./studentService')
+                    const student = await getStudentById(user.id)
+                    if (student) {
+                        userId = student.student_id
+                    }
+                }
+    
+                unreadCount = await NewsViewsService.getUnreadNewsCount(userId, userRole)
+            }
+    
+            return {
+                news,
+                unreadCount,
+                totalCount: news.length
+            }
+        } catch (error) {
+            console.error('Error getting news with unread count:', error)
+            throw error
+        }
+    }
+
+    
 }
 
 module.exports = NewsService;
