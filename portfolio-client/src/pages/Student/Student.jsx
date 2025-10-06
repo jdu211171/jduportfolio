@@ -93,12 +93,12 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'checkbox',
 			options: [
 				t('tokyo_communication_university'),
-				t('sanno_junior_college'),
-				t('kyoto_university'),
-				t('otemae_university'),
-				t('niigata_university'),
+				t('kyoto_tachibana_university'),
 				t('sanno_university'),
-				t('forty_credit_model'),
+				t('sanno_junior_college'),
+				t('niigata_sangyo_university'),
+				t('otemae_university'),
+				t('okayama_university_of_science'),
 			],
 		},
 		{
@@ -115,12 +115,9 @@ const Student = ({ OnlyBookmarked = false }) => {
 	}, [])
 
 	// ✅ viewMode change handler
-	const handleViewModeChange = useCallback(
-		newMode => {
-			setViewMode(newMode)
-		},
-		[]
-	)
+	const handleViewModeChange = useCallback(newMode => {
+		setViewMode(newMode)
+	}, [])
 
 	const navigate = useNavigate()
 
