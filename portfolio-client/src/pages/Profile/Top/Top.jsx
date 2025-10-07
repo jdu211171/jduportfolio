@@ -1497,22 +1497,22 @@ const Top = () => {
 									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>
 										{editData.draft.hobbies_description ||
 											student.draft.hobbies ||
-											'SF映画を見ることです。最近観た映画はインターステラーです。他には卓球を友人とよくやります。'}
+											'未入力'}
 									</div>
 									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-										{parseTagsFromString(
-											student.draft.hobbies || 'SF映画、卓球'
-										).map((hobby, index) => (
-											<Chip
-												key={index}
-												label={hobby}
-												size='small'
-												sx={{
-													backgroundColor: '#5627DB',
-													color: 'white',
-												}}
-											/>
-										))}
+										{parseTagsFromString(student.draft.hobbies || '').map(
+											(hobby, index) => (
+												<Chip
+													key={index}
+													label={hobby}
+													size='small'
+													sx={{
+														backgroundColor: '#5627DB',
+														color: 'white',
+													}}
+												/>
+											)
+										)}
 									</div>
 								</>
 							)}
@@ -1718,12 +1718,11 @@ const Top = () => {
 									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>
 										{editData.draft.special_skills_description ||
 											student.draft.other_information ||
-											'ユーザー視点に立ってWebデザインを考え、機能性と美しさのバランスを取ったデザインに落とし込むのが得意です。'}
+											'未入力'}
 									</div>
 									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
 										{parseTagsFromString(
-											student.draft.other_information ||
-												'Webデザイン、UX/UI設計'
+											student.draft.other_information || ''
 										).map((skill, index) => (
 											<Chip
 												key={index}
@@ -1753,7 +1752,7 @@ const Top = () => {
 						/>
 						<TextField
 							title={t('major')}
-							data={student.draft.major || 'ITマネジメント'}
+							data={student.draft.major || '未入力'}
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}
@@ -1763,7 +1762,7 @@ const Top = () => {
 						/>
 						<TextField
 							title={t('jobType')}
-							data={student.draft.job_type || 'UX/UIデザイナー'}
+							data={student.draft.job_type || '未入力'}
 							editData={editData}
 							editMode={editMode}
 							updateEditData={handleUpdateEditData}

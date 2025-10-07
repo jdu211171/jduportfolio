@@ -148,11 +148,18 @@ class NewsViewsService {
             const viewedNewsIds = new Set(viewedNews.map(view => view.news_id))
 
             // Add isViewed property to each news
-            const newsWithStatus = news.map(newsItem => {
-                const newsData = newsItem.toJSON()
-                newsData.isViewed = viewedNewsIds.has(newsData.id)
-                return newsData
+            // Add isViewed and viewCount properties to each news
+            const newsWithStatus = await Promise.all(news.map(async (newsItem) => {
+            const newsData = newsItem.toJSON()
+            newsData.isViewed = viewedNewsIds.has(newsData.id)
+
+            // Add view count for this news
+            newsData.viewCount = await NewsViews.count({
+                where: { news_id: newsData.id }
             })
+
+            return newsData
+}))
 
             console.log('News with status:', newsWithStatus.length)
 
