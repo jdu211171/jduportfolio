@@ -352,3 +352,27 @@
   cursor: pointer;
   border-radius: 4px;
 }
+
+.badge {
+	position: absolute;
+	top: 0px;
+	right: -0px;
+	width: 20px;
+	height: 20px;
+	background-color: #5627dc;
+	color: #fff; 
+	font-size: 0.7rem;
+	font-weight: 600;
+	border-radius: 9999px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+
+.flexCenterGap {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}

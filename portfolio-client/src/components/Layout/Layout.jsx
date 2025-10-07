@@ -1,33 +1,33 @@
-import { colors, Modal, Dialog, DialogTitle, DialogContent, DialogActions, Button, DialogContentText } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Modal } from '@mui/material'
+import { useAtom } from 'jotai'
 import Cookies from 'js-cookie'
-import axios from '../../utils/axiosUtils'
 import { useContext, useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { editModeAtom, saveStatusAtom } from '../../atoms/profileEditAtoms'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
+import axios from '../../utils/axiosUtils'
 import UserAvatar from '../Table/Avatar/UserAvatar'
-import { useAtom } from 'jotai'
-import { editModeAtom, saveStatusAtom } from '../../atoms/profileEditAtoms'
 // icons
+import PeopleOutlineOutlinedIcon from '@mui/icons-material/PeopleOutlineOutlined'
+import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined'
+import TuneIcon from '@mui/icons-material/Tune'
 import { ReactComponent as BookmarkIcon } from '../../assets/icons/bookmark.svg'
-import { ReactComponent as ProfileIcon } from '../../assets/icons/profile.svg'
-import { ReactComponent as MenuIcon } from '../../assets/icons/menuIcon.svg'
-import { ReactComponent as HomeIcon } from '../../assets/icons/home-8-line.svg'
 import { ReactComponent as GroupIcon } from '../../assets/icons/group-line.svg'
-import { ReactComponent as HelpIcon } from '../../assets/icons/question-line.svg'
-import { ReactComponent as QuestionIcon } from '../../assets/icons/question-answer-line.svg'
+import { ReactComponent as HomeIcon } from '../../assets/icons/home-8-line.svg'
 import { ReactComponent as LogoutIcon } from '../../assets/icons/login-circle-line.svg'
+import { ReactComponent as MenuIcon } from '../../assets/icons/menuIcon.svg'
+import { ReactComponent as NewsIcon } from '../../assets/icons/news-icon.svg'
+import { ReactComponent as QuestionIcon } from '../../assets/icons/question-answer-line.svg'
+import { ReactComponent as HelpIcon } from '../../assets/icons/question-line.svg'
+import { ReactComponent as SettingsIcon } from '../../assets/icons/settings-3-line.svg'
 import { ReactComponent as UserPlusIcon } from '../../assets/icons/user-add-line.svg'
 import { ReactComponent as StudentIcon } from '../../assets/icons/user-follow-line.svg'
 import { ReactComponent as SearchIcon } from '../../assets/icons/user-search-line.svg'
-import { ReactComponent as SettingsIcon } from '../../assets/icons/settings-3-line.svg'
-import { ReactComponent as NewsIcon } from '../../assets/icons/news-icon.svg'
-import TuneIcon from '@mui/icons-material/Tune'
 import Notifications from '../Notification/Notifications.jsx'
 import style from './Layout.module.css'
 import logo from '/src/assets/logo40.png'
-import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
 // Utility function to check roles
 const checkRole = (role, allowedRoles) => {
 	return allowedRoles.includes(role)
@@ -42,6 +42,7 @@ const Layout = () => {
 	const navigate = useNavigate()
 	const [editMode, setEditMode] = useAtom(editModeAtom)
 	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
+	const [unReadNewsData, setUnReadNewsData] = useState(0);
 
   const handleLogout = async () => {
       try {
@@ -89,6 +90,7 @@ const Layout = () => {
 		setOpenNavigationWarning(false)
 		setPendingNavigation(null)
 	}
+
 	const navItems = [
 		{
 			items: [
@@ -103,6 +105,7 @@ const Layout = () => {
 					icon: <NewsIcon style={{ width: '24px', height: '24px', }}/>,
 					label: t('news'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
+					badge: 'newsCount',
 				},
 				{
 					to: '/companyprofile',
@@ -136,7 +139,7 @@ const Layout = () => {
 				},
 				{
 					to: '/profile',
-					icon: <ProfileIcon style={{ width: '24px', height: '24px' }} />,
+					icon: <PeopleOutlineOutlinedIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('profile'),
 					roles: ['Student'],
 				},
@@ -206,8 +209,17 @@ const Layout = () => {
 		setJapanTime(japanTimeString)
 		setUzbekistanTime(uzbekistanTimeString)
 	}
-
+	const fetchnews=  async () => {
+			try {
+				const response = await axios.get('/api/news-views/unread-count');
+				const data = response.data;
+				setUnReadNewsData(data.unreadCount);
+			} catch (err) {
+				console.error('Error fetching news:', err);
+			} 
+    };
 	useEffect(() => {
+		fetchnews()
 		window.addEventListener('resize', handleResize)
 		handleResize()
 		updateTime()
@@ -289,7 +301,7 @@ const Layout = () => {
 								{item.items
 									.filter(item => checkRole(role, item.roles))
 									.map((item, index) => (
-										<li key={index}>
+										<li key={index} style={{position:'relative'}}>
 											<NavLink
 												to={item.to}
 												className={({ isActive }) =>
@@ -298,7 +310,19 @@ const Layout = () => {
 												onClick={(e) => handleNavigation(e, item.to)}
 											>
 												{item.icon}
-												<div>{item.label}</div>
+												<div className={style.flexCenterGap}>
+													<span>{item.label}</span>
+
+													{/* Badge — faqat item.badge true bo‘lsa */}
+													{role !== 'Admin' && unReadNewsData > 0 && item.badge && item.badge === 'newsCount' && (
+														<span 
+															className={style.badge}
+															onClick={()=>fetchnews()}
+														>
+															{unReadNewsData}
+														</span>
+													)}
+												</div>
 											</NavLink>
 										</li>
 									))}

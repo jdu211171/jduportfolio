@@ -1,32 +1,34 @@
-import { useState, useEffect } from 'react'
+import SearchIcon from '@mui/icons-material/Search';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
-	Button,
-	CircularProgress,
-	Chip,
 	Alert,
-	IconButton,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-	TextField,
 	Box,
+	Button,
+	Chip,
+	CircularProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	IconButton,
 	Snackbar,
-} from '@mui/material'
-import { useLanguage } from '../../contexts/LanguageContext'
-import translations from '../../locales/translations'
-import SearchIcon from '@mui/icons-material/Search'
-import axios from '../../utils/axiosUtils'
-import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
-import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.svg'
-import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
-import UploadFileIcon from '@mui/icons-material/UploadFile'
+	TextField,
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg';
+import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg';
+import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.svg';
+import { useLanguage } from '../../contexts/LanguageContext';
+import translations from '../../locales/translations';
+import axios from '../../utils/axiosUtils';
 export const NewsForAdmin = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
 	// State management
 	const [newsData, setNewsData] = useState([])
+	const [readedUser, setReadedUser] = useState([]);
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState(null)
 	const [searchTerm, setSearchTerm] = useState('')
@@ -67,9 +69,24 @@ export const NewsForAdmin = () => {
 			setLoading(false)
 		}
 	}
-
+	const readedUsers = async () => {
+        setLoading(true);
+        
+        try {
+            const response = await axios.get('/api/news-views/viewed');
+            const data = response.data;
+			console.log(data);
+			
+			setReadedUser(data.viewedNews || []);
+        } catch (err) {
+            console.error('Error fetching news:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 	useEffect(() => {
 		fetchNews()
+		readedUsers()
 	}, [])
 
 	const handleSearch = () => {
@@ -81,7 +98,6 @@ export const NewsForAdmin = () => {
 			handleSearch()
 		}
 	}
-	console.log(newsData)
 
 	// Delete news
 	const handleDeleteNews = async newsId => {
@@ -91,7 +107,6 @@ export const NewsForAdmin = () => {
 
 		setDeleteLoading(newsId)
 		setError(null)
-		console.log(newsId)
 
 		try {
 			const response = await axios.delete(`/api/news/${newsId}`)
@@ -456,10 +471,13 @@ export const NewsForAdmin = () => {
 					</div>
 				) : (
 					newsData.map(news => {
+						const newsView = readedUser.find(v => v.newsId === news.id);
+  						const viewCount = newsView ? newsView.count : 0;
 						return (
 							<div
 								key={news.id}
 								style={{
+									position:'relative',
 									backgroundColor: '#FFFFFF',
 									borderRadius: '16px',
 									border: '1px solid #e1e8ed',
@@ -471,6 +489,24 @@ export const NewsForAdmin = () => {
 									flexDirection: 'column',
 								}}
 							>
+								<span 
+									style={{
+										position: 'absolute',
+										top:10,
+										left: 10,
+										display: 'flex',
+										alignItems: 'center',
+										gap: '4px',
+										backgroundColor: 'rgba(0,0,0,0.6)',
+										color: 'white',
+										padding: '4px 8px',
+										borderRadius: '12px',
+										fontSize: '12px'
+									}}
+								>
+									<VisibilityIcon size={14} />
+									{viewCount}
+								</span>
 								{/* News Image */}
 								<div>
 									<div
@@ -675,6 +711,7 @@ export const NewsForAdmin = () => {
 												<DeleteIcon />
 											)}
 										</IconButton>
+										{/* <div onClick={()=>users()} style={{background:'pink'}}>users</div> */}
 									</div>
 								</div>
 							</div>
