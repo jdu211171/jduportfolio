@@ -73,11 +73,11 @@ export const NewsForAdmin = () => {
         setLoading(true);
         
         try {
-            const response = await axios.get('/api/news-views/viewed');
+            const response = await axios.get('/api/news-views/with-status');
             const data = response.data;
 			console.log(data);
 			
-			setReadedUser(data.viewedNews || []);
+			setReadedUser(data.news || []);
         } catch (err) {
             console.error('Error fetching news:', err);
         } finally {
@@ -471,8 +471,9 @@ export const NewsForAdmin = () => {
 					</div>
 				) : (
 					newsData.map(news => {
-						const newsView = readedUser.find(v => v.newsId === news.id);
-  						const viewCount = newsView ? newsView.count : 0;
+						const newsView = readedUser.find(v => v.id === news.id);
+  						const viewCount = newsView ? newsView.viewCount
+ : 0;
 						return (
 							<div
 								key={news.id}
