@@ -22,7 +22,7 @@ export const NewsForUsers = () => {
         setLoading(true);
         
         try {
-            const response = await axios.get('/api/news-views/with-status ');
+            const response = await axios.get('/api/news-views/with-status');
             const data = response.data;
             
             setNewsData(Array.isArray(data) ? data : data.news || []);
