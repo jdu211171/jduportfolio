@@ -1,18 +1,20 @@
-import { useState, useEffect } from 'react';
-import { CircularProgress, Chip, IconButton } from '@mui/material';
+import LaunchIcon from '@mui/icons-material/Launch';
+import { Button, Chip, CircularProgress, IconButton } from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import translations from '../../locales/translations';
-import LaunchIcon from '@mui/icons-material/Launch';
 import axios from '../../utils/axiosUtils';
 import styles from './NewsForUsers.module.css';
 
 export const NewsForUsers = () => {
+    // const { id } = useContext(UserContext)
     const { language } = useLanguage();
     const t = key => translations[language][key] || key;
     
     // State management
     const [newsData, setNewsData] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingMarkAsRead, setloadingMarkAsRead] = useState(false);
     // scroll variant: no expand state needed
 
     // Fetch news data from API
@@ -20,8 +22,9 @@ export const NewsForUsers = () => {
         setLoading(true);
         
         try {
-            const response = await axios.get('/api/news');
+            const response = await axios.get('/api/news-views/with-status');
             const data = response.data;
+            
             setNewsData(Array.isArray(data) ? data : data.news || []);
         } catch (err) {
             console.error('Error fetching news:', err);
@@ -29,7 +32,18 @@ export const NewsForUsers = () => {
             setLoading(false);
         }
     };
-
+    const markAsRead = async (id) =>{
+        setloadingMarkAsRead(true);
+        try {
+            const response = await axios.post(`/api/news-views/${id}/read`);
+            const data = response.data;
+        } catch (err) {
+            console.error('Error fetching news:', err);
+        } finally {
+            fetchNews()
+            setloadingMarkAsRead(false);
+        }
+    }
     // Load news on component mount
     useEffect(() => {
         fetchNews();
@@ -141,9 +155,16 @@ export const NewsForUsers = () => {
                                     <span className={styles.date}>{news.createdAt?.split('T')[0]}</span>
                                     <span className={styles.type}>{news.type}</span>
                                 </div>
-
-                                {/* Source Link */}
-                                {news.source_link && (
+                                <div>
+                                    <Button 
+                                        variant='contained' 
+                                        style={{marginRight:8}} 
+                                        disabled={news.isViewed}
+                                        onClick={()=>markAsRead(news.id)}
+                                    >
+                                        {loadingMarkAsRead ? t('loading') : news.isViewed ? t('readed') : t('mark_as_read')}
+                                    </Button>  
+                                 {news.source_link && (
                                     <IconButton
                                         className={styles.linkButton}
                                         component="a"
@@ -155,6 +176,9 @@ export const NewsForUsers = () => {
                                         <LaunchIcon style={{ fontSize: '16px' }} />
                                     </IconButton>
                                 )}
+                                </div>
+                                {/* Source Link */}
+                               
                             </div>
                         </div>
                     </div>
