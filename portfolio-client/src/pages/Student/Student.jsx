@@ -45,19 +45,19 @@ const getInitialFilterState = () => {
 }
 
 const Student = ({ OnlyBookmarked = false }) => {
-	const { language } = useLanguage()
-	const t = key => translations[language][key] || key
+    const { language } = useLanguage()
+    const t = key => translations[language][key] || key
 
 	// Initial filter state - localStorage dan olish
 	const initialFilterState = getInitialFilterState()
 
-	const [filterState, setFilterState] = useState(initialFilterState)
-	const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
+    const [filterState, setFilterState] = useState(initialFilterState)
+    const [viewMode, setViewMode] = useState(getInitialViewMode()) // localStorage dan olish
 	const [updatedBookmark, setUpdatedBookmark] = useState({
 		studentId: null,
 		timestamp: new Date().getTime(),
 	})
-	const recruiterId = JSON.parse(sessionStorage.getItem('loginUser')).id
+    const recruiterId = JSON.parse(sessionStorage.getItem('loginUser')).id
 
 	// localStorage ga viewMode ni saqlash
 	useEffect(() => {
@@ -68,19 +68,41 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}, [viewMode])
 
-	const filterFields = [
-		{
-			key: 'it_skills',
-			label: t('programming_languages'),
-			type: 'checkbox',
-			options: ['JS', 'Python', 'Java', 'SQL'],
-		},
-		{
-			key: 'jlpt',
-			label: t('jlpt'),
-			type: 'checkbox',
-			options: ['N1', 'N2', 'N3', 'N4', 'N5'],
-		},
+    const [itSkillOptions, setItSkillOptions] = useState(['JS', 'Python', 'Java', 'SQL'])
+
+    useEffect(() => {
+        let cancelled = false
+        const fetchItSkills = async () => {
+            try {
+                const res = await axios.get('/api/itskills')
+                if (!cancelled) {
+                    const names = Array.isArray(res.data) ? res.data.map(s => s.name).filter(Boolean) : []
+                    if (names.length > 0) setItSkillOptions(names)
+                }
+            } catch {
+                // fallback to defaults
+            }
+        }
+        fetchItSkills()
+        return () => {
+            cancelled = true
+        }
+    }, [])
+
+    const filterFields = [
+        {
+            key: 'it_skills',
+            label: t('programming_languages'),
+            type: 'checkbox',
+            options: itSkillOptions,
+            matchModeKey: 'it_skills_match',
+        },
+        {
+            key: 'jlpt',
+            label: t('jlpt'),
+            type: 'checkbox',
+            options: ['N1', 'N2', 'N3', 'N4', 'N5'],
+        },
 		{
 			key: 'jdu_japanese_certification',
 			label: t('jdu_certification'),
@@ -213,14 +235,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 	return (
 		<div key={language}>
 			<Box sx={{ width: '100%', height: '100px' }}>
-				<Filter
-					fields={filterFields}
-					filterState={filterState}
-					onFilterChange={handleFilterChange}
-					viewMode={viewMode}
-					onViewModeChange={handleViewModeChange}
-					persistKey='students-filter-v1'
-				/>
+        <Filter
+            fields={filterFields}
+            filterState={filterState}
+            onFilterChange={handleFilterChange}
+            viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
+            persistKey='students-filter-v1'
+        />
 			</Box>
 			<Table
 				tableProps={tableProps}
