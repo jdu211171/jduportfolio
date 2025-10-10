@@ -236,11 +236,20 @@ const Layout = () => {
 	}
 	useEffect(() => {
 		fetchnews()
+		
+		// Listen for news count changes from other components
+		const handleNewsCountChange = () => {
+			fetchnews()
+		}
+		
+		window.addEventListener('newsCountChanged', handleNewsCountChange)
 		window.addEventListener('resize', handleResize)
 		handleResize()
 		updateTime()
 		const intervalId = setInterval(updateTime, 60000)
+		
 		return () => {
+			window.removeEventListener('newsCountChanged', handleNewsCountChange)
 			window.removeEventListener('resize', handleResize)
 			clearInterval(intervalId)
 		}
