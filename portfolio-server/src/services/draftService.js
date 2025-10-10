@@ -71,6 +71,24 @@ class DraftService {
 			let queryOther = {}
 			queryOther[Op.and] = []
 
+			// Helper to build JSONB @> conditions for it_skills across levels
+			const buildItSkillsCondition = (names = [], match = 'any') => {
+				const lvls = ['上級', '中級', '初級']
+				const safeNames = Array.isArray(names) ? names.filter(Boolean) : []
+				if (safeNames.length === 0) return null
+
+				const perSkill = safeNames.map(n => {
+					const json = JSON.stringify([{ name: String(n) }])
+					const esc = sequelize.escape(json)
+					const levelExpr = lvls
+						.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`)
+						.join(' OR ')
+					return `(${levelExpr})`
+				})
+				const joiner = match === 'all' ? ' AND ' : ' OR '
+				return `(${perSkill.join(joiner)})`
+			}
+
 			// Process visibility filter before the main loop
 			if (
 				filter.visibility &&
@@ -140,12 +158,27 @@ class DraftService {
 						)
 
 						querySearch[Op.or] = searchConditions
-					} else if (key === 'skills' || key === 'it_skills') {
+					} else if (key === 'it_skills') {
+						const values = Array.isArray(filter[key])
+							? filter[key]
+							: [filter[key]]
+						const match = filter.it_skills_match === 'all' ? 'all' : 'any'
+						const expr = buildItSkillsCondition(values, match)
+						if (expr) {
+							queryOther[Op.and].push(sequelize.literal(expr))
+						}
+					} else if (key === 'skills') {
 						queryOther[Op.and].push({
 							[Op.or]: [
-								{ [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-								{ [key]: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-								{ [key]: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+								{
+									skills: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
+								{
+									skills: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
+								{
+									skills: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
 							],
 						})
 					} else if (key === 'partner_university_credits') {
@@ -166,6 +199,9 @@ class DraftService {
 								[key]: { [Op.iLike]: `%${level}%` },
 							})),
 						})
+					} else if (key === 'it_skills_match') {
+						// handled together with it_skills
+						return
 					} else if (Array.isArray(filter[key])) {
 						queryOther[key] = { [Op.in]: filter[key] }
 					} else if (typeof filter[key] === 'string') {
@@ -294,7 +330,6 @@ class DraftService {
 			)
 		}
 
-
 		// Server-side validation: ensure all required QA answers are filled
 		try {
 			const settingsRaw = await SettingsService.getSetting('studentQA')
@@ -305,50 +340,56 @@ class DraftService {
 				} catch {
 					settings = null
 				}
-                if (settings && typeof settings === 'object') {
-                    // Prefer answers from current draft.profile_data.qa if present
-                    const profileQA = (draft.profile_data && draft.profile_data.qa) || null
+				if (settings && typeof settings === 'object') {
+					// Prefer answers from current draft.profile_data.qa if present
+					const profileQA =
+						(draft.profile_data && draft.profile_data.qa) || null
 
-                    let answersByCategory = {}
-                    if (profileQA && typeof profileQA === 'object') {
-                        answersByCategory = profileQA
-                    } else {
-                        // Fallback to persisted QA rows
-                        const student = await Student.findOne({ where: { student_id: draft.student_id } })
-                        if (student) {
-                            const qaRows = await QAService.findQAByStudentId(student.id)
-                            for (const row of qaRows) {
-                                answersByCategory[row.category] = row.qa_list || {}
-                            }
-                        }
-                    }
+					let answersByCategory = {}
+					if (profileQA && typeof profileQA === 'object') {
+						answersByCategory = profileQA
+					} else {
+						// Fallback to persisted QA rows
+						const student = await Student.findOne({
+							where: { student_id: draft.student_id },
+						})
+						if (student) {
+							const qaRows = await QAService.findQAByStudentId(student.id)
+							for (const row of qaRows) {
+								answersByCategory[row.category] = row.qa_list || {}
+							}
+						}
+					}
 
-                    const missing = []
-                    for (const category of Object.keys(settings)) {
-                        if (category === 'idList') continue
-                        const questions = settings[category] || {}
-                        const answers = answersByCategory[category] || {}
-                        for (const key of Object.keys(questions)) {
-                            const q = questions[key]
-                            if (q && q.required === true) {
-                                // Accept legacy answer shapes: object { answer } or plain string
-                                const raw = answers[key]
-                                const ans =
-                                    raw && typeof raw === 'object' && raw !== null && 'answer' in raw
-                                        ? raw.answer
-                                        : raw
-                                if (!ans || String(ans).trim() === '') {
-                                    missing.push({ category, key })
-                                }
-                            }
-                        }
-                    }
-                    if (missing.length > 0) {
-                        throw new Error(
-                            `Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`
-                        )
-                    }
-                }
+					const missing = []
+					for (const category of Object.keys(settings)) {
+						if (category === 'idList') continue
+						const questions = settings[category] || {}
+						const answers = answersByCategory[category] || {}
+						for (const key of Object.keys(questions)) {
+							const q = questions[key]
+							if (q && q.required === true) {
+								// Accept legacy answer shapes: object { answer } or plain string
+								const raw = answers[key]
+								const ans =
+									raw &&
+									typeof raw === 'object' &&
+									raw !== null &&
+									'answer' in raw
+										? raw.answer
+										: raw
+								if (!ans || String(ans).trim() === '') {
+									missing.push({ category, key })
+								}
+							}
+						}
+					}
+					if (missing.length > 0) {
+						throw new Error(
+							`Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`
+						)
+					}
+				}
 			}
 		} catch (e) {
 			throw e

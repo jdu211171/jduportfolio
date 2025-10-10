@@ -14,7 +14,6 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	// JDU and University of World Languages: 76 credits
 	// Other universities (partner universities): 124 credits
 	const getTargetCredits = () => {
-
 		// Check if this is JDU or University of World Languages
 		if (
 			student?.university === 'JDU' ||

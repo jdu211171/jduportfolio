@@ -109,4 +109,3 @@ router.post('/keys', SettingsController.getSettingsByKeys)
 router.get('/homepage', SettingsController.getHomepageSetting)
 
 module.exports = router
-

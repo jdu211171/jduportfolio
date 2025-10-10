@@ -1,6 +1,6 @@
-import SearchIcon from '@mui/icons-material/Search';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import SearchIcon from '@mui/icons-material/Search'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 import {
 	Alert,
 	Box,
@@ -14,21 +14,21 @@ import {
 	IconButton,
 	Snackbar,
 	TextField,
-} from '@mui/material';
-import { useEffect, useState } from 'react';
-import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg';
-import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg';
-import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.svg';
-import { useLanguage } from '../../contexts/LanguageContext';
-import translations from '../../locales/translations';
-import axios from '../../utils/axiosUtils';
+} from '@mui/material'
+import { useEffect, useState } from 'react'
+import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
+import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
+import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.svg'
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
+import axios from '../../utils/axiosUtils'
 export const NewsForAdmin = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
 	// State management
 	const [newsData, setNewsData] = useState([])
-	const [readedUser, setReadedUser] = useState([]);
+	const [readedUser, setReadedUser] = useState([])
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState(null)
 	const [searchTerm, setSearchTerm] = useState('')
@@ -70,20 +70,20 @@ export const NewsForAdmin = () => {
 		}
 	}
 	const readedUsers = async () => {
-        setLoading(true);
-        
-        try {
-            const response = await axios.get('/api/news-views/with-status');
-            const data = response.data;
-			console.log(data);
-			
-			setReadedUser(data.news || []);
-        } catch (err) {
-            console.error('Error fetching news:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+		setLoading(true)
+
+		try {
+			const response = await axios.get('/api/news-views/with-status')
+			const data = response.data
+			console.log(data)
+
+			setReadedUser(data.news || [])
+		} catch (err) {
+			console.error('Error fetching news:', err)
+		} finally {
+			setLoading(false)
+		}
+	}
 	useEffect(() => {
 		fetchNews()
 		readedUsers()
@@ -471,14 +471,13 @@ export const NewsForAdmin = () => {
 					</div>
 				) : (
 					newsData.map(news => {
-						const newsView = readedUser.find(v => v.id === news.id);
-  						const viewCount = newsView ? newsView.viewCount
- : 0;
+						const newsView = readedUser.find(v => v.id === news.id)
+						const viewCount = newsView ? newsView.viewCount : 0
 						return (
 							<div
 								key={news.id}
 								style={{
-									position:'relative',
+									position: 'relative',
 									backgroundColor: '#FFFFFF',
 									borderRadius: '16px',
 									border: '1px solid #e1e8ed',
@@ -490,10 +489,10 @@ export const NewsForAdmin = () => {
 									flexDirection: 'column',
 								}}
 							>
-								<span 
+								<span
 									style={{
 										position: 'absolute',
-										top:10,
+										top: 10,
 										left: 10,
 										display: 'flex',
 										alignItems: 'center',
@@ -502,7 +501,7 @@ export const NewsForAdmin = () => {
 										color: 'white',
 										padding: '4px 8px',
 										borderRadius: '12px',
-										fontSize: '12px'
+										fontSize: '12px',
 									}}
 								>
 									<VisibilityIcon size={14} />
@@ -570,28 +569,28 @@ export const NewsForAdmin = () => {
 											{news.title}
 										</h3>
 
-									{/* News Description - scroll variant */}
-									<div
-										style={{
-											maxHeight: '8.8em',
-											overflow: 'auto',
-											marginBottom: '8px',
-											paddingRight: 4,
-										}}
-									>
-										<p
+										{/* News Description - scroll variant */}
+										<div
 											style={{
-												fontSize: 'clamp(12px, 2vw, 14px)',
-												color: '#7f8c8d',
-												lineHeight: '1.6',
-												margin: 0,
-												wordBreak: 'break-word',
-												overflowWrap: 'anywhere',
-										}}
+												maxHeight: '8.8em',
+												overflow: 'auto',
+												marginBottom: '8px',
+												paddingRight: 4,
+											}}
 										>
-											{news.description}
-										</p>
-									</div>
+											<p
+												style={{
+													fontSize: 'clamp(12px, 2vw, 14px)',
+													color: '#7f8c8d',
+													lineHeight: '1.6',
+													margin: 0,
+													wordBreak: 'break-word',
+													overflowWrap: 'anywhere',
+												}}
+											>
+												{news.description}
+											</p>
+										</div>
 
 										{/* Hashtags */}
 										{news.hashtags &&

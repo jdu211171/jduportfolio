@@ -7,7 +7,9 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res.status(400).json({ error: 'User ID and user type are required' })
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = id
@@ -28,18 +30,21 @@ class NewsViewsController {
 
 			console.log('Processed user:', { userId, userRole })
 
-			const unreadCount = await NewsViewsService.getUnreadNewsCount(userId, userRole)
+			const unreadCount = await NewsViewsService.getUnreadNewsCount(
+				userId,
+				userRole
+			)
 
-			return res.status(200).json({ 
+			return res.status(200).json({
 				unreadCount,
 				userId: userId,
-				userRole: userRole 
+				userRole: userRole,
 			})
 		} catch (error) {
 			console.error('Error getting unread news count:', error)
-			return res.status(500).json({ 
+			return res.status(500).json({
 				error: 'Internal Server Error',
-				details: error.message 
+				details: error.message,
 			})
 		}
 	}
@@ -54,7 +59,9 @@ class NewsViewsController {
 			}
 
 			if (!id || !userType) {
-				return res.status(400).json({ error: 'User ID and user type are required' })
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)
@@ -75,20 +82,18 @@ class NewsViewsController {
 				userRole
 			)
 
-			const message = created 
-				? 'News marked as read' 
-				: 'News view updated'
+			const message = created ? 'News marked as read' : 'News view updated'
 
-			return res.status(200).json({ 
-				message, 
+			return res.status(200).json({
+				message,
 				newsView,
-				alreadyViewed: !created 
+				alreadyViewed: !created,
 			})
 		} catch (error) {
 			console.error('Error marking news as read:', error)
-			return res.status(500).json({ 
+			return res.status(500).json({
 				error: 'Internal Server Error',
-				details: error.message 
+				details: error.message,
 			})
 		}
 	}
@@ -98,7 +103,9 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res.status(400).json({ error: 'User ID and user type are required' })
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)
@@ -113,17 +120,20 @@ class NewsViewsController {
 				userId = String(student.student_id)
 			}
 
-			const viewedNews = await NewsViewsService.getViewedNewsByUser(userId, userRole)
+			const viewedNews = await NewsViewsService.getViewedNewsByUser(
+				userId,
+				userRole
+			)
 
-			return res.status(200).json({ 
+			return res.status(200).json({
 				viewedNews,
-				count: viewedNews.length 
+				count: viewedNews.length,
 			})
 		} catch (error) {
 			console.error('Error getting viewed news:', error)
-			return res.status(500).json({ 
+			return res.status(500).json({
 				error: 'Internal Server Error',
-				details: error.message 
+				details: error.message,
 			})
 		}
 	}
@@ -133,7 +143,9 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res.status(400).json({ error: 'User ID and user type are required' })
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)
@@ -154,23 +166,23 @@ class NewsViewsController {
 			if (req.query.type) filters.type = req.query.type
 
 			const newsWithStatus = await NewsViewsService.getNewsWithViewStatus(
-				userId, 
-				userRole, 
+				userId,
+				userRole,
 				filters
 			)
 
 			const unreadCount = newsWithStatus.filter(news => !news.isViewed).length
 
-			return res.status(200).json({ 
+			return res.status(200).json({
 				news: newsWithStatus,
 				unreadCount,
-				totalCount: newsWithStatus.length 
+				totalCount: newsWithStatus.length,
 			})
 		} catch (error) {
 			console.error('Error getting news with view status:', error)
-			return res.status(500).json({ 
+			return res.status(500).json({
 				error: 'Internal Server Error',
-				details: error.message 
+				details: error.message,
 			})
 		}
 	}

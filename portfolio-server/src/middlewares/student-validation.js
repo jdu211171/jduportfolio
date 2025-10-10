@@ -8,9 +8,18 @@ exports.validateStudentCreation = [
 	body('password').notEmpty().withMessage('Password is required'),
 	body('first_name').notEmpty().withMessage('First name is required'),
 	body('last_name').notEmpty().withMessage('Last name is required'),
-	body('graduation_year').optional().isString().withMessage('Graduation year must be a string'),
-    body('graduation_season').optional().isString().withMessage('Graduation season must be a string'),
-    body('language_skills').optional().isString().withMessage('Language skills must be a string'),
+	body('graduation_year')
+		.optional()
+		.isString()
+		.withMessage('Graduation year must be a string'),
+	body('graduation_season')
+		.optional()
+		.isString()
+		.withMessage('Graduation season must be a string'),
+	body('language_skills')
+		.optional()
+		.isString()
+		.withMessage('Language skills must be a string'),
 	body('date_of_birth')
 		.isISO8601()
 		.toDate()
@@ -19,9 +28,18 @@ exports.validateStudentCreation = [
 
 // Validation middleware for updating a student
 exports.validateStudentUpdate = [
-	body('graduation_year').optional().isString().withMessage('Graduation year must be a string'),
-    body('graduation_season').optional().isString().withMessage('Graduation season must be a string'),
-    body('language_skills').optional().isString().withMessage('Language skills must be a string'),
+	body('graduation_year')
+		.optional()
+		.isString()
+		.withMessage('Graduation year must be a string'),
+	body('graduation_season')
+		.optional()
+		.isString()
+		.withMessage('Graduation season must be a string'),
+	body('language_skills')
+		.optional()
+		.isString()
+		.withMessage('Language skills must be a string'),
 	body('email')
 		.isEmail()
 		.optional()

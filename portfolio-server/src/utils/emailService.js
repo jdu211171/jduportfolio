@@ -1,96 +1,112 @@
 // src/utils/emailService.js
 
 // O'ZGARISH: SESClient bilan birga `SendRawEmailCommand` ham import qilinadi
-const { SESClient, SendRawEmailCommand } = require("@aws-sdk/client-ses"); 
-const nodemailer = require("nodemailer");
+const { SESClient, SendRawEmailCommand } = require('@aws-sdk/client-ses')
+const nodemailer = require('nodemailer')
 
 // 1. AWS SES Klientini sozlash (bu qism o'zgarishsiz qoladi)
 const sesClient = new SESClient({
-    region: process.env.AWS_SES_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_SES_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_SES_SECRET_KEY,
-    }
-});
+	region: process.env.AWS_SES_REGION,
+	credentials: {
+		accessKeyId: process.env.AWS_SES_ACCESS_KEY,
+		secretAccessKey: process.env.AWS_SES_SECRET_KEY,
+	},
+})
 
 // 2. Nodemailer transportini AWS SES bilan bog'lash
 const transporter = nodemailer.createTransport({
-    // O'ZGARISH: `aws` obyekti ichiga `SendRawEmailCommand` ni qo'shamiz
-    SES: { ses: sesClient, aws: { SendRawEmailCommand } },
-    sendingRate: 14 // AWS limitiga mos ravishda sekundiga 14 ta email
-});
+	// O'ZGARISH: `aws` obyekti ichiga `SendRawEmailCommand` ni qo'shamiz
+	SES: { ses: sesClient, aws: { SendRawEmailCommand } },
+	sendingRate: 14, // AWS limitiga mos ravishda sekundiga 14 ta email
+})
 
 /**
  * Bitta email jo'natish uchun asosiy funksiya.
  * (Bu funksiya o'zgarishsiz qoladi)
  */
-const sendEmail = async (mailData) => {
-    const mailOptions = {
-        from: process.env.EMAIL_FROM,
-        to: mailData.to,
-        subject: mailData.subject,
-        text: mailData.text,
-        html: mailData.html,
-    };
+const sendEmail = async mailData => {
+	const mailOptions = {
+		from: process.env.EMAIL_FROM,
+		to: mailData.to,
+		subject: mailData.subject,
+		text: mailData.text,
+		html: mailData.html,
+	}
 
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Email muvaffaqiyatli jo'natildi: ${mailData.to}`);
-        return { success: true, to: mailData.to, messageId: info.messageId };
-    } catch (error) {
-        console.error(`Email jo'natishda xatolik (${mailData.to}):`, error);
-        // Xatolikni to'liqroq log qilish
-        console.error(error.stack);
-        return { success: false, to: mailData.to, error: error.message };
-    }
-};
+	try {
+		const info = await transporter.sendMail(mailOptions)
+		console.log(`Email muvaffaqiyatli jo'natildi: ${mailData.to}`)
+		return { success: true, to: mailData.to, messageId: info.messageId }
+	} catch (error) {
+		console.error(`Email jo'natishda xatolik (${mailData.to}):`, error)
+		// Xatolikni to'liqroq log qilish
+		console.error(error.stack)
+		return { success: false, to: mailData.to, error: error.message }
+	}
+}
 
 /**
  * Ko'p sonli emaillarni parallel ravishda, samarali jo'natadi.
  * (Bu funksiya o'zgarishsiz qoladi)
  */
-const sendBulkEmails = async (emailTasks) => {
-    if (!Array.isArray(emailTasks) || emailTasks.length === 0) {
-        return { total: 0, successful: 0, failed: 0, successfulEmails: [], failedEmails: [] };
-    }
+const sendBulkEmails = async emailTasks => {
+	if (!Array.isArray(emailTasks) || emailTasks.length === 0) {
+		return {
+			total: 0,
+			successful: 0,
+			failed: 0,
+			successfulEmails: [],
+			failedEmails: [],
+		}
+	}
 
-    const promises = emailTasks.map(task => sendEmail(task));
-    const results = await Promise.allSettled(promises);
+	const promises = emailTasks.map(task => sendEmail(task))
+	const results = await Promise.allSettled(promises)
 
-    const report = {
-        total: emailTasks.length,
-        successful: 0,
-        failed: 0,
-        successfulEmails: [],
-        failedEmails: [],
-    };
+	const report = {
+		total: emailTasks.length,
+		successful: 0,
+		failed: 0,
+		successfulEmails: [],
+		failedEmails: [],
+	}
 
-    // forEach o'rniga for...of tsiklini ishlatamiz. Bu yanada xavfsizroq.
-    for (const result of results) {
-        // Muvaffaqiyatli holatni tekshirish
-        if (result.status === 'fulfilled' && result.value && result.value.success === true) {
-            report.successful++;
-            report.successfulEmails.push(result.value);
-        } 
-        // Xatolik holatini tekshirish
-        else {
-            report.failed++;
-            let errorInfo;
-            if (result.status === 'rejected') {
-                // Agar promise'ning o'zi xato qaytarsa
-                errorInfo = { success: false, reason: result.reason?.message || result.reason };
-            } else {
-                // Agar sendEmail funksiyasi { success: false } qaytarsa
-                errorInfo = result.value || { success: false, reason: 'Noma\'lum xatolik' };
-            }
-            report.failedEmails.push(errorInfo);
-        }
-    }
+	// forEach o'rniga for...of tsiklini ishlatamiz. Bu yanada xavfsizroq.
+	for (const result of results) {
+		// Muvaffaqiyatli holatni tekshirish
+		if (
+			result.status === 'fulfilled' &&
+			result.value &&
+			result.value.success === true
+		) {
+			report.successful++
+			report.successfulEmails.push(result.value)
+		}
+		// Xatolik holatini tekshirish
+		else {
+			report.failed++
+			let errorInfo
+			if (result.status === 'rejected') {
+				// Agar promise'ning o'zi xato qaytarsa
+				errorInfo = {
+					success: false,
+					reason: result.reason?.message || result.reason,
+				}
+			} else {
+				// Agar sendEmail funksiyasi { success: false } qaytarsa
+				errorInfo = result.value || {
+					success: false,
+					reason: "Noma'lum xatolik",
+				}
+			}
+			report.failedEmails.push(errorInfo)
+		}
+	}
 
-    return report;
-};
+	return report
+}
 
 module.exports = {
-    sendEmail,
-    sendBulkEmails,
-};
+	sendEmail,
+	sendBulkEmails,
+}

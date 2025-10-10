@@ -35,30 +35,30 @@ const languages = [
 		flag: '🇺🇿',
 		description: "Portfolio tizimini o'zbek tilida ishlating",
 	},
-    {
-        code: 'ru',
-        name: 'Русский',
-        englishName: 'Russian',
-        flag: '🇷🇺',
-        description: 'Используйте систему портфолио на русском языке',
-    },
+	{
+		code: 'ru',
+		name: 'Русский',
+		englishName: 'Russian',
+		flag: '🇷🇺',
+		description: 'Используйте систему портфолио на русском языке',
+	},
 ]
 
 const LanguageSelectionModal = ({ open, onClose }) => {
 	const { language, changeLanguage } = useLanguage()
 	const [selectedLanguage, setSelectedLanguage] = useState(language)
 
-	const handleLanguageSelect = (langCode) => {
+	const handleLanguageSelect = langCode => {
 		setSelectedLanguage(langCode)
 	}
 
 	const handleConfirm = () => {
 		// Save that user has selected a language
 		localStorage.setItem('hasSelectedLanguage', 'true')
-		
+
 		// Change the language
 		changeLanguage(selectedLanguage)
-		
+
 		// Close the modal
 		onClose()
 	}
@@ -86,12 +86,17 @@ const LanguageSelectionModal = ({ open, onClose }) => {
 			</DialogTitle>
 			<DialogContent sx={{ pb: 3 }}>
 				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-					{languages.map((lang) => (
+					{languages.map(lang => (
 						<Card
 							key={lang.code}
-							variant={selectedLanguage === lang.code ? 'elevation' : 'outlined'}
+							variant={
+								selectedLanguage === lang.code ? 'elevation' : 'outlined'
+							}
 							sx={{
-								border: selectedLanguage === lang.code ? '2px solid #5627DB' : '1px solid #e0e0e0',
+								border:
+									selectedLanguage === lang.code
+										? '2px solid #5627DB'
+										: '1px solid #e0e0e0',
 								transition: 'all 0.2s ease',
 								'&:hover': {
 									transform: 'translateY(-2px)',

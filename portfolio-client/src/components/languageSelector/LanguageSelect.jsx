@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import { useLanguage } from '../../contexts/LanguageContext'
 import './language.css'
 
-export const LanguageSelect = ({ 
-	style, 
-	size = 'medium', 
+export const LanguageSelect = ({
+	style,
+	size = 'medium',
 	variant = 'select',
 	showLabel = false,
 	labelText = 'Language',
@@ -16,14 +16,14 @@ export const LanguageSelect = ({
 }) => {
 	const { language, changeLanguage } = useLanguage()
 
-	const handleChange = (e) => {
+	const handleChange = e => {
 		const newLanguage = e.target.value
-		
+
 		// Call custom onChange if provided
 		if (onChange) {
 			onChange(newLanguage)
 		}
-		
+
 		// Use context's changeLanguage instead of reloading
 		changeLanguage(newLanguage)
 	}
@@ -46,7 +46,7 @@ export const LanguageSelect = ({
 			<div className={`languageButtons ${className}`} style={style}>
 				{showLabel && <span className='languageLabel'>{labelText}</span>}
 				<div className='languageButtonGroup'>
-					{languages.map((lang) => (
+					{languages.map(lang => (
 						<button
 							key={lang.code}
 							onClick={() => handleChange({ target: { value: lang.code } })}
@@ -71,7 +71,7 @@ export const LanguageSelect = ({
 				value={language}
 				disabled={disabled}
 			>
-				{languages.map((lang) => (
+				{languages.map(lang => (
 					<option key={lang.code} value={lang.code}>
 						{showFlags ? `${lang.flag} ${lang.name}` : lang.name}
 					</option>

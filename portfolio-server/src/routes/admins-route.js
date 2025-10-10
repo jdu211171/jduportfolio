@@ -1,6 +1,6 @@
 const express = require('express')
 const AdminController = require('../controllers/adminController')
-const authMiddleware = require('../middlewares/auth-middleware');
+const authMiddleware = require('../middlewares/auth-middleware')
 const router = express.Router()
 
 /**
@@ -80,8 +80,16 @@ const router = express.Router()
  *         description: Bad request
  */
 
-router.get('/student-password/:studentId', authMiddleware, AdminController.getStudentPassword);
-router.patch('/reset-student-password/:studentId', authMiddleware, AdminController.resetStudentPassword);
+router.get(
+	'/student-password/:studentId',
+	authMiddleware,
+	AdminController.getStudentPassword
+)
+router.patch(
+	'/reset-student-password/:studentId',
+	authMiddleware,
+	AdminController.resetStudentPassword
+)
 router.post('/', AdminController.create)
 router.get('/:id', AdminController.getById)
 router.put('/:id', AdminController.update)

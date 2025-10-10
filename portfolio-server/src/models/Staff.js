@@ -14,14 +14,14 @@ module.exports = sequelize => {
 				foreignKey: 'authorId',
 				constraints: false,
 				scope: { authorType: 'Staff' },
-				as: 'authorStaff'
-			});
+				as: 'authorStaff',
+			})
 			Staff.hasMany(models.News, {
 				foreignKey: 'moderatorId',
 				constraints: false,
 				scope: { moderatorType: 'Staff' },
-				as: 'moderatorStaff'
-			});
+				as: 'moderatorStaff',
+			})
 		}
 	}
 

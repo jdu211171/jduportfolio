@@ -341,6 +341,90 @@
   gap: 8px;
 }
 
+/* Search input for large checkbox lists */
+.checkboxSearch {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Grid layout for many checkboxes */
+.checkboxGroupGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Bulk actions row */
+.checkboxActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.checkboxActions button {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.checkboxActions button:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+/* Selected chips */
+.selectedChipsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 8px;
+}
+
+.selectedChipsTitle {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.selectedChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eef2ff;
+  color: #374151;
+  border: 1px solid #c7d2fe;
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: #e0e7ff;
+}
+
+.chipClose {
+  color: #6b7280;
+  margin-left: 2px;
+}
+
 .checkboxLabel,
 .radioLabel {
   display: flex;

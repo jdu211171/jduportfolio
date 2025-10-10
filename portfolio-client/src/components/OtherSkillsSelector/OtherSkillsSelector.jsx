@@ -69,7 +69,11 @@ const OtherSkillsSelector = ({
 		}
 
 		// If it's an object (old format), convert to array
-		if (skillsData && typeof skillsData === 'object' && !Array.isArray(skillsData)) {
+		if (
+			skillsData &&
+			typeof skillsData === 'object' &&
+			!Array.isArray(skillsData)
+		) {
 			// Convert old format to new array format
 			const convertedArray = []
 			Object.entries(skillsData).forEach(([level, skills]) => {
@@ -78,7 +82,7 @@ const OtherSkillsSelector = ({
 						convertedArray.push({
 							name: skill.name,
 							level: level,
-							color: skill.color || '#5627DB'
+							color: skill.color || '#5627DB',
 						})
 					})
 				}
@@ -144,7 +148,7 @@ const OtherSkillsSelector = ({
 		}
 	}
 
-	const handleKeyPress = (event) => {
+	const handleKeyPress = event => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
 			handleAddSkill()
@@ -267,9 +271,7 @@ const OtherSkillsSelector = ({
 							color: '#999',
 						}}
 					>
-						{editMode
-							? t('noAwardsEdit')
-							: t('noAwards')}
+						{editMode ? t('noAwardsEdit') : t('noAwards')}
 					</div>
 				)}
 			</div>

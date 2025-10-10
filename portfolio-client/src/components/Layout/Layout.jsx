@@ -1,4 +1,12 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Modal } from '@mui/material'
+import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	Modal,
+} from '@mui/material'
 import { useAtom } from 'jotai'
 import Cookies from 'js-cookie'
 import { useContext, useEffect, useState } from 'react'
@@ -42,25 +50,25 @@ const Layout = () => {
 	const navigate = useNavigate()
 	const [editMode, setEditMode] = useAtom(editModeAtom)
 	const [saveStatus, setSaveStatus] = useAtom(saveStatusAtom)
-	const [unReadNewsData, setUnReadNewsData] = useState(0);
+	const [unReadNewsData, setUnReadNewsData] = useState(0)
 
-  const handleLogout = async () => {
-      try {
-          await axios.post('/api/auth/logout')
-      } catch (e) {
-          console.error('Logout error:', e)
-      } finally {
-          // Remove auth cookies and any client-side session
-          try {
-              Cookies.remove('token', { path: '/' })
-              Cookies.remove('userType', { path: '/' })
-          } catch (err) {
-              console.error('Error removing cookies during logout:', err)
-          }
-          sessionStorage.clear()
-          window.location.href = '/login'
-      }
-  }
+	const handleLogout = async () => {
+		try {
+			await axios.post('/api/auth/logout')
+		} catch (e) {
+			console.error('Logout error:', e)
+		} finally {
+			// Remove auth cookies and any client-side session
+			try {
+				Cookies.remove('token', { path: '/' })
+				Cookies.remove('userType', { path: '/' })
+			} catch (err) {
+				console.error('Error removing cookies during logout:', err)
+			}
+			sessionStorage.clear()
+			window.location.href = '/login'
+		}
+	}
 
 	const handleNavigation = (e, to) => {
 		// Check if in edit mode
@@ -102,14 +110,18 @@ const Layout = () => {
 				},
 				{
 					to: '/news',
-					icon: <NewsIcon style={{ width: '24px', height: '24px', }}/>,
+					icon: <NewsIcon style={{ width: '24px', height: '24px' }} />,
 					label: t('news'),
 					roles: ['Admin', 'Staff', 'Recruiter', 'Student'],
 					badge: 'newsCount',
 				},
 				{
 					to: '/companyprofile',
-					icon: <PermIdentityOutlinedIcon style={{ width: '24px', height: '24px' }} />,
+					icon: (
+						<PermIdentityOutlinedIcon
+							style={{ width: '24px', height: '24px' }}
+						/>
+					),
 					label: t('profile'),
 					roles: ['Recruiter'],
 				},
@@ -139,7 +151,11 @@ const Layout = () => {
 				},
 				{
 					to: '/profile',
-					icon: <PeopleOutlineOutlinedIcon style={{ width: '24px', height: '24px' }} />,
+					icon: (
+						<PeopleOutlineOutlinedIcon
+							style={{ width: '24px', height: '24px' }}
+						/>
+					),
 					label: t('profile'),
 					roles: ['Student'],
 				},
@@ -177,13 +193,13 @@ const Layout = () => {
 		},
 	]
 
-  const { activeUser } = useContext(UserContext)
+	const { activeUser } = useContext(UserContext)
 	const [isMenuOpen, setIsMenuOpen] = useState(false)
 	const [smallScreen, setSmallScreen] = useState(false)
-  // Read role from sessionStorage; if missing (e.g., new tab), fall back to cookie set by server
-  const [role] = useState(
-      sessionStorage.getItem('role') || Cookies.get('userType') || null
-  )
+	// Read role from sessionStorage; if missing (e.g., new tab), fall back to cookie set by server
+	const [role] = useState(
+		sessionStorage.getItem('role') || Cookies.get('userType') || null
+	)
 
 	const [japanTime, setJapanTime] = useState('')
 	const [uzbekistanTime, setUzbekistanTime] = useState('')
@@ -209,15 +225,15 @@ const Layout = () => {
 		setJapanTime(japanTimeString)
 		setUzbekistanTime(uzbekistanTimeString)
 	}
-	const fetchnews=  async () => {
-			try {
-				const response = await axios.get('/api/news-views/unread-count');
-				const data = response.data;
-				setUnReadNewsData(data.unreadCount);
-			} catch (err) {
-				console.error('Error fetching news:', err);
-			} 
-    };
+	const fetchnews = async () => {
+		try {
+			const response = await axios.get('/api/news-views/unread-count')
+			const data = response.data
+			setUnReadNewsData(data.unreadCount)
+		} catch (err) {
+			console.error('Error fetching news:', err)
+		}
+	}
 	useEffect(() => {
 		fetchnews()
 		window.addEventListener('resize', handleResize)
@@ -301,27 +317,30 @@ const Layout = () => {
 								{item.items
 									.filter(item => checkRole(role, item.roles))
 									.map((item, index) => (
-										<li key={index} style={{position:'relative'}}>
+										<li key={index} style={{ position: 'relative' }}>
 											<NavLink
 												to={item.to}
 												className={({ isActive }) =>
 													isActive ? style.active : ''
 												}
-												onClick={(e) => handleNavigation(e, item.to)}
+												onClick={e => handleNavigation(e, item.to)}
 											>
 												{item.icon}
 												<div className={style.flexCenterGap}>
 													<span>{item.label}</span>
 
 													{/* Badge — faqat item.badge true bo‘lsa */}
-													{role !== 'Admin' && unReadNewsData > 0 && item.badge && item.badge === 'newsCount' && (
-														<span 
-															className={style.badge}
-															onClick={()=>fetchnews()}
-														>
-															{unReadNewsData}
-														</span>
-													)}
+													{role !== 'Admin' &&
+														unReadNewsData > 0 &&
+														item.badge &&
+														item.badge === 'newsCount' && (
+															<span
+																className={style.badge}
+																onClick={() => fetchnews()}
+															>
+																{unReadNewsData}
+															</span>
+														)}
 												</div>
 											</NavLink>
 										</li>
@@ -378,22 +397,26 @@ const Layout = () => {
 			<Dialog
 				open={openNavigationWarning}
 				onClose={handleCancelNavigation}
-				aria-labelledby="navigation-warning-title"
-				aria-describedby="navigation-warning-description"
+				aria-labelledby='navigation-warning-title'
+				aria-describedby='navigation-warning-description'
 			>
-				<DialogTitle id="navigation-warning-title">
+				<DialogTitle id='navigation-warning-title'>
 					{t('navigationWarningTitle')}
 				</DialogTitle>
 				<DialogContent>
-					<DialogContentText id="navigation-warning-description">
+					<DialogContentText id='navigation-warning-description'>
 						{t('navigationWarningMessage')}
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleCancelNavigation} color="primary">
+					<Button onClick={handleCancelNavigation} color='primary'>
 						{t('cancel')}
 					</Button>
-					<Button onClick={handleDiscardChanges} color="primary" variant="contained">
+					<Button
+						onClick={handleDiscardChanges}
+						color='primary'
+						variant='contained'
+					>
 						{t('discardChanges')}
 					</Button>
 				</DialogActions>

@@ -68,12 +68,41 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}, [viewMode])
 
+	const [itSkillOptions, setItSkillOptions] = useState([
+		'JS',
+		'Python',
+		'Java',
+		'SQL',
+	])
+
+	useEffect(() => {
+		let cancelled = false
+		const fetchItSkills = async () => {
+			try {
+				const res = await axios.get('/api/itskills')
+				if (!cancelled) {
+					const names = Array.isArray(res.data)
+						? res.data.map(s => s.name).filter(Boolean)
+						: []
+					if (names.length > 0) setItSkillOptions(names)
+				}
+			} catch {
+				// fallback to defaults
+			}
+		}
+		fetchItSkills()
+		return () => {
+			cancelled = true
+		}
+	}, [])
+
 	const filterFields = [
 		{
 			key: 'it_skills',
 			label: t('programming_languages'),
 			type: 'checkbox',
-			options: ['JS', 'Python', 'Java', 'SQL'],
+			options: itSkillOptions,
+			matchModeKey: 'it_skills_match',
 		},
 		{
 			key: 'jlpt',

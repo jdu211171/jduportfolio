@@ -1,17 +1,17 @@
 // utils/emailToStaff.js (yoki shunga o'xshash fayl nomi)
-const { sendEmail } = require('./emailService');
+const { sendEmail } = require('./emailService')
 
 const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
-    const to = email;
-    
-    // Yangi Subject
-    const subject = 'Welcome to JDU';
+	const to = email
 
-    // Yangi oddiy matn (text)
-    const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nBest regards,\nJDU Team`;
+	// Yangi Subject
+	const subject = 'Welcome to JDU'
 
-    // Yangi, stillangan HTML andoza
-    const html = `
+	// Yangi oddiy matn (text)
+	const text = `Hi ${firstName},\n\nWelcome to JDU. Your account has been created.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure and do not share it with anyone.\n\nBest regards,\nJDU Team`
+
+	// Yangi, stillangan HTML andoza
+	const html = `
      <!DOCTYPE html>
      <html lang="ja">
      <head>
@@ -87,14 +87,14 @@ const formatStaffWelcomeEmail = (email, password, firstName, lastName) => {
          </div>
      </body>
      </html>
-    `;
+    `
 
-    return { to, subject, text, html };
-};
+	return { to, subject, text, html }
+}
 
 const sendStaffWelcomeEmail = async (email, password, firstName, lastName) => {
-    const mailData = formatStaffWelcomeEmail(email, password, firstName, lastName);
-    await sendEmail(mailData);
-};
+	const mailData = formatStaffWelcomeEmail(email, password, firstName, lastName)
+	await sendEmail(mailData)
+}
 
-module.exports = { formatStaffWelcomeEmail, sendStaffWelcomeEmail };
+module.exports = { formatStaffWelcomeEmail, sendStaffWelcomeEmail }

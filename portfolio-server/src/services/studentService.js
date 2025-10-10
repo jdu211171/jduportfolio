@@ -280,6 +280,25 @@ class StudentService {
 				'student_id',
 			]
 
+			// Helper to build JSONB @> conditions for it_skills across levels
+			const buildItSkillsCondition = (names = [], match = 'any') => {
+				const lvls = ['上級', '中級', '初級']
+				const safeNames = Array.isArray(names) ? names.filter(Boolean) : []
+				if (safeNames.length === 0) return null
+
+				const perSkill = safeNames.map(n => {
+					// JSON array string for [{"name":"<n>"}]
+					const json = JSON.stringify([{ name: String(n) }])
+					const esc = sequelize.escape(json) // safe string with quotes
+					const levelExpr = lvls
+						.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`)
+						.join(' OR ')
+					return `(${levelExpr})`
+				})
+				const joiner = match === 'all' ? ' AND ' : ' OR '
+				return `(${perSkill.join(joiner)})`
+			}
+
 			Object.keys(filter).forEach(key => {
 				if (filter[key]) {
 					if (key === 'search') {
@@ -308,14 +327,32 @@ class StudentService {
 							}
 							return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 						})
-					} else if (['skills', 'it_skills'].includes(key)) {
+					} else if (key === 'it_skills') {
+						const values = Array.isArray(filter[key])
+							? filter[key]
+							: [filter[key]]
+						const match = filter.it_skills_match === 'all' ? 'all' : 'any'
+						const expr = buildItSkillsCondition(values, match)
+						if (expr) {
+							queryOther[Op.and].push(sequelize.literal(expr))
+						}
+					} else if (key === 'skills') {
 						queryOther[Op.and].push({
 							[Op.or]: [
-								{ [key]: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-								{ [key]: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-								{ [key]: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+								{
+									skills: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
+								{
+									skills: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
+								{
+									skills: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
 							],
 						})
+					} else if (key === 'it_skills_match') {
+						// handled together with it_skills
+						return
 					} else if (key === 'partner_university_credits') {
 						const credits = Number(filter[key])
 						if (!isNaN(credits)) {
@@ -1018,7 +1055,7 @@ class StudentService {
 							},
 						],
 						active: true,
-				  }
+					}
 				: { active: true }
 
 			const students = await Student.findAll({

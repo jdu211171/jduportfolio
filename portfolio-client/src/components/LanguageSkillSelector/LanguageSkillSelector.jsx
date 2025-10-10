@@ -21,8 +21,8 @@ const LanguageSkillSelector = ({
 }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [skillLevel, setSkillLevel] = useState('')
-    const [availableSkills, setAvailableSkills] = useState([])
-    const [inputValue, setInputValue] = useState('')
+	const [availableSkills, setAvailableSkills] = useState([])
+	const [inputValue, setInputValue] = useState('')
 	const [loadingSkills, setLoadingSkills] = useState(false)
 
 	const { language } = useLanguage()
@@ -33,21 +33,21 @@ const LanguageSkillSelector = ({
 		fetchSkillsFromAPI()
 	}, [])
 
-    const fetchSkillsFromAPI = async (search = '') => {
-        try {
-            setLoadingSkills(true)
-            const url = search
-                ? `/api/skills?search=${encodeURIComponent(search)}`
-                : '/api/skills'
-            const response = await axios.get(url)
-            setAvailableSkills(response.data || [])
-        } catch (error) {
-            console.error('Error fetching skills:', error)
-            setAvailableSkills([])
-        } finally {
-            setLoadingSkills(false)
-        }
-    }
+	const fetchSkillsFromAPI = async (search = '') => {
+		try {
+			setLoadingSkills(true)
+			const url = search
+				? `/api/skills?search=${encodeURIComponent(search)}`
+				: '/api/skills'
+			const response = await axios.get(url)
+			setAvailableSkills(response.data || [])
+		} catch (error) {
+			console.error('Error fetching skills:', error)
+			setAvailableSkills([])
+		} finally {
+			setLoadingSkills(false)
+		}
+	}
 
 	// Get the current skills data
 	const getCurrentSkillsData = () => {
@@ -103,17 +103,17 @@ const LanguageSkillSelector = ({
 		const updatedSkills = [...currentSkillsData, newSkill]
 
 		// Update the data - convert to JSON string for database storage
-        try {
-            updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
+		try {
+			updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
 
-            // Reset form
-            setSelectedSkill(null)
-            setSkillLevel('')
-            setInputValue('')
-        } catch (error) {
-            console.error('Error updating language skills:', error)
-        }
-    }
+			// Reset form
+			setSelectedSkill(null)
+			setSkillLevel('')
+			setInputValue('')
+		} catch (error) {
+			console.error('Error updating language skills:', error)
+		}
+	}
 
 	const handleDeleteSkill = skillToDelete => {
 		const currentSkillsData = getCurrentSkillsData()
@@ -176,31 +176,31 @@ const LanguageSkillSelector = ({
 					gap={2}
 					className={styles.addSkillForm}
 				>
-                    <Autocomplete
-                        options={availableSkills}
-                        getOptionLabel={option => option.name || ''}
-                        value={selectedSkill}
-                        onChange={(event, newValue) => {
-                            setSelectedSkill(newValue)
-                        }}
-                        inputValue={inputValue}
-                        onInputChange={(event, newInputValue) => {
-                            setInputValue(newInputValue || '')
-                            // Search skills when user types
-                            if (newInputValue && newInputValue.length > 0) {
-                                fetchSkillsFromAPI(newInputValue)
-                            } else {
-                                // When cleared, reload full list
-                                fetchSkillsFromAPI('')
-                            }
-                        }}
-                        onOpen={() => {
-                            if (!inputValue) {
-                                fetchSkillsFromAPI('')
-                            }
-                        }}
-                        loading={loadingSkills}
-                        sx={{ width: 200 }}
+					<Autocomplete
+						options={availableSkills}
+						getOptionLabel={option => option.name || ''}
+						value={selectedSkill}
+						onChange={(event, newValue) => {
+							setSelectedSkill(newValue)
+						}}
+						inputValue={inputValue}
+						onInputChange={(event, newInputValue) => {
+							setInputValue(newInputValue || '')
+							// Search skills when user types
+							if (newInputValue && newInputValue.length > 0) {
+								fetchSkillsFromAPI(newInputValue)
+							} else {
+								// When cleared, reload full list
+								fetchSkillsFromAPI('')
+							}
+						}}
+						onOpen={() => {
+							if (!inputValue) {
+								fetchSkillsFromAPI('')
+							}
+						}}
+						loading={loadingSkills}
+						sx={{ width: 200 }}
 						renderInput={params => (
 							<TextField
 								{...params}
@@ -272,9 +272,7 @@ const LanguageSkillSelector = ({
 							color: '#999',
 						}}
 					>
-						{editMode
-							? t('noLanguageSkillsEdit')
-							: t('noLanguageSkills')}
+						{editMode ? t('noLanguageSkillsEdit') : t('noLanguageSkills')}
 					</div>
 				)}
 			</div>

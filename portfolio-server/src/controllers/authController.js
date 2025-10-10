@@ -24,20 +24,20 @@ class AuthController {
 		}
 	}
 
-    static async googleCallback(req, res) {
-			const { userType, userData, token } = req.user || {};
-			const frontendUrl = process.env.FRONTEND_URL;
-			if (userType && userData && token) {
-				AuthService.setAuthCookies(res, token, userType);
-				// Redirect to frontend home page
-				// return res.redirect('https://portfolio.jdu.uz/google/callback')
-				return res.redirect(`${frontendUrl}/google/callback`);
-			} else {
-				// Redirect to login page with error
-				// return res.redirect('https://portfolio.jdu.uz/login?error=notfound')
-				return res.redirect(`${frontendUrl}/login?error=notfound`);
-			}
-    }
+	static async googleCallback(req, res) {
+		const { userType, userData, token } = req.user || {}
+		const frontendUrl = process.env.FRONTEND_URL
+		if (userType && userData && token) {
+			AuthService.setAuthCookies(res, token, userType)
+			// Redirect to frontend home page
+			// return res.redirect('https://portfolio.jdu.uz/google/callback')
+			return res.redirect(`${frontendUrl}/google/callback`)
+		} else {
+			// Redirect to login page with error
+			// return res.redirect('https://portfolio.jdu.uz/login?error=notfound')
+			return res.redirect(`${frontendUrl}/login?error=notfound`)
+		}
+	}
 }
 
 module.exports = AuthController

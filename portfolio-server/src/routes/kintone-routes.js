@@ -87,4 +87,3 @@ router.put('/:id', KintoneController.update)
 router.delete('/:id', KintoneController.delete)
 
 module.exports = router
-

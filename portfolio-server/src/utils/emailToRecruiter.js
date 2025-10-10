@@ -1,17 +1,17 @@
 // utils/emailToRecruiter.js
-const { sendEmail } = require('./emailService');
+const { sendEmail } = require('./emailService')
 
 const formatRecruiterWelcomeEmail = (email, password, firstName, lastName) => {
-    const to = email;
-    
-    // Yangi, professional Subject (Yapon tilida)
-    const subject = 'JDUポートフォリオのアカウント開設のお知らせ'; // JDU Portfolio akkaunti ochilganligi haqida bildirishnoma
+	const to = email
 
-    // Yangi oddiy matn (text)
-    const text = `Hi ${firstName},\n\nAn account for your company has been created on the JDU Portfolio system.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure.\n\nBest regards,\nJDU Team`;
+	// Yangi, professional Subject (Yapon tilida)
+	const subject = 'JDUポートフォリオのアカウント開設のお知らせ' // JDU Portfolio akkaunti ochilganligi haqida bildirishnoma
 
-    // Yangi, stillangan HTML andoza (Rekruter uchun moslashtirilgan)
-    const html = `
+	// Yangi oddiy matn (text)
+	const text = `Hi ${firstName},\n\nAn account for your company has been created on the JDU Portfolio system.\n\nYour login details are as follows:\n\nEmail: ${email}\nPassword: ${password}\n\nPlease keep this information secure.\n\nBest regards,\nJDU Team`
+
+	// Yangi, stillangan HTML andoza (Rekruter uchun moslashtirilgan)
+	const html = `
      <!DOCTYPE html>
      <html lang="ja">
      <head>
@@ -87,14 +87,24 @@ const formatRecruiterWelcomeEmail = (email, password, firstName, lastName) => {
          </div>
      </body>
      </html>
-    `;
+    `
 
-    return { to, subject, text, html };
-};
+	return { to, subject, text, html }
+}
 
-const sendRecruiterWelcomeEmail = async (email, password, firstName, lastName) => {
-    const mailData = formatRecruiterWelcomeEmail(email, password, firstName, lastName);
-    await sendEmail(mailData);
-};
+const sendRecruiterWelcomeEmail = async (
+	email,
+	password,
+	firstName,
+	lastName
+) => {
+	const mailData = formatRecruiterWelcomeEmail(
+		email,
+		password,
+		firstName,
+		lastName
+	)
+	await sendEmail(mailData)
+}
 
-module.exports = { formatRecruiterWelcomeEmail, sendRecruiterWelcomeEmail };
+module.exports = { formatRecruiterWelcomeEmail, sendRecruiterWelcomeEmail }

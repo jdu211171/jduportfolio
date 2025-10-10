@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
 	Box,
@@ -38,6 +38,34 @@ const Student = ({ OnlyBookmarked = false }) => {
 	})
 	const userId = JSON.parse(sessionStorage.getItem('loginUser')).id
 
+	const [itSkillOptions, setItSkillOptions] = useState([
+		'JS',
+		'Python',
+		'Java',
+		'SQL',
+	])
+
+	useEffect(() => {
+		let cancelled = false
+		const fetchItSkills = async () => {
+			try {
+				const res = await axios.get('/api/itskills')
+				if (!cancelled) {
+					const names = Array.isArray(res.data)
+						? res.data.map(s => s.name).filter(Boolean)
+						: []
+					if (names.length > 0) setItSkillOptions(names)
+				}
+			} catch {
+				// fallback silently
+			}
+		}
+		fetchItSkills()
+		return () => {
+			cancelled = true
+		}
+	}, [])
+
 	const filterProps = [
 		//{
 		//  key: "semester",
@@ -50,7 +78,8 @@ const Student = ({ OnlyBookmarked = false }) => {
 			key: 'it_skills',
 			label: t('programming_languages'),
 			type: 'checkbox',
-			options: ['JS', 'Python', 'Java', 'SQL'],
+			options: itSkillOptions,
+			matchModeKey: 'it_skills_match',
 			minWidth: '160px',
 		},
 		{
@@ -377,6 +406,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 					filterState={filterState}
 					onFilterChange={handleFilterChange}
 					disableStudentIdSearch={true}
+					persistKey='drafts-filter-v1'
 				/>
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />

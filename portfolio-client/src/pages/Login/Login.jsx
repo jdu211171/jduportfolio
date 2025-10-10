@@ -47,7 +47,7 @@ const Login = () => {
 			sessionStorage.setItem('role', userType)
 			sessionStorage.setItem('loginUser', JSON.stringify(userData))
 			updateUser()
-			
+
 			// Check if user has selected a language before
 			const hasSelectedLanguage = localStorage.getItem('hasSelectedLanguage')
 			if (!hasSelectedLanguage) {

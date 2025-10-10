@@ -82,8 +82,7 @@ const Stats = () => {
 				}
 
 				await fetchCertificates()
-			} catch (error) {
-				}
+			} catch (error) {}
 		}
 
 		if (id) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { FixedSizeList as List } from 'react-window'
 import SearchIcon from '../../assets/icons/search-line.svg'
 import FilterIcon from '../../assets/icons/filter-2-line.svg'
 import AppIcons from '../../assets/icons/apps-2-line.svg'
@@ -32,9 +33,13 @@ const Filter = ({
 				// Validate saved state against current fields
 				const validatedState = { ...filterState }
 
+				// Collect allowed keys: field keys + any matchModeKey defined on fields
+				const allowedKeys = new Set(
+					fields.flatMap(f => [f.key, f.matchModeKey].filter(Boolean))
+				)
+
 				Object.keys(parsedState).forEach(key => {
-					const field = fields.find(f => f.key === key) || { key: 'search' }
-					if (field && parsedState[key] !== undefined) {
+					if (allowedKeys.has(key) && parsedState[key] !== undefined) {
 						validatedState[key] = parsedState[key]
 					}
 				})
@@ -59,6 +64,9 @@ const Filter = ({
 	// Filter modal state
 	const [showFilterModal, setShowFilterModal] = useState(false)
 	const [tempFilterState, setTempFilterState] = useState(getInitialState)
+
+	// Local search strings for big checkbox lists
+	const [checkboxSearchMap, setCheckboxSearchMap] = useState({})
 
 	// Track if this is the initial mount
 	const isInitialMount = useRef(true)
@@ -243,17 +251,25 @@ const Filter = ({
 				// For student ID suggestions, set the search field with the student ID
 				handleChange('search', suggestion.value)
 				setInputValue(suggestion.value)
+			} else if (suggestion.type === 'checkbox') {
+				// Toggle selection for checkbox-type suggestions
+				const current = Array.isArray(localFilterState[suggestion.field])
+					? localFilterState[suggestion.field]
+					: []
+				const exists = current.includes(suggestion.label)
+				const next = exists
+					? current.filter(v => v !== suggestion.label)
+					: [...current, suggestion.label]
+				handleChange(suggestion.field, next)
+				setInputValue('')
 			} else {
 				// For regular filter suggestions
-				handleChange(
-					suggestion.field,
-					suggestion.type === 'checkbox' ? [suggestion.label] : suggestion.label
-				)
+				handleChange(suggestion.field, suggestion.label)
 				setInputValue(suggestion.label)
 			}
 			setShowSuggestions(false)
 		},
-		[handleChange]
+		[handleChange, localFilterState]
 	)
 
 	const handleInputKeyDown = useCallback(
@@ -365,6 +381,13 @@ const Filter = ({
 			{ search: '' }
 		)
 
+		// Reset match mode keys (if any) to 'any'
+		fields.forEach(f => {
+			if (f.matchModeKey) {
+				clearedState[f.matchModeKey] = 'any'
+			}
+		})
+
 		userChangedFilter.current = true
 		setTempFilterState(clearedState)
 		setLocalFilterState(clearedState)
@@ -384,30 +407,190 @@ const Filter = ({
 				tempFilterState[field.key] || (field.type === 'checkbox' ? [] : '')
 
 			switch (field.type) {
-				case 'checkbox':
+				case 'checkbox': {
+					const searchTerm = checkboxSearchMap[field.key] || ''
+					const optionsArray = Array.isArray(field.options) ? field.options : []
+					// Selected-first order, then alpha
+					const ordered = [...optionsArray].sort((a, b) => {
+						const sa = value.includes(a) ? -1 : 1
+						const sb = value.includes(b) ? -1 : 1
+						if (sa !== sb) return sa - sb
+						return String(a).localeCompare(String(b))
+					})
+					const filtered = searchTerm
+						? ordered.filter(o =>
+								String(o).toLowerCase().includes(searchTerm.toLowerCase())
+							)
+						: ordered
+
+					const onSearchChange = e =>
+						setCheckboxSearchMap(prev => ({
+							...prev,
+							[field.key]: e.target.value,
+						}))
+
+					const selectAllFiltered = () => {
+						const merged = Array.from(new Set([...(value || []), ...filtered]))
+						handleTempFilterChange(field.key, merged)
+					}
+
+					const clearFiltered = () => {
+						const remaining = (value || []).filter(v => !filtered.includes(v))
+						handleTempFilterChange(field.key, remaining)
+					}
+
 					return (
 						<div key={field.key} className={style.filterGroup}>
 							<h4 className={style.filterGroupTitle}>{field.label}</h4>
-							<div className={style.checkboxGroup}>
-								{field.options.map(option => (
-									<label key={option} className={style.checkboxLabel}>
+							{/* Optional match mode toggle for multi-select fields */}
+							{field.matchModeKey && (
+								<div className={style.radioGroup} style={{ marginBottom: 8 }}>
+									<label className={style.radioLabel}>
 										<input
-											type='checkbox'
-											checked={value.includes(option)}
-											onChange={e => {
-												const newValue = e.target.checked
-													? [...value, option]
-													: value.filter(v => v !== option)
-												handleTempFilterChange(field.key, newValue)
-											}}
-											className={style.checkbox}
+											type='radio'
+											name={`${field.matchModeKey}`}
+											value='any'
+											checked={
+												(tempFilterState[field.matchModeKey] || 'any') === 'any'
+											}
+											onChange={() =>
+												handleTempFilterChange(field.matchModeKey, 'any')
+											}
+											className={style.radio}
 										/>
-										<span>{option}</span>
+										<span>{t('any') || 'Any'}</span>
 									</label>
-								))}
-							</div>
+									<label className={style.radioLabel}>
+										<input
+											type='radio'
+											name={`${field.matchModeKey}`}
+											value='all'
+											checked={
+												(tempFilterState[field.matchModeKey] || 'any') === 'all'
+											}
+											onChange={() =>
+												handleTempFilterChange(field.matchModeKey, 'all')
+											}
+											className={style.radio}
+										/>
+										<span>{t('all') || 'All'}</span>
+									</label>
+								</div>
+							)}
+							{/* Search for long lists */}
+							{optionsArray.length > 10 && (
+								<input
+									type='text'
+									className={style.checkboxSearch}
+									placeholder={t('search_items') || 'Search...'}
+									value={searchTerm}
+									onChange={onSearchChange}
+								/>
+							)}
+
+							{optionsArray.length > 10 && (
+								<div className={style.checkboxActions}>
+									<button type='button' onClick={selectAllFiltered}>
+										{t('select_all_filtered') || 'Select All (filtered)'}
+									</button>
+									<button type='button' onClick={clearFiltered}>
+										{t('clear_filtered') || 'Clear (filtered)'}
+									</button>
+								</div>
+							)}
+
+							{/* Selected chips */}
+							{Array.isArray(value) && value.length > 0 && (
+								<div className={style.selectedChipsRow}>
+									<span className={style.selectedChipsTitle}>
+										{t('selected') || 'Selected'} ({value.length})
+									</span>
+									<div className={style.selectedChips}>
+										{value.map(sel => (
+											<span
+												key={sel}
+												className={style.chip}
+												onClick={() =>
+													handleTempFilterChange(
+														field.key,
+														value.filter(v => v !== sel)
+													)
+												}
+												title={sel}
+											>
+												{sel}
+												<span className={style.chipClose}>×</span>
+											</span>
+										))}
+									</div>
+								</div>
+							)}
+
+							{/* Virtualized list for very large sets */}
+							{filtered.length > 120 ? (
+								<div style={{ height: 320 }}>
+									<List
+										height={320}
+										itemCount={filtered.length}
+										itemSize={32}
+										width={'100%'}
+									>
+										{({ index, style: rowStyle }) => {
+											const option = filtered[index]
+											return (
+												<div
+													style={{
+														...rowStyle,
+														display: 'flex',
+														alignItems: 'center',
+													}}
+													key={option}
+												>
+													<label
+														className={style.checkboxLabel}
+														style={{ width: '100%', margin: 0 }}
+													>
+														<input
+															type='checkbox'
+															checked={value.includes(option)}
+															onChange={e => {
+																const newValue = e.target.checked
+																	? [...value, option]
+																	: value.filter(v => v !== option)
+																handleTempFilterChange(field.key, newValue)
+															}}
+															className={style.checkbox}
+														/>
+														<span>{option}</span>
+													</label>
+												</div>
+											)
+										}}
+									</List>
+								</div>
+							) : (
+								<div className={style.checkboxGroupGrid}>
+									{filtered.map(option => (
+										<label key={option} className={style.checkboxLabel}>
+											<input
+												type='checkbox'
+												checked={value.includes(option)}
+												onChange={e => {
+													const newValue = e.target.checked
+														? [...value, option]
+														: value.filter(v => v !== option)
+													handleTempFilterChange(field.key, newValue)
+												}}
+												className={style.checkbox}
+											/>
+											<span>{option}</span>
+										</label>
+									))}
+								</div>
+							)}
 						</div>
 					)
+				}
 
 				case 'radio':
 					return (
@@ -458,7 +641,7 @@ const Filter = ({
 					return null
 			}
 		},
-		[tempFilterState, handleTempFilterChange, t, fields]
+		[tempFilterState, handleTempFilterChange, t, fields, checkboxSearchMap]
 	)
 
 	return (

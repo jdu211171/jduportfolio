@@ -182,4 +182,3 @@ router.get('/student/:studentId', QAController.findQAByStudentId)
 router.get('/count', QAController.countQA)
 
 module.exports = router
-
