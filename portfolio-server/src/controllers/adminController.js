@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt')
 const AdminService = require('../services/adminService')
 const SettingsService = require('../services/settingService')
-const { Student } = require('../models');
+const { Student } = require('../models')
 
 class AdminController {
 	static async create(req, res) {
@@ -46,47 +46,46 @@ class AdminController {
 		}
 	}
 
-  static async getStudentPassword(req, res) {
-    try {
-      const { studentId } = req.params;
-      if (!(req.user.role === 'Admin' || req.user.userType === 'Admin')) {
-        return res.status(403).json({ error: 'Access denied' });
-      }
-      const student = await Student.findByPk(studentId);
-      if (!student) {
-        return res.status(404).json({ error: 'Студент не найден' });
-      }
-      res.status(200).json({ password: student.password });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }	
-    // reset password new metod
+	static async getStudentPassword(req, res) {
+		try {
+			const { studentId } = req.params
+			if (!(req.user.role === 'Admin' || req.user.userType === 'Admin')) {
+				return res.status(403).json({ error: 'Access denied' })
+			}
+			const student = await Student.findByPk(studentId)
+			if (!student) {
+				return res.status(404).json({ error: 'Студент не найден' })
+			}
+			res.status(200).json({ password: student.password })
+		} catch (error) {
+			res.status(500).json({ error: error.message })
+		}
+	}
+	// reset password new metod
 
 	static async resetStudentPassword(req, res) {
 		try {
-		  const { studentId } = req.params;
-		  const { newPassword } = req.body;
-	  
-		  if (!newPassword) {
-			return res.status(400).json({ error: 'Требуется новый пароль' });
-		  }
-	  
-		  const student = await Student.findByPk(studentId);
-		  if (!student) {
-			return res.status(404).json({ error: 'Студент не найден' });
-		  }
-	  
-		  // Пароль будет хешироваться автоматически хуком в модели Student
-		  student.password = newPassword;
-		  await student.save();
-	  
-		  res.status(200).json({ message: 'Пароль успешно изменён' });
+			const { studentId } = req.params
+			const { newPassword } = req.body
+
+			if (!newPassword) {
+				return res.status(400).json({ error: 'Требуется новый пароль' })
+			}
+
+			const student = await Student.findByPk(studentId)
+			if (!student) {
+				return res.status(404).json({ error: 'Студент не найден' })
+			}
+
+			// Пароль будет хешироваться автоматически хуком в модели Student
+			student.password = newPassword
+			await student.save()
+
+			res.status(200).json({ message: 'Пароль успешно изменён' })
 		} catch (error) {
-		  res.status(500).json({ error: error.message });
+			res.status(500).json({ error: error.message })
 		}
-	  }
-	
+	}
 
 	static async update(req, res) {
 		try {

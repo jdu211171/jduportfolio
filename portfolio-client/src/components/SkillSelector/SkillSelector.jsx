@@ -20,19 +20,19 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
 const SkillSelector = ({
-    title,
-    data,
-    editData,
-    editMode,
-    headers,
-    updateEditData,
-    keyName,
-    parentKey = 'draft',
-    showAutocomplete,
-    showHeaders,
-    icon,
-    isChanged = false,
-    showEmptyAsNotSubmitted = false,
+	title,
+	data,
+	editData,
+	editMode,
+	headers,
+	updateEditData,
+	keyName,
+	parentKey = 'draft',
+	showAutocomplete,
+	showHeaders,
+	icon,
+	isChanged = false,
+	showEmptyAsNotSubmitted = false,
 }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
@@ -142,14 +142,15 @@ const SkillSelector = ({
 		} catch (error) {}
 	}
 
-    const skillsToDisplay = getCurrentSkillsData()
-    // Decide which keys to render: when showing empty rows as "未提出",
-    // prefer headers ordering; otherwise render only non-empty entries
-    const keysToRender = showEmptyAsNotSubmitted && headers
-        ? Object.keys(headers)
-        : Object.entries(skillsToDisplay)
-              .filter(([, arr]) => Array.isArray(arr) && arr.length > 0)
-              .map(([k]) => k)
+	const skillsToDisplay = getCurrentSkillsData()
+	// Decide which keys to render: when showing empty rows as "未提出",
+	// prefer headers ordering; otherwise render only non-empty entries
+	const keysToRender =
+		showEmptyAsNotSubmitted && headers
+			? Object.keys(headers)
+			: Object.entries(skillsToDisplay)
+					.filter(([, arr]) => Array.isArray(arr) && arr.length > 0)
+					.map(([k]) => k)
 
 	return (
 		<div
@@ -295,115 +296,118 @@ const SkillSelector = ({
 				</Box>
 			)}
 
-            <div className={styles.data}>
-                <table>
-                    <tbody>
-                        {keysToRender.map(level => {
-                            const levelSkills = skillsToDisplay[level] || []
-                            const hasSkills = Array.isArray(levelSkills) && levelSkills.length > 0
-                            return (
-                                <tr key={level}>
-                                    <td
-                                        style={{
-                                            fontSize: 14,
-                                            width: '120px',
-                                            verticalAlign: 'top',
-                                            paddingRight: '12px',
-                                        }}
-                                    >
-                                        {t('levels')[level] || level}
-                                    </td>
-                                    <td style={{ width: 'auto' }}>
-                                        {hasSkills ? (
-                                            <div className={styles.skillChipContainer}>
-                                                {levelSkills.map((skill, index) => (
-                                                    <Chip
-                                                        key={`${level}-${index}-${skill.name}`}
-                                                        label={
-                                                            skill.name + (skill.date ? `\n${skill.date}` : '')
-                                                        }
-                                                        variant='filled'
-                                                        style={{
-                                                            color: skill.date
-                                                                ? skill.color
-                                                                : level === '上級'
-                                                                    ? '#ffffff'
-                                                                    : level === '中級'
-                                                                        ? '#FFFFFF'
-                                                                        : '#5627db',
-                                                            backgroundColor: skill.date
-                                                                ? skill.color + '16'
-                                                                : level === '上級'
-                                                                    ? '#5627DB'
-                                                                    : level === '中級'
-                                                                        ? '#7852e2'
-                                                                        : '#efeafc',
-                                                            fontWeight: 500,
-                                                            fontSize: 13,
-                                                            borderRadius: '16px',
-                                                        }}
-                                                        sx={{
-                                                            height: 'auto',
-                                                            '& .MuiChip-label': {
-                                                                display: 'block',
-                                                                whiteSpace: 'pre-wrap',
-                                                                padding: '6px 12px',
-                                                            },
-                                                        }}
-                                                        onDelete={
-                                                            editMode
-                                                                ? () => handleDeleteSkill(skill, level)
-                                                                : undefined
-                                                        }
-                                                    />
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            // Show 未提出 when explicitly requested
-                                            showEmptyAsNotSubmitted && (
-                                                <div style={{ color: '#666', fontSize: 14 }}>未提出</div>
-                                            )
-                                        )}
-                                    </td>
-                                </tr>
-                            )
-                        })}
-                        {keysToRender.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan='2'
-                                    style={{
-                                        textAlign: 'center',
-                                        padding: '20px',
-                                        color: '#999',
-                                    }}
-                                >
-                                    {editMode
-                                        ? 'No skills added yet. Use the form above to add skills.'
-                                        : t('noSkills')}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+			<div className={styles.data}>
+				<table>
+					<tbody>
+						{keysToRender.map(level => {
+							const levelSkills = skillsToDisplay[level] || []
+							const hasSkills =
+								Array.isArray(levelSkills) && levelSkills.length > 0
+							return (
+								<tr key={level}>
+									<td
+										style={{
+											fontSize: 14,
+											width: '120px',
+											verticalAlign: 'top',
+											paddingRight: '12px',
+										}}
+									>
+										{t('levels')[level] || level}
+									</td>
+									<td style={{ width: 'auto' }}>
+										{hasSkills ? (
+											<div className={styles.skillChipContainer}>
+												{levelSkills.map((skill, index) => (
+													<Chip
+														key={`${level}-${index}-${skill.name}`}
+														label={
+															skill.name + (skill.date ? `\n${skill.date}` : '')
+														}
+														variant='filled'
+														style={{
+															color: skill.date
+																? skill.color
+																: level === '上級'
+																	? '#ffffff'
+																	: level === '中級'
+																		? '#FFFFFF'
+																		: '#5627db',
+															backgroundColor: skill.date
+																? skill.color + '16'
+																: level === '上級'
+																	? '#5627DB'
+																	: level === '中級'
+																		? '#7852e2'
+																		: '#efeafc',
+															fontWeight: 500,
+															fontSize: 13,
+															borderRadius: '16px',
+														}}
+														sx={{
+															height: 'auto',
+															'& .MuiChip-label': {
+																display: 'block',
+																whiteSpace: 'pre-wrap',
+																padding: '6px 12px',
+															},
+														}}
+														onDelete={
+															editMode
+																? () => handleDeleteSkill(skill, level)
+																: undefined
+														}
+													/>
+												))}
+											</div>
+										) : (
+											// Show 未提出 when explicitly requested
+											showEmptyAsNotSubmitted && (
+												<div style={{ color: '#666', fontSize: 14 }}>
+													未提出
+												</div>
+											)
+										)}
+									</td>
+								</tr>
+							)
+						})}
+						{keysToRender.length === 0 && (
+							<tr>
+								<td
+									colSpan='2'
+									style={{
+										textAlign: 'center',
+										padding: '20px',
+										color: '#999',
+									}}
+								>
+									{editMode
+										? 'No skills added yet. Use the form above to add skills.'
+										: t('noSkills')}
+								</td>
+							</tr>
+						)}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	)
 }
 
 SkillSelector.propTypes = {
-    title: PropTypes.string.isRequired,
-    data: PropTypes.object,
-    editData: PropTypes.object,
-    editMode: PropTypes.bool,
-    headers: PropTypes.object,
-    updateEditData: PropTypes.func,
-    keyName: PropTypes.string.isRequired,
-    parentKey: PropTypes.string,
-    showAutocomplete: PropTypes.bool,
-    showHeaders: PropTypes.bool,
-    icon: PropTypes.node,
-    showEmptyAsNotSubmitted: PropTypes.bool,
+	title: PropTypes.string.isRequired,
+	data: PropTypes.object,
+	editData: PropTypes.object,
+	editMode: PropTypes.bool,
+	headers: PropTypes.object,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string.isRequired,
+	parentKey: PropTypes.string,
+	showAutocomplete: PropTypes.bool,
+	showHeaders: PropTypes.bool,
+	icon: PropTypes.node,
+	showEmptyAsNotSubmitted: PropTypes.bool,
 }
 
 export default SkillSelector

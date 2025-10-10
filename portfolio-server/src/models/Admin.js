@@ -11,18 +11,18 @@ module.exports = (sequelize, DataTypes) => {
 		 */
 		static associate(models) {
 			Admin.hasMany(models.News, {
-			foreignKey: 'authorId',
-			constraints: false,
-			scope: { authorType: 'Admin' },
-			as: 'authorAdmin'
-    		});
+				foreignKey: 'authorId',
+				constraints: false,
+				scope: { authorType: 'Admin' },
+				as: 'authorAdmin',
+			})
 			// Admin bir nechta yangilikni moderatsiya qila oladi
 			Admin.hasMany(models.News, {
 				foreignKey: 'moderatorId',
 				constraints: false,
 				scope: { moderatorType: 'Admin' },
-				as: 'moderatorAdmin'
-			});
+				as: 'moderatorAdmin',
+			})
 		}
 	}
 	Admin.init(

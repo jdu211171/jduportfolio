@@ -55,10 +55,10 @@ class SettingsController {
 	static async getHomepageSetting(req, res) {
 		try {
 			const homepageValue = await SettingsService.getSetting('homepage')
-            if (homepageValue === null) {
-                return res.status(404).json({ error: 'Homepage setting not found' })
-            }
-            res.json({ key: 'homepage', value: homepageValue })
+			if (homepageValue === null) {
+				return res.status(404).json({ error: 'Homepage setting not found' })
+			}
+			res.json({ key: 'homepage', value: homepageValue })
 		} catch (error) {
 			res.status(500).json({ error: 'Internal server error' })
 		}

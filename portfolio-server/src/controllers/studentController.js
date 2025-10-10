@@ -56,7 +56,8 @@ class StudentController {
 						semester: record.semester?.value,
 						student_status: record.studentStatus?.value,
 						// If Kintone field is a Date with field code 'graduation_year', prefer it
-						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
+						graduation_year:
+							record.graduation_year?.value || record.graduationYear?.value,
 						graduation_season: record.graduationSeason?.value,
 						kintone_id: record['$id']?.value,
 						active: record.semester?.value > 0, // Semestri bo'lsa, aktiv deb hisoblaymiz
@@ -104,16 +105,18 @@ class StudentController {
 							record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						student_status: record.studentStatus?.value,
-						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
+						graduation_year:
+							record.graduation_year?.value || record.graduationYear?.value,
 						graduation_season: record.graduationSeason?.value,
 						active: record.semester?.value > 0,
 					}
 
 					// Servis orqali kintone_id bo'yicha yangilaymiz
-					const updatedStudent = await StudentService.updateStudentWithKintoneID(
-						kintoneId,
-						studentData
-					)
+					const updatedStudent =
+						await StudentService.updateStudentWithKintoneID(
+							kintoneId,
+							studentData
+						)
 
 					if (!updatedStudent) {
 						return res
@@ -129,9 +132,8 @@ class StudentController {
 
 				// YOZUV O'CHIRILGANDA
 				case 'DELETE_RECORD': {
-					const deletedCount = await StudentService.deleteStudentByKintoneId(
-						recordId
-					)
+					const deletedCount =
+						await StudentService.deleteStudentByKintoneId(recordId)
 
 					if (deletedCount === 0) {
 						return res
@@ -393,9 +395,8 @@ class StudentController {
 	static async getStudentWithCreditDetails(req, res, next) {
 		try {
 			const { studentId } = req.params
-			const student = await StudentService.getStudentWithCreditDetails(
-				studentId
-			)
+			const student =
+				await StudentService.getStudentWithCreditDetails(studentId)
 
 			res.status(200).json({
 				success: true,

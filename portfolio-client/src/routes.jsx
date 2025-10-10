@@ -102,31 +102,31 @@ const AppRoutes = () => {
 							<Route index element={<News />} />
 						</Route>
 
-                    <Route
-                        path='/companyprofile'
-                        element={
-                            <ProtectedLayout
-                                allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
-                            />
-                        }
-                    >
-                        <Route
-                            index
-                            element={
-                                <CompanyProfile userId={role === 'Recruiter' ? userId : 0} />
-                            }
-                        />
-                    </Route>
-                    <Route
-                        path='/companyprofile/:id'
-                        element={
-                            <ProtectedLayout
-                                allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
-                            />
-                        }
-                    >
-                        <Route index element={<CompanyProfile userId={0} />} />
-                    </Route>
+						<Route
+							path='/companyprofile'
+							element={
+								<ProtectedLayout
+									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
+								/>
+							}
+						>
+							<Route
+								index
+								element={
+									<CompanyProfile userId={role === 'Recruiter' ? userId : 0} />
+								}
+							/>
+						</Route>
+						<Route
+							path='/companyprofile/:id'
+							element={
+								<ProtectedLayout
+									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
+								/>
+							}
+						>
+							<Route index element={<CompanyProfile userId={0} />} />
+						</Route>
 
 						<Route
 							path='/profile'

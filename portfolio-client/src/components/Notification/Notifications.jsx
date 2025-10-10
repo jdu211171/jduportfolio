@@ -12,36 +12,37 @@ import styles from './Notifications.module.css'
 
 // Extract localized message from multi-language text with tags like 【JA】...【EN】... etc.
 function extractLocalizedMessage(message, lang) {
-    try {
-        if (typeof message !== 'string') return ''
-        const tagMap = { ja: 'JA', en: 'EN', uz: 'UZ', ru: 'RU' }
-        const tag = tagMap[lang]
-        if (!tag || message.indexOf('【') === -1) return message
-        const startToken = `【${tag}】`
-        const startIdx = message.indexOf(startToken)
-        if (startIdx === -1) return message
-        const tokens = ['【JA】', '【EN】', '【UZ】', '【RU】']
-        let next = -1
-        for (const tk of tokens) {
-            if (tk === startToken) continue
-            const i = message.indexOf(tk, startIdx + startToken.length)
-            if (i !== -1) next = next === -1 ? i : Math.min(next, i)
-        }
-        const chunk = next === -1
-            ? message.slice(startIdx + startToken.length)
-            : message.slice(startIdx + startToken.length, next)
-        return chunk.trim()
-    } catch {
-        return message
-    }
+	try {
+		if (typeof message !== 'string') return ''
+		const tagMap = { ja: 'JA', en: 'EN', uz: 'UZ', ru: 'RU' }
+		const tag = tagMap[lang]
+		if (!tag || message.indexOf('【') === -1) return message
+		const startToken = `【${tag}】`
+		const startIdx = message.indexOf(startToken)
+		if (startIdx === -1) return message
+		const tokens = ['【JA】', '【EN】', '【UZ】', '【RU】']
+		let next = -1
+		for (const tk of tokens) {
+			if (tk === startToken) continue
+			const i = message.indexOf(tk, startIdx + startToken.length)
+			if (i !== -1) next = next === -1 ? i : Math.min(next, i)
+		}
+		const chunk =
+			next === -1
+				? message.slice(startIdx + startToken.length)
+				: message.slice(startIdx + startToken.length, next)
+		return chunk.trim()
+	} catch {
+		return message
+	}
 }
 
 // Drop multilingual header in the comment section, keep only the actual comment body
 function extractCommentBody(commentSection) {
-    if (!commentSection || typeof commentSection !== 'string') return ''
-    const parts = commentSection.split('\n')
-    if (parts.length <= 1) return commentSection.trim()
-    return parts.slice(1).join('\n').trim()
+	if (!commentSection || typeof commentSection !== 'string') return ''
+	const parts = commentSection.split('\n')
+	if (parts.length <= 1) return commentSection.trim()
+	return parts.slice(1).join('\n').trim()
 }
 
 export default function Notifications() {
@@ -281,7 +282,12 @@ export default function Notifications() {
 									className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}
 								>
 									<div className={styles.messageContainer}>
-										<div>{shortText(extractLocalizedMessage(item.message, language), 28)}</div>
+										<div>
+											{shortText(
+												extractLocalizedMessage(item.message, language),
+												28
+											)}
+										</div>
 										<div>{shortText(item.createdAt, 10, true)}</div>
 									</div>
 									{item.status === 'unread' && (
@@ -319,10 +325,13 @@ export default function Notifications() {
 								const messageParts = selectedMessage.message.split(
 									'|||COMMENT_SEPARATOR|||'
 								)
-									const mainMessageRaw = messageParts[0]
-									const commentSection = messageParts[1]
-									const mainMessage = extractLocalizedMessage(mainMessageRaw, language)
-									const commentBody = extractCommentBody(commentSection)
+								const mainMessageRaw = messageParts[0]
+								const commentSection = messageParts[1]
+								const mainMessage = extractLocalizedMessage(
+									mainMessageRaw,
+									language
+								)
+								const commentBody = extractCommentBody(commentSection)
 
 								return (
 									<>
@@ -340,7 +349,8 @@ export default function Notifications() {
 													fontWeight: 'bold',
 												}}
 											>
-												<strong>{t('comments') || 'Comments'}</strong>\n{commentBody}
+												<strong>{t('comments') || 'Comments'}</strong>\n
+												{commentBody}
 											</p>
 										)}
 									</>

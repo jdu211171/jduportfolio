@@ -46,7 +46,10 @@ class NotificationController {
 				filter.user_role = 'recruiter'
 			}
 
-			const notifications = await NotificationService.getByUserId(user_id, filter)
+			const notifications = await NotificationService.getByUserId(
+				user_id,
+				filter
+			)
 
 			return res.status(200).json(notifications)
 		} catch (error) {
@@ -81,11 +84,9 @@ class NotificationController {
 		try {
 			const { userType } = req.user
 			if (userType !== 'Admin') {
-				return res
-					.status(403)
-					.json({
-						error: 'Permission denied. Only admin can get all notifications.',
-					})
+				return res.status(403).json({
+					error: 'Permission denied. Only admin can get all notifications.',
+				})
 			}
 			const notifications = await NotificationService.getAll()
 			return res.status(200).json(notifications)

@@ -95,7 +95,6 @@ class DeliverableService {
 
 		const deliverableToUpdate = deliverables[deliverableIndex]
 
-
 		// Normalize intent flags for image handling
 		const parseBool = v => {
 			if (typeof v === 'boolean') return v
@@ -116,7 +115,10 @@ class DeliverableService {
 						const j = JSON.parse(s)
 						if (Array.isArray(j)) return j
 					} catch (_) {
-						return s.split(',').map(x => x.trim()).filter(Boolean)
+						return s
+							.split(',')
+							.map(x => x.trim())
+							.filter(Boolean)
 					}
 				}
 				return [s]
@@ -125,8 +127,14 @@ class DeliverableService {
 		}
 
 		// Default to append behavior unless explicitly told to replace
-		const replaceAll = parseBool(updateData.replace_all || updateData.replaceAll || updateData.mode === 'replace')
-		const removeImageUrls = toArray(updateData.remove_image_urls || updateData.removeImageUrls)
+		const replaceAll = parseBool(
+			updateData.replace_all ||
+				updateData.replaceAll ||
+				updateData.mode === 'replace'
+		)
+		const removeImageUrls = toArray(
+			updateData.remove_image_urls || updateData.removeImageUrls
+		)
 
 		let currentUrls = Array.isArray(deliverableToUpdate.image_urls)
 			? [...deliverableToUpdate.image_urls]
@@ -138,7 +146,9 @@ class DeliverableService {
 			const remaining = []
 			for (const url of currentUrls) {
 				if (toRemove.has(url)) {
-					try { await deleteFile(url) } catch (_) {}
+					try {
+						await deleteFile(url)
+					} catch (_) {}
 				} else {
 					remaining.push(url)
 				}

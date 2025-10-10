@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import {
+	createContext,
+	useContext,
+	useState,
+	useEffect,
+	useCallback,
+} from 'react'
 
 const LanguageContext = createContext()
 
@@ -15,11 +21,11 @@ export const LanguageProvider = ({ children }) => {
 		localStorage.setItem('language', language)
 	}, [language])
 
-	const changeLanguage = useCallback((newLanguage) => {
+	const changeLanguage = useCallback(newLanguage => {
 		console.log('Language change requested:', newLanguage)
 		setLanguage(newLanguage)
 		localStorage.setItem('language', newLanguage)
-		
+
 		// Small delay before reload to ensure state is saved
 		setTimeout(() => {
 			console.log('Reloading page for language change')
@@ -28,10 +34,12 @@ export const LanguageProvider = ({ children }) => {
 	}, [])
 
 	return (
-		<LanguageContext.Provider value={{ 
-			language, 
-			changeLanguage
-		}}>
+		<LanguageContext.Provider
+			value={{
+				language,
+				changeLanguage,
+			}}
+		>
 			{children}
 		</LanguageContext.Provider>
 	)

@@ -21,9 +21,11 @@ class KintoneCreditDetailsService {
 			usingApp:
 				this.appId === '232' ? 'student_credits (232)' : 'credit_details (233)',
 			envVars: {
-				KINTONE_STUDENT_CREDITS_TOKEN: !!process.env.KINTONE_STUDENT_CREDITS_TOKEN,
-				KINTONE_CREDIT_DETAILS_TOKEN: !!process.env.KINTONE_CREDIT_DETAILS_TOKEN,
-			}
+				KINTONE_STUDENT_CREDITS_TOKEN:
+					!!process.env.KINTONE_STUDENT_CREDITS_TOKEN,
+				KINTONE_CREDIT_DETAILS_TOKEN:
+					!!process.env.KINTONE_CREDIT_DETAILS_TOKEN,
+			},
 		})
 	}
 
@@ -42,12 +44,14 @@ class KintoneCreditDetailsService {
 				return []
 			}
 
-			// Fetch data from Kintone App 233 
+			// Fetch data from Kintone App 233
 			let url = `${this.baseURL}/records.json?app=${this.appId}&limit=500&offset=0`
 
 			// For debugging: first try without filter to see all field names
-			console.log(`🔍 Fetching records from App ${this.appId} to see field structure...`)
-			
+			console.log(
+				`🔍 Fetching records from App ${this.appId} to see field structure...`
+			)
+
 			// Add filter to search for specific student
 			if (studentId) {
 				const query = `studentId = "${studentId}"`
@@ -72,7 +76,10 @@ class KintoneCreditDetailsService {
 
 			console.log('📡 Kintone API Response Status:', response.status)
 			console.log('📡 Kintone API Response Headers:', response.headers)
-			console.log('📡 Kintone API Response Data:', JSON.stringify(response.data, null, 2))
+			console.log(
+				'📡 Kintone API Response Data:',
+				JSON.stringify(response.data, null, 2)
+			)
 
 			if (response.data && response.data.records) {
 				// Filter records for the specific student
@@ -82,8 +89,14 @@ class KintoneCreditDetailsService {
 
 				// Debug: show first record structure
 				if (allRecords.length > 0) {
-					console.log('🔬 First record structure:', JSON.stringify(allRecords[0], null, 2))
-					console.log('🔬 First record field names:', Object.keys(allRecords[0]))
+					console.log(
+						'🔬 First record structure:',
+						JSON.stringify(allRecords[0], null, 2)
+					)
+					console.log(
+						'🔬 First record field names:',
+						Object.keys(allRecords[0])
+					)
 				}
 
 				// Debug: show all student IDs in the records
@@ -103,9 +116,7 @@ class KintoneCreditDetailsService {
 					科目名: record.subjectName?.value || '',
 					評価: record.grade?.value || '',
 					単位数: parseInt(
-						record.subjectCredit?.value ||
-							record.manualCredit?.value ||
-							0
+						record.subjectCredit?.value || record.manualCredit?.value || 0
 					),
 					取得日: record.date?.value || '',
 					subjectId: record.subjectId?.value || '',

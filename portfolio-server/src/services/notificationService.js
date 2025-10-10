@@ -42,7 +42,11 @@ class NotificationService {
 	static async markOneAsRead(notificationId, user_id) {
 		const normalizedUserId = user_id != null ? String(user_id) : user_id
 		const notification = await Notification.findOne({
-			where: { id: notificationId, user_id: normalizedUserId, status: 'unread' },
+			where: {
+				id: notificationId,
+				user_id: normalizedUserId,
+				status: 'unread',
+			},
 		})
 
 		if (!notification) return null

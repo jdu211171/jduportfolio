@@ -74,7 +74,6 @@
  *         description: Failed to logout
  */
 
-
 // router.get(
 //     '/google',
 //     passport.authenticate('google', { scope: ['profile', 'email'], session: false })
@@ -214,24 +213,27 @@ const router = express.Router()
  */
 
 router.get(
-  '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'], session: false })
+	'/google',
+	passport.authenticate('google', {
+		scope: ['profile', 'email'],
+		session: false,
+	})
 )
 
 router.get('/google/callback', (req, res, next) => {
-    passport.authenticate('google', { session: false }, (err, user, info) => {
-        if (err || !user) {
-            const frontendUrl = process.env.FRONTEND_URL;
-            // return res.redirect(
+	passport.authenticate('google', { session: false }, (err, user, info) => {
+		if (err || !user) {
+			const frontendUrl = process.env.FRONTEND_URL
+			// return res.redirect(
 			// 				'https://portfolio.jdu.uz/login?error=notfound'
 			// 			)
-            return res.redirect(
-                `${frontendUrl}/login?error=notfound` // Manzilni dinamik qilish
-            );
-        }
-        req.user = user
-        AuthController.googleCallback(req, res)
-    })(req, res, next)
+			return res.redirect(
+				`${frontendUrl}/login?error=notfound` // Manzilni dinamik qilish
+			)
+		}
+		req.user = user
+		AuthController.googleCallback(req, res)
+	})(req, res, next)
 })
 
 // Login route
@@ -242,28 +244,28 @@ router.post('/logout', AuthController.logout)
 
 // Get current user info
 router.get('/me', authMiddleware, async (req, res) => {
-    try {
-        const UserType = {
-            Admin,
-            Staff,
-            Recruiter,
-            Student
-        }[req.user.userType];
+	try {
+		const UserType = {
+			Admin,
+			Staff,
+			Recruiter,
+			Student,
+		}[req.user.userType]
 
-        const user = await UserType.findByPk(req.user.id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+		const user = await UserType.findByPk(req.user.id)
+		if (!user) {
+			return res.status(404).json({ error: 'User not found' })
+		}
 
-        res.json({
-            id: user.id,
-            name: user.first_name + ' ' + user.last_name,
-            studentId: user.student_id,
-            photo: user.photo,
-        });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch user data' });
-    }
+		res.json({
+			id: user.id,
+			name: user.first_name + ' ' + user.last_name,
+			studentId: user.student_id,
+			photo: user.photo,
+		})
+	} catch (error) {
+		res.status(500).json({ error: 'Failed to fetch user data' })
+	}
 })
 
 module.exports = router

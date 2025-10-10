@@ -52,9 +52,9 @@ class QAController {
 		try {
 			const { data } = req.body
 			console.log('Update QA request data:', data)
-			
+
 			let response = {}
-			
+
 			// Fix: Use for...of loop with proper async/await handling
 			for (const [key, category] of Object.entries(data.idList)) {
 				try {

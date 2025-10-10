@@ -40,12 +40,12 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 		'qa.career_goals': 'キャリア目標',
 	}
 
-	const getFieldName = (field) => {
+	const getFieldName = field => {
 		return fieldTranslations[field] || field
 	}
 
 	// Field kategoriyalarini guruhlash
-	const categorizeFields = (fields) => {
+	const categorizeFields = fields => {
 		const categories = {
 			basic: {
 				name: '基本情報',
@@ -53,7 +53,12 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 			},
 			skills: {
 				name: 'スキル・能力',
-				fields: ['skills', 'it_skills', 'special_skills', 'special_skills_description'],
+				fields: [
+					'skills',
+					'it_skills',
+					'special_skills',
+					'special_skills_description',
+				],
 			},
 			interests: {
 				name: '趣味・興味',
@@ -61,7 +66,12 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 			},
 			certifications: {
 				name: '資格・認定',
-				fields: ['jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest'],
+				fields: [
+					'jlpt',
+					'jdu_japanese_certification',
+					'japanese_speech_contest',
+					'it_contest',
+				],
 			},
 			portfolio: {
 				name: 'ポートフォリオ',
@@ -78,15 +88,18 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 		}
 
 		const groupedFields = {}
-		
+
 		fields.forEach(field => {
 			let placed = false
 			for (const [key, category] of Object.entries(categories)) {
-				if (category.fields.includes(field) || (key === 'qa' && field.startsWith('qa.'))) {
+				if (
+					category.fields.includes(field) ||
+					(key === 'qa' && field.startsWith('qa.'))
+				) {
 					if (!groupedFields[key]) {
 						groupedFields[key] = {
 							name: category.name,
-							fields: []
+							fields: [],
 						}
 					}
 					groupedFields[key].fields.push(field)
@@ -98,7 +111,7 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 				if (!groupedFields.other) {
 					groupedFields.other = {
 						name: categories.other.name,
-						fields: []
+						fields: [],
 					}
 				}
 				groupedFields.other.fields.push(field)
@@ -116,46 +129,54 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 		<Dialog
 			open={open}
 			onClose={onClose}
-			maxWidth="sm"
+			maxWidth='sm'
 			fullWidth
 			PaperProps={{
 				sx: {
 					borderRadius: 2,
-				}
+				},
 			}}
 		>
-			<DialogTitle sx={{ m: 0, p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+			<DialogTitle
+				sx={{
+					m: 0,
+					p: 2,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+				}}
+			>
 				<Box>
-					<Typography variant="h6" component="div">
+					<Typography variant='h6' component='div'>
 						変更項目一覧
 					</Typography>
-					<Typography variant="caption" color="text.secondary">
+					<Typography variant='caption' color='text.secondary'>
 						{data.studentName} ({data.studentId})
 					</Typography>
 				</Box>
 				<IconButton
-					aria-label="close"
+					aria-label='close'
 					onClick={onClose}
 					sx={{
-						color: (theme) => theme.palette.grey[500],
+						color: theme => theme.palette.grey[500],
 					}}
 				>
 					<CloseIcon />
 				</IconButton>
 			</DialogTitle>
-			
+
 			<DialogContent dividers sx={{ p: 3 }}>
 				<Box sx={{ mb: 2 }}>
-					<Typography variant="body2" color="text.secondary" gutterBottom>
+					<Typography variant='body2' color='text.secondary' gutterBottom>
 						合計 {data.fields.length} 件の変更があります
 					</Typography>
 				</Box>
 
 				{Object.entries(categorizedFields).map(([categoryKey, category]) => (
 					<Box key={categoryKey} sx={{ mb: 3 }}>
-						<Typography 
-							variant="subtitle2" 
-							color="primary" 
+						<Typography
+							variant='subtitle2'
+							color='primary'
 							sx={{ mb: 1, fontWeight: 600 }}
 						>
 							{category.name}
@@ -165,14 +186,14 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 								<Chip
 									key={index}
 									label={getFieldName(field)}
-									size="small"
+									size='small'
 									sx={{
 										backgroundColor: '#e3f2fd',
 										color: '#1976d2',
 										'& .MuiChip-label': {
 											fontSize: '13px',
 											fontWeight: 500,
-										}
+										},
 									}}
 								/>
 							))}
@@ -180,9 +201,9 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 					</Box>
 				))}
 			</DialogContent>
-			
+
 			<DialogActions sx={{ p: 2 }}>
-				<Button onClick={onClose} variant="outlined" size="small">
+				<Button onClick={onClose} variant='outlined' size='small'>
 					閉じる
 				</Button>
 			</DialogActions>

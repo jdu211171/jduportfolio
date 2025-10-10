@@ -102,9 +102,8 @@ class KintoneService {
 
 			// 2. Har bir turdagi foydalanuvchini sinxronizatsiya qilib, email vazifalarini yig'amiz
 			const staffEmailTasks = await StaffService.syncStaffData(staff)
-			const recruiterEmailTasks = await RecruiterService.syncRecruiterData(
-				recruiters
-			)
+			const recruiterEmailTasks =
+				await RecruiterService.syncRecruiterData(recruiters)
 
 			// 3. Talabalar uchun ma'lumotlarni formatlash
 			const creditsMap = new Map()
@@ -173,7 +172,8 @@ class KintoneService {
 						studentStatus: record.studentStatus?.value,
 						// Graduation can come as a Date (YYYY-MM-DD). Support both field codes.
 						graduationYear: record.graduationYear?.value,
-						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
+						graduation_year:
+							record.graduation_year?.value || record.graduationYear?.value,
 						graduationSeason: record.graduationSeason?.value,
 						kintone_id_value: record['$id']?.value,
 						...studentCredits,
@@ -190,9 +190,8 @@ class KintoneService {
 				})
 				.filter(Boolean)
 
-			const studentEmailTasks = await StudentService.syncStudentData(
-				formattedStudentData
-			)
+			const studentEmailTasks =
+				await StudentService.syncStudentData(formattedStudentData)
 
 			// 4. Barcha email vazifalarini bitta ro'yxatga birlashtiramiz
 			const allEmailTasks = [

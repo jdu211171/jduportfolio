@@ -38,43 +38,50 @@ const Student = ({ OnlyBookmarked = false }) => {
 	})
 	const userId = JSON.parse(sessionStorage.getItem('loginUser')).id
 
-    const [itSkillOptions, setItSkillOptions] = useState(['JS', 'Python', 'Java', 'SQL'])
+	const [itSkillOptions, setItSkillOptions] = useState([
+		'JS',
+		'Python',
+		'Java',
+		'SQL',
+	])
 
-    useEffect(() => {
-        let cancelled = false
-        const fetchItSkills = async () => {
-            try {
-                const res = await axios.get('/api/itskills')
-                if (!cancelled) {
-                    const names = Array.isArray(res.data) ? res.data.map(s => s.name).filter(Boolean) : []
-                    if (names.length > 0) setItSkillOptions(names)
-                }
-            } catch {
-                // fallback silently
-            }
-        }
-        fetchItSkills()
-        return () => {
-            cancelled = true
-        }
-    }, [])
+	useEffect(() => {
+		let cancelled = false
+		const fetchItSkills = async () => {
+			try {
+				const res = await axios.get('/api/itskills')
+				if (!cancelled) {
+					const names = Array.isArray(res.data)
+						? res.data.map(s => s.name).filter(Boolean)
+						: []
+					if (names.length > 0) setItSkillOptions(names)
+				}
+			} catch {
+				// fallback silently
+			}
+		}
+		fetchItSkills()
+		return () => {
+			cancelled = true
+		}
+	}, [])
 
-    const filterProps = [
-        //{
-        //  key: "semester",
-        //  label: t("grade"), // Переводится
-        //  type: "checkbox",
-        //  options: [t("grade1"), t("grade2"), t("grade3"), t("grade4")],
-        //  minWidth: "120px",
-        //},
-        {
-            key: 'it_skills',
-            label: t('programming_languages'),
-            type: 'checkbox',
-            options: itSkillOptions,
-            matchModeKey: 'it_skills_match',
-            minWidth: '160px',
-        },
+	const filterProps = [
+		//{
+		//  key: "semester",
+		//  label: t("grade"), // Переводится
+		//  type: "checkbox",
+		//  options: [t("grade1"), t("grade2"), t("grade3"), t("grade4")],
+		//  minWidth: "120px",
+		//},
+		{
+			key: 'it_skills',
+			label: t('programming_languages'),
+			type: 'checkbox',
+			options: itSkillOptions,
+			matchModeKey: 'it_skills_match',
+			minWidth: '160px',
+		},
 		{
 			key: 'jlpt',
 			label: t('jlpt'),
@@ -393,15 +400,15 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-            <Box sx={{ width: '100%', height: '100px' }}>
-                <Filter
-                    fields={filterProps}
-                    filterState={filterState}
-                    onFilterChange={handleFilterChange}
-                    disableStudentIdSearch={true}
-                    persistKey='drafts-filter-v1'
-                />
-            </Box>
+			<Box sx={{ width: '100%', height: '100px' }}>
+				<Filter
+					fields={filterProps}
+					filterState={filterState}
+					onFilterChange={handleFilterChange}
+					disableStudentIdSearch={true}
+					persistKey='drafts-filter-v1'
+				/>
+			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
 
 			{/* Warning Modal */}

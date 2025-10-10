@@ -204,7 +204,9 @@ const FAQ = () => {
 									expanded={allExpanded}
 									showExpandIcon={index === 0}
 									onToggle={
-										index === 0 ? () => setAllExpanded(prev => !prev) : undefined
+										index === 0
+											? () => setAllExpanded(prev => !prev)
+											: undefined
 									}
 								/>
 							)

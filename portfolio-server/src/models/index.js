@@ -39,13 +39,12 @@ db.Setting = require('./Settings')(sequelize, Sequelize)
 db.Draft = require('./Draft')(sequelize, Sequelize)
 db.Log = require('./Log')(sequelize, Sequelize)
 db.Notification = require('./Notification')(sequelize, Sequelize)
-db.Image = require('./Image')(sequelize, Sequelize); 
-db.UserFile = require('./userFile')(sequelize, Sequelize);
-db.News = require('./News')(sequelize, Sequelize); 
-db.ItSkill = require('./itskill')(sequelize, Sequelize); 
-db.Skill = require('./skill')(sequelize, Sequelize);
+db.Image = require('./Image')(sequelize, Sequelize)
+db.UserFile = require('./userFile')(sequelize, Sequelize)
+db.News = require('./News')(sequelize, Sequelize)
+db.ItSkill = require('./itskill')(sequelize, Sequelize)
+db.Skill = require('./skill')(sequelize, Sequelize)
 db.NewsViews = require('./NewsViews')(sequelize, Sequelize)
-
 
 // Load other models here if needed
 // db.User = require('./User')(sequelize, Sequelize);
@@ -53,19 +52,64 @@ db.NewsViews = require('./NewsViews')(sequelize, Sequelize)
 // Apply associations here if needed
 // Example:
 
-db.Admin.hasMany(db.News, { foreignKey: 'authorId', constraints: false, scope: { authorType: 'Admin' }, as: 'newsByAdmin' });
-db.Staff.hasMany(db.News, { foreignKey: 'authorId', constraints: false, scope: { authorType: 'Staff' }, as: 'newsByStaff' });
-db.Recruiter.hasMany(db.News, { foreignKey: 'authorId', constraints: false, scope: { authorType: 'Recruiter' }, as: 'newsByRecruiter' });
+db.Admin.hasMany(db.News, {
+	foreignKey: 'authorId',
+	constraints: false,
+	scope: { authorType: 'Admin' },
+	as: 'newsByAdmin',
+})
+db.Staff.hasMany(db.News, {
+	foreignKey: 'authorId',
+	constraints: false,
+	scope: { authorType: 'Staff' },
+	as: 'newsByStaff',
+})
+db.Recruiter.hasMany(db.News, {
+	foreignKey: 'authorId',
+	constraints: false,
+	scope: { authorType: 'Recruiter' },
+	as: 'newsByRecruiter',
+})
 
-db.News.belongsTo(db.Admin, { foreignKey: 'authorId', constraints: false, as: 'authorAdmin' });
-db.News.belongsTo(db.Staff, { foreignKey: 'authorId', constraints: false, as: 'authorStaff' });
-db.News.belongsTo(db.Recruiter, { foreignKey: 'authorId', constraints: false, as: 'authorRecruiter' });
+db.News.belongsTo(db.Admin, {
+	foreignKey: 'authorId',
+	constraints: false,
+	as: 'authorAdmin',
+})
+db.News.belongsTo(db.Staff, {
+	foreignKey: 'authorId',
+	constraints: false,
+	as: 'authorStaff',
+})
+db.News.belongsTo(db.Recruiter, {
+	foreignKey: 'authorId',
+	constraints: false,
+	as: 'authorRecruiter',
+})
 
-db.Admin.hasMany(db.News, { foreignKey: 'moderatorId', constraints: false, scope: { moderatorType: 'Admin' }, as: 'moderatedByAdmin' });
-db.Staff.hasMany(db.News, { foreignKey: 'moderatorId', constraints: false, scope: { moderatorType: 'Staff' }, as: 'moderatedByStaff' });
+db.Admin.hasMany(db.News, {
+	foreignKey: 'moderatorId',
+	constraints: false,
+	scope: { moderatorType: 'Admin' },
+	as: 'moderatedByAdmin',
+})
+db.Staff.hasMany(db.News, {
+	foreignKey: 'moderatorId',
+	constraints: false,
+	scope: { moderatorType: 'Staff' },
+	as: 'moderatedByStaff',
+})
 
-db.News.belongsTo(db.Admin, { foreignKey: 'moderatorId', constraints: false, as: 'moderatorAdmin' });
-db.News.belongsTo(db.Staff, { foreignKey: 'moderatorId', constraints: false, as: 'moderatorStaff' });
+db.News.belongsTo(db.Admin, {
+	foreignKey: 'moderatorId',
+	constraints: false,
+	as: 'moderatorAdmin',
+})
+db.News.belongsTo(db.Staff, {
+	foreignKey: 'moderatorId',
+	constraints: false,
+	as: 'moderatorStaff',
+})
 
 db.News.hasMany(db.NewsViews, { foreignKey: 'news_id', as: 'views' })
 db.NewsViews.belongsTo(db.News, { foreignKey: 'news_id', as: 'news' })
@@ -105,10 +149,10 @@ module.exports = {
 	Draft: db.Draft,
 	Log: db.Log,
 	Notification: db.Notification,
-	Image: db.Image, 
+	Image: db.Image,
 	UserFile: db.UserFile,
-	News: db.News, 
+	News: db.News,
 	ItSkill: db.ItSkill,
 	Skill: db.Skill,
-	NewsViews: db.NewsViews  // ← Bu qator qo'shildi!
+	NewsViews: db.NewsViews, // ← Bu qator qo'shildi!
 }

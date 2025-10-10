@@ -18,13 +18,13 @@ const StyledAccordionSummary = styled(AccordionSummary)(() => ({
 }))
 
 const QAAccordion = ({
-    question,
-    answer,
-    notExpand = false,
-    expanded, // optional controlled expanded state
-    onToggle, // optional toggle handler (for controlled mode)
-    showExpandIcon = true, // controls visibility of expand icon and click behavior
-    allowToggleWhenNotExpand = false, // allow header toggle even if details are disabled
+	question,
+	answer,
+	notExpand = false,
+	expanded, // optional controlled expanded state
+	onToggle, // optional toggle handler (for controlled mode)
+	showExpandIcon = true, // controls visibility of expand icon and click behavior
+	allowToggleWhenNotExpand = false, // allow header toggle even if details are disabled
 }) => {
 	// Local state for uncontrolled usage
 	const [localExpanded, setLocalExpanded] = useState(false)
@@ -54,17 +54,19 @@ const QAAccordion = ({
 						alignItems: 'center',
 						justifyContent: 'left',
 					}}
-                expandIcon={(showExpandIcon || (notExpand && allowToggleWhenNotExpand)) && (
-                    <KeyboardArrowDownIcon />
-                )}
+					expandIcon={
+						(showExpandIcon || (notExpand && allowToggleWhenNotExpand)) && (
+							<KeyboardArrowDownIcon />
+						)
+					}
 					aria-controls='panel2-content'
 					id='panel2-header'
 					onClick={e => {
-                    // If expansion is disabled and not explicitly allowed, or icon hidden, block
-                    if ((notExpand && !allowToggleWhenNotExpand) || !showExpandIcon) {
-                        e.stopPropagation()
-                        return
-                    }
+						// If expansion is disabled and not explicitly allowed, or icon hidden, block
+						if ((notExpand && !allowToggleWhenNotExpand) || !showExpandIcon) {
+							e.stopPropagation()
+							return
+						}
 						if (typeof onToggle === 'function') {
 							onToggle()
 						} else if (!isControlled) {
@@ -99,13 +101,13 @@ const QAAccordion = ({
 }
 
 QAAccordion.propTypes = {
-    question: PropTypes.string.isRequired,
-    answer: PropTypes.string.isRequired,
-    notExpand: PropTypes.bool,
-    expanded: PropTypes.bool,
-    onToggle: PropTypes.func,
-    showExpandIcon: PropTypes.bool,
-    allowToggleWhenNotExpand: PropTypes.bool,
+	question: PropTypes.string.isRequired,
+	answer: PropTypes.string.isRequired,
+	notExpand: PropTypes.bool,
+	expanded: PropTypes.bool,
+	onToggle: PropTypes.func,
+	showExpandIcon: PropTypes.bool,
+	allowToggleWhenNotExpand: PropTypes.bool,
 }
 
 export default QAAccordion

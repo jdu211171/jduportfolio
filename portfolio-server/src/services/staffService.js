@@ -1,9 +1,8 @@
 const { Staff } = require('../models') // Assuming your model file is properly exported
-const generatePassword = require('generate-password'); 
+const generatePassword = require('generate-password')
 const bcrypt = require('bcrypt')
 const { Op } = require('sequelize')
-const { formatStaffWelcomeEmail } = require('../utils/emailToStaff');
-
+const { formatStaffWelcomeEmail } = require('../utils/emailToStaff')
 
 class StaffService {
 	static async createStaff(data) {
@@ -93,65 +92,79 @@ class StaffService {
 
 	static async updateStaffByKintoneId(kintoneId, staffData) {
 		try {
-		  const staff = await Staff.findOne({ where: { kintone_id: kintoneId } });
-		  if (!staff) {
-			throw new Error('Staff not found');
-		  }
-		  await staff.update(staffData);
-		  return staff;
+			const staff = await Staff.findOne({ where: { kintone_id: kintoneId } })
+			if (!staff) {
+				throw new Error('Staff not found')
+			}
+			await staff.update(staffData)
+			return staff
 		} catch (error) {
-		  throw error;
+			throw error
 		}
 	}
 
 	static async deleteStaffByKintoneId(kintoneId) {
-        return await Staff.destroy({ where: { kintone_id: kintoneId } });
-    }
+		return await Staff.destroy({ where: { kintone_id: kintoneId } })
+	}
 
-	 /**
-     * Kintone'dan kelgan xodimlar ro'yxatini sinxronizatsiya qiladi.
-     * @param {Array} staffRecords - Kintone'dan olingan xodimlar ro'yxati.
-     * @returns {Array} Yangi xodimlar uchun email vazifalari massivi.
-     */
-    static async syncStaffData(staffRecords) {
-        console.log(`Staff sinxronizatsiyasi boshlandi: ${staffRecords.length} ta yozuv topildi.`);
-        const emailTasks = [];
+	/**
+	 * Kintone'dan kelgan xodimlar ro'yxatini sinxronizatsiya qiladi.
+	 * @param {Array} staffRecords - Kintone'dan olingan xodimlar ro'yxati.
+	 * @returns {Array} Yangi xodimlar uchun email vazifalari massivi.
+	 */
+	static async syncStaffData(staffRecords) {
+		console.log(
+			`Staff sinxronizatsiyasi boshlandi: ${staffRecords.length} ta yozuv topildi.`
+		)
+		const emailTasks = []
 
-        for (const record of staffRecords) {
-            const kintoneId = record['$id']?.value;
-            if (!kintoneId) continue;
+		for (const record of staffRecords) {
+			const kintoneId = record['$id']?.value
+			if (!kintoneId) continue
 
-            const existingStaff = await Staff.findOne({ where: { kintone_id: kintoneId } });
-            // console.log(`Kintone ID: ${kintoneId}, Mavjud xodim: ${!!existingStaff}`);
-            if (!existingStaff) {
-                // console.log(`Yangi xodim topildi: Kintone ID ${ typeof(kintoneId)}. Bazaga qo'shilmoqda...`);
-                const password = generatePassword.generate({ length: 12, numbers: true, symbols: false, uppercase: true });
-                
-                const staffData = {
-                    email: record.staffEmail?.value,
-                    password: password,
-                    first_name: record.staffFirstName?.value,
-                    last_name: record.staffLastName?.value,
-                    department: record.staffDepartment?.value,
-                    position: record.staffPosition?.value,
-                    kintone_id: kintoneId,
-                    active: true,
-                };
+			const existingStaff = await Staff.findOne({
+				where: { kintone_id: kintoneId },
+			})
+			// console.log(`Kintone ID: ${kintoneId}, Mavjud xodim: ${!!existingStaff}`);
+			if (!existingStaff) {
+				// console.log(`Yangi xodim topildi: Kintone ID ${ typeof(kintoneId)}. Bazaga qo'shilmoqda...`);
+				const password = generatePassword.generate({
+					length: 12,
+					numbers: true,
+					symbols: false,
+					uppercase: true,
+				})
 
-                const newStaff = await this.createStaff(staffData);
+				const staffData = {
+					email: record.staffEmail?.value,
+					password: password,
+					first_name: record.staffFirstName?.value,
+					last_name: record.staffLastName?.value,
+					department: record.staffDepartment?.value,
+					position: record.staffPosition?.value,
+					kintone_id: kintoneId,
+					active: true,
+				}
 
-                if (newStaff) {
-                    // >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
-                    emailTasks.push(formatStaffWelcomeEmail(newStaff.email, password, newStaff.first_name, newStaff.last_name));
-                }
-            }
-        }
-        
-        console.log("Staff sinxronizatsiyasi yakunlandi.");
-        return emailTasks;
-    }
+				const newStaff = await this.createStaff(staffData)
 
+				if (newStaff) {
+					// >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
+					emailTasks.push(
+						formatStaffWelcomeEmail(
+							newStaff.email,
+							password,
+							newStaff.first_name,
+							newStaff.last_name
+						)
+					)
+				}
+			}
+		}
 
+		console.log('Staff sinxronizatsiyasi yakunlandi.')
+		return emailTasks
+	}
 }
 
 module.exports = StaffService

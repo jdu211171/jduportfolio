@@ -8,7 +8,7 @@ import {
 	Button,
 	Checkbox,
 	Divider,
-	Box
+	Box,
 } from '@mui/material'
 import PropTypes from 'prop-types'
 import translations from '../../locales/translations.js'
@@ -117,8 +117,8 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 			PaperProps={{
 				sx: {
 					borderRadius: 3,
-					p: 2
-				}
+					p: 2,
+				},
 			}}
 		>
 			<DialogTitle
@@ -126,28 +126,43 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 					fontWeight: 500,
 					fontSize: '1.25rem',
 					textAlign: 'center',
-					mb: 1
+					mb: 1,
 				}}
 			>
 				{t('profile_publish_request')}
 			</DialogTitle>
 
-			<DialogContent dividers sx={{ backgroundColor: '#fafafa', borderRadius: 2 }}>
+			<DialogContent
+				dividers
+				sx={{ backgroundColor: '#fafafa', borderRadius: 2 }}
+			>
 				{/* Main content */}
-				<Typography variant='body2' className='profileExplanation' sx={{ mt: 1 }}>
+				<Typography
+					variant='body2'
+					className='profileExplanation'
+					sx={{ mt: 1 }}
+				>
 					{t('profile_publish_explanation')}
 				</Typography>
 
 				<Divider sx={{ my: 2 }} />
 
 				{/* Prohibited actions section */}
-				<Typography variant='body2' className='prohibitedActionsTitle' sx={{ mt: 1,textAlign:'center',fontSize: '1.25rem' }}>
+				<Typography
+					variant='body2'
+					className='prohibitedActionsTitle'
+					sx={{ mt: 1, textAlign: 'center', fontSize: '1.25rem' }}
+				>
 					{t('prohibited_actions')}
 				</Typography>
 				{/*<Typography variant='body2' className='prohibitedActionsContent'>*/}
 				{/*	{t('prohibited_actions_content')}*/}
 				{/*</Typography>*/}
-				<Box component='ul' sx={{ pl: 3, mt: 1, mb: 2,listStyle: 'none' }} className='prohibitedActionsContent'>
+				<Box
+					component='ul'
+					sx={{ pl: 3, mt: 1, mb: 2, listStyle: 'none' }}
+					className='prohibitedActionsContent'
+				>
 					{t('prohibited_actions_content')
 						.split(/\n(?=\d+\.)/)
 						.map((item, index) => (
@@ -156,13 +171,12 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 								className='prohibitedActionsContent'
 								component='div'
 								key={index}
-								dangerouslySetInnerHTML={{ __html: t('prohibited_actions_content') }}
+								dangerouslySetInnerHTML={{
+									__html: t('prohibited_actions_content'),
+								}}
 							/>
-
 						))}
-
 				</Box>
-
 
 				<Divider sx={{ my: 2 }} />
 
@@ -172,7 +186,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 						display: 'flex',
 						alignItems: 'center',
 						mt: 1,
-						pl: 0.5
+						pl: 0.5,
 					}}
 				>
 					<Checkbox
@@ -189,7 +203,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 					justifyContent: 'center',
 					gap: 2,
 					pt: 2,
-					pb: 3
+					pb: 3,
 				}}
 			>
 				<Button
@@ -212,7 +226,6 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 				</Button>
 			</DialogActions>
 		</Dialog>
-
 	)
 }
 

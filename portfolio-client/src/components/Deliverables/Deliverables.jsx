@@ -32,7 +32,7 @@ import {
 	ZoomIn as ZoomInIcon,
 	NavigateBefore as NavigateBeforeIcon,
 	NavigateNext as NavigateNextIcon,
-	Code as CodeIcon
+	Code as CodeIcon,
 } from '@mui/icons-material'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useAlert } from '../../contexts/AlertContext'
@@ -90,7 +90,6 @@ const Deliverables = ({
 			prev.includes(url) ? prev.filter(u => u !== url) : [...prev, url]
 		)
 	}
-
 
 	// Initialize deliverables from data
 	useEffect(() => {
@@ -180,11 +179,11 @@ const Deliverables = ({
 		clearForm()
 	}
 
-const handleEditDialogClose = () => {
+	const handleEditDialogClose = () => {
 		setEditDialogOpen(false)
 		clearForm()
 		setRemoveUrls([])
-}
+	}
 
 	// Handle create deliverable
 	const handleCreate = async () => {
@@ -262,22 +261,22 @@ const handleEditDialogClose = () => {
 				selectedFiles.forEach(file => {
 					formDataToSend.append('files', file)
 				})
-				}
+			}
 
-				// Mark images for removal
-				if (removeUrls.length > 0) {
-					formDataToSend.append('remove_image_urls', JSON.stringify(removeUrls))
-				}
+			// Mark images for removal
+			if (removeUrls.length > 0) {
+				formDataToSend.append('remove_image_urls', JSON.stringify(removeUrls))
+			}
 
-				const response = await axios.put(
-					`/api/deliverables/${currentDeliverable.id}`,
-					formDataToSend,
-					{
-						headers: {
-							'Content-Type': 'multipart/form-data',
-						},
-					}
-				)
+			const response = await axios.put(
+				`/api/deliverables/${currentDeliverable.id}`,
+				formDataToSend,
+				{
+					headers: {
+						'Content-Type': 'multipart/form-data',
+					},
+				}
+			)
 
 			// Update local state
 			const updatedDeliverables = response.data.profile_data?.deliverables || []
@@ -367,8 +366,8 @@ const handleEditDialogClose = () => {
 			description: selectedDeliverable.description || '',
 			link: selectedDeliverable.link || '',
 			codeLink: selectedDeliverable.codeLink || '',
-			role: Array.isArray(selectedDeliverable.role) 
-				? selectedDeliverable.role.join(', ') 
+			role: Array.isArray(selectedDeliverable.role)
+				? selectedDeliverable.role.join(', ')
 				: selectedDeliverable.role || '',
 			files: [],
 		})
@@ -441,13 +440,13 @@ const handleEditDialogClose = () => {
 					const images = deliverable.image_urls || deliverable.files || []
 					return (
 						<Grid item xs={12} sm={6} md={4} key={deliverable.id || index}>
-							<Card 
-								className={styles.deliverableCard} 
+							<Card
+								className={styles.deliverableCard}
 								elevation={2}
-								sx={{ 
-									display: 'flex', 
-									flexDirection: 'column', 
-									height: '100%' 
+								sx={{
+									display: 'flex',
+									flexDirection: 'column',
+									height: '100%',
 								}}
 							>
 								{/* Main Image */}
@@ -462,12 +461,14 @@ const handleEditDialogClose = () => {
 									/>
 								)}
 
-								<CardContent sx={{ 
-									display: 'flex', 
-									flexDirection: 'column', 
-									flexGrow: 1,
-									pb: 1
-								}}>
+								<CardContent
+									sx={{
+										display: 'flex',
+										flexDirection: 'column',
+										flexGrow: 1,
+										pb: 1,
+									}}
+								>
 									{/* Title and Menu */}
 									<Box
 										sx={{
@@ -507,22 +508,23 @@ const handleEditDialogClose = () => {
 											</Typography>
 										)}
 										{/* Code Link */}
-										
 
 										{/* Role */}
-										{deliverable.role && Array.isArray(deliverable.role) && deliverable.role.length > 0 && (
-											<Box sx={{ mb: 2 }}>
-												{deliverable.role.map((item, ind) => (
-													<Chip
-														key={ind}
-														label={item.trim()}
-														size='small'
-														sx={{ mr: 0.5, mb: 0.5 }}
-														variant='outlined'
-													/>
-												))}
-											</Box>
-										)}
+										{deliverable.role &&
+											Array.isArray(deliverable.role) &&
+											deliverable.role.length > 0 && (
+												<Box sx={{ mb: 2 }}>
+													{deliverable.role.map((item, ind) => (
+														<Chip
+															key={ind}
+															label={item.trim()}
+															size='small'
+															sx={{ mr: 0.5, mb: 0.5 }}
+															variant='outlined'
+														/>
+													))}
+												</Box>
+											)}
 
 										{/* Image Count */}
 										{images.length > 1 && (
@@ -535,13 +537,15 @@ const handleEditDialogClose = () => {
 									</Box>
 
 									{/* Actions - Always at bottom */}
-									<Box sx={{ 
-										display: 'flex', 
-										gap: 1, 
-										mt: 'auto',
-										pt: 2,
-										flexWrap: 'wrap'
-									}}>
+									<Box
+										sx={{
+											display: 'flex',
+											gap: 1,
+											mt: 'auto',
+											pt: 2,
+											flexWrap: 'wrap',
+										}}
+									>
 										{images.length > 0 && (
 											<Button
 												size='small'
@@ -848,54 +852,96 @@ const handleEditDialogClose = () => {
 									[]
 								return (
 									images.length > 0 && (
-											<Box sx={{ mb: 2 }}>
-												<Typography variant='subtitle2' gutterBottom>
-													{t('currentImages') || 'Current Images'}
-												</Typography>
-												<Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-													<Button size='small' onClick={() => {
-														const imgs = currentDeliverable?.image_urls || currentDeliverable?.files || []
+										<Box sx={{ mb: 2 }}>
+											<Typography variant='subtitle2' gutterBottom>
+												{t('currentImages') || 'Current Images'}
+											</Typography>
+											<Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+												<Button
+													size='small'
+													onClick={() => {
+														const imgs =
+															currentDeliverable?.image_urls ||
+															currentDeliverable?.files ||
+															[]
 														setRemoveUrls(imgs)
-													}}>
-														{t('removeAll') || 'Mark all for removal'}
-													</Button>
-													<Button size='small' onClick={() => setRemoveUrls([])}>
-														{t('undoRemoveAll') || 'Unmark all'}
-													</Button>
-												</Box>
-												<ImageList cols={3} gap={8}>
-													{images.map((url, index) => (
-														<ImageListItem key={index} sx={{ position: 'relative' }}>
-															<img
-																src={url}
-																alt={`Current ${index + 1}`}
-																style={{
-																	width: '100%',
-																	height: 100,
-																	objectFit: 'cover',
-																	borderRadius: 4,
-																	opacity: removeUrls.includes(url) ? 0.4 : 1,
-																	outline: removeUrls.includes(url) ? '2px solid #d32f2f' : 'none',
-																}}
-															/>
-															<Tooltip title={removeUrls.includes(url) ? (t('unmarkRemoval') || 'Unmark removal') : (t('markForRemoval') || 'Mark for removal')}>
-																<IconButton
-																	size='small'
-																	onClick={() => toggleRemoveUrl(url)}
-																	sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'rgba(255,255,255,0.85)' }}
-																>
-																	<DeleteIcon fontSize='small' color={removeUrls.includes(url) ? 'error' : 'action'} />
-																</IconButton>
-															</Tooltip>
-															{removeUrls.includes(url) && (
-																<Box component='span' sx={{ position: 'absolute', bottom: 4, left: 4, backgroundColor: 'rgba(211,47,47,0.9)', color: 'white', px: 1, py: 0.25, borderRadius: 1, fontSize: '0.75rem' }}>
-																	{t('markedForRemoval') || 'Will remove'}
-																</Box>
-															)}
-														</ImageListItem>
-													))}
-												</ImageList>
+													}}
+												>
+													{t('removeAll') || 'Mark all for removal'}
+												</Button>
+												<Button size='small' onClick={() => setRemoveUrls([])}>
+													{t('undoRemoveAll') || 'Unmark all'}
+												</Button>
 											</Box>
+											<ImageList cols={3} gap={8}>
+												{images.map((url, index) => (
+													<ImageListItem
+														key={index}
+														sx={{ position: 'relative' }}
+													>
+														<img
+															src={url}
+															alt={`Current ${index + 1}`}
+															style={{
+																width: '100%',
+																height: 100,
+																objectFit: 'cover',
+																borderRadius: 4,
+																opacity: removeUrls.includes(url) ? 0.4 : 1,
+																outline: removeUrls.includes(url)
+																	? '2px solid #d32f2f'
+																	: 'none',
+															}}
+														/>
+														<Tooltip
+															title={
+																removeUrls.includes(url)
+																	? t('unmarkRemoval') || 'Unmark removal'
+																	: t('markForRemoval') || 'Mark for removal'
+															}
+														>
+															<IconButton
+																size='small'
+																onClick={() => toggleRemoveUrl(url)}
+																sx={{
+																	position: 'absolute',
+																	top: 4,
+																	right: 4,
+																	bgcolor: 'rgba(255,255,255,0.85)',
+																}}
+															>
+																<DeleteIcon
+																	fontSize='small'
+																	color={
+																		removeUrls.includes(url)
+																			? 'error'
+																			: 'action'
+																	}
+																/>
+															</IconButton>
+														</Tooltip>
+														{removeUrls.includes(url) && (
+															<Box
+																component='span'
+																sx={{
+																	position: 'absolute',
+																	bottom: 4,
+																	left: 4,
+																	backgroundColor: 'rgba(211,47,47,0.9)',
+																	color: 'white',
+																	px: 1,
+																	py: 0.25,
+																	borderRadius: 1,
+																	fontSize: '0.75rem',
+																}}
+															>
+																{t('markedForRemoval') || 'Will remove'}
+															</Box>
+														)}
+													</ImageListItem>
+												))}
+											</ImageList>
+										</Box>
 									)
 								)
 							})()}
@@ -1066,7 +1112,10 @@ const handleEditDialogClose = () => {
 							{/* Code Link */}
 							{hasNonEmpty(currentDeliverable.codeLink) && (
 								<Box sx={{ mt: 2 }}>
-									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
+									<Typography
+										variant='body2'
+										sx={{ fontWeight: 'bold', mb: 1 }}
+									>
 										Code Repository:
 									</Typography>
 									<Button
@@ -1081,23 +1130,28 @@ const handleEditDialogClose = () => {
 							)}
 
 							{/* Role */}
-							{currentDeliverable.role && Array.isArray(currentDeliverable.role) && currentDeliverable.role.length > 0 && (
-								<Box sx={{ mt: 2 }}>
-									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
-										Role:
-									</Typography>
-									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-										{currentDeliverable.role.map((item, ind) => (
-											<Chip
-												key={ind}
-												label={item.trim()}
-												size='small'
-												variant='outlined'
-											/>
-										))}
+							{currentDeliverable.role &&
+								Array.isArray(currentDeliverable.role) &&
+								currentDeliverable.role.length > 0 && (
+									<Box sx={{ mt: 2 }}>
+										<Typography
+											variant='body2'
+											sx={{ fontWeight: 'bold', mb: 1 }}
+										>
+											Role:
+										</Typography>
+										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+											{currentDeliverable.role.map((item, ind) => (
+												<Chip
+													key={ind}
+													label={item.trim()}
+													size='small'
+													variant='outlined'
+												/>
+											))}
+										</Box>
 									</Box>
-								</Box>
-							)}
+								)}
 
 							{/* Link */}
 							{hasNonEmpty(currentDeliverable.link) && (

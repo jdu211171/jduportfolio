@@ -25,7 +25,7 @@ const RoleField = ({ data, editData, editMode, updateEditData, keyName }) => {
 		}
 	}
 
-	const items = editMode ? (editData[keyName] || []) : (data || [])
+	const items = editMode ? editData[keyName] || [] : data || []
 
 	return (
 		<div className={styles.container}>

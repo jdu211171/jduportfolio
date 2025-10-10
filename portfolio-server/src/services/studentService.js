@@ -282,7 +282,7 @@ class StudentService {
 
 			// Helper to build JSONB @> conditions for it_skills across levels
 			const buildItSkillsCondition = (names = [], match = 'any') => {
-				const lvls = ["上級", "中級", "初級"]
+				const lvls = ['上級', '中級', '初級']
 				const safeNames = Array.isArray(names) ? names.filter(Boolean) : []
 				if (safeNames.length === 0) return null
 
@@ -290,7 +290,9 @@ class StudentService {
 					// JSON array string for [{"name":"<n>"}]
 					const json = JSON.stringify([{ name: String(n) }])
 					const esc = sequelize.escape(json) // safe string with quotes
-					const levelExpr = lvls.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`).join(' OR ')
+					const levelExpr = lvls
+						.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`)
+						.join(' OR ')
 					return `(${levelExpr})`
 				})
 				const joiner = match === 'all' ? ' AND ' : ' OR '
@@ -326,7 +328,9 @@ class StudentService {
 							return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 						})
 					} else if (key === 'it_skills') {
-						const values = Array.isArray(filter[key]) ? filter[key] : [filter[key]]
+						const values = Array.isArray(filter[key])
+							? filter[key]
+							: [filter[key]]
 						const match = filter.it_skills_match === 'all' ? 'all' : 'any'
 						const expr = buildItSkillsCondition(values, match)
 						if (expr) {
@@ -335,9 +339,15 @@ class StudentService {
 					} else if (key === 'skills') {
 						queryOther[Op.and].push({
 							[Op.or]: [
-								{ skills: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-								{ skills: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } } },
-								{ skills: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } } },
+								{
+									skills: { '上級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
+								{
+									skills: { '中級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
+								{
+									skills: { '初級::text': { [Op.iLike]: `%${filter[key]}%` } },
+								},
 							],
 						})
 					} else if (key === 'it_skills_match') {
@@ -1045,7 +1055,7 @@ class StudentService {
 							},
 						],
 						active: true,
-				  }
+					}
 				: { active: true }
 
 			const students = await Student.findAll({

@@ -124,25 +124,66 @@ class RecruiterService {
 
 			// Only include fields that are actually provided (not undefined)
 			const updatedData = {}
-            const fields = [
-				'first_name','last_name','first_name_furigana','last_name_furigana',
-				'phone','email','company_name','company_description','gallery',
-				'photo','date_of_birth','active','kintone_id','company_Address',
-				'established_Date','employee_Count','business_overview','target_audience',
-				'required_skills','welcome_skills','work_location','work_hours',
-				'salary','benefits','selection_process','company_video_url',
+			const fields = [
+				'first_name',
+				'last_name',
+				'first_name_furigana',
+				'last_name_furigana',
+				'phone',
+				'email',
+				'company_name',
+				'company_description',
+				'gallery',
+				'photo',
+				'date_of_birth',
+				'active',
+				'kintone_id',
+				'company_Address',
+				'established_Date',
+				'employee_Count',
+				'business_overview',
+				'target_audience',
+				'required_skills',
+				'welcome_skills',
+				'work_location',
+				'work_hours',
+				'salary',
+				'benefits',
+				'selection_process',
+				'company_video_url',
 				// New fields
-				'tagline','company_website','company_capital','company_revenue','company_representative',
-				'job_title','job_description','number_of_openings','employment_type','probation_period','employment_period',
-				'recommended_skills','recommended_licenses','recommended_other',
-				'salary_increase','bonus','allowances','holidays_vacation',
-				'other_notes','interview_method',
+				'tagline',
+				'company_website',
+				'company_capital',
+				'company_revenue',
+				'company_representative',
+				'job_title',
+				'job_description',
+				'number_of_openings',
+				'employment_type',
+				'probation_period',
+				'employment_period',
+				'recommended_skills',
+				'recommended_licenses',
+				'recommended_other',
+				'salary_increase',
+				'bonus',
+				'allowances',
+				'holidays_vacation',
+				'other_notes',
+				'interview_method',
 				// Additional fields
-				'japanese_level','application_requirements_other','retirement_benefit',
-				'telework_availability','housing_availability','relocation_support',
-                'airport_pickup','intro_page_thumbnail','intro_page_links'
-            ]
-			
+				'japanese_level',
+				'application_requirements_other',
+				'retirement_benefit',
+				'telework_availability',
+				'housing_availability',
+				'relocation_support',
+				'airport_pickup',
+				'intro_page_thumbnail',
+				'intro_page_links',
+			]
+
 			fields.forEach(field => {
 				if (data[field] !== undefined) {
 					updatedData[field] = data[field]
@@ -167,10 +208,10 @@ class RecruiterService {
 
 			console.log('Update request data:', data)
 			console.log('Constructed update data:', updatedData)
-			
+
 			const result = await recruiter.update(updatedData)
 			console.log('Update result:', result.toJSON())
-			
+
 			return result
 		} catch (error) {
 			console.error('Update recruiter error:', error)

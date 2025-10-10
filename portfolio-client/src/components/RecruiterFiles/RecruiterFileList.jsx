@@ -22,37 +22,43 @@ import { useAlert } from '../../contexts/AlertContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 
-const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMode = false, currentRole }) => {
+const RecruiterFileList = ({
+	files = [],
+	onFileDeleted,
+	loading = false,
+	editMode = false,
+	currentRole,
+}) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const showAlert = useAlert()
-	
+
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 	const [fileToDelete, setFileToDelete] = useState(null)
 	const [deleting, setDeleting] = useState(false)
-	
-	const handleDownload = (file) => {
+
+	const handleDownload = file => {
 		// Direct window.open (most reliable for S3)
 		window.open(file.file_url, '_blank')
 	}
-	
-	const handleDeleteClick = (file) => {
+
+	const handleDeleteClick = file => {
 		setFileToDelete(file)
 		setDeleteDialogOpen(true)
 	}
-	
+
 	const handleDeleteConfirm = async () => {
 		if (!fileToDelete) return
-		
+
 		setDeleting(true)
 		try {
 			await axios.delete(`/api/recruiter-files/${fileToDelete.id}`)
 			showAlert(t('file_deleted'), 'success')
-			
+
 			if (onFileDeleted) {
 				onFileDeleted(fileToDelete.id)
 			}
-			
+
 			setDeleteDialogOpen(false)
 			setFileToDelete(null)
 		} catch (error) {
@@ -62,19 +68,19 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMod
 			setDeleting(false)
 		}
 	}
-	
+
 	const handleDeleteCancel = () => {
 		setDeleteDialogOpen(false)
 		setFileToDelete(null)
 	}
-	
-	const formatFileSize = (bytes) => {
+
+	const formatFileSize = bytes => {
 		if (!bytes || bytes === 0) return '0 B'
 		if (bytes < 1024) return bytes + ' B'
 		if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
 		return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 	}
-	
+
 	if (loading) {
 		return (
 			<Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
@@ -82,21 +88,19 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMod
 			</Box>
 		)
 	}
-	
+
 	if (files.length === 0) {
 		return (
 			<Box sx={{ textAlign: 'center', py: 3 }}>
-				<Typography color="text.secondary">
-					{t('no_files_uploaded')}
-				</Typography>
+				<Typography color='text.secondary'>{t('no_files_uploaded')}</Typography>
 			</Box>
 		)
 	}
-	
+
 	return (
 		<>
 			<List>
-				{files.map((file) => (
+				{files.map(file => (
 					<ListItem
 						key={file.id}
 						sx={{
@@ -117,9 +121,9 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMod
 						/>
 						<ListItemSecondaryAction>
 							<IconButton
-								edge="end"
-								aria-label="download"
-								onClick={(e) => {
+								edge='end'
+								aria-label='download'
+								onClick={e => {
 									e.preventDefault()
 									e.stopPropagation()
 									handleDownload(file)
@@ -130,8 +134,8 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMod
 							</IconButton>
 							{editMode && (
 								<IconButton
-									edge="end"
-									aria-label="delete"
+									edge='end'
+									aria-label='delete'
 									onClick={() => handleDeleteClick(file)}
 								>
 									<DeleteIcon />
@@ -141,22 +145,18 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMod
 					</ListItem>
 				))}
 			</List>
-			
+
 			<Dialog
 				open={deleteDialogOpen}
 				onClose={handleDeleteCancel}
-				maxWidth="xs"
+				maxWidth='xs'
 				fullWidth
 			>
-				<DialogTitle>
-					{t('delete_file')}
-				</DialogTitle>
+				<DialogTitle>{t('delete_file')}</DialogTitle>
 				<DialogContent>
-					<Typography>
-						{t('delete_file_confirm')}
-					</Typography>
+					<Typography>{t('delete_file_confirm')}</Typography>
 					{fileToDelete && (
-						<Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+						<Typography variant='body2' sx={{ mt: 1, fontWeight: 'bold' }}>
 							{fileToDelete.original_filename}
 						</Typography>
 					)}
@@ -167,8 +167,8 @@ const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMod
 					</Button>
 					<Button
 						onClick={handleDeleteConfirm}
-						color="error"
-						variant="contained"
+						color='error'
+						variant='contained'
 						disabled={deleting}
 						startIcon={deleting ? <CircularProgress size={20} /> : null}
 					>

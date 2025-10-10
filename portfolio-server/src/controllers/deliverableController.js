@@ -63,11 +63,9 @@ class DeliverableController {
 	static async remove(req, res, next) {
 		try {
 			if (req.user.userType.toLowerCase() !== 'student') {
-				return res
-					.status(403)
-					.json({
-						error: "Ruxsat yo'q. Faqat talabalar bu amalni bajara oladi.",
-					})
+				return res.status(403).json({
+					error: "Ruxsat yo'q. Faqat talabalar bu amalni bajara oladi.",
+				})
 			}
 
 			// >>> TUZATISH: Bu yerda ham studentni topib olamiz <<<
