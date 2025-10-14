@@ -76,5 +76,15 @@ class NewsController {
 			next(error)
 		}
 	}
+
+	static async getById(req, res, next) {
+		try {
+			const news = await NewsService.getById(req.params.id, req.user)
+			if (!news) return res.status(404).json({ message: 'Yangilik topilmadi.' })
+			return res.status(200).json(news)
+		} catch (err) {
+			next(err)
+		}
+	}
 }
 module.exports = NewsController

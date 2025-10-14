@@ -246,6 +246,16 @@ const Layout = () => {
 		}
 	}, [])
 
+	// Listen for unread count changes from News pages
+	useEffect(() => {
+		const handler = e => {
+			const delta = e?.detail?.delta || 0
+			setUnReadNewsData(prev => Math.max(0, (prev || 0) + delta))
+		}
+		window.addEventListener('news:unread-count-change', handler)
+		return () => window.removeEventListener('news:unread-count-change', handler)
+	}, [])
+
 	const handleNavButtonClick = () => {
 		setIsMenuOpen(prevState => !prevState)
 	}

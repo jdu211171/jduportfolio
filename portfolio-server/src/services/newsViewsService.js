@@ -201,6 +201,51 @@ class NewsViewsService {
 			throw error
 		}
 	}
+
+	static async markAllAsViewed(userId, userRole) {
+		try {
+			// Get all approved news ids
+			const news = await News.findAll({
+				where: { status: 'approved' },
+				attributes: ['id'],
+			})
+			const newsIds = news.map(n => n.id)
+			if (newsIds.length === 0) return { markedCount: 0, total: 0, skipped: 0 }
+
+			// Find already viewed
+			const viewed = await NewsViews.findAll({
+				where: {
+					user_id: String(userId),
+					user_role: userRole,
+					news_id: { [Op.in]: newsIds },
+				},
+				attributes: ['news_id'],
+			})
+			const viewedSet = new Set(viewed.map(v => v.news_id))
+			const toCreateIds = newsIds.filter(id => !viewedSet.has(id))
+
+			if (toCreateIds.length === 0) {
+				return { markedCount: 0, total: newsIds.length, skipped: newsIds.length }
+			}
+
+			const now = new Date()
+			const records = toCreateIds.map(id => ({
+				news_id: id,
+				user_id: String(userId),
+				user_role: userRole,
+				viewed_at: now,
+			}))
+			await NewsViews.bulkCreate(records, { ignoreDuplicates: true })
+			return {
+				markedCount: records.length,
+				total: newsIds.length,
+				skipped: newsIds.length - records.length,
+			}
+		} catch (error) {
+			console.error('Error marking all news as viewed:', error)
+			throw error
+		}
+	}
 }
 
 module.exports = NewsViewsService

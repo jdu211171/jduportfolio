@@ -261,6 +261,51 @@ class NewsService {
 			throw error
 		}
 	}
+
+	static async getById(id, user) {
+		const { News, Staff, Recruiter, Admin } = require('../models')
+		const { Op } = require('sequelize')
+		const finalConditions = [{ id: id }]
+		if (user.userType === 'Admin' || user.userType === 'Staff') {
+			// no extra restrictions
+		} else if (user.userType === 'Recruiter') {
+			finalConditions.push({
+				[Op.or]: [
+					{ status: 'approved' },
+					{ authorId: user.id, authorType: 'Recruiter' },
+				],
+			})
+		} else {
+			finalConditions.push({ status: 'approved' })
+		}
+		const item = await News.findOne({
+			where: { [Op.and]: finalConditions },
+			include: [
+				{ model: Admin, as: 'authorAdmin', attributes: ['id', 'first_name', 'last_name'], required: false },
+				{ model: Staff, as: 'authorStaff', attributes: ['id', 'first_name', 'last_name'], required: false },
+				{ model: Recruiter, as: 'authorRecruiter', attributes: ['id', 'company_name'], required: false },
+				{ model: Admin, as: 'moderatorAdmin', attributes: ['id', 'first_name', 'last_name'], required: false },
+				{ model: Staff, as: 'moderatorStaff', attributes: ['id', 'first_name', 'last_name'], required: false },
+			],
+		})
+		if (!item) return null
+		const newsJson = item.toJSON()
+		let author = null
+		if (newsJson.authorType === 'Admin' && newsJson.authorAdmin) author = newsJson.authorAdmin
+		else if (newsJson.authorType === 'Staff' && newsJson.authorStaff) author = newsJson.authorStaff
+		else if (newsJson.authorType === 'Recruiter' && newsJson.authorRecruiter) author = newsJson.authorRecruiter
+		let moderator = null
+		if (newsJson.moderatorType === 'Admin' && newsJson.moderatorAdmin) moderator = newsJson.moderatorAdmin
+		else if (newsJson.moderatorType === 'Staff' && newsJson.moderatorStaff) moderator = newsJson.moderatorStaff
+		delete newsJson.authorAdmin
+		delete newsJson.authorStaff
+		delete newsJson.authorRecruiter
+		delete newsJson.moderatorAdmin
+		delete newsJson.moderatorStaff
+		newsJson.author = author
+		newsJson.moderator = moderator
+		return newsJson
+	}
 }
 
 module.exports = NewsService

@@ -1,6 +1,22 @@
 import LaunchIcon from '@mui/icons-material/Launch'
-import { Button, Chip, CircularProgress, IconButton } from '@mui/material'
-import { useEffect, useState } from 'react'
+import SearchIcon from '@mui/icons-material/Search'
+import {
+  Alert,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+  Select,
+  Skeleton,
+  InputAdornment,
+  Snackbar,
+  TextField,
+} from '@mui/material'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
@@ -11,197 +27,397 @@ export const NewsForUsers = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
-	// State management
-	const [newsData, setNewsData] = useState([])
-	const [loading, setLoading] = useState(false)
-	const [loadingMarkAsRead, setloadingMarkAsRead] = useState(false)
-	// scroll variant: no expand state needed
+  // State management
+  const [newsData, setNewsData] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  // Per-item marking state
+  const [markingIds, setMarkingIds] = useState(new Set())
+  // Filters & view
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedTag, setSelectedTag] = useState('') // '' = all
+  const [sortBy, setSortBy] = useState('newest')
+  const [visibleCount, setVisibleCount] = useState(12)
+  // No local detail modal; use /news/:id route
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Read all states
+  const [readAllOpen, setReadAllOpen] = useState(false)
+  const [readAllLoading, setReadAllLoading] = useState(false)
+  const [toastOpen, setToastOpen] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
 
-	// Fetch news data from API
-	const fetchNews = async () => {
-		setLoading(true)
+  // Fetch news data from API
+  const fetchNews = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await axios.get('/api/news-views/with-status')
+      const data = response.data
+      const items = Array.isArray(data) ? data : data.news || []
+      setNewsData(items)
+    } catch (err) {
+      console.error('Error fetching news:', err)
+      setError(err?.response?.data?.message || err.message || 'Error')
+    } finally {
+      setLoading(false)
+    }
+  }
 
-		try {
-			const response = await axios.get('/api/news-views/with-status')
-			const data = response.data
-
-			setNewsData(Array.isArray(data) ? data : data.news || [])
-		} catch (err) {
-			console.error('Error fetching news:', err)
-		} finally {
-			setLoading(false)
-		}
-	}
-	const markAsRead = async id => {
-		setloadingMarkAsRead(true)
-		try {
-			const response = await axios.post(`/api/news-views/${id}/read`)
-			const data = response.data
-		} catch (err) {
-			console.error('Error fetching news:', err)
-		} finally {
-			fetchNews()
-			setloadingMarkAsRead(false)
-		}
-	}
+  const markAsRead = async id => {
+    // Optimistic update and per-item loading
+    setMarkingIds(prev => new Set(prev).add(id))
+    const prevData = newsData
+    setNewsData(d => d.map(n => (n.id === id ? { ...n, isViewed: true } : n)))
+    try {
+      await axios.post(`/api/news-views/${id}/read`)
+      const wasUnread = prevData.some(n => n.id === id && !n.isViewed)
+      if (wasUnread) {
+        window.dispatchEvent(new CustomEvent('news:unread-count-change', { detail: { delta: -1 } }))
+      }
+    } catch (err) {
+      console.error('Error marking news as read:', err)
+      setError(err?.response?.data?.message || err.message || 'Error')
+      // Revert on failure
+      setNewsData(prevData)
+    } finally {
+      setMarkingIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+    }
+  }
 	// Load news on component mount
 	useEffect(() => {
 		fetchNews()
 	}, [])
 
-	if (loading) {
-		return (
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					minHeight: '400px',
-					backgroundColor: '#f5f7fa',
-				}}
-			>
-				<CircularProgress size={40} />
-			</div>
-		)
-	}
+  // Helpers
+  const formatDate = (s) => {
+    try {
+      if (!s) return ''
+      const d = new Date(s)
+      return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(d)
+    } catch {
+      return s?.split?.('T')?.[0] || ''
+    }
+  }
 
-	if (newsData.length === 0) {
-		return (
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'center',
-					alignItems: 'center',
-					minHeight: '400px',
-					backgroundColor: '#f5f7fa',
-					color: '#7f8c8d',
-					fontSize: '18px',
-				}}
-			>
-				{t('noNewsAvailable')}
-			</div>
-		)
-	}
+  const getDomain = url => {
+    try {
+      return new URL(url).hostname.replace('www.', '')
+    } catch {
+      return null
+    }
+  }
+
+  // Unique tags
+  const allTags = useMemo(() => {
+    const s = new Set()
+    newsData.forEach(n => {
+      if (Array.isArray(n.hashtags)) n.hashtags.forEach(tag => s.add(tag))
+    })
+    return Array.from(s)
+  }, [newsData])
+
+  // Derived list based on filters and sort
+  const filteredSorted = useMemo(() => {
+    let list = [...newsData]
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase()
+      list = list.filter(n =>
+        (n.title || '').toLowerCase().includes(q) ||
+        (n.description || '').toLowerCase().includes(q)
+      )
+    }
+    if (selectedTag) {
+      list = list.filter(n => Array.isArray(n.hashtags) && n.hashtags.includes(selectedTag))
+    }
+    list.sort((a, b) => {
+      const da = new Date(a.createdAt).getTime() || 0
+      const db = new Date(b.createdAt).getTime() || 0
+      return sortBy === 'newest' ? db - da : da - db
+    })
+    return list
+  }, [newsData, searchTerm, selectedTag, sortBy])
+
+  const visibleItems = filteredSorted.slice(0, visibleCount)
+  const sentinelId = 'news-sentinel'
+  const unreadCount = useMemo(() => newsData.filter(n => !n.isViewed).length, [newsData])
+
+  const handleReadAll = async () => {
+    setReadAllLoading(true)
+    const delta = unreadCount
+    try {
+      await axios.post('/api/news-views/read-all')
+      setNewsData(d => d.map(n => ({ ...n, isViewed: true })))
+      if (delta > 0) {
+        window.dispatchEvent(new CustomEvent('news:unread-count-change', { detail: { delta: -delta } }))
+      }
+      setToastMessage(t('allNewsMarkedRead') || 'All news marked as read')
+      setToastOpen(true)
+    } catch (err) {
+      console.error('Error marking all as read:', err)
+      setError(err?.response?.data?.message || err.message || 'Error')
+    } finally {
+      setReadAllLoading(false)
+      setReadAllOpen(false)
+    }
+  }
+
+  // Open detail via navigate inline
+
+  // Initialize from URL params
+  useEffect(() => {
+    const qp = Object.fromEntries(searchParams.entries())
+    if (qp.q) setSearchTerm(qp.q)
+    if (qp.tag) setSelectedTag(qp.tag)
+    if (qp.sort && (qp.sort === 'newest' || qp.sort === 'oldest')) setSortBy(qp.sort)
+  }, [])
+
+  // Sync to URL params
+  useEffect(() => {
+    const qp = {}
+    if (searchTerm) qp.q = searchTerm
+    if (selectedTag) qp.tag = selectedTag
+    if (sortBy && sortBy !== 'newest') qp.sort = sortBy
+    setSearchParams(qp, { replace: true })
+  }, [searchTerm, selectedTag, sortBy])
+
+  // Infinite scroll (IntersectionObserver)
+  useEffect(() => {
+    const el = document.getElementById(sentinelId)
+    if (!el) return
+    const observer = new IntersectionObserver(entries => {
+      const first = entries[0]
+      if (first.isIntersecting) {
+        if (filteredSorted.length > visibleCount) {
+          setVisibleCount(c => c + 12)
+        }
+      }
+    }, { rootMargin: '200px' })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [filteredSorted.length, visibleCount])
+
+  
 
 	return (
-		<div>
-			{/* Header Section */}
-			<div
-				style={{
-					textAlign: 'center',
-					marginBottom: '40px',
-				}}
-			>
-				<h1
-					style={{
-						fontSize: 'clamp(28px, 5vw, 36px)',
-						fontWeight: 'bold',
-						color: '#2c3e50',
-						margin: '0 0 7px 0',
-					}}
-				>
-					{t('newsHighlights') || 'Latest News'}
-				</h1>
-				<p
-					style={{
-						fontSize: 'clamp(14px, 2vw, 16px)',
-						color: '#7f8c8d',
-					}}
-				>
-					{t('checkOut')}
-				</p>
+		<div className={styles.page}>
+			{/* Header */}
+			<div className={styles.header}>
+				<h1 className={styles.headerTitle}>{t('newsHighlights') || 'Latest News'}</h1>
+				<p className={styles.headerSub}>{t('checkOut')}</p>
 			</div>
 
-			{/* News Grid */}
+			{/* Error */}
+			{error && (
+				<div className={styles.errorWrap}>
+					<Alert severity='error' action={<Button color='inherit' size='small' onClick={fetchNews}>{t('retry')}</Button>}>
+						{error}
+					</Alert>
+				</div>
+			)}
+
+			{/* Toolbar */}
+  <div className={styles.toolbar}>
+				<TextField
+					value={searchTerm}
+					onChange={e => {
+						setSearchTerm(e.target.value)
+						setVisibleCount(12)
+					}}
+					placeholder={t('searchNewsPlaceholder')}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position='start'>
+                <SearchIcon style={{ color: '#6c757d' }} />
+              </InputAdornment>
+            ),
+          }}
+					className={styles.search}
+					size='small'
+				/>
+    <Select
+      value={sortBy}
+      onChange={e => setSortBy(e.target.value)}
+      className={styles.select}
+      size='small'
+    >
+      <MenuItem value='newest'>{t('newest')}</MenuItem>
+      <MenuItem value='oldest'>{t('oldest')}</MenuItem>
+    </Select>
+    <Button
+      variant='outlined'
+      onClick={() => setReadAllOpen(true)}
+      disabled={unreadCount === 0 || readAllLoading}
+    >
+      {readAllLoading ? t('loading') : t('mark_all_read')}
+    </Button>
+  </div>
+
+			{/* Tag Filters */}
+			{allTags.length > 0 && (
+				<div className={styles.filters}>
+					<Chip
+						label={t('all')}
+						className={selectedTag === '' ? styles.chipActive : styles.chip}
+						onClick={() => {
+							setSelectedTag('')
+							setVisibleCount(12)
+						}}
+						size='small'
+					/>
+					{allTags.map((tag, i) => (
+						<Chip
+							key={i}
+							label={tag}
+							className={selectedTag === tag ? styles.chipActive : styles.chip}
+							onClick={() => {
+								setSelectedTag(tag === selectedTag ? '' : tag)
+								setVisibleCount(12)
+							}}
+							size='small'
+						/>
+					))}
+				</div>
+			)}
+
+			{/* News Grid or Skeletons */}
 			<div className={styles.grid}>
-				{newsData.map((news, index) => {
-					const itemKey = news.id ?? `i-${index}`
-					return (
-						<div key={itemKey} className={styles.card}>
-							{/* Image Section */}
+				{loading
+					? Array.from({ length: 6 }).map((_, idx) => (
+						<div key={`s-${idx}`} className={styles.card}>
 							<div className={styles.image}>
-								{news.image_url ? (
-									<img
-										className={styles.img}
-										src={news.image_url}
-										alt={news.title}
-									/>
-								) : (
-									<div className={styles.noImage}>{t('noImageAvailable')}</div>
-								)}
+								<Skeleton variant='rectangular' width='100%' height='100%' />
 							</div>
-
-							{/* Content Section */}
 							<div className={styles.content}>
-								{/* Title */}
-								<h2 className={styles.title}>{news.title}</h2>
-
-								{/* Description scroll variant */}
-								<div className={styles.descScroll}>
-									<p className={styles.descText}>{news.description}</p>
-								</div>
-
-								{/* Hashtags */}
-								{news.hashtags &&
-									Array.isArray(news.hashtags) &&
-									news.hashtags.length > 0 && (
-										<div className={styles.tags}>
-											{news.hashtags.slice(0, 3).map((hashtag, idx) => (
-												<Chip
-													key={idx}
-													label={hashtag}
-													size='small'
-													style={{
-														backgroundColor: '#e3f2fd',
-														color: '#1976d2',
-														fontSize: '12px',
-													}}
-												/>
-											))}
-										</div>
-									)}
-
-								{/* Footer */}
+								<Skeleton variant='text' width='80%' height={28} />
+								<Skeleton variant='text' width='100%' height={18} />
+								<Skeleton variant='text' width='60%' height={18} />
 								<div className={styles.footer}>
-									<div className={styles.meta}>
-										<span className={styles.date}>
-											{news.createdAt?.split('T')[0]}
-										</span>
-										<span className={styles.type}>{news.type}</span>
-									</div>
-									<div>
-										<Button
-											variant='contained'
-											style={{ marginRight: 8 }}
-											disabled={news.isViewed}
-											onClick={() => markAsRead(news.id)}
-										>
-											{loadingMarkAsRead
-												? t('loading')
-												: news.isViewed
-													? t('readed')
-													: t('mark_as_read')}
-										</Button>
-										{news.source_link && (
-											<IconButton
-												className={styles.linkButton}
-												component='a'
-												href={news.source_link}
-												target='_blank'
-												rel='noopener noreferrer'
-												size='small'
-											>
-												<LaunchIcon style={{ fontSize: '16px' }} />
-											</IconButton>
-										)}
-									</div>
-									{/* Source Link */}
+									<Skeleton variant='text' width={90} height={16} />
+									<Skeleton variant='rectangular' width={100} height={36} />
 								</div>
 							</div>
 						</div>
+					))
+					: visibleItems.length === 0
+					? (
+						<div className={styles.empty}>{t('noNewsAvailable')}</div>
 					)
-				})}
+					: (
+						visibleItems.map((news, index) => {
+							const itemKey = news.id ?? `i-${index}`
+							const domain = news.source_link ? getDomain(news.source_link) : null
+							const isMarking = markingIds.has(news.id)
+							return (
+            <div
+              key={itemKey}
+              className={`${styles.card} ${!news.isViewed ? styles.cardUnread : ''}`}
+              onClick={() => navigate(`/news/${news.id}`)}
+              role='article'
+            >
+									{!news.isViewed && <span className={styles.unreadDot} />}
+									{/* Image Section */}
+									<div className={styles.image}>
+										{news.image_url ? (
+											<img
+												className={styles.img}
+												src={news.image_url}
+												alt={news.title}
+												loading='lazy'
+												decoding='async'
+											/>
+										) : (
+											<div className={styles.noImage}>{t('noImageAvailable')}</div>
+										)}
+									</div>
+
+									{/* Content Section */}
+									<div className={styles.content}>
+										<h2 className={styles.title}>{news.title}</h2>
+										<div className={styles.descScroll}>
+											<p className={styles.descText}>{news.description}</p>
+										</div>
+										{news.hashtags && Array.isArray(news.hashtags) && news.hashtags.length > 0 && (
+											<div className={styles.tags}>
+												{news.hashtags.slice(0, 3).map((hashtag, idx) => (
+													<Chip key={idx} label={hashtag} size='small' className={styles.tagChip} />
+												))}
+											</div>
+										)}
+										<div className={styles.footer}>
+											<div className={styles.meta}>
+												<span className={styles.date}>{formatDate(news.createdAt)}</span>
+												<span className={styles.type}>{news.type}</span>
+											</div>
+											<div className={styles.actions} onClick={e => e.stopPropagation()}>
+												<Button
+													variant='contained'
+													disabled={news.isViewed || isMarking}
+													onClick={() => markAsRead(news.id)}
+												>
+													{isMarking ? t('loading') : news.isViewed ? t('readed') : t('mark_as_read')}
+												</Button>
+												{news.source_link && (
+													<Button
+														component='a'
+														href={news.source_link}
+														target='_blank'
+														rel='noopener noreferrer'
+														className={styles.sourceBtn}
+														aria-label={t('source')}
+													>
+														<LaunchIcon style={{ fontSize: 16, marginRight: 6 }} />
+														{domain ? domain : t('source')}
+													</Button>
+												)}
+											</div>
+										</div>
+									</div>
+								</div>
+						)
+					})
+					)
+				}
 			</div>
+
+  {/* Load more */}
+  {!loading && filteredSorted.length > visibleCount && (
+    <div className={styles.loadMoreWrap}>
+      <Button variant='outlined' onClick={() => setVisibleCount(c => c + 12)}>
+        {t('loadMore')}
+      </Button>
+    </div>
+  )}
+
+  {/* Sentinel for infinite scroll */}
+  <div id={sentinelId} />
+
+  {/* Detail modal removed; using dedicated detail route */}
+  {/* Read all confirm */}
+  <Dialog open={readAllOpen} onClose={() => setReadAllOpen(false)}>
+    <DialogTitle>{t('mark_all_read')}</DialogTitle>
+    <DialogContent>
+      <div style={{ paddingTop: 8 }}>{t('confirmMarkAllRead') || 'Mark all news as read?'}</div>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={() => setReadAllOpen(false)}>{t('cancel')}</Button>
+      <Button onClick={handleReadAll} variant='contained' disabled={readAllLoading || unreadCount === 0}>
+        {readAllLoading ? t('loading') : t('mark_all_read')}
+      </Button>
+    </DialogActions>
+  </Dialog>
+
+  <Snackbar
+    open={toastOpen}
+    autoHideDuration={2500}
+    onClose={() => setToastOpen(false)}
+    message={toastMessage}
+    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+  />
 		</div>
 	)
 }

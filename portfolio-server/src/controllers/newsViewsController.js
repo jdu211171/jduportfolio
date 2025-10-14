@@ -186,6 +186,43 @@ class NewsViewsController {
 			})
 		}
 	}
+
+	static async markAllAsRead(req, res) {
+		try {
+			const { id, userType } = req.user
+
+			if (!id || !userType) {
+				return res
+					.status(400)
+					.json({ error: 'User ID and user type are required' })
+			}
+
+			let userId = String(id)
+			let userRole = userType.toLowerCase()
+
+			// Map Student to business ID
+			if (userRole === 'student') {
+				const student = await getStudentById(id)
+				if (!student) {
+					return res.status(404).json({ error: 'Student not found' })
+				}
+				userId = String(student.student_id)
+			}
+
+			const result = await NewsViewsService.markAllAsViewed(userId, userRole)
+
+			return res.status(200).json({
+				message: 'All news marked as read',
+				...result,
+			})
+		} catch (error) {
+			console.error('Error marking all news as read:', error)
+			return res.status(500).json({
+				error: 'Internal Server Error',
+				details: error.message,
+			})
+		}
+	}
 }
 
 module.exports = NewsViewsController

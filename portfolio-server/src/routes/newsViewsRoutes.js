@@ -72,4 +72,7 @@ router.get(
 	NewsViewsController.getNewsWithViewStatus
 )
 
+// Mark all news as read for current user
+router.post('/read-all', authMiddleware, NewsViewsController.markAllAsRead)
+
 module.exports = router
