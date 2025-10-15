@@ -78,6 +78,11 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 				defaultValue: false,
 			},
+			isPartner: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false,
+			},
 			kintone_id: {
 				type: DataTypes.STRING,
 				allowNull: false,

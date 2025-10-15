@@ -18,6 +18,17 @@ class RecruiterController {
 						symbols: false,
 						uppercase: true,
 					})
+					// Parse isPartner from Kintone
+					let isPartner = false
+					const isPartnerRaw = record.isPartner?.value
+					if (Array.isArray(isPartnerRaw)) {
+						isPartner = isPartnerRaw
+							.map(v => String(v).toLowerCase())
+							.includes('true')
+					} else if (typeof isPartnerRaw === 'string') {
+						isPartner = isPartnerRaw.toLowerCase() === 'true'
+					}
+
 					const data = {
 						email: record.recruiterEmail?.value,
 						password: password,
@@ -26,6 +37,7 @@ class RecruiterController {
 						company_name: record.recruiterCompany?.value,
 						phone: record.recruiterPhone?.value,
 						kintone_id: record['$id']?.value,
+						isPartner,
 					}
 					const newRecruiter = await RecruiterService.createRecruiter(data)
 					if (newRecruiter) {
@@ -39,6 +51,16 @@ class RecruiterController {
 					return res.status(201).json(newRecruiter)
 				}
 				case 'UPDATE_RECORD': {
+					const isPartnerRaw = record.isPartner?.value
+					let isPartner = false
+					if (Array.isArray(isPartnerRaw)) {
+						isPartner = isPartnerRaw
+							.map(v => String(v).toLowerCase())
+							.includes('true')
+					} else if (typeof isPartnerRaw === 'string') {
+						isPartner = isPartnerRaw.toLowerCase() === 'true'
+					}
+
 					const recruiterData = {
 						email: record.recruiterEmail.value,
 						first_name: record.recruiterFirstName.value,
@@ -46,6 +68,7 @@ class RecruiterController {
 						company_name: record.recruiterCompany.value,
 						phone: record.recruiterPhone.value,
 						kintone_id: record['$id'].value,
+						isPartner,
 					}
 					const updatedRecruiter =
 						await RecruiterService.updateRecruiterByKintoneId(
