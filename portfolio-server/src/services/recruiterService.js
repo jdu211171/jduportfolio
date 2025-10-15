@@ -64,6 +64,9 @@ class RecruiterService {
 				}
 			})
 
+			// Always exclude partner recruiters from public GET list
+			whereCondition.isPartner = false
+
 			const recruiters = await Recruiter.findAll({
 				attributes: { exclude: ['isPartner'] },
 				where: whereCondition,
@@ -92,7 +95,12 @@ class RecruiterService {
 			if (!password) {
 				excluded.push('password')
 			}
-			const recruiter = await Recruiter.findByPk(recruiterId, {
+			// For public GET by ID (password=false), exclude partner recruiters
+			const where = { id: recruiterId }
+			if (!password) where.isPartner = false
+
+			const recruiter = await Recruiter.findOne({
+				where,
 				attributes: { exclude: excluded },
 			})
 			if (!recruiter) {
