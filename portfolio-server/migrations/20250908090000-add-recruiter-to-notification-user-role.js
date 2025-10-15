@@ -18,6 +18,12 @@ module.exports = {
     // We will recreate the enum without 'recruiter' and set the column to use the new enum
     const t = await queryInterface.sequelize.transaction();
     try {
+      // Ensure there are no rows using the soon-to-be-removed enum value
+      // Otherwise casting to the new enum will fail.
+      await queryInterface.sequelize.query(
+        "UPDATE \"Notifications\" SET \"user_role\" = 'admin' WHERE \"user_role\"::text = 'recruiter';",
+        { transaction: t }
+      );
       // 1) Rename old type
       await queryInterface.sequelize.query(
         'ALTER TYPE "enum_Notifications_user_role" RENAME TO "enum_Notifications_user_role_old";',
@@ -45,4 +51,3 @@ module.exports = {
     }
   },
 };
-
