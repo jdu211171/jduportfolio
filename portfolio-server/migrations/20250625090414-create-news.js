@@ -69,8 +69,23 @@ module.exports = {
         type: Sequelize.DATE
       }
     });
+    // Ensure NewsViews FK exists if NewsViews table was created earlier
+    await queryInterface.sequelize.query(`
+      DO $$
+      BEGIN
+        IF to_regclass('"NewsViews"') IS NOT NULL AND NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'fk_newsviews_news_id'
+        ) THEN
+          ALTER TABLE "NewsViews"
+            ADD CONSTRAINT fk_newsviews_news_id
+            FOREIGN KEY ("news_id") REFERENCES "News"(id)
+            ON DELETE CASCADE ON UPDATE CASCADE;
+        END IF;
+      END$$;
+    `);
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('News');
+    // Drop with CASCADE to remove dependent FKs (e.g., from NewsViews)
+    await queryInterface.sequelize.query('DROP TABLE IF EXISTS "News" CASCADE;');
   }
 };

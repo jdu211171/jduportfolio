@@ -9,6 +9,11 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.removeColumn('Drafts', 'previous_profile_data');
+    // Remove column if it exists (down may run after another migration already removed it)
+    try {
+      await queryInterface.removeColumn('Drafts', 'previous_profile_data');
+    } catch (e) {
+      // ignore if column doesn't exist
+    }
   }
 };
