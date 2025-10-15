@@ -65,6 +65,7 @@ class RecruiterService {
 			})
 
 			const recruiters = await Recruiter.findAll({
+				attributes: { exclude: ['isPartner'] },
 				where: whereCondition,
 				order: [
 					['first_name', 'ASC'],
@@ -87,7 +88,7 @@ class RecruiterService {
 	// Service method to retrieve a recruiter by ID
 	static async getRecruiterById(recruiterId, password = false) {
 		try {
-			let excluded = ['createdAt', 'updatedAt']
+			let excluded = ['createdAt', 'updatedAt', 'isPartner']
 			if (!password) {
 				excluded.push('password')
 			}
@@ -271,6 +272,17 @@ class RecruiterService {
 					uppercase: true,
 				})
 
+				// Parse isPartner from Kintone (checkbox/string 'true'/'false')
+				let isPartner = false
+				const isPartnerRaw = record.isPartner?.value
+				if (Array.isArray(isPartnerRaw)) {
+					isPartner = isPartnerRaw
+						.map(v => String(v).toLowerCase())
+						.includes('true')
+				} else if (typeof isPartnerRaw === 'string') {
+					isPartner = isPartnerRaw.toLowerCase() === 'true'
+				}
+
 				const recruiterData = {
 					email: record.recruiterEmail?.value,
 					password: password,
@@ -280,6 +292,7 @@ class RecruiterService {
 					phone: record.recruiterPhone?.value,
 					kintone_id: kintoneId,
 					active: true,
+					isPartner,
 				}
 				console.log('====================================')
 				console.log("Yangi rekruter ma'lumotlari:", recruiterData)
