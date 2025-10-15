@@ -7,6 +7,57 @@
   gap: clamp(12px, 2vw, 20px);
 }
 
+.page {
+  padding-bottom: 24px;
+}
+
+.header {
+  text-align: center;
+  margin: 10px auto 24px;
+  max-width: 900px;
+}
+
+.headerTitle {
+  font-size: clamp(28px, 5vw, 36px);
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 6px 0;
+}
+
+.headerSub {
+  font-size: clamp(14px, 2vw, 16px);
+  color: #7f8c8d;
+  margin: 0;
+}
+
+.toolbar {
+  max-width: 1200px;
+  margin: 0 auto 12px;
+  padding: 0 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search {
+  flex: 1 1 auto;
+  background: #fff;
+}
+
+.select {
+  min-width: 160px;
+  background: #fff;
+}
+
+.filters {
+  max-width: 1200px;
+  margin: 0 auto 12px;
+  padding: 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .card {
   background: #ffffff;
   border: 1px solid #e6e6e6;
@@ -21,6 +72,22 @@
 .card:hover {
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   transform: translateY(-2px);
+}
+
+.cardUnread {
+  position: relative;
+  border-left: 4px solid #1976d2;
+}
+
+.unreadDot {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 10px;
+  height: 10px;
+  background: #1976d2;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.9);
 }
 
 .image {
@@ -106,6 +173,12 @@
   gap: 6px;
 }
 
+.tagChip {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+  font-size: 12px !important;
+}
+
 .footer {
   display: flex;
   justify-content: space-between;
@@ -140,4 +213,49 @@
   width: 36px;
   height: 36px;
   border-radius: 8px !important;
+}
+
+.sourceBtn {
+  margin-left: 8px !important;
+  text-transform: none !important;
+}
+
+.chip {
+  background-color: #f1f3f4 !important;
+  color: #2c3e50 !important;
+}
+
+.chipActive {
+  background-color: #1976d2 !important;
+  color: #ffffff !important;
+}
+
+.errorWrap {
+  max-width: 1200px;
+  margin: 0 auto 12px;
+  padding: 0 16px;
+}
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #7f8c8d;
+  padding: 60px 20px;
+}
+
+.loadMoreWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0 20px;
+}
+
+.detailImage {
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
 }

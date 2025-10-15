@@ -29,4 +29,7 @@ router.get(
 
 router.put('/:id/moderate', authMiddleware, NewsController.moderate)
 
+// Keep after '/with-unread-count' so it doesn't get captured as ':id'
+router.get('/:id', authMiddleware, NewsController.getById)
+
 module.exports = router

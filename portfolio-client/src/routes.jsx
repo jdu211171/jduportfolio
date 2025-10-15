@@ -31,6 +31,7 @@ import LogOut from './components/LogOut'
 import GoogleAuthCallback from './pages/GoogleAuthCallback.jsx'
 import { CreateSkill } from './pages/CreateSkill/CreateSkill.jsx'
 import { News } from './pages/news/News.jsx'
+import NewsDetail from './pages/news/NewsDetail.jsx'
 const AppRoutes = () => {
 	const { role, userId, updateUser, language } = useContext(UserContext)
 
@@ -100,6 +101,7 @@ const AppRoutes = () => {
 							}
 						>
 							<Route index element={<News />} />
+							<Route path=':id' element={<NewsDetail />} />
 						</Route>
 
 						<Route

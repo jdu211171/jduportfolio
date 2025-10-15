@@ -12,10 +12,11 @@ import {
 	DialogContent,
 	DialogTitle,
 	IconButton,
+	Skeleton,
 	Snackbar,
 	TextField,
 } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
 import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
 import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.svg'
@@ -25,6 +26,16 @@ import axios from '../../utils/axiosUtils'
 export const NewsForAdmin = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+
+	const formatDate = s => {
+		try {
+			if (!s) return ''
+			const d = new Date(s)
+			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(d)
+		} catch {
+			return s?.split?.('T')?.[0] || ''
+		}
+	}
 
 	// State management
 	const [newsData, setNewsData] = useState([])
@@ -88,6 +99,19 @@ export const NewsForAdmin = () => {
 		fetchNews()
 		readedUsers()
 	}, [])
+
+	// Debounced search (while keeping button search)
+	const didMountRef = useRef(false)
+	useEffect(() => {
+		if (!didMountRef.current) {
+			didMountRef.current = true
+			return
+		}
+		const h = setTimeout(() => {
+			fetchNews(searchTerm)
+		}, 400)
+		return () => clearTimeout(h)
+	}, [searchTerm])
 
 	const handleSearch = () => {
 		fetchNews(searchTerm)
@@ -429,19 +453,7 @@ export const NewsForAdmin = () => {
 				</div>
 			)}
 
-			{/* Loading State */}
-			{loading && !error && (
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center',
-						minHeight: '200px',
-					}}
-				>
-					<CircularProgress size={40} />
-				</div>
-			)}
+			{/* Loading handled by skeletons in grid below */}
 
 			{/* News Content Section */}
 			<div
@@ -642,7 +654,7 @@ export const NewsForAdmin = () => {
 											{news.type}
 										</div>
 										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>
-											{news.createdAt.split('T')[0]}
+											{formatDate(news.createdAt)}
 										</div>
 									</div>
 									{/* Action Buttons */}
@@ -671,6 +683,7 @@ export const NewsForAdmin = () => {
 												target='_blank'
 												rel='noopener noreferrer'
 												onClick={e => e.stopPropagation()}
+												aria-label={t('source')}
 											>
 												<LinkIcon />
 											</IconButton>
@@ -687,6 +700,7 @@ export const NewsForAdmin = () => {
 												border: '1px solid gray',
 											}}
 											size='small'
+											aria-label={t('edit')}
 										>
 											<EditIcon />
 										</IconButton>
@@ -704,6 +718,7 @@ export const NewsForAdmin = () => {
 												border: '1px solid gray',
 											}}
 											size='small'
+											aria-label={t('delete')}
 										>
 											{deleteLoading === news.id ? (
 												<CircularProgress size={18} color='inherit' />
@@ -717,6 +732,23 @@ export const NewsForAdmin = () => {
 							</div>
 						)
 					})
+				)}
+				{loading && (
+					Array.from({ length: 6 }).map((_, idx) => (
+						<div key={`sk-${idx}`} style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #e1e8ed' }}>
+							<div style={{ width: '100%', height: 'clamp(150px, 25vw, 200px)' }}>
+								<Skeleton variant='rectangular' width='100%' height='100%' />
+							</div>
+							<div style={{ padding: '12px' }}>
+								<Skeleton variant='text' width='80%' height={28} />
+								<Skeleton variant='text' width='60%' height={18} />
+								<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+									<Skeleton variant='text' width={90} height={16} />
+									<Skeleton variant='rectangular' width={100} height={32} />
+								</div>
+							</div>
+						</div>
+					))
 				)}
 			</div>
 
