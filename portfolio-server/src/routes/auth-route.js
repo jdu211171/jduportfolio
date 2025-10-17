@@ -396,10 +396,11 @@ router.post('/forgot-password', async (req, res) => {
       </body>
       </html>`
 
+    let emailResp
     try {
-      await sendEmail({ to, subject, text, html })
+      emailResp = await sendEmail({ to, subject, text, html })
     } catch (emailErr) {
-      console.error('SES send failed, reverting password change:', emailErr)
+      console.error('SES send threw, reverting password change:', emailErr)
       try {
         // Revert to previous hash without triggering hashing hooks
         await ModelRef.update(
@@ -411,9 +412,26 @@ router.post('/forgot-password', async (req, res) => {
       }
       // Generic success response to avoid enumeration
       forgotIpLast.set(ip, now)
-      return res
-        .status(200)
-        .json({ message: 'If an account exists, a new password has been sent' })
+      return res.status(200).json({
+        message: 'If an account exists, a new password has been sent',
+      })
+    }
+
+    // Handle soft failures where sendEmail returns success: false
+    if (!emailResp || emailResp.success !== true) {
+      console.error('SES send reported failure, reverting password change:', emailResp)
+      try {
+        await ModelRef.update(
+          { password: prevHash },
+          { where: { id: foundUser.id }, hooks: false }
+        )
+      } catch (revertErr) {
+        console.error('Failed to revert password after reported email failure:', revertErr)
+      }
+      forgotIpLast.set(ip, now)
+      return res.status(200).json({
+        message: 'If an account exists, a new password has been sent',
+      })
     }
 
     // Update cooldown trackers on success
