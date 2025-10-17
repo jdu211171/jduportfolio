@@ -1,0 +1,161 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'portfolio-client/**'
+            backend:
+              - 'portfolio-server/**'
+
+  frontend:
+    name: Frontend Deploy
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    defaults:
+      run:
+        working-directory: portfolio-client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Prepare SSH key
+        id: ssh-key
+        shell: bash
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="$RUNNER_TEMP/ec2_key.pem"
+          echo "$EC2_SSH_KEY" > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+          echo "key_file=$KEY_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Create .env for deploy.sh
+        shell: bash
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          FRONTEND_EC2_PATH: ${{ secrets.FRONTEND_EC2_PATH }}
+          PM2_FRONTEND_SERVICE: ${{ secrets.PM2_FRONTEND_SERVICE }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_APP_API_BASE_URL: ${{ secrets.VITE_APP_API_BASE_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="${{ steps.ssh-key.outputs.key_file }}"
+          cat > .env << 'ENVVARS'
+EC2_KEY="__WILL_BE_REPLACED__"
+EC2_USER="${EC2_USER:-ec2-user}"
+EC2_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
+EC2_PATH="${FRONTEND_EC2_PATH:-/home/ec2-user/jduportfolio/portfolio-client}"
+PM2_SERVICE_NAME="${PM2_FRONTEND_SERVICE:-portfolio-client}"
+VITE_API_URL="${VITE_API_URL:-http://localhost:4000}"
+VITE_APP_API_BASE_URL="${VITE_APP_API_BASE_URL:-http://localhost:4000/api}"
+FRONTEND_URL="${FRONTEND_URL:-http://localhost:5173}"
+ENVVARS
+          # Inject actual key path (avoid expanding inside here-doc)
+          sed -i.bak "s|__WILL_BE_REPLACED__|$KEY_FILE|g" .env && rm -f .env.bak
+          echo "Created portfolio-client/.env"
+
+      - name: Run frontend deploy script
+        run: |
+          set -euo pipefail
+          chmod +x deploy.sh
+          bash deploy.sh
+
+  backend:
+    name: Backend Deploy
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        id: ssh-key
+        shell: bash
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="$RUNNER_TEMP/ec2_key.pem"
+          echo "$EC2_SSH_KEY" > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+          echo "key_file=$KEY_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy backend via SSH
+        shell: bash
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          BACKEND_REPO_PATH: ${{ secrets.BACKEND_REPO_PATH }}
+          PM2_BACKEND_SERVICE: ${{ secrets.PM2_BACKEND_SERVICE }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="${{ steps.ssh-key.outputs.key_file }}"
+          REMOTE_USER="${EC2_USER:-ec2-user}"
+          REMOTE_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
+          REPO_PATH="${BACKEND_REPO_PATH:-/home/ec2-user/jduportfolio}"
+          SERVICE_NAME="${PM2_BACKEND_SERVICE:-portfolio-server}"
+
+          ssh -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$REMOTE_USER@$REMOTE_HOST" bash -s << EOF
+set -euo pipefail
+REPO_PATH="$REPO_PATH"
+SERVICE_NAME="$SERVICE_NAME"
+
+echo "=> Using repo path: \$REPO_PATH"
+cd "\$REPO_PATH"
+
+echo "=> Fetch latest changes"
+git fetch --all --prune
+
+if git rev-parse --verify main >/dev/null 2>&1; then
+  git checkout main
+else
+  git switch -c main origin/main || git checkout -B main origin/main
+fi
+git reset --hard origin/main
+
+echo "=> Install backend dependencies"
+cd portfolio-server
+npm install --production
+
+echo "=> Restart PM2 service"
+pm2 delete "\$SERVICE_NAME" 2>/dev/null || true
+pm2 start ecosystem.config.js --env production --update-env
+pm2 save || true
+pm2 status "\$SERVICE_NAME"
+EOF
