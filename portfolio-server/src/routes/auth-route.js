@@ -105,6 +105,8 @@ const passport = require('../passport/google-strategy')
 const AuthController = require('../controllers/authController')
 
 const { Admin, Staff, Recruiter, Student } = require('../models')
+const { sendEmail } = require('../utils/emailService')
+const generatePassword = require('generate-password')
 const authMiddleware = require('../middlewares/auth-middleware')
 const router = express.Router()
 
@@ -114,8 +116,8 @@ const forgotIpLast = new Map()
 const forgotEmailLast = new Map()
 const IP_WINDOW_MS = parseInt(process.env.FORGOT_IP_WINDOW_MS || '30000', 10)
 const EMAIL_WINDOW_MS = parseInt(
-  process.env.FORGOT_EMAIL_WINDOW_MS || '60000',
-  10
+	process.env.FORGOT_EMAIL_WINDOW_MS || '60000',
+	10
 )
 
 /**
@@ -338,7 +340,6 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     // Generate a strong password
-    const generatePassword = require('generate-password')
     const newPassword = generatePassword.generate({
       length: 12,
       numbers: true,
@@ -347,20 +348,22 @@ router.post('/forgot-password', async (req, res) => {
       symbols: true,
       strict: true,
     })
+    
+    // Keep previous hash to revert on failure
+    const prevHash = foundUser.password
 
     // Update password (hooks hash on save)
     foundUser.password = newPassword
     await foundUser.save()
 
     // Prepare and send email via existing SES integration
-    const { sendEmail } = require('../utils/emailService')
     const appUrl = process.env.FRONTEND_URL || 'https://portfolio.jdu.uz'
     const fullName = `${foundUser.first_name || ''} ${foundUser.last_name || ''}`.trim()
     const to = email
     const subject = 'Your new JDU Portfolio password'
     const text = `Hello ${fullName || ''},\n\nA new password has been generated for your JDU Portfolio account.\n\nEmail: ${email}\nNew Password: ${newPassword}\n\nYou can log in here: ${appUrl}/login\n\nIf you did not request this, please contact support immediately.`
     const html = `<!DOCTYPE html>
-      <html lang="ja">
+      <html lang="en">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -378,28 +381,40 @@ router.post('/forgot-password', async (req, res) => {
       </head>
       <body>
         <div class="container">
-          <div class="header"><h2>パスワード再発行</h2></div>
+          <div class="header"><h2>Password Reset</h2></div>
           <div class="content">
-            <p>${fullName ? `${fullName} 様` : 'ユーザー様'},</p>
-            <p>JDUポートフォリオの新しいパスワードを発行しました。</p>
-            <p><strong>メールアドレス:</strong> ${email}</p>
-            <p><strong>新しいパスワード:</strong> <code>${newPassword}</code></p>
-            <p>
-              下記のボタンからログインしてください。
-            </p>
-            <p>
-              <a class="btn" href="${appUrl}/login">ログインする</a>
-            </p>
-            <p>
-              心当たりがない場合は、至急サポートまでご連絡ください。
-            </p>
+            <p>${fullName ? `${fullName},` : 'Hello,'}</p>
+            <p>We generated a new password for your JDU Portfolio account.</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>New Password:</strong> <code>${newPassword}</code></p>
+            <p>Please use the button below to log in.</p>
+            <p><a class="btn" href="${appUrl}/login">Log In</a></p>
+            <p>If you did not request this, please contact support immediately.</p>
           </div>
           <div class="footer">&copy; ${new Date().getFullYear()} JDU</div>
         </div>
       </body>
       </html>`
 
-    await sendEmail({ to, subject, text, html })
+    try {
+      await sendEmail({ to, subject, text, html })
+    } catch (emailErr) {
+      console.error('SES send failed, reverting password change:', emailErr)
+      try {
+        // Revert to previous hash without triggering hashing hooks
+        await ModelRef.update(
+          { password: prevHash },
+          { where: { id: foundUser.id }, hooks: false }
+        )
+      } catch (revertErr) {
+        console.error('Failed to revert password after email failure:', revertErr)
+      }
+      // Generic success response to avoid enumeration
+      forgotIpLast.set(ip, now)
+      return res
+        .status(200)
+        .json({ message: 'If an account exists, a new password has been sent' })
+    }
 
     // Update cooldown trackers on success
     forgotIpLast.set(ip, now)
