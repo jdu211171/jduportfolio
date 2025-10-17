@@ -3,7 +3,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import Cookies from 'js-cookie'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/logo.png'
 import universityImage from '../../assets/university.png'
@@ -25,8 +25,19 @@ const Login = () => {
 	const [password, setPassword] = useState('')
 	const [showPassword, setShowPassword] = useState(false)
 	const [error, setError] = useState('')
+	const [info, setInfo] = useState('')
 	const [loginMode, setLoginMode] = useState(true)
 	const [showLanguageModal, setShowLanguageModal] = useState(false)
+	const [isSubmitting, setIsSubmitting] = useState(false)
+	const [isCoolingDown, setIsCoolingDown] = useState(false)
+	const cooldownTimerRef = useRef(null)
+
+	// Clear timers on unmount
+	useEffect(() => {
+		return () => {
+			if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current)
+		}
+	}, [])
 
 	const handleLogin = async e => {
 		e.preventDefault()
@@ -63,6 +74,28 @@ const Login = () => {
 	const handleForgotPassword = async e => {
 		e.preventDefault()
 		setError('')
+		setInfo('')
+
+		// Client-side cooldown to avoid repeated server calls
+		try {
+			const raw = localStorage.getItem('forgotCooldowns')
+			const map = raw ? JSON.parse(raw) : {}
+			const emailKey = String(email || '').toLowerCase().trim()
+			const until = map[emailKey]
+			const now = Date.now()
+			if (until && now < until) {
+				setInfo(
+					'If an account exists, a password has already been sent recently.'
+				)
+				setIsCoolingDown(true)
+				const ms = until - now
+				if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current)
+				cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), ms)
+				return
+			}
+		} catch (_) {}
+
+		setIsSubmitting(true)
 		try {
 			const response = await fetch('/api/auth/forgot-password', {
 				method: 'POST',
@@ -75,8 +108,47 @@ const Login = () => {
 			if (!response.ok) {
 				throw new Error('Failed to send password reset email')
 			}
+
+			let payload = {}
+			try {
+				payload = await response.json()
+			} catch (_) {}
+
+			const retryAfterSec = Number(payload?.retryAfter) || 60
+
+			// Persist cooldown
+			try {
+				const raw = localStorage.getItem('forgotCooldowns')
+				const map = raw ? JSON.parse(raw) : {}
+				const emailKey = String(email || '').toLowerCase().trim()
+				map[emailKey] = Date.now() + retryAfterSec * 1000
+				localStorage.setItem('forgotCooldowns', JSON.stringify(map))
+			} catch (_) {}
+
+			if (payload?.rateLimited) {
+				setInfo(
+					'If an account exists, a password has already been sent recently.'
+				)
+				setIsCoolingDown(true)
+				if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current)
+				cooldownTimerRef.current = setTimeout(
+					() => setIsCoolingDown(false),
+					retryAfterSec * 1000
+				)
+			} else {
+				// Show UX feedback and navigate back to login
+				setInfo(
+					'If an account exists, a new password has been sent to your email.'
+				)
+				setTimeout(() => {
+					setLoginMode(true)
+				}, 1500)
+			}
 		} catch (err) {
 			setError(err.message)
+		}
+		finally {
+			setIsSubmitting(false)
 		}
 	}
 
@@ -97,6 +169,7 @@ const Login = () => {
 					</div>
 				</div>
 				{error && <p style={{ color: 'red' }}>{error}</p>}
+				{info && <p style={{ color: 'green' }}>{info}</p>}
 				{loginMode ? (
 					<form onSubmit={handleLogin}>
 						<div className={styles['input-group']}>
@@ -148,7 +221,11 @@ const Login = () => {
 							<div className={styles['forgot-password']}>
 								<button
 									type='button'
-									onClick={() => setLoginMode(false)}
+									onClick={() => {
+										setLoginMode(false)
+										setError('')
+										setInfo('')
+									}}
 									className={styles['forgot-password-button']}
 								>
 									{t('forgotPassword')}
@@ -195,13 +272,18 @@ const Login = () => {
 							<button
 								type='submit'
 								className={`${styles['button-custom']} ${styles['submit-button']}`}
+								disabled={isSubmitting || isCoolingDown}
 							>
-								{t('send')}
+								{isSubmitting ? t('loading') : t('send')}
 							</button>
 							<button
 								type='button'
 								className={`${styles['button-custom']} ${styles['back-button']}`}
-								onClick={() => setLoginMode(true)}
+								onClick={() => {
+									setLoginMode(true)
+									setError('')
+									setInfo('')
+								}}
 							>
 								{t('back')}
 							</button>

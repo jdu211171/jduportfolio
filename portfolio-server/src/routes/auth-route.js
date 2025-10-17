@@ -108,6 +108,16 @@ const { Admin, Staff, Recruiter, Student } = require('../models')
 const authMiddleware = require('../middlewares/auth-middleware')
 const router = express.Router()
 
+// Lightweight in-memory throttling for forgot-password route
+// Limits: per-IP (30s) and per-email (60s) cooldowns
+const forgotIpLast = new Map()
+const forgotEmailLast = new Map()
+const IP_WINDOW_MS = parseInt(process.env.FORGOT_IP_WINDOW_MS || '30000', 10)
+const EMAIL_WINDOW_MS = parseInt(
+  process.env.FORGOT_EMAIL_WINDOW_MS || '60000',
+  10
+)
+
 /**
  * @swagger
  * tags:
@@ -241,6 +251,167 @@ router.post('/login', AuthController.login)
 
 // Logout route
 router.post('/logout', AuthController.logout)
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Generate and email a new password
+ *     description: |
+ *       Accepts an email address. If an account exists, generates a new password,
+ *       stores it, and emails it using AWS SES. Responds with 200 regardless to
+ *       avoid account enumeration.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: If an account exists, a new password has been sent
+ */
+// Forgot password: generate and email a new password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body || {}
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' })
+    }
+
+    const now = Date.now()
+    const ipRaw = (req.headers['x-forwarded-for'] || req.ip || '').toString()
+    const ip = ipRaw.split(',')[0].trim()
+
+    // IP-level cooldown to deter spamming
+    const lastIp = forgotIpLast.get(ip)
+    if (lastIp && now - lastIp < IP_WINDOW_MS) {
+      const retryAfter = Math.ceil((IP_WINDOW_MS - (now - lastIp)) / 1000)
+      return res.status(200).json({
+        message: 'If an account exists, a new password has been sent',
+        rateLimited: true,
+        retryAfter,
+      })
+    }
+
+    // Find user by email across all user types
+    const userTypes = [Admin, Staff, Recruiter, Student]
+    let foundUser = null
+    let ModelRef = null
+
+    for (const M of userTypes) {
+      // eslint-disable-next-line no-await-in-loop
+      const u = await M.findOne({ where: { email } })
+      if (u) {
+        foundUser = u
+        ModelRef = M
+        break
+      }
+    }
+
+    // To avoid account enumeration, respond success even if not found
+    if (!foundUser) {
+      // Update IP timestamp to slow down repeated requests
+      forgotIpLast.set(ip, now)
+      return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
+    }
+
+    // Per-email cooldown to prevent rapid repeated resets
+    const emailKey = String(email).toLowerCase().trim()
+    const lastEmail = forgotEmailLast.get(emailKey)
+    if (lastEmail && now - lastEmail < EMAIL_WINDOW_MS) {
+      forgotIpLast.set(ip, now)
+      const retryAfter = Math.ceil(
+        (EMAIL_WINDOW_MS - (now - lastEmail)) / 1000
+      )
+      return res.status(200).json({
+        message: 'If an account exists, a new password has been sent',
+        rateLimited: true,
+        retryAfter,
+      })
+    }
+
+    // Generate a strong password
+    const generatePassword = require('generate-password')
+    const newPassword = generatePassword.generate({
+      length: 12,
+      numbers: true,
+      uppercase: true,
+      lowercase: true,
+      symbols: true,
+      strict: true,
+    })
+
+    // Update password (hooks hash on save)
+    foundUser.password = newPassword
+    await foundUser.save()
+
+    // Prepare and send email via existing SES integration
+    const { sendEmail } = require('../utils/emailService')
+    const appUrl = process.env.FRONTEND_URL || 'https://portfolio.jdu.uz'
+    const fullName = `${foundUser.first_name || ''} ${foundUser.last_name || ''}`.trim()
+    const to = email
+    const subject = 'Your new JDU Portfolio password'
+    const text = `Hello ${fullName || ''},\n\nA new password has been generated for your JDU Portfolio account.\n\nEmail: ${email}\nNew Password: ${newPassword}\n\nYou can log in here: ${appUrl}/login\n\nIf you did not request this, please contact support immediately.`
+    const html = `<!DOCTYPE html>
+      <html lang="ja">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Password Reset</title>
+        <style>
+          body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:0; }
+          .container { max-width:600px; margin:0 auto; background:#fff; border:1px solid #e1e1e1; border-radius:10px; }
+          .header { background:#4CAF50; color:#fff; padding:14px 20px; border-radius:10px 10px 0 0; }
+          .content { padding:20px; color:#333; line-height:1.6; }
+          .content p { margin:0 0 12px; }
+          .footer { text-align:center; color:#666; background:#f4f4f4; padding:12px; border-radius:0 0 10px 10px; }
+          .btn { display:inline-block; background:#4CAF50; color:#fff !important; padding:10px 16px; border-radius:6px; text-decoration:none; }
+          code { background:#f7f7f7; padding:2px 6px; border-radius:4px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header"><h2>パスワード再発行</h2></div>
+          <div class="content">
+            <p>${fullName ? `${fullName} 様` : 'ユーザー様'},</p>
+            <p>JDUポートフォリオの新しいパスワードを発行しました。</p>
+            <p><strong>メールアドレス:</strong> ${email}</p>
+            <p><strong>新しいパスワード:</strong> <code>${newPassword}</code></p>
+            <p>
+              下記のボタンからログインしてください。
+            </p>
+            <p>
+              <a class="btn" href="${appUrl}/login">ログインする</a>
+            </p>
+            <p>
+              心当たりがない場合は、至急サポートまでご連絡ください。
+            </p>
+          </div>
+          <div class="footer">&copy; ${new Date().getFullYear()} JDU</div>
+        </div>
+      </body>
+      </html>`
+
+    await sendEmail({ to, subject, text, html })
+
+    // Update cooldown trackers on success
+    forgotIpLast.set(ip, now)
+    forgotEmailLast.set(emailKey, now)
+
+    return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
+  } catch (error) {
+    console.error('Forgot password error:', error)
+    // For security, avoid leaking details
+    return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
+  }
+})
 
 // Get current user info
 router.get('/me', authMiddleware, async (req, res) => {
