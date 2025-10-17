@@ -142,7 +142,7 @@ jobs:
           REPO_PATH="${BACKEND_REPO_PATH:-/home/ec2-user/jduportfolio}"
           SERVICE_NAME="${PM2_BACKEND_SERVICE:-portfolio-server}"
 
-          ssh -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$REMOTE_USER@$REMOTE_HOST" bash -s << 'EOF'
+          ssh -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$REMOTE_USER@$REMOTE_HOST" bash -s << EOF
           set -euo pipefail
           REPO_PATH="$REPO_PATH"
           SERVICE_NAME="$SERVICE_NAME"
