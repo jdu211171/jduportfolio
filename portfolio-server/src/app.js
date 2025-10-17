@@ -65,6 +65,13 @@ dotenv.config()
 const CronService = require('./services/cronService')
 const app = express()
 
+// Optionally trust reverse proxies (so req.ip honors X-Forwarded-For as configured by Express)
+// Set TRUST_PROXY=1 or a boolean-like value in production behind a proxy (e.g., Nginx)
+if (process.env.TRUST_PROXY) {
+	const v = process.env.TRUST_PROXY
+	app.set('trust proxy', v === 'true' || v === '1' ? 1 : v)
+}
+
 // Use cookie-parser middleware
 app.use(cookieParser())
 // Middleware to parse JSON bodies with 21MB limit
