@@ -127,7 +127,7 @@ jobs:
           chmod 600 "$KEY_FILE"
           echo "key_file=$KEY_FILE" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy backend via SSH
+      - name: Deploy backend via SSH (pull + migrate + restart)
         shell: bash
         env:
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -163,6 +163,12 @@ jobs:
           echo "=> Install backend dependencies"
           cd portfolio-server
           npm install --production
+
+          echo "=> Run DB migrations"
+          set -a
+          [ -f .env ] && . ./.env || true
+          set +a
+          npm run migrate
 
           echo "=> Restart PM2 service"
           pm2 delete "$SERVICE_NAME" 2>/dev/null || true
