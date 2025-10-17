@@ -87,15 +87,15 @@ jobs:
           set -euo pipefail
           KEY_FILE="${{ steps.ssh-key.outputs.key_file }}"
           cat > .env << 'ENVVARS'
-EC2_KEY="__WILL_BE_REPLACED__"
-EC2_USER="${EC2_USER:-ec2-user}"
-EC2_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
-EC2_PATH="${FRONTEND_EC2_PATH:-/home/ec2-user/jduportfolio/portfolio-client}"
-PM2_SERVICE_NAME="${PM2_FRONTEND_SERVICE:-portfolio-client}"
-VITE_API_URL="${VITE_API_URL:-http://localhost:4000}"
-VITE_APP_API_BASE_URL="${VITE_APP_API_BASE_URL:-http://localhost:4000/api}"
-FRONTEND_URL="${FRONTEND_URL:-http://localhost:5173}"
-ENVVARS
+          EC2_KEY="__WILL_BE_REPLACED__"
+          EC2_USER="${EC2_USER:-ec2-user}"
+          EC2_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
+          EC2_PATH="${FRONTEND_EC2_PATH:-/home/ec2-user/jduportfolio/portfolio-client}"
+          PM2_SERVICE_NAME="${PM2_FRONTEND_SERVICE:-portfolio-client}"
+          VITE_API_URL="${VITE_API_URL:-http://localhost:4000}"
+          VITE_APP_API_BASE_URL="${VITE_APP_API_BASE_URL:-http://localhost:4000/api}"
+          FRONTEND_URL="${FRONTEND_URL:-http://localhost:5173}"
+          ENVVARS
           # Inject actual key path (avoid expanding inside here-doc)
           sed -i.bak "s|__WILL_BE_REPLACED__|$KEY_FILE|g" .env && rm -f .env.bak
           echo "Created portfolio-client/.env"
@@ -142,34 +142,34 @@ ENVVARS
           REPO_PATH="${BACKEND_REPO_PATH:-/home/ec2-user/jduportfolio}"
           SERVICE_NAME="${PM2_BACKEND_SERVICE:-portfolio-server}"
 
-          ssh -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$REMOTE_USER@$REMOTE_HOST" bash -s << EOF
-set -euo pipefail
-REPO_PATH="$REPO_PATH"
-SERVICE_NAME="$SERVICE_NAME"
+          ssh -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$REMOTE_USER@$REMOTE_HOST" bash -s << 'EOF'
+          set -euo pipefail
+          REPO_PATH="$REPO_PATH"
+          SERVICE_NAME="$SERVICE_NAME"
 
-echo "=> Using repo path: \$REPO_PATH"
-cd "\$REPO_PATH"
+          echo "=> Using repo path: $REPO_PATH"
+          cd "$REPO_PATH"
 
-echo "=> Fetch latest changes"
-git fetch --all --prune
+          echo "=> Fetch latest changes"
+          git fetch --all --prune
 
-if git rev-parse --verify main >/dev/null 2>&1; then
-  git checkout main
-else
-  git switch -c main origin/main || git checkout -B main origin/main
-fi
-git reset --hard origin/main
+          if git rev-parse --verify main >/dev/null 2>&1; then
+            git checkout main
+          else
+            git switch -c main origin/main || git checkout -B main origin/main
+          fi
+          git reset --hard origin/main
 
-echo "=> Install backend dependencies"
-cd portfolio-server
-npm install --production
+          echo "=> Install backend dependencies"
+          cd portfolio-server
+          npm install --production
 
-echo "=> Restart PM2 service"
-pm2 delete "\$SERVICE_NAME" 2>/dev/null || true
-pm2 start ecosystem.config.js --env production --update-env
-pm2 save || true
-pm2 status "\$SERVICE_NAME"
-EOF
+          echo "=> Restart PM2 service"
+          pm2 delete "$SERVICE_NAME" 2>/dev/null || true
+          pm2 start ecosystem.config.js --env production --update-env
+          pm2 save || true
+          pm2 status "$SERVICE_NAME"
+          EOF
 
   noop:
     name: No-op
