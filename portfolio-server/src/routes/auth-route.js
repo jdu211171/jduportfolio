@@ -288,8 +288,8 @@ router.post('/forgot-password', async (req, res) => {
     }
 
     const now = Date.now()
-    const ipRaw = (req.headers['x-forwarded-for'] || req.ip || '').toString()
-    const ip = ipRaw.split(',')[0].trim()
+    // Use Express-provided IPs (honors trust proxy). Do NOT trust raw headers.
+    const ip = (Array.isArray(req.ips) && req.ips.length > 0 ? req.ips[0] : req.ip) || ''
 
     // IP-level cooldown to deter spamming
     const lastIp = forgotIpLast.get(ip)
