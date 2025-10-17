@@ -294,13 +294,13 @@ router.post('/forgot-password', async (req, res) => {
     // IP-level cooldown to deter spamming
     const lastIp = forgotIpLast.get(ip)
     if (lastIp && now - lastIp < IP_WINDOW_MS) {
-      const retryAfter = Math.ceil((IP_WINDOW_MS - (now - lastIp)) / 1000)
       return res.status(200).json({
         message: 'If an account exists, a new password has been sent',
-        rateLimited: true,
-        retryAfter,
       })
     }
+
+    // Normalize email key for cooldown tracking
+    const emailKey = String(email).toLowerCase().trim()
 
     // Find user by email across all user types
     const userTypes = [Admin, Staff, Recruiter, Student]
@@ -321,21 +321,17 @@ router.post('/forgot-password', async (req, res) => {
     if (!foundUser) {
       // Update IP timestamp to slow down repeated requests
       forgotIpLast.set(ip, now)
+      // Also track email cooldown to avoid differential responses across IPs
+      forgotEmailLast.set(emailKey, now)
       return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
     }
 
     // Per-email cooldown to prevent rapid repeated resets
-    const emailKey = String(email).toLowerCase().trim()
     const lastEmail = forgotEmailLast.get(emailKey)
     if (lastEmail && now - lastEmail < EMAIL_WINDOW_MS) {
       forgotIpLast.set(ip, now)
-      const retryAfter = Math.ceil(
-        (EMAIL_WINDOW_MS - (now - lastEmail)) / 1000
-      )
       return res.status(200).json({
         message: 'If an account exists, a new password has been sent',
-        rateLimited: true,
-        retryAfter,
       })
     }
 
