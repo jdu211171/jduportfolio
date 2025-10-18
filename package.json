@@ -1,0 +1,21 @@
+{
+	"name": "jduportfolio",
+	"private": true,
+	"workspaces": [
+		"portfolio-client",
+		"portfolio-server"
+	],
+	"scripts": {
+		"prepare": "husky",
+		"format:check": "prettier --check . --ignore-unknown --ignore-path .prettierignore",
+		"format": "prettier --write . --ignore-unknown --ignore-path .prettierignore"
+	},
+	"devDependencies": {
+		"husky": "^9.1.6",
+		"lint-staged": "^15.2.9",
+		"prettier": "3.3.3"
+	},
+	"lint-staged": {
+		"*": "prettier --write --ignore-unknown --ignore-path .prettierignore"
+	}
+}
