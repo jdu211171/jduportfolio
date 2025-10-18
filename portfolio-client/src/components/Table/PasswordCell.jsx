@@ -74,10 +74,7 @@ const PasswordCell = ({ studentId }) => {
 					placeholder='Новый пароль'
 					endAdornment={
 						<InputAdornment position='end'>
-							<IconButton
-								onClick={handleSave}
-								disabled={isLoading || !inputValue}
-							>
+							<IconButton onClick={handleSave} disabled={isLoading || !inputValue}>
 								<Save />
 							</IconButton>
 							<IconButton onClick={handleCancel} disabled={isLoading}>
@@ -88,9 +85,7 @@ const PasswordCell = ({ studentId }) => {
 					disabled={isLoading}
 				/>
 				{error && <span style={{ color: 'red', marginLeft: 8 }}>{error}</span>}
-				{success && (
-					<span style={{ color: 'green', marginLeft: 8 }}>Успешно</span>
-				)}
+				{success && <span style={{ color: 'green', marginLeft: 8 }}>Успешно</span>}
 			</div>
 		)
 	}
@@ -104,9 +99,7 @@ const PasswordCell = ({ studentId }) => {
 			<IconButton onClick={handleEdit} size='small' disabled={isLoading}>
 				<Edit />
 			</IconButton>
-			{success && (
-				<span style={{ color: 'green', marginLeft: 8 }}>Успешно</span>
-			)}
+			{success && <span style={{ color: 'green', marginLeft: 8 }}>Успешно</span>}
 		</span>
 	)
 }

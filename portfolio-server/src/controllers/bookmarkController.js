@@ -6,10 +6,7 @@ class BookmarkController {
 		const { recruiterId, studentId } = req.body
 
 		try {
-			const result = await BookmarkService.toggleBookmark(
-				recruiterId,
-				studentId
-			)
+			const result = await BookmarkService.toggleBookmark(recruiterId, studentId)
 			res.status(200).json(result)
 		} catch (error) {
 			res.status(500).json({ error: error.message })
@@ -21,8 +18,7 @@ class BookmarkController {
 		const recruiterId = req.user.id // Assuming the recruiter ID is stored in req.user
 
 		try {
-			const students =
-				await BookmarkService.getStudentsWithBookmarkStatus(recruiterId)
+			const students = await BookmarkService.getStudentsWithBookmarkStatus(recruiterId)
 			res.status(200).json(students)
 		} catch (error) {
 			res.status(500).json({ error: error.message })

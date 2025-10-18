@@ -4,13 +4,7 @@ const bcrypt = require('bcrypt')
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
 		const saltRounds = 10
-		const gallery = Array.from(
-			{ length: 5 },
-			() =>
-				`https://picsum.photos/300/200?random=${Math.floor(
-					Math.random() * 101
-				)}`
-		)
+		const gallery = Array.from({ length: 5 }, () => `https://picsum.photos/300/200?random=${Math.floor(Math.random() * 101)}`)
 		const recruiters = [
 			{
 				email: 'john.doe@example.com',
@@ -19,10 +13,7 @@ module.exports = {
 				phone: '1234567890',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'John',
 				last_name: 'Doe',
 				date_of_birth: '1980-01-01',
@@ -39,8 +30,7 @@ module.exports = {
 				work_hours: '9:00-18:00 (Flexible)',
 				salary: '¥4,000,000 - ¥8,000,000',
 				benefits: 'Health insurance, Transportation allowance, Learning budget',
-				selection_process:
-					'Document screening, Technical interview, Final interview',
+				selection_process: 'Document screening, Technical interview, Final interview',
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			},
@@ -51,10 +41,7 @@ module.exports = {
 				phone: '1234567891',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Jane',
 				last_name: 'Doe',
 				date_of_birth: '1981-02-02',
@@ -70,10 +57,7 @@ module.exports = {
 				phone: '1234567892',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Mike',
 				last_name: 'Smith',
 				date_of_birth: '1982-03-03',
@@ -89,10 +73,7 @@ module.exports = {
 				phone: '1234567893',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Susan',
 				last_name: 'Jones',
 				date_of_birth: '1983-04-04',
@@ -108,10 +89,7 @@ module.exports = {
 				phone: '1234567894',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Peter',
 				last_name: 'Brown',
 				date_of_birth: '1984-05-05',
@@ -127,10 +105,7 @@ module.exports = {
 				phone: '1234567895',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Linda',
 				last_name: 'White',
 				date_of_birth: '1985-06-06',
@@ -146,10 +121,7 @@ module.exports = {
 				phone: '1234567896',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'David',
 				last_name: 'Miller',
 				date_of_birth: '1986-07-07',
@@ -165,10 +137,7 @@ module.exports = {
 				phone: '1234567897',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Barbara',
 				last_name: 'Wilson',
 				date_of_birth: '1987-08-08',
@@ -184,10 +153,7 @@ module.exports = {
 				phone: '1234567898',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Robert',
 				last_name: 'Moore',
 				date_of_birth: '1988-09-09',
@@ -203,10 +169,7 @@ module.exports = {
 				phone: '1234567899',
 				company_description: 'A sample company description.',
 				gallery: JSON.stringify(gallery),
-				photo:
-					'https://randomuser.me/api/portraits/med/men/' +
-					parseInt(Math.random() * 100) +
-					'.jpg',
+				photo: 'https://randomuser.me/api/portraits/med/men/' + parseInt(Math.random() * 100) + '.jpg',
 				first_name: 'Patricia',
 				last_name: 'Taylor',
 				date_of_birth: '1989-10-10',

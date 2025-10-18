@@ -1,10 +1,4 @@
-import {
-	createContext,
-	useContext,
-	useState,
-	useEffect,
-	useCallback,
-} from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 
 const LanguageContext = createContext()
 
@@ -13,9 +7,7 @@ export const useLanguage = () => {
 }
 
 export const LanguageProvider = ({ children }) => {
-	const [language, setLanguage] = useState(
-		localStorage.getItem('language') || 'ja'
-	)
+	const [language, setLanguage] = useState(localStorage.getItem('language') || 'ja')
 
 	useEffect(() => {
 		localStorage.setItem('language', language)

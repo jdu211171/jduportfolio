@@ -7,9 +7,7 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = id
@@ -30,10 +28,7 @@ class NewsViewsController {
 
 			console.log('Processed user:', { userId, userRole })
 
-			const unreadCount = await NewsViewsService.getUnreadNewsCount(
-				userId,
-				userRole
-			)
+			const unreadCount = await NewsViewsService.getUnreadNewsCount(userId, userRole)
 
 			return res.status(200).json({
 				unreadCount,
@@ -59,9 +54,7 @@ class NewsViewsController {
 			}
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)
@@ -76,11 +69,7 @@ class NewsViewsController {
 				userId = String(student.student_id)
 			}
 
-			const { newsView, created } = await NewsViewsService.markAsViewed(
-				newsId,
-				userId,
-				userRole
-			)
+			const { newsView, created } = await NewsViewsService.markAsViewed(newsId, userId, userRole)
 
 			const message = created ? 'News marked as read' : 'News view updated'
 
@@ -103,9 +92,7 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)
@@ -120,10 +107,7 @@ class NewsViewsController {
 				userId = String(student.student_id)
 			}
 
-			const viewedNews = await NewsViewsService.getViewedNewsByUser(
-				userId,
-				userRole
-			)
+			const viewedNews = await NewsViewsService.getViewedNewsByUser(userId, userRole)
 
 			return res.status(200).json({
 				viewedNews,
@@ -143,9 +127,7 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)
@@ -165,11 +147,7 @@ class NewsViewsController {
 			if (req.query.search) filters.search = req.query.search
 			if (req.query.type) filters.type = req.query.type
 
-			const newsWithStatus = await NewsViewsService.getNewsWithViewStatus(
-				userId,
-				userRole,
-				filters
-			)
+			const newsWithStatus = await NewsViewsService.getNewsWithViewStatus(userId, userRole, filters)
 
 			const unreadCount = newsWithStatus.filter(news => !news.isViewed).length
 
@@ -192,9 +170,7 @@ class NewsViewsController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let userId = String(id)

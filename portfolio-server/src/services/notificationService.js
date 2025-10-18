@@ -81,20 +81,11 @@ class NotificationService {
 				}
 			}
 
-			console.log(
-				'NotificationService.markAllAsRead - Where clause:',
-				whereClause
-			)
+			console.log('NotificationService.markAllAsRead - Where clause:', whereClause)
 
-			const [updatedCount] = await Notification.update(
-				{ status: 'read' },
-				{ where: whereClause }
-			)
+			const [updatedCount] = await Notification.update({ status: 'read' }, { where: whereClause })
 
-			console.log(
-				'NotificationService.markAllAsRead - Updated count:',
-				updatedCount
-			)
+			console.log('NotificationService.markAllAsRead - Updated count:', updatedCount)
 			return updatedCount
 		} catch (error) {
 			console.error('Error in NotificationService.markAllAsRead:', error)

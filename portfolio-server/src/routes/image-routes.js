@@ -15,12 +15,7 @@ const upload = multer({
 
 // POST /api/images - Bir yoki bir nechta rasmni yuklash
 // Bu endpoint faqat Admin uchun ochiq bo'lishi mumkin
-router.post(
-	'/',
-	authMiddleware,
-	upload.array('images', 10),
-	imageController.createImages
-)
+router.post('/', authMiddleware, upload.array('images', 10), imageController.createImages)
 
 // GET /api/images/:type - Berilgan turdagi barcha rasmlarni olish
 // Bu endpoint hammaga ochiq bo'lishi mumkin

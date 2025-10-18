@@ -15,22 +15,8 @@ class CronService {
 		try {
 			// 1. Bugungi kunning boshlanishi va oxirini aniqlash
 			const now = new Date()
-			const startOfDay = new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate(),
-				0,
-				0,
-				0
-			)
-			const endOfDay = new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate(),
-				23,
-				59,
-				59
-			)
+			const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
+			const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)
 
 			// 2. Bugun topshirilgan draft'larni olish
 			const drafts = await sequelize.query(
@@ -109,15 +95,11 @@ class CronService {
 			}))
 
 			if (emailTasks.length > 0) {
-				console.log(
-					`Sending daily summary to ${emailTasks.length} staff members...`
-				)
+				console.log(`Sending daily summary to ${emailTasks.length} staff members...`)
 				const report = await sendBulkEmails(emailTasks)
 
 				console.log('--- Daily Email Report ---')
-				console.log(
-					`Total: ${report.total}, Successful: ${report.successful}, Failed: ${report.failed}`
-				)
+				console.log(`Total: ${report.total}, Successful: ${report.successful}, Failed: ${report.failed}`)
 				if (report.failed > 0) {
 					console.error('Failed to send to:', report.failedEmails)
 				}
@@ -138,9 +120,7 @@ class CronService {
 			timezone: 'Asia/Tashkent',
 		})
 
-		console.log(
-			'📌 Daily draft summary job scheduled for 06:00 AM (Tashkent Time).'
-		)
+		console.log('📌 Daily draft summary job scheduled for 06:00 AM (Tashkent Time).')
 	}
 }
 

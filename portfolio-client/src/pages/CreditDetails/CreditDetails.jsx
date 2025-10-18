@@ -1,19 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from '../../utils/axiosUtils'
-import {
-	Typography,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TableRow,
-	Paper,
-	CircularProgress,
-	Alert,
-	Button,
-} from '@mui/material'
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Alert, Button } from '@mui/material'
 import { useAlert } from '../../contexts/AlertContext'
 import styles from './CreditDetails.module.css'
 
@@ -42,8 +30,7 @@ const CreditDetails = () => {
 			totalRequired = 124
 		}
 
-		if (!creditDetails.length)
-			return { current: 0, total: totalRequired, percentage: 0 }
+		if (!creditDetails.length) return { current: 0, total: totalRequired, percentage: 0 }
 
 		const earnedCredits = creditDetails.reduce((total, credit) => {
 			// Only count credits with passing grades (not E or F)
@@ -124,9 +111,7 @@ const CreditDetails = () => {
 				setLoading(true)
 				setError(null)
 
-				const response = await axios.get(
-					`/api/students/${studentId}/credit-details`
-				)
+				const response = await axios.get(`/api/students/${studentId}/credit-details`)
 
 				if (response.data && response.data.success) {
 					setStudent(response.data.data)
@@ -136,11 +121,7 @@ const CreditDetails = () => {
 				}
 			} catch (err) {
 				console.error('Error fetching credit details:', err)
-				setError(
-					err.response?.data?.message ||
-						err.message ||
-						'Failed to load credit details'
-				)
+				setError(err.response?.data?.message || err.message || 'Failed to load credit details')
 				showAlert('Credit details could not be loaded', 'error')
 			} finally {
 				setLoading(false)
@@ -156,9 +137,7 @@ const CreditDetails = () => {
 	const handleSyncCredits = async () => {
 		try {
 			setLoading(true)
-			const response = await axios.post(
-				`/api/students/${studentId}/sync-credit-details`
-			)
+			const response = await axios.post(`/api/students/${studentId}/sync-credit-details`)
 
 			if (response.data && response.data.success) {
 				setCreditDetails(response.data.data.creditDetails || [])
@@ -203,16 +182,10 @@ const CreditDetails = () => {
 		<div className={styles.pageContainer}>
 			{/* Header Tabs */}
 			<div className={styles.headerTabs}>
-				<div
-					className={`${styles.tab} ${activeTab === 'jdu' ? styles.active : ''}`}
-					onClick={() => setActiveTab('jdu')}
-				>
+				<div className={`${styles.tab} ${activeTab === 'jdu' ? styles.active : ''}`} onClick={() => setActiveTab('jdu')}>
 					JDU
 				</div>
-				<div
-					className={`${styles.tab} ${activeTab === 'partner' ? styles.active : ''}`}
-					onClick={() => setActiveTab('partner')}
-				>
+				<div className={`${styles.tab} ${activeTab === 'partner' ? styles.active : ''}`} onClick={() => setActiveTab('partner')}>
 					{student?.partner_university || '東京通信大学'}
 				</div>
 			</div>
@@ -230,20 +203,9 @@ const CreditDetails = () => {
 				{/* Progress Timeline */}
 				<div className={styles.progressTimeline}>
 					{milestones.map((milestone, index) => (
-						<div
-							key={index}
-							className={`${styles.progressStep} ${styles[milestone.status]}`}
-						>
-							<div
-								className={`${styles.progressIndicator} ${styles[milestone.status]}`}
-							>
-								{milestone.status === 'completed' ? '✓' : milestone.value}
-							</div>
-							<div
-								className={`${styles.progressLabel} ${styles[milestone.status]}`}
-							>
-								{milestone.label}
-							</div>
+						<div key={index} className={`${styles.progressStep} ${styles[milestone.status]}`}>
+							<div className={`${styles.progressIndicator} ${styles[milestone.status]}`}>{milestone.status === 'completed' ? '✓' : milestone.value}</div>
+							<div className={`${styles.progressLabel} ${styles[milestone.status]}`}>{milestone.label}</div>
 						</div>
 					))}
 				</div>
@@ -265,9 +227,7 @@ const CreditDetails = () => {
 								<TableCell>
 									{student?.first_name} {student?.last_name}
 								</TableCell>
-								<TableCell>
-									{student?.partner_university || '東京通信大学'}
-								</TableCell>
+								<TableCell>{student?.partner_university || '東京通信大学'}</TableCell>
 							</TableRow>
 						</TableBody>
 					</Table>
@@ -284,15 +244,8 @@ const CreditDetails = () => {
 						padding: '24px 24px 16px',
 					}}
 				>
-					<Typography className={styles.creditDetailsTitle}>
-						JDU単位数
-					</Typography>
-					<Button
-						variant='outlined'
-						size='small'
-						onClick={handleSyncCredits}
-						disabled={loading}
-					>
+					<Typography className={styles.creditDetailsTitle}>JDU単位数</Typography>
+					<Button variant='outlined' size='small' onClick={handleSyncCredits} disabled={loading}>
 						Sync from Kintone
 					</Button>
 				</div>
@@ -314,11 +267,7 @@ const CreditDetails = () => {
 									<td>{credit.番号 || index + 1}</td>
 									<td>{credit.科目名}</td>
 									<td>
-										<span
-											className={`${styles.gradeBadge} ${getGradeBadgeClass(credit.評価)}`}
-										>
-											{credit.評価}
-										</span>
+										<span className={`${styles.gradeBadge} ${getGradeBadgeClass(credit.評価)}`}>{credit.評価}</span>
 									</td>
 									<td>{credit.単位数}</td>
 									<td>{credit.取得日}</td>
@@ -329,8 +278,7 @@ const CreditDetails = () => {
 				) : (
 					<div className={styles.noDataContainer}>
 						<Typography variant='body1' color='textSecondary'>
-							No credit details found. Click &quot;Sync from Kintone&quot; to
-							load data.
+							No credit details found. Click &quot;Sync from Kintone&quot; to load data.
 						</Typography>
 					</div>
 				)}

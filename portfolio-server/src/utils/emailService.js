@@ -74,11 +74,7 @@ const sendBulkEmails = async emailTasks => {
 	// forEach o'rniga for...of tsiklini ishlatamiz. Bu yanada xavfsizroq.
 	for (const result of results) {
 		// Muvaffaqiyatli holatni tekshirish
-		if (
-			result.status === 'fulfilled' &&
-			result.value &&
-			result.value.success === true
-		) {
+		if (result.status === 'fulfilled' && result.value && result.value.success === true) {
 			report.successful++
 			report.successfulEmails.push(result.value)
 		}

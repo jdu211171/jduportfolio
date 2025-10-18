@@ -25,24 +25,9 @@ import TextField from '../../../components/TextField/TextField'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 
 // DnD Kit imports
-import {
-	DndContext,
-	closestCenter,
-	KeyboardSensor,
-	PointerSensor,
-	useSensor,
-	useSensors,
-} from '@dnd-kit/core'
-import {
-	arrayMove,
-	SortableContext,
-	sortableKeyboardCoordinates,
-	verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import {
-	restrictToVerticalAxis,
-	restrictToParentElement,
-} from '@dnd-kit/modifiers'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -108,27 +93,8 @@ const qaQuestions = [
 ]
 
 // Sortable Item Component
-const SortableQATextField = ({
-	id,
-	data,
-	editData,
-	category,
-	question,
-	keyName,
-	aEdit,
-	qEdit,
-	updateEditData,
-	DeleteQA,
-	isReorderMode,
-}) => {
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({ id })
+const SortableQATextField = ({ id, data, editData, category, question, keyName, aEdit, qEdit, updateEditData, DeleteQA, isReorderMode }) => {
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
@@ -177,35 +143,14 @@ const SortableQATextField = ({
 					</Box>
 				)}
 				<Box sx={{ flex: 1 }}>
-					<QATextField
-						data={data}
-						editData={editData}
-						category={category}
-						question={question}
-						keyName={keyName}
-						aEdit={aEdit && !isReorderMode}
-						qEdit={qEdit && !isReorderMode}
-						updateEditData={updateEditData}
-						DeleteQA={DeleteQA}
-					/>
+					<QATextField data={data} editData={editData} category={category} question={question} keyName={keyName} aEdit={aEdit && !isReorderMode} qEdit={qEdit && !isReorderMode} updateEditData={updateEditData} DeleteQA={DeleteQA} />
 				</Box>
 			</Box>
 		</div>
 	)
 }
 
-const QA = ({
-	data = {},
-	handleQAUpdate,
-	isFromTopPage = false,
-	topEditMode = false,
-	updateQA = false,
-	currentDraft,
-	isHonban = false,
-	handleDraftUpsert = () => {},
-	setTopEditMode = () => {},
-	updateCurrentDraft = () => {},
-}) => {
+const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = false, updateQA = false, currentDraft, isHonban = false, handleDraftUpsert = () => {}, setTopEditMode = () => {}, updateCurrentDraft = () => {} }) => {
 	const role = sessionStorage.getItem('role')
 	const labels = ['学生成績', '専門知識', '個性', '実務経験', 'キャリア目標']
 	let id
@@ -223,11 +168,7 @@ const QA = ({
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
 			// Try different possible field names for student ID
 			// Backend always returns studentId (camelCase), so check it first
-			return (
-				loginUserData?.studentId ||
-				loginUserData?.student_id ||
-				loginUserData?.id
-			)
+			return loginUserData?.studentId || loginUserData?.student_id || loginUserData?.id
 		} catch (e) {
 			return null
 		}
@@ -256,9 +197,7 @@ const QA = ({
 		}
 	}
 
-	const [studentQA, setStudentQA] = useState(
-		isFromTopPage && data ? data : null
-	)
+	const [studentQA, setStudentQA] = useState(isFromTopPage && data ? data : null)
 	const [editData, setEditData] = useState(isFromTopPage && data ? data : null)
 	const [editMode, setEditMode] = useState(topEditMode)
 	const [isFirstTime, setIsFirstTime] = useState(false)
@@ -280,9 +219,7 @@ const QA = ({
 
 	const [confirmMode, setConfirmMode] = useState(false)
 	const [comment, setComment] = useState({ comments: '' })
-	const [reviewMode, setReviewMode] = useState(
-		!currentDraft || Object.keys(currentDraft).length === 0
-	)
+	const [reviewMode, setReviewMode] = useState(!currentDraft || Object.keys(currentDraft).length === 0)
 	const [passedDraft, setPassedDraft] = useState(currentDraft)
 	const [warningModal, setWarningModal] = useState({
 		open: false,
@@ -302,11 +239,7 @@ const QA = ({
 	// Debug logging to track state changes
 
 	// Check submit button visibility condition
-	const shouldShowSubmitButton =
-		role === 'Student' &&
-		currentDraft &&
-		(currentDraft.status === 'draft' ||
-			currentDraft.status === 'resubmission_required')
+	const shouldShowSubmitButton = role === 'Student' && currentDraft && (currentDraft.status === 'draft' || currentDraft.status === 'resubmission_required')
 
 	// Keep passedDraft synchronized with currentDraft changes
 	useEffect(() => {
@@ -315,10 +248,7 @@ const QA = ({
 
 	// Fallback: if reviewer and no currentDraft passed, fetch student's latest draft
 	useEffect(() => {
-		const shouldFetch =
-			isReviewer &&
-			(!currentDraft || Object.keys(currentDraft || {}).length === 0) &&
-			id
+		const shouldFetch = isReviewer && (!currentDraft || Object.keys(currentDraft || {}).length === 0) && id
 		if (!shouldFetch) return
 		;(async () => {
 			try {
@@ -359,8 +289,7 @@ const QA = ({
 				// Student view with answers
 				const combinedData = {}
 				// Check if this is first time or has idList
-				let firsttime =
-					!answers.idList || Object.keys(answers.idList || {}).length === 0
+				let firsttime = !answers.idList || Object.keys(answers.idList || {}).length === 0
 				if (firsttime) {
 					setIsFirstTime(true)
 				}
@@ -379,10 +308,7 @@ const QA = ({
 							combinedData[category][key] = {
 								question: questions[category][key].question || '',
 								required: !!questions[category][key].required,
-								answer:
-									!answers[category] || !answers[category][key]
-										? ''
-										: answers[category][key].answer || '',
+								answer: !answers[category] || !answers[category][key] ? '' : answers[category][key].answer || '',
 							}
 						}
 					}
@@ -511,18 +437,14 @@ const QA = ({
 				// Prefer localized, student-friendly message for validation errors
 				setWarningModal({
 					open: true,
-					message:
-						t('pleaseAnswerRequired') ||
-						serverMsg ||
-						'Required questions are missing.',
+					message: t('pleaseAnswerRequired') || serverMsg || 'Required questions are missing.',
 				})
 			} else if (serverMsg) {
 				setWarningModal({ open: true, message: serverMsg })
 			} else {
 				setWarningModal({
 					open: true,
-					message:
-						t('errorConfirmingProfile') || '送信時にエラーが発生しました。',
+					message: t('errorConfirmingProfile') || '送信時にエラーが発生しました。',
 				})
 			}
 		} finally {
@@ -579,10 +501,7 @@ const QA = ({
 				return
 			}
 
-			showAlert(
-				visibility ? t('profileVisibilityEnabled') : t('profileHidden'),
-				'success'
-			)
+			showAlert(visibility ? t('profileVisibilityEnabled') : t('profileHidden'), 'success')
 		} catch (error) {
 			showAlert(t('errorConfirmingProfile'), 'error')
 		} finally {
@@ -654,10 +573,7 @@ const QA = ({
 
 			showAlert('Changes saved successfully!', 'success')
 		} catch (error) {
-			const errorMessage =
-				error.response?.data?.message ||
-				error.response?.data?.error ||
-				"Q&A javoblarini saqlashda xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring."
+			const errorMessage = error.response?.data?.message || error.response?.data?.error || "Q&A javoblarini saqlashda xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring."
 			showAlert(errorMessage, 'error')
 		} finally {
 			setIsSaving(false)
@@ -792,10 +708,7 @@ const QA = ({
 				const updatedEditData = { ...prevEditData }
 				const category = labels[subTabIndex]
 
-				if (
-					updatedEditData[category] &&
-					updatedEditData[category][indexToDelete]
-				) {
+				if (updatedEditData[category] && updatedEditData[category][indexToDelete]) {
 					delete updatedEditData[category][indexToDelete]
 				}
 
@@ -830,10 +743,7 @@ const QA = ({
 			} else if (typeof obj[key] === 'object' && obj[key] !== null) {
 				newObj[key] = {}
 				for (const subKey in obj[key]) {
-					if (
-						typeof obj[key][subKey] === 'object' &&
-						obj[key][subKey] !== null
-					) {
+					if (typeof obj[key][subKey] === 'object' && obj[key][subKey] !== null) {
 						const { [excludeKey]: _, ...rest } = obj[key][subKey]
 						newObj[key][subKey] = rest
 					}
@@ -962,95 +872,44 @@ const QA = ({
 						<>
 							{role == 'Admin' && (
 								<>
-									<Button
-										onClick={() => handleAdd(true)}
-										variant='contained'
-										color='warning'
-										size='small'
-									>
+									<Button onClick={() => handleAdd(true)} variant='contained' color='warning' size='small'>
 										{t('add_required') || '必須追加'}
 									</Button>
-									<Button
-										onClick={() => handleAdd(false)}
-										variant='outlined'
-										color='primary'
-										size='small'
-										sx={{ ml: 1 }}
-									>
+									<Button onClick={() => handleAdd(false)} variant='outlined' color='primary' size='small' sx={{ ml: 1 }}>
 										{t('add_optional') || '任意追加'}
 									</Button>
-									<Button
-										onClick={toggleReorderMode}
-										variant={isReorderMode ? 'contained' : 'outlined'}
-										color='info'
-										size='small'
-										sx={{ ml: 1 }}
-									>
+									<Button onClick={toggleReorderMode} variant={isReorderMode ? 'contained' : 'outlined'} color='info' size='small' sx={{ ml: 1 }}>
 										{isReorderMode ? '順序確定' : '順序変更'}
 									</Button>
 								</>
 							)}
 							{!isHonban && (
-								<Button
-									onClick={() => handleDraftUpsert(true)}
-									variant='contained'
-									color='primary'
-									size='small'
-								>
+								<Button onClick={() => handleDraftUpsert(true)} variant='contained' color='primary' size='small'>
 									{t('updateDraft')}
 								</Button>
 							)}
 							{role == 'Student' && id && (
-								<Button
-									onClick={() => handleDraftUpsert(false)}
-									variant='contained'
-									color='primary'
-									size='small'
-								>
+								<Button onClick={() => handleDraftUpsert(false)} variant='contained' color='primary' size='small'>
 									{t('saveDraft')}
 								</Button>
 							)}
 							{role == 'Admin' && (
-								<Button
-									onClick={handleSave}
-									variant='contained'
-									color='primary'
-									size='small'
-									disabled={isSaving}
-								>
+								<Button onClick={handleSave} variant='contained' color='primary' size='small' disabled={isSaving}>
 									{isSaving ? 'Saving...' : t('save')}
 								</Button>
 							)}
-							<Button
-								onClick={handleCancel}
-								variant='outlined'
-								color='error'
-								size='small'
-							>
+							<Button onClick={handleCancel} variant='outlined' color='error' size='small'>
 								{t('cancel')}
 							</Button>
 						</>
 					) : (
 						<>
-							{role == 'Student' &&
-								currentDraft &&
-								(currentDraft.status === 'draft' ||
-									currentDraft.status === 'resubmission_required') && (
-									<Button
-										onClick={handleStudentSubmitClick}
-										variant='contained'
-										color='secondary'
-										size='small'
-									>
-										{t('submitAgree')}
-									</Button>
-								)}
-							<Button
-								onClick={toggleEditMode}
-								variant='contained'
-								color='primary'
-								size='small'
-							>
+							{role == 'Student' && currentDraft && (currentDraft.status === 'draft' || currentDraft.status === 'resubmission_required') && (
+								<Button onClick={handleStudentSubmitClick} variant='contained' color='secondary' size='small'>
+									{t('submitAgree')}
+								</Button>
+							)}
+							<Button onClick={toggleEditMode} variant='contained' color='primary' size='small'>
 								{role == 'Student' ? t('editProfile') : ''}
 								{role == 'Admin' ? t('q_edit') : ''}
 							</Button>
@@ -1071,14 +930,7 @@ const QA = ({
 			)}
 
 			{/* For other cases, use portal if saveButton exists and not from Top page */}
-			{id &&
-				!isFromTopPage &&
-				portalContent &&
-				document.getElementById('saveButton') &&
-				ReactDOM.createPortal(
-					portalContent,
-					document.getElementById('saveButton')
-				)}
+			{id && !isFromTopPage && portalContent && document.getElementById('saveButton') && ReactDOM.createPortal(portalContent, document.getElementById('saveButton'))}
 
 			<div
 				style={{
@@ -1133,59 +985,26 @@ const QA = ({
 
 			<Box my={2}>
 				{editMode && (
-					<DndContext
-						sensors={sensors}
-						collisionDetection={closestCenter}
-						onDragEnd={handleDragEnd}
-						modifiers={[restrictToVerticalAxis]}
-					>
-						<SortableContext
-							items={Object.keys(getCategoryData(subTabIndex))}
-							strategy={verticalListSortingStrategy}
-						>
-							{Object.entries(getCategoryData(subTabIndex)).map(
-								([key, { question }]) => (
-									<SortableQATextField
-										key={key}
-										id={key}
-										data={studentQA}
-										editData={editData}
-										category={labels[subTabIndex]}
-										question={question}
-										keyName={key}
-										aEdit={role == 'Admin'}
-										qEdit={role == 'Student'}
-										updateEditData={handleUpdate}
-										DeleteQA={showDeleteConfirmation}
-										isReorderMode={isReorderMode && role === 'Admin'}
-									/>
-								)
-							)}
+					<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
+						<SortableContext items={Object.keys(getCategoryData(subTabIndex))} strategy={verticalListSortingStrategy}>
+							{Object.entries(getCategoryData(subTabIndex)).map(([key, { question }]) => (
+								<SortableQATextField key={key} id={key} data={studentQA} editData={editData} category={labels[subTabIndex]} question={question} keyName={key} aEdit={role == 'Admin'} qEdit={role == 'Student'} updateEditData={handleUpdate} DeleteQA={showDeleteConfirmation} isReorderMode={isReorderMode && role === 'Admin'} />
+							))}
 						</SortableContext>
 					</DndContext>
 				)}
 			</Box>
 
-			<Box
-				my={2}
-				sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-			>
+			<Box my={2} sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
 				{!editMode &&
 					(() => {
 						const entries = Object.entries(getCategoryData(subTabIndex))
 						const isViewerRole = ['Admin', 'Staff', 'Recruiter'].includes(role)
-						const isAdminQA =
-							role === 'Admin' && window.location.pathname === '/student-qa'
+						const isAdminQA = role === 'Admin' && window.location.pathname === '/student-qa'
 
 						// For viewer roles, only show answered questions
 						// Admin on /student-qa should see all questions (template), even without answers
-						const visibleEntries = isAdminQA
-							? entries
-							: isViewerRole
-								? entries.filter(
-										([, { answer }]) => answer && String(answer).trim() !== ''
-									)
-								: entries
+						const visibleEntries = isAdminQA ? entries : isViewerRole ? entries.filter(([, { answer }]) => answer && String(answer).trim() !== '') : entries
 
 						const hasAnyAnswered = visibleEntries.length > 0
 						// Decide which row shows the global toggle icon for reviewers
@@ -1196,109 +1015,44 @@ const QA = ({
 							const disableExpand = !id
 							const isIconRow = idx === iconRowIdx
 
-							return (
-								<QAAccordion
-									key={key}
-									question={question}
-									answer={answer ? answer : ''}
-									notExpand={disableExpand}
-									expanded={
-										isReviewer && !disableExpand ? allExpanded : undefined
-									}
-									showExpandIcon={isReviewer ? isIconRow : !disableExpand}
-									allowToggleWhenNotExpand={
-										isReviewer && isIconRow && disableExpand
-									}
-									onToggle={
-										isReviewer && isIconRow
-											? () => setAllExpanded(prev => !prev)
-											: undefined
-									}
-								/>
-							)
+							return <QAAccordion key={key} question={question} answer={answer ? answer : ''} notExpand={disableExpand} expanded={isReviewer && !disableExpand ? allExpanded : undefined} showExpandIcon={isReviewer ? isIconRow : !disableExpand} allowToggleWhenNotExpand={isReviewer && isIconRow && disableExpand} onToggle={isReviewer && isIconRow ? () => setAllExpanded(prev => !prev) : undefined} />
 						})
 					})()}
 			</Box>
 
-			<Snackbar
-				open={alert.open}
-				autoHideDuration={6000}
-				onClose={handleCloseAlert}
-				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-			>
-				<Alert
-					onClose={handleCloseAlert}
-					severity={alert.severity}
-					sx={{ width: '100%' }}
-				>
+			<Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+				<Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
 					{alert.message}
 				</Alert>
 			</Snackbar>
 			{/* ---- CONFIRM DIALOG ---- */}
-			<ProfileConfirmDialog
-				open={confirmMode}
-				onClose={toggleConfirmMode}
-				onConfirm={handleConfirmProfile}
-			/>
+			<ProfileConfirmDialog open={confirmMode} onClose={toggleConfirmMode} onConfirm={handleConfirmProfile} />
 
 			{/* ---- STAFF APPROVE/REJECT CONFIRM ---- */}
-			<Dialog
-				open={staffConfirm.open}
-				onClose={() => setStaffConfirm({ open: false, action: null })}
-			>
-				<DialogTitle>
-					{staffConfirm.action === 'approved'
-						? t('confirmApprove') || '承認しますか？'
-						: t('confirmSendBack') || '差し戻しますか？'}
-				</DialogTitle>
+			<Dialog open={staffConfirm.open} onClose={() => setStaffConfirm({ open: false, action: null })}>
+				<DialogTitle>{staffConfirm.action === 'approved' ? t('confirmApprove') || '承認しますか？' : t('confirmSendBack') || '差し戻しますか？'}</DialogTitle>
 				<DialogContent>
-					<DialogContentText>
-						{staffConfirm.action === 'approved'
-							? t('confirmApproveDesc') ||
-								'この操作は学生に「承認済」通知を送ります。続行しますか？'
-							: t('confirmSendBackDesc') ||
-								'この操作は学生に差し戻し通知をコメント付きで送ります。続行しますか？'}
-					</DialogContentText>
+					<DialogContentText>{staffConfirm.action === 'approved' ? t('confirmApproveDesc') || 'この操作は学生に「承認済」通知を送ります。続行しますか？' : t('confirmSendBackDesc') || 'この操作は学生に差し戻し通知をコメント付きで送ります。続行しますか？'}</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button
-						onClick={() => setStaffConfirm({ open: false, action: null })}
-					>
-						{t('cancel')}
-					</Button>
-					<Button
-						variant='contained'
-						color={staffConfirm.action === 'approved' ? 'primary' : 'warning'}
-						onClick={() => approveProfile(staffConfirm.action)}
-					>
+					<Button onClick={() => setStaffConfirm({ open: false, action: null })}>{t('cancel')}</Button>
+					<Button variant='contained' color={staffConfirm.action === 'approved' ? 'primary' : 'warning'} onClick={() => approveProfile(staffConfirm.action)}>
 						{t('ok')}
 					</Button>
 				</DialogActions>
 			</Dialog>
 
 			{/* ---- DELETE CONFIRMATION DIALOG ---- */}
-			<Dialog
-				open={deleteConfirmation.open}
-				onClose={handleDeleteCancel}
-				maxWidth='sm'
-				fullWidth
-			>
+			<Dialog open={deleteConfirmation.open} onClose={handleDeleteCancel} maxWidth='sm' fullWidth>
 				<DialogTitle>{t('confirmDelete') || 'Confirm Delete'}</DialogTitle>
 				<DialogContent>
-					<Typography>
-						{t('confirmDeleteMessage') ||
-							'Are you sure you want to delete this Q&A item? This action cannot be undone.'}
-					</Typography>
+					<Typography>{t('confirmDeleteMessage') || 'Are you sure you want to delete this Q&A item? This action cannot be undone.'}</Typography>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleDeleteCancel} color='primary'>
 						{t('cancel') || 'Cancel'}
 					</Button>
-					<Button
-						onClick={handleDeleteConfirm}
-						color='error'
-						variant='contained'
-					>
+					<Button onClick={handleDeleteConfirm} color='error' variant='contained'>
 						{t('delete') || 'Delete'}
 					</Button>
 				</DialogActions>
@@ -1315,16 +1069,7 @@ const QA = ({
 							{/* Staff approval controls */}
 							{role === 'Staff' && (
 								<>
-									<TextField
-										title='コメント'
-										data={comment}
-										editData={comment}
-										editMode={true}
-										updateEditData={updateComment}
-										keyName='comments'
-										maxLength={500}
-										showCounter={true}
-									/>
+									<TextField title='コメント' data={comment} editData={comment} editMode={true} updateEditData={updateComment} keyName='comments' maxLength={500} showCounter={true} />
 
 									<Box
 										sx={{
@@ -1333,14 +1078,7 @@ const QA = ({
 											gap: 10,
 										}}
 									>
-										<Button
-											onClick={() =>
-												setStaffConfirm({ open: true, action: 'approved' })
-											}
-											variant='contained'
-											color='primary'
-											size='small'
-										>
+										<Button onClick={() => setStaffConfirm({ open: true, action: 'approved' })} variant='contained' color='primary' size='small'>
 											承認する
 										</Button>
 										<Button
@@ -1369,20 +1107,10 @@ const QA = ({
 										gap: 10,
 									}}
 								>
-									<Button
-										onClick={() => setProfileVisible(false)}
-										variant='contained'
-										color='primary'
-										size='small'
-									>
+									<Button onClick={() => setProfileVisible(false)} variant='contained' color='primary' size='small'>
 										非公開
 									</Button>
-									<Button
-										onClick={() => setProfileVisible(true)}
-										variant='contained'
-										color='primary'
-										size='small'
-									>
+									<Button onClick={() => setProfileVisible(true)} variant='contained' color='primary' size='small'>
 										公開
 									</Button>
 								</Box>
@@ -1393,16 +1121,7 @@ const QA = ({
 							{/* Staff can reject after approval */}
 							{role === 'Staff' && (
 								<>
-									<TextField
-										title='差し戻しコメント'
-										data={comment}
-										editData={comment}
-										editMode={true}
-										updateEditData={updateComment}
-										keyName='comments'
-										maxLength={500}
-										showCounter={true}
-									/>
+									<TextField title='差し戻しコメント' data={comment} editData={comment} editMode={true} updateEditData={updateComment} keyName='comments' maxLength={500} showCounter={true} />
 									<Box
 										sx={{
 											display: 'flex',
@@ -1437,20 +1156,10 @@ const QA = ({
 										gap: 10,
 									}}
 								>
-									<Button
-										onClick={() => setProfileVisible(false)}
-										variant='contained'
-										color='primary'
-										size='small'
-									>
+									<Button onClick={() => setProfileVisible(false)} variant='contained' color='primary' size='small'>
 										非公開
 									</Button>
-									<Button
-										onClick={() => setProfileVisible(true)}
-										variant='contained'
-										color='primary'
-										size='small'
-									>
+									<Button onClick={() => setProfileVisible(true)} variant='contained' color='primary' size='small'>
 										公開
 									</Button>
 								</Box>
@@ -1461,24 +1170,13 @@ const QA = ({
 			)}
 
 			{/* Warning Modal */}
-			<Dialog
-				open={warningModal.open}
-				onClose={() => setWarningModal({ open: false, message: '' })}
-				aria-labelledby='warning-dialog-title'
-				aria-describedby='warning-dialog-description'
-			>
+			<Dialog open={warningModal.open} onClose={() => setWarningModal({ open: false, message: '' })} aria-labelledby='warning-dialog-title' aria-describedby='warning-dialog-description'>
 				<DialogTitle id='warning-dialog-title'>{t('warning')}</DialogTitle>
 				<DialogContent>
-					<DialogContentText id='warning-dialog-description'>
-						{warningModal.message}
-					</DialogContentText>
+					<DialogContentText id='warning-dialog-description'>{warningModal.message}</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button
-						onClick={() => setWarningModal({ open: false, message: '' })}
-						color='primary'
-						autoFocus
-					>
+					<Button onClick={() => setWarningModal({ open: false, message: '' })} color='primary' autoFocus>
 						{t('ok')}
 					</Button>
 				</DialogActions>

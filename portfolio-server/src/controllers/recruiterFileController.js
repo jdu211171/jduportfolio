@@ -7,9 +7,7 @@ const path = require('path')
 exports.uploadRecruiterFiles = async (req, res) => {
 	try {
 		if (req.user.userType !== 'Recruiter') {
-			return res
-				.status(403)
-				.json({ message: "Ruxsat yo'q. Faqat rekuterlar fayl yuklay oladi." })
+			return res.status(403).json({ message: "Ruxsat yo'q. Faqat rekuterlar fayl yuklay oladi." })
 		}
 
 		const recruiterId = req.user.id
@@ -24,11 +22,9 @@ exports.uploadRecruiterFiles = async (req, res) => {
 		})
 
 		if (existingFilesCount + filesToUpload.length > 3) {
-			return res
-				.status(400)
-				.json({
-					message: `Siz jami 3 tagacha fayl yuklay olasiz. Sizda allaqachon ${existingFilesCount} ta fayl mavjud.`,
-				})
+			return res.status(400).json({
+				message: `Siz jami 3 tagacha fayl yuklay olasiz. Sizda allaqachon ${existingFilesCount} ta fayl mavjud.`,
+			})
 		}
 
 		// Check total size quota (20MB)
@@ -36,14 +32,8 @@ exports.uploadRecruiterFiles = async (req, res) => {
 		const existingFiles = await UserFile.findAll({
 			where: { owner_id: recruiterId, owner_type: 'Recruiter' },
 		})
-		const existingTotalSize = existingFiles.reduce(
-			(sum, file) => sum + (file.file_size || 0),
-			0
-		)
-		const newFilesTotalSize = filesToUpload.reduce(
-			(sum, file) => sum + file.size,
-			0
-		)
+		const existingTotalSize = existingFiles.reduce((sum, file) => sum + (file.file_size || 0), 0)
+		const newFilesTotalSize = filesToUpload.reduce((sum, file) => sum + file.size, 0)
 
 		if (existingTotalSize + newFilesTotalSize > MAX_TOTAL_SIZE) {
 			const remainingSpace = MAX_TOTAL_SIZE - existingTotalSize
@@ -111,10 +101,7 @@ exports.getRecruiterFiles = async (req, res) => {
 		})
 
 		// Calculate total size
-		const totalSize = files.reduce(
-			(sum, file) => sum + (file.file_size || 0),
-			0
-		)
+		const totalSize = files.reduce((sum, file) => sum + (file.file_size || 0), 0)
 
 		res.status(200).json({
 			files,
@@ -144,11 +131,9 @@ exports.updateRecruiterFile = async (req, res) => {
 			where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' },
 		})
 		if (!oldFileRecord) {
-			return res
-				.status(404)
-				.json({
-					error: "Fayl topilmadi yoki uni yangilashga ruxsatingiz yo'q.",
-				})
+			return res.status(404).json({
+				error: "Fayl topilmadi yoki uni yangilashga ruxsatingiz yo'q.",
+			})
 		}
 
 		// 1. Eski faylni ombordan o'chiramiz
@@ -186,11 +171,9 @@ exports.deleteRecruiterFile = async (req, res) => {
 			where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' },
 		})
 		if (!fileRecord) {
-			return res
-				.status(404)
-				.json({
-					error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q.",
-				})
+			return res.status(404).json({
+				error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q.",
+			})
 		}
 
 		// Delete from database first (faster response)
@@ -232,25 +215,17 @@ exports.downloadRecruiterFile = async (req, res) => {
 		}
 
 		if (!fileRecord) {
-			return res
-				.status(404)
-				.json({
-					error: "Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo'q.",
-				})
+			return res.status(404).json({
+				error: "Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo'q.",
+			})
 		}
 
 		// Properly encode filename for Unicode support (RFC 5987)
 		const encodedFilename = encodeURIComponent(fileRecord.original_filename)
-		const asciiFilename = fileRecord.original_filename.replace(
-			/[^\x00-\x7F]/g,
-			'_'
-		)
+		const asciiFilename = fileRecord.original_filename.replace(/[^\x00-\x7F]/g, '_')
 
 		// Set Content-Disposition with both ASCII fallback and UTF-8 encoded name
-		res.setHeader(
-			'Content-Disposition',
-			`attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`
-		)
+		res.setHeader('Content-Disposition', `attachment; filename="${asciiFilename}"; filename*=UTF-8''${encodedFilename}`)
 		res.redirect(fileRecord.file_url)
 	} catch (error) {
 		console.error('Rekruter faylini yuklab olishda xatolik:', error)

@@ -1,32 +1,7 @@
 import { useState, useEffect, useContext, useCallback } from 'react'
 import axios from '../../utils/axiosUtils'
-import {
-	Container,
-	TextField,
-	Button,
-	Avatar,
-	Grid,
-	Box,
-	IconButton,
-	InputAdornment,
-	Card,
-	CardContent,
-	Typography,
-	FormControl,
-	Select,
-	MenuItem,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-} from '@mui/material'
-import {
-	PhotoCamera,
-	Visibility,
-	VisibilityOff,
-	Business,
-	Translate as TranslateIcon,
-} from '@mui/icons-material'
+import { Container, TextField, Button, Avatar, Grid, Box, IconButton, InputAdornment, Card, CardContent, Typography, FormControl, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import { PhotoCamera, Visibility, VisibilityOff, Business, Translate as TranslateIcon } from '@mui/icons-material'
 import { useForm, Controller } from 'react-hook-form'
 import { UserContext } from '../../contexts/UserContext'
 import SettingStyle from './Setting.module.css'
@@ -157,8 +132,7 @@ const Setting = () => {
 				contactEmail: userData.contactEmail || 'test@jdu.uz',
 				contactPhone: userData.contactPhone || '+998 90 234 56 78',
 				workingHours: userData.workingHours || '09:00 - 18:00',
-				location:
-					userData.location || 'Tashkent, Shayhontohur district, Sebzor, 21',
+				location: userData.location || 'Tashkent, Shayhontohur district, Sebzor, 21',
 			}
 
 			reset(formData)
@@ -284,8 +258,7 @@ const Setting = () => {
 			}
 			await setUser(updatedData.data)
 			let tempUser = activeUser
-			tempUser.name =
-				updatedData.data.first_name + ' ' + updatedData.data.last_name
+			tempUser.name = updatedData.data.first_name + ' ' + updatedData.data.last_name
 			tempUser.photo = updatedData.data.photo
 			sessionStorage.setItem('loginUser', JSON.stringify(tempUser))
 			updateUser()
@@ -294,20 +267,9 @@ const Setting = () => {
 			showAlert(t('profile_update_success'), 'success')
 		} catch (error) {
 			// File upload error handling
-			if (
-				error.config &&
-				error.config.url &&
-				error.config.url.includes('/api/files/upload')
-			) {
-				showAlert(
-					'ファイルのアップロードに失敗しました。ファイルサイズやフォーマットを確認してください。',
-					'error'
-				)
-			} else if (
-				error.response &&
-				error.response.data &&
-				error.response.data.error
-			) {
+			if (error.config && error.config.url && error.config.url.includes('/api/files/upload')) {
+				showAlert('ファイルのアップロードに失敗しました。ファイルサイズやフォーマットを確認してください。', 'error')
+			} else if (error.response && error.response.data && error.response.data.error) {
 				setError('currentPassword', {
 					type: 'manual',
 					message: error.response.data.error,
@@ -363,12 +325,7 @@ const Setting = () => {
 	if (isLoading) {
 		return (
 			<Container className={SettingStyle.container}>
-				<Box
-					display='flex'
-					justifyContent='center'
-					alignItems='center'
-					minHeight='400px'
-				>
+				<Box display='flex' justifyContent='center' alignItems='center' minHeight='400px'>
 					<Typography>Loading...</Typography>
 				</Box>
 			</Container>
@@ -397,33 +354,17 @@ const Setting = () => {
 				<CardContent className={SettingStyle.profileCardContent}>
 					<Box className={SettingStyle.profileHeader}>
 						<Box className={SettingStyle.avatarSection}>
-							<Avatar
-								alt={t('user_avatar')}
-								src={avatarImage}
-								className={SettingStyle.avatar}
-							>
+							<Avatar alt={t('user_avatar')} src={avatarImage} className={SettingStyle.avatar}>
 								{role === 'Recruiter' && t('company_logo')}
 							</Avatar>
 							<label htmlFor='avatar-upload'>
 								{isEditing && (
-									<IconButton
-										color='primary'
-										aria-label={t('upload_picture')}
-										component='span'
-										size='small'
-										className={SettingStyle.cameraButton}
-									>
+									<IconButton color='primary' aria-label={t('upload_picture')} component='span' size='small' className={SettingStyle.cameraButton}>
 										<PhotoCamera />
 									</IconButton>
 								)}
 							</label>
-							<input
-								accept='image/*'
-								id='avatar-upload'
-								type='file'
-								style={{ display: 'none' }}
-								onChange={handleAvatarChange}
-							/>
+							<input accept='image/*' id='avatar-upload' type='file' style={{ display: 'none' }} onChange={handleAvatarChange} />
 						</Box>
 
 						<Box className={SettingStyle.userInfo}>
@@ -433,20 +374,13 @@ const Setting = () => {
 								</Typography>
 							)}
 							<Typography variant='body2' className={SettingStyle.companyName}>
-								{user.first_name && user.last_name
-									? `${user.first_name} ${user.last_name}`
-									: t('user')}
+								{user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : t('user')}
 							</Typography>
 						</Box>
 						{/* Admin Sync Button */}
 						{role === 'Admin' && (
 							<Box className={SettingStyle.syncSection}>
-								<Button
-									variant='contained'
-									color='primary'
-									onClick={handleSync}
-									className={SettingStyle.syncButton}
-								>
+								<Button variant='contained' color='primary' onClick={handleSync} className={SettingStyle.syncButton}>
 									{t('sync')}
 								</Button>
 							</Box>
@@ -454,27 +388,12 @@ const Setting = () => {
 						{/* Edit Button */}
 						<Box className={SettingStyle.editButtonContainer}>
 							{!isEditing ? (
-								<Button
-									variant='outlined'
-									className={SettingStyle.editButton}
-									onClick={handleEditClick}
-									startIcon={
-										<img
-											src={SaveIcon}
-											alt='Edit'
-											style={{ width: 20, height: 20 }}
-										/>
-									}
-								>
+								<Button variant='outlined' className={SettingStyle.editButton} onClick={handleEditClick} startIcon={<img src={SaveIcon} alt='Edit' style={{ width: 20, height: 20 }} />}>
 									{t('edit') || '編集'}
 								</Button>
 							) : (
 								<Box className={SettingStyle.editingButtons}>
-									<Button
-										variant='outlined'
-										className={SettingStyle.cancelButton}
-										onClick={handleCancel}
-									>
+									<Button variant='outlined' className={SettingStyle.cancelButton} onClick={handleCancel}>
 										{t('cancel') || 'キャンセル'}
 									</Button>
 									<Button
@@ -522,11 +441,7 @@ const Setting = () => {
 				>
 					<CardContent>
 						<Box className={SettingStyle.sectionHeader}>
-							<img
-								src={IdCardIcon}
-								alt='Personal Info'
-								className={SettingStyle.sectionIcon}
-							/>
+							<img src={IdCardIcon} alt='Personal Info' className={SettingStyle.sectionIcon} />
 							<Typography variant='h6' className={SettingStyle.sectionTitle}>
 								{t('personal_info') || '個人情報'}
 							</Typography>
@@ -672,11 +587,7 @@ const Setting = () => {
 				>
 					<CardContent>
 						<Box className={SettingStyle.sectionHeader}>
-							<img
-								src={LockIcon}
-								alt='Password'
-								className={SettingStyle.sectionIcon}
-							/>
+							<img src={LockIcon} alt='Password' className={SettingStyle.sectionIcon} />
 							<Typography variant='h6' className={SettingStyle.sectionTitle}>
 								{t('change_password') || 'パスワードの変更'}
 							</Typography>
@@ -704,18 +615,8 @@ const Setting = () => {
 											InputProps={{
 												endAdornment: (
 													<InputAdornment position='end'>
-														<IconButton
-															aria-label={t('toggle_password_visibility')}
-															onClick={() =>
-																togglePasswordVisibility('current')
-															}
-															edge='end'
-														>
-															{showCurrentPassword ? (
-																<VisibilityOff />
-															) : (
-																<Visibility />
-															)}
+														<IconButton aria-label={t('toggle_password_visibility')} onClick={() => togglePasswordVisibility('current')} edge='end'>
+															{showCurrentPassword ? <VisibilityOff /> : <Visibility />}
 														</IconButton>
 													</InputAdornment>
 												),
@@ -746,16 +647,8 @@ const Setting = () => {
 											InputProps={{
 												endAdornment: (
 													<InputAdornment position='end'>
-														<IconButton
-															aria-label={t('toggle_password_visibility')}
-															onClick={() => togglePasswordVisibility('new')}
-															edge='end'
-														>
-															{showNewPassword ? (
-																<VisibilityOff />
-															) : (
-																<Visibility />
-															)}
+														<IconButton aria-label={t('toggle_password_visibility')} onClick={() => togglePasswordVisibility('new')} edge='end'>
+															{showNewPassword ? <VisibilityOff /> : <Visibility />}
 														</IconButton>
 													</InputAdornment>
 												),
@@ -786,18 +679,8 @@ const Setting = () => {
 											InputProps={{
 												endAdornment: (
 													<InputAdornment position='end'>
-														<IconButton
-															aria-label={t('toggle_password_visibility')}
-															onClick={() =>
-																togglePasswordVisibility('confirm')
-															}
-															edge='end'
-														>
-															{showConfirmPassword ? (
-																<VisibilityOff />
-															) : (
-																<Visibility />
-															)}
+														<IconButton aria-label={t('toggle_password_visibility')} onClick={() => togglePasswordVisibility('confirm')} edge='end'>
+															{showConfirmPassword ? <VisibilityOff /> : <Visibility />}
 														</IconButton>
 													</InputAdornment>
 												),
@@ -878,13 +761,8 @@ const Setting = () => {
 										</MenuItem>
 									</Select>
 								</FormControl>
-								<Typography
-									variant='caption'
-									color='textSecondary'
-									sx={{ mt: 1, display: 'block' }}
-								>
-									{t('language_change_notice') ||
-										'アプリケーションの表示言語を変更します'}
+								<Typography variant='caption' color='textSecondary' sx={{ mt: 1, display: 'block' }}>
+									{t('language_change_notice') || 'アプリケーションの表示言語を変更します'}
 								</Typography>
 							</Grid>
 						</Grid>
@@ -918,10 +796,7 @@ const Setting = () => {
 							</Box>
 							<Grid container spacing={3} className={SettingStyle.formGrid}>
 								<Grid item xs={12} sm={6}>
-									<Typography
-										variant='body2'
-										className={SettingStyle.fieldLabel}
-									>
+									<Typography variant='body2' className={SettingStyle.fieldLabel}>
 										{t('contact_email')}
 									</Typography>
 									<Controller
@@ -940,10 +815,7 @@ const Setting = () => {
 									/>
 								</Grid>
 								<Grid item xs={12} sm={6}>
-									<Typography
-										variant='body2'
-										className={SettingStyle.fieldLabel}
-									>
+									<Typography variant='body2' className={SettingStyle.fieldLabel}>
 										{t('contact_phone')}
 									</Typography>
 									<Controller
@@ -962,10 +834,7 @@ const Setting = () => {
 									/>
 								</Grid>
 								<Grid item xs={12} sm={6}>
-									<Typography
-										variant='body2'
-										className={SettingStyle.fieldLabel}
-									>
+									<Typography variant='body2' className={SettingStyle.fieldLabel}>
 										{t('working_hours')}
 									</Typography>
 									<Controller
@@ -984,10 +853,7 @@ const Setting = () => {
 									/>
 								</Grid>
 								<Grid item xs={12} sm={6}>
-									<Typography
-										variant='body2'
-										className={SettingStyle.fieldLabel}
-									>
+									<Typography variant='body2' className={SettingStyle.fieldLabel}>
 										{t('location')}
 									</Typography>
 									<Controller
@@ -1012,23 +878,13 @@ const Setting = () => {
 			</form>
 
 			{/* Language Change Confirmation Dialog */}
-			<Dialog
-				open={showLanguageConfirm}
-				onClose={() => setShowLanguageConfirm(false)}
-			>
-				<DialogTitle>
-					{t('unsaved_changes_title') || "O'zgarishlar saqlanmagan"}
-				</DialogTitle>
+			<Dialog open={showLanguageConfirm} onClose={() => setShowLanguageConfirm(false)}>
+				<DialogTitle>{t('unsaved_changes_title') || "O'zgarishlar saqlanmagan"}</DialogTitle>
 				<DialogContent>
-					<Typography>
-						{t('language_change_unsaved_message') ||
-							"Til o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?"}
-					</Typography>
+					<Typography>{t('language_change_unsaved_message') || "Til o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?"}</Typography>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setShowLanguageConfirm(false)}>
-						{t('cancel') || 'Bekor qilish'}
-					</Button>
+					<Button onClick={() => setShowLanguageConfirm(false)}>{t('cancel') || 'Bekor qilish'}</Button>
 					<Button
 						onClick={() => {
 							handleCancel()

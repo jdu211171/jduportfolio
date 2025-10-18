@@ -23,9 +23,7 @@ module.exports = {
 		port: process.env.DB_PORT,
 		dialect: 'postgres',
 		logging: false,
-		...(resolveSSL('development', devHost)
-			? { dialectOptions: { ssl: { require: true, rejectUnauthorized: false } } }
-			: {}),
+		...(resolveSSL('development', devHost) ? { dialectOptions: { ssl: { require: true, rejectUnauthorized: false } } } : {}),
 	},
 	production: {
 		username: process.env.DB_USER_PROD,
@@ -35,8 +33,6 @@ module.exports = {
 		port: process.env.DB_PORT_PROD,
 		dialect: 'postgres',
 		logging: false,
-		...(resolveSSL('production', prodHost)
-			? { dialectOptions: { ssl: { require: true, rejectUnauthorized: false } } }
-			: {}),
+		...(resolveSSL('production', prodHost) ? { dialectOptions: { ssl: { require: true, rejectUnauthorized: false } } } : {}),
 	},
 }

@@ -80,13 +80,13 @@ const Login = () => {
 		try {
 			const raw = localStorage.getItem('forgotCooldowns')
 			const map = raw ? JSON.parse(raw) : {}
-			const emailKey = String(email || '').toLowerCase().trim()
+			const emailKey = String(email || '')
+				.toLowerCase()
+				.trim()
 			const until = map[emailKey]
 			const now = Date.now()
 			if (until && now < until) {
-				setInfo(
-					'If an account exists, a password has already been sent recently.'
-				)
+				setInfo('If an account exists, a password has already been sent recently.')
 				setIsCoolingDown(true)
 				const ms = until - now
 				if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current)
@@ -120,34 +120,28 @@ const Login = () => {
 			try {
 				const raw = localStorage.getItem('forgotCooldowns')
 				const map = raw ? JSON.parse(raw) : {}
-				const emailKey = String(email || '').toLowerCase().trim()
+				const emailKey = String(email || '')
+					.toLowerCase()
+					.trim()
 				map[emailKey] = Date.now() + retryAfterSec * 1000
 				localStorage.setItem('forgotCooldowns', JSON.stringify(map))
 			} catch (_) {}
 
 			if (payload?.rateLimited) {
-				setInfo(
-					'If an account exists, a password has already been sent recently.'
-				)
+				setInfo('If an account exists, a password has already been sent recently.')
 				setIsCoolingDown(true)
 				if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current)
-				cooldownTimerRef.current = setTimeout(
-					() => setIsCoolingDown(false),
-					retryAfterSec * 1000
-				)
+				cooldownTimerRef.current = setTimeout(() => setIsCoolingDown(false), retryAfterSec * 1000)
 			} else {
 				// Show UX feedback and navigate back to login
-				setInfo(
-					'If an account exists, a new password has been sent to your email.'
-				)
+				setInfo('If an account exists, a new password has been sent to your email.')
 				setTimeout(() => {
 					setLoginMode(true)
 				}, 1500)
 			}
 		} catch (err) {
 			setError(err.message)
-		}
-		finally {
+		} finally {
 			setIsSubmitting(false)
 		}
 	}
@@ -162,9 +156,7 @@ const Login = () => {
 				<div className={styles['header-container']}>
 					<img src={logo} alt='Logo' width={80} height={80} />
 					<div className={styles['text-container']}>
-						<h2 style={{ textWrap: 'wrap' }}>
-							{loginMode ? t('welcome') : t('forgotPassword')}
-						</h2>
+						<h2 style={{ textWrap: 'wrap' }}>{loginMode ? t('welcome') : t('forgotPassword')}</h2>
 						{!loginMode && <p>{t('resetPassword2')}</p>}
 					</div>
 				</div>
@@ -179,36 +171,17 @@ const Login = () => {
 							</div>
 							<div className={styles['input-icon']}>
 								<EmailOutlinedIcon />
-								<input
-									type='email'
-									placeholder={t('enterYourLogin')}
-									value={email}
-									onChange={e => setEmail(e.target.value)}
-									required
-								/>
+								<input type='email' placeholder={t('enterYourLogin')} value={email} onChange={e => setEmail(e.target.value)} required />
 							</div>
 						</div>
 						<div className={styles['input-group']}>
 							<label>{t('current_password')}</label>
 							<div className={styles['input-icon']}>
 								<LockOutlinedIcon />
-								<input
-									type={showPassword ? 'text' : 'password'}
-									placeholder={t('enterYourPassword')}
-									value={password}
-									onChange={e => setPassword(e.target.value)}
-									required
-								/>
+								<input type={showPassword ? 'text' : 'password'} placeholder={t('enterYourPassword')} value={password} onChange={e => setPassword(e.target.value)} required />
 								{password && (
-									<span
-										onClick={togglePasswordVisibility}
-										className={styles['visibility-icon']}
-									>
-										{showPassword ? (
-											<VisibilityOffOutlinedIcon />
-										) : (
-											<VisibilityOutlinedIcon />
-										)}
+									<span onClick={togglePasswordVisibility} className={styles['visibility-icon']}>
+										{showPassword ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />}
 									</span>
 								)}
 							</div>
@@ -232,10 +205,7 @@ const Login = () => {
 								</button>
 							</div>
 						</div>
-						<button
-							type='submit'
-							className={`${styles['button-custom']} ${styles['submit-button']}`}
-						>
+						<button type='submit' className={`${styles['button-custom']} ${styles['submit-button']}`}>
 							{t('loginLabel')}
 						</button>
 						<button
@@ -259,21 +229,11 @@ const Login = () => {
 						<div className={styles['input-group']}>
 							<label>{t('email')}</label>
 							<div className={styles['input-icon']}>
-								<input
-									type='email'
-									placeholder={t('enterYourLogin')}
-									value={email}
-									onChange={e => setEmail(e.target.value)}
-									required
-								/>
+								<input type='email' placeholder={t('enterYourLogin')} value={email} onChange={e => setEmail(e.target.value)} required />
 							</div>
 						</div>
 						<div className={styles['button-group']}>
-							<button
-								type='submit'
-								className={`${styles['button-custom']} ${styles['submit-button']}`}
-								disabled={isSubmitting || isCoolingDown}
-							>
+							<button type='submit' className={`${styles['button-custom']} ${styles['submit-button']}`} disabled={isSubmitting || isCoolingDown}>
 								{isSubmitting ? t('loading') : t('send')}
 							</button>
 							<button

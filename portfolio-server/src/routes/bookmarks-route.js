@@ -44,10 +44,7 @@ const router = express.Router()
  *       500:
  *         description: Internal server error
  */
-router.post(
-	'/toggle',
-	BookmarkController.toggleBookmark.bind(BookmarkController)
-)
+router.post('/toggle', BookmarkController.toggleBookmark.bind(BookmarkController))
 
 /**
  * @swagger
@@ -74,9 +71,6 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.get(
-	'/students',
-	BookmarkController.getStudentsWithBookmarkStatus.bind(BookmarkController)
-)
+router.get('/students', BookmarkController.getStudentsWithBookmarkStatus.bind(BookmarkController))
 
 module.exports = router

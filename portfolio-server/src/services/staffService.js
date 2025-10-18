@@ -18,13 +18,7 @@ class StaffService {
 	static async getAllStaff(filter) {
 		try {
 			let query = {} // Initialize an empty query object
-			const searchableColumns = [
-				'email',
-				'first_name',
-				'last_name',
-				'department',
-				'position',
-			] // Example list of searchable columns
+			const searchableColumns = ['email', 'first_name', 'last_name', 'department', 'position'] // Example list of searchable columns
 
 			// Iterate through filter keys
 			Object.keys(filter).forEach(key => {
@@ -113,9 +107,7 @@ class StaffService {
 	 * @returns {Array} Yangi xodimlar uchun email vazifalari massivi.
 	 */
 	static async syncStaffData(staffRecords) {
-		console.log(
-			`Staff sinxronizatsiyasi boshlandi: ${staffRecords.length} ta yozuv topildi.`
-		)
+		console.log(`Staff sinxronizatsiyasi boshlandi: ${staffRecords.length} ta yozuv topildi.`)
 		const emailTasks = []
 
 		for (const record of staffRecords) {
@@ -150,14 +142,7 @@ class StaffService {
 
 				if (newStaff) {
 					// >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
-					emailTasks.push(
-						formatStaffWelcomeEmail(
-							newStaff.email,
-							password,
-							newStaff.first_name,
-							newStaff.last_name
-						)
-					)
+					emailTasks.push(formatStaffWelcomeEmail(newStaff.email, password, newStaff.first_name, newStaff.last_name))
 				}
 			}
 		}

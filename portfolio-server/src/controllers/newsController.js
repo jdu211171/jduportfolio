@@ -20,12 +20,7 @@ class NewsController {
 	}
 	static async update(req, res, next) {
 		try {
-			const updatedNews = await NewsService.updateNews(
-				req.params.id,
-				req.body,
-				req.file,
-				req.user
-			)
+			const updatedNews = await NewsService.updateNews(req.params.id, req.body, req.file, req.user)
 			res.status(200).json(updatedNews)
 		} catch (err) {
 			next(err)
@@ -43,21 +38,12 @@ class NewsController {
 		try {
 			const { action, reason } = req.body
 			if (!['approved', 'rejected'].includes(action)) {
-				return res
-					.status(400)
-					.json({ message: "Action must be 'approved' or 'rejected'." })
+				return res.status(400).json({ message: "Action must be 'approved' or 'rejected'." })
 			}
 			if (action === 'rejected' && !reason) {
-				return res
-					.status(400)
-					.json({ message: 'Rad etish sababi ko‘rsatilishi shart.' })
+				return res.status(400).json({ message: 'Rad etish sababi ko‘rsatilishi shart.' })
 			}
-			const updatedNews = await NewsService.moderateNews(
-				req.params.id,
-				action,
-				reason,
-				req.user
-			)
+			const updatedNews = await NewsService.moderateNews(req.params.id, action, reason, req.user)
 			res.status(200).json(updatedNews)
 		} catch (err) {
 			next(err)

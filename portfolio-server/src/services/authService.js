@@ -81,12 +81,8 @@ class AuthService {
 			if (user) {
 				const isMatch = await bcrypt.compare(password, user.password)
 				if (isMatch) {
-                const expiresIn = process.env.JWT_EXPIRATION || '1d'
-                const token = jwt.sign(
-                    { id: user.id, userType: UserType.name },
-                    process.env.JWT_SECRET,
-                    { expiresIn }
-                )
+					const expiresIn = process.env.JWT_EXPIRATION || '1d'
+					const token = jwt.sign({ id: user.id, userType: UserType.name }, process.env.JWT_SECRET, { expiresIn })
 					AuthService.setAuthCookies(res, token, UserType.name)
 					return {
 						userType: UserType.name,
@@ -110,12 +106,8 @@ class AuthService {
 		for (const UserType of userTypes) {
 			const user = await UserType.findOne({ where: { email } })
 			if (user) {
-                const expiresIn = process.env.JWT_EXPIRATION || '1d'
-                const token = jwt.sign(
-                    { id: user.id, userType: UserType.name },
-                    process.env.JWT_SECRET,
-                    { expiresIn }
-                )
+				const expiresIn = process.env.JWT_EXPIRATION || '1d'
+				const token = jwt.sign({ id: user.id, userType: UserType.name }, process.env.JWT_SECRET, { expiresIn })
 				return {
 					userType: UserType.name,
 					userData: {

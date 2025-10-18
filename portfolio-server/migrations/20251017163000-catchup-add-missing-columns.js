@@ -1,4 +1,4 @@
-"use strict"
+'use strict'
 
 /**
  * Catch-up migration to align production DB with current models.
@@ -6,8 +6,8 @@
  */
 
 module.exports = {
-  async up(queryInterface) {
-    const sql = `
+	async up(queryInterface) {
+		const sql = `
 -- Admins/Staff/Recruiters furigana safety
 ALTER TABLE "public"."Admins" ADD COLUMN IF NOT EXISTS "first_name_furigana" VARCHAR;
 ALTER TABLE "public"."Admins" ADD COLUMN IF NOT EXISTS "last_name_furigana" VARCHAR;
@@ -85,12 +85,11 @@ ALTER TABLE "public"."Students" ADD COLUMN IF NOT EXISTS "has_pending" BOOLEAN D
 ALTER TABLE "public"."Students" ADD COLUMN IF NOT EXISTS "first_name_furigana" VARCHAR;
 ALTER TABLE "public"."Students" ADD COLUMN IF NOT EXISTS "last_name_furigana" VARCHAR;
 `
-    return queryInterface.sequelize.query(sql)
-  },
+		return queryInterface.sequelize.query(sql)
+	},
 
-  async down() {
-    // Non-destructive: no-op. If needed, implement explicit DROP COLUMNs.
-    return Promise.resolve()
-  },
+	async down() {
+		// Non-destructive: no-op. If needed, implement explicit DROP COLUMNs.
+		return Promise.resolve()
+	},
 }
-

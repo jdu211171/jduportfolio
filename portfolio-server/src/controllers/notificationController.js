@@ -17,9 +17,7 @@ class NotificationController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let user_id = id
@@ -46,10 +44,7 @@ class NotificationController {
 				filter.user_role = 'recruiter'
 			}
 
-			const notifications = await NotificationService.getByUserId(
-				user_id,
-				filter
-			)
+			const notifications = await NotificationService.getByUserId(user_id, filter)
 
 			return res.status(200).json(notifications)
 		} catch (error) {
@@ -72,9 +67,7 @@ class NotificationController {
 		try {
 			const { id } = req.params
 			const notification = await NotificationService.delete(id)
-			return res
-				.status(200)
-				.json({ message: 'Notification deleted', notification })
+			return res.status(200).json({ message: 'Notification deleted', notification })
 		} catch (error) {
 			return res.status(400).json({ error: error.message })
 		}
@@ -100,9 +93,7 @@ class NotificationController {
 			const { id, userType } = req.user
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let user_id = id
@@ -120,9 +111,7 @@ class NotificationController {
 			})
 
 			return res.status(200).json({
-				message: notifications.length
-					? 'History notifications found'
-					: 'No history notifications found',
+				message: notifications.length ? 'History notifications found' : 'No history notifications found',
 				notifications,
 			})
 		} catch (error) {
@@ -150,20 +139,13 @@ class NotificationController {
 				user_id = student.student_id
 			}
 
-			const updatedNotification = await NotificationService.markOneAsRead(
-				notificationId,
-				user_id
-			)
+			const updatedNotification = await NotificationService.markOneAsRead(notificationId, user_id)
 
 			if (!updatedNotification) {
-				return res
-					.status(404)
-					.json({ error: 'Notification not found or access denied' })
+				return res.status(404).json({ error: 'Notification not found or access denied' })
 			}
 
-			return res
-				.status(200)
-				.json({ message: 'Notification marked as read', updatedNotification })
+			return res.status(200).json({ message: 'Notification marked as read', updatedNotification })
 		} catch (error) {
 			console.error('Error marking notification as read:', error)
 			return res.status(500).json({ error: 'Internal Server Error' })
@@ -176,9 +158,7 @@ class NotificationController {
 			console.log('markNotificationAsReadAll - User info:', { id, userType })
 
 			if (!id || !userType) {
-				return res
-					.status(400)
-					.json({ error: 'User ID and user type are required' })
+				return res.status(400).json({ error: 'User ID and user type are required' })
 			}
 
 			let user_id = id
@@ -186,26 +166,15 @@ class NotificationController {
 			if (userType === 'Student') {
 				console.log('markNotificationAsReadAll - Getting student by id:', id)
 				const student = await getStudentById(id)
-				console.log(
-					'markNotificationAsReadAll - Found student:',
-					student ? student.student_id : 'null'
-				)
+				console.log('markNotificationAsReadAll - Found student:', student ? student.student_id : 'null')
 				if (!student) {
 					return res.status(404).json({ error: 'Student not found' })
 				}
 				user_id = student.student_id
 			}
 
-			console.log(
-				'markNotificationAsReadAll - Final user_id:',
-				user_id,
-				'userType:',
-				userType
-			)
-			const updatedCount = await NotificationService.markAllAsRead(
-				user_id,
-				userType
-			)
+			console.log('markNotificationAsReadAll - Final user_id:', user_id, 'userType:', userType)
+			const updatedCount = await NotificationService.markAllAsRead(user_id, userType)
 			console.log('markNotificationAsReadAll - Updated count:', updatedCount)
 
 			return res.status(200).json({

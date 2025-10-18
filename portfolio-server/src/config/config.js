@@ -32,11 +32,11 @@ const config = {
 		logging: false,
 		...(resolveSSL('development', devHost)
 			? {
-				// Opt‑in SSL for dev when pointing at remote DB
-				dialectOptions: {
-					ssl: { require: true, rejectUnauthorized: false },
-				},
-			}
+					// Opt‑in SSL for dev when pointing at remote DB
+					dialectOptions: {
+						ssl: { require: true, rejectUnauthorized: false },
+					},
+				}
 			: {}),
 	},
 	production: {
@@ -50,11 +50,11 @@ const config = {
 		logging: false,
 		...(resolveSSL('production', prodHost)
 			? {
-				// Require SSL in production unless explicitly disabled
-				dialectOptions: {
-					ssl: { require: true, rejectUnauthorized: false },
-				},
-			}
+					// Require SSL in production unless explicitly disabled
+					dialectOptions: {
+						ssl: { require: true, rejectUnauthorized: false },
+					},
+				}
 			: {}),
 	},
 }

@@ -1,43 +1,20 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import {
-	Autocomplete,
-	TextField,
-	Chip,
-	Box,
-	MenuItem,
-	Select,
-	FormControl,
-	InputLabel,
-	Typography,
-	IconButton,
-	Snackbar,
-	Alert,
-	Divider,
-} from '@mui/material'
+import { Autocomplete, TextField, Chip, Box, MenuItem, Select, FormControl, InputLabel, Typography, IconButton, Snackbar, Alert, Divider } from '@mui/material'
 import { Add as AddIcon } from '@mui/icons-material'
 import skills from '../assets/skills'
 import axios from 'axios'
 
 const levels = ['初級', '中級', '上級']
 
-const SkillSelector = ({
-	selectedSkills = [],
-	setSelectedSkills = () => {},
-	editMode = false,
-	showAutocomplete = true,
-	showInfoText = true,
-	title = '',
-}) => {
+const SkillSelector = ({ selectedSkills = [], setSelectedSkills = () => {}, editMode = false, showAutocomplete = true, showInfoText = true, title = '' }) => {
 	const [inputValue, setInputValue] = useState('')
 	const [parsedSkills, setParsedSkills] = useState({
 		初級: [],
 		中級: [],
 		上級: [],
 	})
-	const [selectedSkill, setSelectedSkill] = useState(
-		showAutocomplete ? null : ''
-	)
+	const [selectedSkill, setSelectedSkill] = useState(showAutocomplete ? null : '')
 	const [selectedLevel, setSelectedLevel] = useState(levels[0])
 	const [alert, setAlert] = useState({ open: false, message: '', severity: '' })
 
@@ -64,9 +41,7 @@ const SkillSelector = ({
 		if (selectedSkill) {
 			const skillData = getSkillData(selectedSkill)
 			const levelSkills = parsedSkills[selectedLevel]
-			const isDuplicate = levelSkills.some(
-				skill => skill.name === skillData.name
-			)
+			const isDuplicate = levelSkills.some(skill => skill.name === skillData.name)
 			if (isDuplicate) {
 				showAlert('Skill already exists at this level!', 'error')
 			} else {
@@ -79,10 +54,7 @@ const SkillSelector = ({
 							name: selectedSkill,
 							color: '#000',
 						}
-				const newSkills = [
-					...parsedSkills,
-					{ ...skillData, level: selectedLevel },
-				]
+				const newSkills = [...parsedSkills, { ...skillData, level: selectedLevel }]
 				setParsedSkills(newSkills)
 				setdata(formatSkills(newSkills))
 				resetSelectedSkill()
@@ -153,47 +125,16 @@ const SkillSelector = ({
 			)}
 			{showInfoText && (
 				<>
-					<Typography>
-						上級：3年間以上　　　　中級：1年間〜1年間半　　　　初級：基礎
-					</Typography>
+					<Typography>上級：3年間以上　　　　中級：1年間〜1年間半　　　　初級：基礎</Typography>
 					<Divider sx={{ my: 2 }} />
 				</>
 			)}
 			{editMode && (
 				<Box display='flex' alignItems='center' mb={2} mt={2}>
-					{showAutocomplete ? (
-						<Autocomplete
-							options={skills}
-							getOptionLabel={option => option.name}
-							value={selectedSkill}
-							onChange={(event, newValue) => setSelectedSkill(newValue)}
-							inputValue={inputValue}
-							onInputChange={(event, newInputValue) =>
-								setInputValue(newInputValue)
-							}
-							renderInput={params => (
-								<TextField
-									{...params}
-									label='Select Skill'
-									variant='outlined'
-								/>
-							)}
-						/>
-					) : (
-						<TextField
-							value={selectedSkill}
-							onChange={event => setSelectedSkill(event.target.value)}
-							label='Skill'
-							variant='outlined'
-						/>
-					)}
+					{showAutocomplete ? <Autocomplete options={skills} getOptionLabel={option => option.name} value={selectedSkill} onChange={(event, newValue) => setSelectedSkill(newValue)} inputValue={inputValue} onInputChange={(event, newInputValue) => setInputValue(newInputValue)} renderInput={params => <TextField {...params} label='Select Skill' variant='outlined' />} /> : <TextField value={selectedSkill} onChange={event => setSelectedSkill(event.target.value)} label='Skill' variant='outlined' />}
 					<FormControl variant='outlined' size='small' sx={{ ml: 2 }}>
 						<InputLabel>Level</InputLabel>
-						<Select
-							value={selectedLevel}
-							onChange={event => setSelectedLevel(event.target.value)}
-							label='Level'
-						>
+						<Select value={selectedLevel} onChange={event => setSelectedLevel(event.target.value)} label='Level'>
 							{levels.map(level => (
 								<MenuItem key={level} value={level}>
 									{level}
@@ -217,9 +158,7 @@ const SkillSelector = ({
 									<Chip
 										key={`${skill.name}-${skill.level}`}
 										label={skill.name}
-										onDelete={
-											editMode ? () => handleDeleteSkill(skill) : undefined
-										}
+										onDelete={editMode ? () => handleDeleteSkill(skill) : undefined}
 										variant='outlined'
 										style={{
 											borderColor: skill.color,
@@ -233,17 +172,8 @@ const SkillSelector = ({
 					</Box>
 				))}
 			</Box>
-			<Snackbar
-				open={alert.open}
-				autoHideDuration={6000}
-				onClose={handleCloseAlert}
-				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-			>
-				<Alert
-					onClose={handleCloseAlert}
-					severity={alert.severity}
-					sx={{ width: '100%' }}
-				>
+			<Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+				<Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
 					{alert.message}
 				</Alert>
 			</Snackbar>

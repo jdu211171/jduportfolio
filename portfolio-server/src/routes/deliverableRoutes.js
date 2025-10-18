@@ -12,11 +12,7 @@ const upload = multer({
 
 router.post('/', upload.array('files', 10), DeliverableController.add)
 
-router.put(
-	'/:deliverableId',
-	upload.array('files', 10),
-	DeliverableController.update
-)
+router.put('/:deliverableId', upload.array('files', 10), DeliverableController.update)
 router.delete('/:deliverableId', DeliverableController.remove)
 
 module.exports = router

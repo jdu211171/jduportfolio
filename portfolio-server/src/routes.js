@@ -66,10 +66,7 @@ const configureRoutes = app => {
 	// app.use('/api/health', healthRoute)
 
 	// Public routes
-	app.get(
-		'/api/students/:studentId/credit-details',
-		require('./controllers/studentController').getStudentWithCreditDetails
-	)
+	app.get('/api/students/:studentId/credit-details', require('./controllers/studentController').getStudentWithCreditDetails)
 
 	// Protected routes
 	app.use('/api/admin', adminRoute)

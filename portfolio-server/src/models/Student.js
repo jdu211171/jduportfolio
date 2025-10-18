@@ -50,18 +50,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: true,
 			},
 			semester: {
-				type: DataTypes.ENUM(
-					'1',
-					'2',
-					'3',
-					'4',
-					'5',
-					'6',
-					'7',
-					'8',
-					'9',
-					'卒業'
-				),
+				type: DataTypes.ENUM('1', '2', '3', '4', '5', '6', '7', '8', '9', '卒業'),
 				defaultValue: '1',
 			},
 			partner_university: { type: DataTypes.STRING, allowNull: true },
@@ -152,10 +141,7 @@ module.exports = (sequelize, DataTypes) => {
 					let age = today.getFullYear() - birthDate.getFullYear()
 					const monthDiff = today.getMonth() - birthDate.getMonth()
 
-					if (
-						monthDiff < 0 ||
-						(monthDiff === 0 && today.getDate() < birthDate.getDate())
-					) {
+					if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
 						age--
 					}
 

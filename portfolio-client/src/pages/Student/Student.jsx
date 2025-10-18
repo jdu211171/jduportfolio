@@ -68,12 +68,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 		}
 	}, [viewMode])
 
-	const [itSkillOptions, setItSkillOptions] = useState([
-		'JS',
-		'Python',
-		'Java',
-		'SQL',
-	])
+	const [itSkillOptions, setItSkillOptions] = useState(['JS', 'Python', 'Java', 'SQL'])
 
 	useEffect(() => {
 		let cancelled = false
@@ -81,9 +76,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			try {
 				const res = await axios.get('/api/itskills')
 				if (!cancelled) {
-					const names = Array.isArray(res.data)
-						? res.data.map(s => s.name).filter(Boolean)
-						: []
+					const names = Array.isArray(res.data) ? res.data.map(s => s.name).filter(Boolean) : []
 					if (names.length > 0) setItSkillOptions(names)
 				}
 			} catch {
@@ -120,15 +113,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			key: 'partner_university',
 			label: t('partner_university'),
 			type: 'checkbox',
-			options: [
-				t('tokyo_communication_university'),
-				t('kyoto_tachibana_university'),
-				t('sanno_university'),
-				t('sanno_junior_college'),
-				t('niigata_sangyo_university'),
-				t('otemae_university'),
-				t('okayama_university_of_science'),
-			],
+			options: [t('tokyo_communication_university'), t('kyoto_tachibana_university'), t('sanno_university'), t('sanno_junior_college'), t('niigata_sangyo_university'), t('otemae_university'), t('okayama_university_of_science')],
 		},
 		{
 			key: 'other_information',
@@ -242,20 +227,9 @@ const Student = ({ OnlyBookmarked = false }) => {
 	return (
 		<div key={language}>
 			<Box sx={{ width: '100%', height: '100px' }}>
-				<Filter
-					fields={filterFields}
-					filterState={filterState}
-					onFilterChange={handleFilterChange}
-					viewMode={viewMode}
-					onViewModeChange={handleViewModeChange}
-					persistKey='students-filter-v1'
-				/>
+				<Filter fields={filterFields} filterState={filterState} onFilterChange={handleFilterChange} viewMode={viewMode} onViewModeChange={handleViewModeChange} persistKey='students-filter-v1' />
 			</Box>
-			<Table
-				tableProps={tableProps}
-				updatedBookmark={updatedBookmark}
-				viewMode={viewMode}
-			/>
+			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} viewMode={viewMode} />
 		</div>
 	)
 }

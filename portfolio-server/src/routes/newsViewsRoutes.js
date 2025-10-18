@@ -38,11 +38,7 @@ router.post('/:newsId/read', authMiddleware, NewsViewsController.markNewsAsRead)
  *       200:
  *         description: Returns unread news count
  */
-router.get(
-	'/unread-count',
-	authMiddleware,
-	NewsViewsController.getUnreadNewsCount
-)
+router.get('/unread-count', authMiddleware, NewsViewsController.getUnreadNewsCount)
 
 /**
  * @swagger
@@ -66,11 +62,7 @@ router.get('/viewed', authMiddleware, NewsViewsController.getViewedNews)
  *       200:
  *         description: Returns news with isViewed flag
  */
-router.get(
-	'/with-status',
-	authMiddleware,
-	NewsViewsController.getNewsWithViewStatus
-)
+router.get('/with-status', authMiddleware, NewsViewsController.getNewsWithViewStatus)
 
 // Mark all news as read for current user
 router.post('/read-all', authMiddleware, NewsViewsController.markAllAsRead)

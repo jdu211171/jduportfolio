@@ -2,11 +2,7 @@
 	'use strict'
 
 	// An array of events that will trigger the validation before a record is saved.
-	const events = [
-		'app.record.create.submit',
-		'app.record.edit.submit',
-		'app.record.index.edit.submit',
-	]
+	const events = ['app.record.create.submit', 'app.record.edit.submit', 'app.record.index.edit.submit']
 
 	// Register the event handler for the specified events.
 	kintone.events.on(events, function (event) {
@@ -14,9 +10,7 @@
 
 		// Check if the 'Table' and 'count' fields exist to avoid errors.
 		if (!record.Table || !record.count) {
-			console.error(
-				'The "Table" subtable or "count" field is missing from the form.'
-			)
+			console.error('The "Table" subtable or "count" field is missing from the form.')
 			return event
 		}
 
@@ -31,8 +25,7 @@
 		if (tableRowCount !== countFieldValue) {
 			// If they don't match, set an error message on the 'count' field.
 			// Kintone will automatically display this error and prevent the save action.
-			record.count.error =
-				'The number of rows in the table must match the value in the "count" field.'
+			record.count.error = 'The number of rows in the table must match the value in the "count" field.'
 		} else {
 			// It's good practice to clear the error if validation passes.
 			record.count.error = null

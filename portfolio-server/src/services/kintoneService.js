@@ -19,9 +19,7 @@ class KintoneService {
 	static getAppConfig(appName) {
 		const appConfig = kintoneConfig[appName]
 		if (!appConfig) {
-			throw new Error(
-				`App configuration for '${appName}' not found in kintoneConfig.js`
-			)
+			throw new Error(`App configuration for '${appName}' not found in kintoneConfig.js`)
 		}
 		return appConfig
 	}
@@ -54,14 +52,8 @@ class KintoneService {
 			}
 			return { records: allRecords }
 		} catch (error) {
-			console.error(
-				`Error fetching records from Kintone app '${appName}':`,
-				error.message
-			)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
+			console.error(`Error fetching records from Kintone app '${appName}':`, error.message)
+			console.error('Error details:', error.response ? error.response.data : error)
 			throw error
 		}
 	}
@@ -74,43 +66,19 @@ class KintoneService {
 			console.log('🚀 Umumiy sinxronizatsiya boshlandi...')
 
 			// 1. Kintone'dan barcha ma'lumotlarni parallel ravishda olamiz
-			const [
-				students,
-				staff,
-				recruiters,
-				credits,
-				ieltsCerts,
-				itContestCerts,
-				jlptCerts,
-				benronCerts,
-				jduNinteiCerts,
-			] = await Promise.all([
-				this.getAllRecords('students').then(res => res.records),
-				this.getAllRecords('staff').then(res => res.records),
-				this.getAllRecords('recruiters').then(res => res.records),
-				this.getAllRecords('student_credits').then(res => res.records),
-				this.getAllRecords('student_ielts').then(res => res.records),
-				this.getAllRecords('student_it_contest').then(res => res.records),
-				this.getAllRecords('student_jlpt').then(res => res.records),
-				this.getAllRecords('student_benron_taikai').then(res => res.records),
-				this.getAllRecords('student_jdu_ninteishiken').then(res => res.records),
-			])
+			const [students, staff, recruiters, credits, ieltsCerts, itContestCerts, jlptCerts, benronCerts, jduNinteiCerts] = await Promise.all([this.getAllRecords('students').then(res => res.records), this.getAllRecords('staff').then(res => res.records), this.getAllRecords('recruiters').then(res => res.records), this.getAllRecords('student_credits').then(res => res.records), this.getAllRecords('student_ielts').then(res => res.records), this.getAllRecords('student_it_contest').then(res => res.records), this.getAllRecords('student_jlpt').then(res => res.records), this.getAllRecords('student_benron_taikai').then(res => res.records), this.getAllRecords('student_jdu_ninteishiken').then(res => res.records)])
 
-			console.log(
-				`✅ Ma'lumotlar olindi: ${students.length} talaba, ${staff.length} xodim, ${recruiters.length} rekruter.`
-			)
+			console.log(`✅ Ma'lumotlar olindi: ${students.length} talaba, ${staff.length} xodim, ${recruiters.length} rekruter.`)
 
 			// 2. Har bir turdagi foydalanuvchini sinxronizatsiya qilib, email vazifalarini yig'amiz
 			const staffEmailTasks = await StaffService.syncStaffData(staff)
-			const recruiterEmailTasks =
-				await RecruiterService.syncRecruiterData(recruiters)
+			const recruiterEmailTasks = await RecruiterService.syncRecruiterData(recruiters)
 
 			// 3. Talabalar uchun ma'lumotlarni formatlash
 			const creditsMap = new Map()
 			credits.forEach(rec => {
 				creditsMap.set(rec.studentId?.value, {
-					worldLanguageUniversityCredits:
-						rec.worldLanguageUniversityCredits?.value,
+					worldLanguageUniversityCredits: rec.worldLanguageUniversityCredits?.value,
 					businessSkillsCredits: rec.businessSkillsCredits?.value,
 					japaneseEmploymentCredits: rec.japaneseEmploymentCredits?.value,
 					liberalArtsEducationCredits: rec.liberalArtsEducationCredits?.value,
@@ -121,30 +89,10 @@ class KintoneService {
 			})
 
 			const ieltsData = this.formatCertificateData(ieltsCerts, 'ielts', 'date')
-			const itContestData = this.formatCertificateData(
-				itContestCerts,
-				'it_contest',
-				'date',
-				true
-			)
-			const jlptData = this.formatCertificateData(
-				jlptCerts,
-				'jlptCertificate',
-				'jlpt_date',
-				true
-			)
-			const benronData = this.formatCertificateData(
-				benronCerts,
-				'japanese_speech_contest',
-				'campusDate',
-				true
-			)
-			const jduNinteiData = this.formatCertificateData(
-				jduNinteiCerts,
-				'jdu_japanese_certification',
-				'date',
-				true
-			)
+			const itContestData = this.formatCertificateData(itContestCerts, 'it_contest', 'date', true)
+			const jlptData = this.formatCertificateData(jlptCerts, 'jlptCertificate', 'jlpt_date', true)
+			const benronData = this.formatCertificateData(benronCerts, 'japanese_speech_contest', 'campusDate', true)
+			const jduNinteiData = this.formatCertificateData(jduNinteiCerts, 'jdu_japanese_certification', 'date', true)
 
 			const formattedStudentData = students
 				.map(record => {
@@ -166,55 +114,37 @@ class KintoneService {
 						// Newly added fields from Kintone student app
 						faculty: record.faculty?.value,
 						department: record.department?.value,
-						partnerUniversityEnrollmentDate:
-							record.partnerUniversityEnrollmentDate?.value,
+						partnerUniversityEnrollmentDate: record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						studentStatus: record.studentStatus?.value,
 						// Graduation can come as a Date (YYYY-MM-DD). Support both field codes.
 						graduationYear: record.graduationYear?.value,
-						graduation_year:
-							record.graduation_year?.value || record.graduationYear?.value,
+						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
 						graduationSeason: record.graduationSeason?.value,
 						kintone_id_value: record['$id']?.value,
 						...studentCredits,
 						ielts: JSON.stringify(ieltsData[studentId] || null),
 						it_contest: JSON.stringify(itContestData[studentId] || null),
 						jlpt: JSON.stringify(jlptData[studentId] || null),
-						japanese_speech_contest: JSON.stringify(
-							benronData[studentId] || null
-						),
-						jdu_japanese_certification: JSON.stringify(
-							jduNinteiData[studentId] || null
-						),
+						japanese_speech_contest: JSON.stringify(benronData[studentId] || null),
+						jdu_japanese_certification: JSON.stringify(jduNinteiData[studentId] || null),
 					}
 				})
 				.filter(Boolean)
 
-			const studentEmailTasks =
-				await StudentService.syncStudentData(formattedStudentData)
+			const studentEmailTasks = await StudentService.syncStudentData(formattedStudentData)
 
 			// 4. Barcha email vazifalarini bitta ro'yxatga birlashtiramiz
-			const allEmailTasks = [
-				...studentEmailTasks,
-				...staffEmailTasks,
-				...recruiterEmailTasks,
-			]
+			const allEmailTasks = [...studentEmailTasks, ...staffEmailTasks, ...recruiterEmailTasks]
 
 			// 5. Agar jo'natiladigan email bo'lsa, barchasini ommaviy jo'natamiz
 			if (allEmailTasks.length > 0) {
-				console.log(
-					`📨 Jami ${allEmailTasks.length} ta yangi foydalanuvchiga email jo'natish boshlandi...`
-				)
+				console.log(`📨 Jami ${allEmailTasks.length} ta yangi foydalanuvchiga email jo'natish boshlandi...`)
 				const emailReport = await sendBulkEmails(allEmailTasks)
 				console.log("--- Ommaviy Email Jo'natish Hisoboti ---")
-				console.log(
-					`Total: ${emailReport.total}, Successful: ${emailReport.successful}, Failed: ${emailReport.failed}`
-				)
+				console.log(`Total: ${emailReport.total}, Successful: ${emailReport.successful}, Failed: ${emailReport.failed}`)
 				if (emailReport.failed > 0) {
-					console.error(
-						'Xato bilan tugagan emaillar:',
-						emailReport.failedEmails
-					)
+					console.error('Xato bilan tugagan emaillar:', emailReport.failedEmails)
 				}
 				console.log('-------------------------')
 			} else {
@@ -224,10 +154,7 @@ class KintoneService {
 			console.log('🎉 Umumiy sinxronizatsiya muvaffaqiyatli yakunlandi.')
 			return { message: 'All data synchronized successfully.' }
 		} catch (error) {
-			console.error(
-				'❌ KintoneService syncData da jiddiy xatolik yuz berdi:',
-				error
-			)
+			console.error('❌ KintoneService syncData da jiddiy xatolik yuz berdi:', error)
 			throw error
 		}
 	}
@@ -235,12 +162,7 @@ class KintoneService {
 	/**
 	 * Sertifikat ma'lumotlarini talaba IDsi bo'yicha guruhlaydi.
 	 */
-	static formatCertificateData(
-		certificateRecords,
-		levelField,
-		dateField,
-		isReverse = false
-	) {
+	static formatCertificateData(certificateRecords, levelField, dateField, isReverse = false) {
 		const data = {}
 		if (!Array.isArray(certificateRecords)) return data
 
@@ -330,14 +252,8 @@ class KintoneService {
 			}
 			return data
 		} catch (error) {
-			console.error(
-				`Error fetching record by ${colName} from Kintone:`,
-				error.message
-			)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
+			console.error(`Error fetching record by ${colName} from Kintone:`, error.message)
+			console.error('Error details:', error.response ? error.response.data : error)
 			throw error
 		}
 	}
@@ -364,10 +280,7 @@ class KintoneService {
 			return response.data
 		} catch (error) {
 			console.error('Error creating record in Kintone:', error.message)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
+			console.error('Error details:', error.response ? error.response.data : error)
 			throw error
 		}
 	}
@@ -398,10 +311,7 @@ class KintoneService {
 			return response.data
 		} catch (error) {
 			console.error('Error updating record in Kintone:', error.message)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
+			console.error('Error details:', error.response ? error.response.data : error)
 			throw error
 		}
 	}
@@ -427,10 +337,7 @@ class KintoneService {
 			return response.data
 		} catch (error) {
 			console.error('Error deleting record from Kintone:', error.message)
-			console.error(
-				'Error details:',
-				error.response ? error.response.data : error
-			)
+			console.error('Error details:', error.response ? error.response.data : error)
 			throw error
 		}
 	}

@@ -92,30 +92,15 @@ const Home = () => {
 						<>
 							{editMode ? (
 								<>
-									<Button
-										onClick={handleSave}
-										variant='contained'
-										color='primary'
-										size='small'
-									>
+									<Button onClick={handleSave} variant='contained' color='primary' size='small'>
 										{t('save')}
 									</Button>
-									<Button
-										onClick={handleCancel}
-										variant='outlined'
-										color='error'
-										size='small'
-									>
+									<Button onClick={handleCancel} variant='outlined' color='error' size='small'>
 										{t('cancel')}
 									</Button>
 								</>
 							) : (
-								<Button
-									onClick={toggleEditMode}
-									variant='contained'
-									color='primary'
-									size='small'
-								>
+								<Button onClick={toggleEditMode} variant='contained' color='primary' size='small'>
 									{t('edit')}
 								</Button>
 							)}
@@ -129,16 +114,9 @@ const Home = () => {
 				<div className={styles.mainBanner}>
 					<div className={styles.backgroundImage}></div>
 					<div className={styles.textContent}>
-						{editMode && (
-							<RichTextEditor value={editData} onChange={handleContentChange} />
-						)}
+						{editMode && <RichTextEditor value={editData} onChange={handleContentChange} />}
 
-						{!editMode && (
-							<p
-								className={styles.textParagraph}
-								dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}
-							></p>
-						)}
+						{!editMode && <p className={styles.textParagraph} dangerouslySetInnerHTML={{ __html: cleanHtmlContent(editData) }}></p>}
 
 						<div className={styles.buttonContainer}>
 							<button className={styles.button} onClick={handleClick}>

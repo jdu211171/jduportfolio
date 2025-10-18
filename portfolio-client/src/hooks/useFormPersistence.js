@@ -6,14 +6,7 @@ const STORAGE_VERSION = '1.0'
 const EXPIRY_HOURS = 24
 
 export const useFormPersistence = (key, initialValue, options = {}) => {
-	const {
-		debounceMs = 2000,
-		onSaveStart,
-		onSaveComplete,
-		onLoadComplete,
-		enabled = true,
-		originalData = null,
-	} = options
+	const { debounceMs = 2000, onSaveStart, onSaveComplete, onLoadComplete, enabled = true, originalData = null } = options
 
 	const isMountedRef = useRef(false)
 	const lastSavedRef = useRef(null)
@@ -48,10 +41,7 @@ export const useFormPersistence = (key, initialValue, options = {}) => {
 
 			const parsed = JSON.parse(stored)
 
-			if (
-				parsed.version !== STORAGE_VERSION ||
-				isDataExpired(parsed.timestamp)
-			) {
+			if (parsed.version !== STORAGE_VERSION || isDataExpired(parsed.timestamp)) {
 				localStorage.removeItem(storageKey)
 				return initialValue
 			}
@@ -134,9 +124,7 @@ export const useFormPersistence = (key, initialValue, options = {}) => {
 
 	const hasChangesFromOriginal = useCallback(currentData => {
 		if (!originalDataRef.current) {
-			console.log(
-				'hasChangesFromOriginal: No original data reference, returning true'
-			)
+			console.log('hasChangesFromOriginal: No original data reference, returning true')
 			return true
 		}
 
@@ -211,10 +199,7 @@ export const useFormPersistence = (key, initialValue, options = {}) => {
 			if (e.key === getStorageKey() && e.newValue) {
 				try {
 					const parsed = JSON.parse(e.newValue)
-					if (
-						parsed.version === STORAGE_VERSION &&
-						!isDataExpired(parsed.timestamp)
-					) {
+					if (parsed.version === STORAGE_VERSION && !isDataExpired(parsed.timestamp)) {
 						if (onLoadComplete) {
 							onLoadComplete(parsed.data)
 						}

@@ -45,13 +45,7 @@ module.exports = (sequelize, DataTypes) => {
 				defaultValue: [],
 			},
 			status: {
-				type: DataTypes.ENUM(
-					'draft',
-					'submitted',
-					'approved',
-					'disapproved',
-					'resubmission_required'
-				),
+				type: DataTypes.ENUM('draft', 'submitted', 'approved', 'disapproved', 'resubmission_required'),
 				allowNull: false,
 				defaultValue: 'draft',
 			},

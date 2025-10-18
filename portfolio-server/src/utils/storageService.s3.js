@@ -1,11 +1,6 @@
 // utils/storageService.s3.js
 
-const {
-	S3Client,
-	PutObjectCommand,
-	DeleteObjectCommand,
-	GetObjectCommand,
-} = require('@aws-sdk/client-s3')
+const { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3')
 
 const s3Client = new S3Client({
 	region: process.env.AWS_S3_REGION,

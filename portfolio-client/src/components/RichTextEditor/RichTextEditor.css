@@ -1,18 +1,16 @@
 .ql-snow {
-  border-radius: 8px;
+	border-radius: 8px;
 }
 
-
 .ql-snow {
-  .ql-picker {
-    &.ql-size {
-
-      .ql-picker-label,
-      .ql-picker-item {
-        &::before {
-          content: attr(data-value) !important;
-        }
-      }
-    }
-  }
+	.ql-picker {
+		&.ql-size {
+			.ql-picker-label,
+			.ql-picker-item {
+				&::before {
+					content: attr(data-value) !important;
+				}
+			}
+		}
+	}
 }

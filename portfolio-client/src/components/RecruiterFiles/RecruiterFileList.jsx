@@ -1,19 +1,5 @@
 import React, { useState } from 'react'
-import {
-	Box,
-	Typography,
-	IconButton,
-	List,
-	ListItem,
-	ListItemText,
-	ListItemSecondaryAction,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-	Button,
-	CircularProgress,
-} from '@mui/material'
+import { Box, Typography, IconButton, List, ListItem, ListItemText, ListItemSecondaryAction, Dialog, DialogTitle, DialogContent, DialogActions, Button, CircularProgress } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
 import DeleteIcon from '@mui/icons-material/Delete'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
@@ -22,13 +8,7 @@ import { useAlert } from '../../contexts/AlertContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 
-const RecruiterFileList = ({
-	files = [],
-	onFileDeleted,
-	loading = false,
-	editMode = false,
-	currentRole,
-}) => {
+const RecruiterFileList = ({ files = [], onFileDeleted, loading = false, editMode = false, currentRole }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const showAlert = useAlert()
@@ -114,11 +94,7 @@ const RecruiterFileList = ({
 						}}
 					>
 						<InsertDriveFileIcon sx={{ mr: 2, color: 'primary.main' }} />
-						<ListItemText
-							primary={file.original_filename}
-							secondary={`${new Date(file.createdAt).toLocaleDateString()} • ${formatFileSize(file.file_size || 0)}`}
-							sx={{ wordBreak: 'break-word' }}
-						/>
+						<ListItemText primary={file.original_filename} secondary={`${new Date(file.createdAt).toLocaleDateString()} • ${formatFileSize(file.file_size || 0)}`} sx={{ wordBreak: 'break-word' }} />
 						<ListItemSecondaryAction>
 							<IconButton
 								edge='end'
@@ -133,11 +109,7 @@ const RecruiterFileList = ({
 								<DownloadIcon />
 							</IconButton>
 							{editMode && (
-								<IconButton
-									edge='end'
-									aria-label='delete'
-									onClick={() => handleDeleteClick(file)}
-								>
+								<IconButton edge='end' aria-label='delete' onClick={() => handleDeleteClick(file)}>
 									<DeleteIcon />
 								</IconButton>
 							)}
@@ -146,12 +118,7 @@ const RecruiterFileList = ({
 				))}
 			</List>
 
-			<Dialog
-				open={deleteDialogOpen}
-				onClose={handleDeleteCancel}
-				maxWidth='xs'
-				fullWidth
-			>
+			<Dialog open={deleteDialogOpen} onClose={handleDeleteCancel} maxWidth='xs' fullWidth>
 				<DialogTitle>{t('delete_file')}</DialogTitle>
 				<DialogContent>
 					<Typography>{t('delete_file_confirm')}</Typography>
@@ -165,13 +132,7 @@ const RecruiterFileList = ({
 					<Button onClick={handleDeleteCancel} disabled={deleting}>
 						{t('cancel')}
 					</Button>
-					<Button
-						onClick={handleDeleteConfirm}
-						color='error'
-						variant='contained'
-						disabled={deleting}
-						startIcon={deleting ? <CircularProgress size={20} /> : null}
-					>
+					<Button onClick={handleDeleteConfirm} color='error' variant='contained' disabled={deleting} startIcon={deleting ? <CircularProgress size={20} /> : null}>
 						{deleting ? t('deleting') : t('delete')}
 					</Button>
 				</DialogActions>

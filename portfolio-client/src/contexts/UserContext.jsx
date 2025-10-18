@@ -6,9 +6,7 @@ export const UserProvider = ({ children }) => {
 	const [role, setRole] = useState(null)
 	const [userId, setUserId] = useState(null)
 	const [activeUser, setActiveUser] = useState(null)
-	const [language, setLanguage] = useState(
-		localStorage.getItem('language') || 'ja'
-	)
+	const [language, setLanguage] = useState(localStorage.getItem('language') || 'ja')
 
 	const fetchAndSetUser = () => {
 		const userRole = sessionStorage.getItem('role')
@@ -34,11 +32,5 @@ export const UserProvider = ({ children }) => {
 		localStorage.setItem('language', lang)
 	}
 
-	return (
-		<UserContext.Provider
-			value={{ role, userId, activeUser, updateUser, language, changeLanguage }}
-		>
-			{children}
-		</UserContext.Provider>
-	)
+	return <UserContext.Provider value={{ role, userId, activeUser, updateUser, language, changeLanguage }}>{children}</UserContext.Provider>
 }

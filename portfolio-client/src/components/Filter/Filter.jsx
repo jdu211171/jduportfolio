@@ -11,16 +11,7 @@ import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
 import axios from '../../utils/axiosUtils'
 
-const Filter = ({
-	fields,
-	filterState,
-	onFilterChange,
-	onGridViewClick,
-	viewMode = 'grid',
-	onViewModeChange,
-	persistKey = 'filter-state',
-	disableStudentIdSearch = false,
-}) => {
+const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
@@ -34,9 +25,7 @@ const Filter = ({
 				const validatedState = { ...filterState }
 
 				// Collect allowed keys: field keys + any matchModeKey defined on fields
-				const allowedKeys = new Set(
-					fields.flatMap(f => [f.key, f.matchModeKey].filter(Boolean))
-				)
+				const allowedKeys = new Set(fields.flatMap(f => [f.key, f.matchModeKey].filter(Boolean)))
 
 				Object.keys(parsedState).forEach(key => {
 					if (allowedKeys.has(key) && parsedState[key] !== undefined) {
@@ -54,9 +43,7 @@ const Filter = ({
 	}, [persistKey, filterState, fields])
 
 	const [localFilterState, setLocalFilterState] = useState(getInitialState)
-	const [inputValue, setInputValue] = useState(
-		() => getInitialState().search || ''
-	)
+	const [inputValue, setInputValue] = useState(() => getInitialState().search || '')
 	const [noMatches, setNoMatches] = useState(false)
 	const [showSuggestions, setShowSuggestions] = useState(false)
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1)
@@ -86,19 +73,12 @@ const Filter = ({
 			debounce(state => {
 				try {
 					// Only save non-empty values
-					const stateToSave = Object.entries(state).reduce(
-						(acc, [key, value]) => {
-							if (
-								value &&
-								value !== '' &&
-								!(Array.isArray(value) && value.length === 0)
-							) {
-								acc[key] = value
-							}
-							return acc
-						},
-						{}
-					)
+					const stateToSave = Object.entries(state).reduce((acc, [key, value]) => {
+						if (value && value !== '' && !(Array.isArray(value) && value.length === 0)) {
+							acc[key] = value
+						}
+						return acc
+					}, {})
 
 					if (Object.keys(stateToSave).length > 0) {
 						localStorage.setItem(persistKey, JSON.stringify(stateToSave))
@@ -161,9 +141,7 @@ const Filter = ({
 			if (!searchTerm.trim() || disableStudentIdSearch) return []
 
 			try {
-				const response = await axios.get(
-					`/api/students/ids?search=${encodeURIComponent(searchTerm)}`
-				)
+				const response = await axios.get(`/api/students/ids?search=${encodeURIComponent(searchTerm)}`)
 				const data = response.data
 				return data.map(student => ({
 					label: student.display,
@@ -188,23 +166,16 @@ const Filter = ({
 
 		const getSuggestions = async () => {
 			// Get static filter suggestions
-			const staticSuggestions = allFilterOptions.filter(option =>
-				option.label.toLowerCase().includes(inputValue.toLowerCase())
-			)
+			const staticSuggestions = allFilterOptions.filter(option => option.label.toLowerCase().includes(inputValue.toLowerCase()))
 
 			// Get dynamic student ID suggestions
 			const studentIdSuggestions = await fetchStudentIdSuggestions(inputValue)
 
 			// Combine both types of suggestions
-			const combinedSuggestions = [
-				...staticSuggestions,
-				...studentIdSuggestions,
-			]
+			const combinedSuggestions = [...staticSuggestions, ...studentIdSuggestions]
 
 			setSuggestions(combinedSuggestions)
-			setNoMatches(
-				inputValue.trim().length > 0 && combinedSuggestions.length === 0
-			)
+			setNoMatches(inputValue.trim().length > 0 && combinedSuggestions.length === 0)
 			setShowSuggestions(true)
 		}
 
@@ -212,10 +183,7 @@ const Filter = ({
 	}, [inputValue, allFilterOptions, fetchStudentIdSuggestions])
 
 	// Debounce input changes for performance
-	const debouncedSetInputValue = useMemo(
-		() => debounce(value => setInputValue(value), 300),
-		[]
-	)
+	const debouncedSetInputValue = useMemo(() => debounce(value => setInputValue(value), 300), [])
 
 	// Clean up debounce on unmount
 	useEffect(() => {
@@ -253,13 +221,9 @@ const Filter = ({
 				setInputValue(suggestion.value)
 			} else if (suggestion.type === 'checkbox') {
 				// Toggle selection for checkbox-type suggestions
-				const current = Array.isArray(localFilterState[suggestion.field])
-					? localFilterState[suggestion.field]
-					: []
+				const current = Array.isArray(localFilterState[suggestion.field]) ? localFilterState[suggestion.field] : []
 				const exists = current.includes(suggestion.label)
-				const next = exists
-					? current.filter(v => v !== suggestion.label)
-					: [...current, suggestion.label]
+				const next = exists ? current.filter(v => v !== suggestion.label) : [...current, suggestion.label]
 				handleChange(suggestion.field, next)
 				setInputValue('')
 			} else {
@@ -279,15 +243,11 @@ const Filter = ({
 			switch (e.key) {
 				case 'ArrowDown':
 					e.preventDefault()
-					setSelectedSuggestionIndex(prev =>
-						prev < suggestions.length - 1 ? prev + 1 : 0
-					)
+					setSelectedSuggestionIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0))
 					break
 				case 'ArrowUp':
 					e.preventDefault()
-					setSelectedSuggestionIndex(prev =>
-						prev > 0 ? prev - 1 : suggestions.length - 1
-					)
+					setSelectedSuggestionIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1))
 					break
 				case 'Enter':
 					e.preventDefault()
@@ -306,14 +266,7 @@ const Filter = ({
 					break
 			}
 		},
-		[
-			showSuggestions,
-			suggestions,
-			selectedSuggestionIndex,
-			handleSuggestionClick,
-			onFilterChange,
-			localFilterState,
-		]
+		[showSuggestions, suggestions, selectedSuggestionIndex, handleSuggestionClick, onFilterChange, localFilterState]
 	)
 
 	const handleSubmit = useCallback(
@@ -327,8 +280,7 @@ const Filter = ({
 	)
 
 	const handleViewModeToggle = useCallback(() => {
-		const newMode =
-			viewMode === 'table' || viewMode === 'list' ? 'grid' : 'table'
+		const newMode = viewMode === 'table' || viewMode === 'list' ? 'grid' : 'table'
 		onViewModeChange && onViewModeChange(newMode)
 	}, [viewMode, onViewModeChange])
 
@@ -403,8 +355,7 @@ const Filter = ({
 
 	const renderFilterField = useCallback(
 		field => {
-			const value =
-				tempFilterState[field.key] || (field.type === 'checkbox' ? [] : '')
+			const value = tempFilterState[field.key] || (field.type === 'checkbox' ? [] : '')
 
 			switch (field.type) {
 				case 'checkbox': {
@@ -417,11 +368,7 @@ const Filter = ({
 						if (sa !== sb) return sa - sb
 						return String(a).localeCompare(String(b))
 					})
-					const filtered = searchTerm
-						? ordered.filter(o =>
-								String(o).toLowerCase().includes(searchTerm.toLowerCase())
-							)
-						: ordered
+					const filtered = searchTerm ? ordered.filter(o => String(o).toLowerCase().includes(searchTerm.toLowerCase())) : ordered
 
 					const onSearchChange = e =>
 						setCheckboxSearchMap(prev => ({
@@ -446,47 +393,17 @@ const Filter = ({
 							{field.matchModeKey && (
 								<div className={style.radioGroup} style={{ marginBottom: 8 }}>
 									<label className={style.radioLabel}>
-										<input
-											type='radio'
-											name={`${field.matchModeKey}`}
-											value='any'
-											checked={
-												(tempFilterState[field.matchModeKey] || 'any') === 'any'
-											}
-											onChange={() =>
-												handleTempFilterChange(field.matchModeKey, 'any')
-											}
-											className={style.radio}
-										/>
+										<input type='radio' name={`${field.matchModeKey}`} value='any' checked={(tempFilterState[field.matchModeKey] || 'any') === 'any'} onChange={() => handleTempFilterChange(field.matchModeKey, 'any')} className={style.radio} />
 										<span>{t('any') || 'Any'}</span>
 									</label>
 									<label className={style.radioLabel}>
-										<input
-											type='radio'
-											name={`${field.matchModeKey}`}
-											value='all'
-											checked={
-												(tempFilterState[field.matchModeKey] || 'any') === 'all'
-											}
-											onChange={() =>
-												handleTempFilterChange(field.matchModeKey, 'all')
-											}
-											className={style.radio}
-										/>
+										<input type='radio' name={`${field.matchModeKey}`} value='all' checked={(tempFilterState[field.matchModeKey] || 'any') === 'all'} onChange={() => handleTempFilterChange(field.matchModeKey, 'all')} className={style.radio} />
 										<span>{t('all') || 'All'}</span>
 									</label>
 								</div>
 							)}
 							{/* Search for long lists */}
-							{optionsArray.length > 10 && (
-								<input
-									type='text'
-									className={style.checkboxSearch}
-									placeholder={t('search_items') || 'Search...'}
-									value={searchTerm}
-									onChange={onSearchChange}
-								/>
-							)}
+							{optionsArray.length > 10 && <input type='text' className={style.checkboxSearch} placeholder={t('search_items') || 'Search...'} value={searchTerm} onChange={onSearchChange} />}
 
 							{optionsArray.length > 10 && (
 								<div className={style.checkboxActions}>
@@ -529,12 +446,7 @@ const Filter = ({
 							{/* Virtualized list for very large sets */}
 							{filtered.length > 120 ? (
 								<div style={{ height: 320 }}>
-									<List
-										height={320}
-										itemCount={filtered.length}
-										itemSize={32}
-										width={'100%'}
-									>
+									<List height={320} itemCount={filtered.length} itemSize={32} width={'100%'}>
 										{({ index, style: rowStyle }) => {
 											const option = filtered[index]
 											return (
@@ -546,17 +458,12 @@ const Filter = ({
 													}}
 													key={option}
 												>
-													<label
-														className={style.checkboxLabel}
-														style={{ width: '100%', margin: 0 }}
-													>
+													<label className={style.checkboxLabel} style={{ width: '100%', margin: 0 }}>
 														<input
 															type='checkbox'
 															checked={value.includes(option)}
 															onChange={e => {
-																const newValue = e.target.checked
-																	? [...value, option]
-																	: value.filter(v => v !== option)
+																const newValue = e.target.checked ? [...value, option] : value.filter(v => v !== option)
 																handleTempFilterChange(field.key, newValue)
 															}}
 															className={style.checkbox}
@@ -576,9 +483,7 @@ const Filter = ({
 												type='checkbox'
 												checked={value.includes(option)}
 												onChange={e => {
-													const newValue = e.target.checked
-														? [...value, option]
-														: value.filter(v => v !== option)
+													const newValue = e.target.checked ? [...value, option] : value.filter(v => v !== option)
 													handleTempFilterChange(field.key, newValue)
 												}}
 												className={style.checkbox}
@@ -599,16 +504,7 @@ const Filter = ({
 							<div className={style.radioGroup}>
 								{field.options.map(option => (
 									<label key={option} className={style.radioLabel}>
-										<input
-											type='radio'
-											name={field.key}
-											value={option}
-											checked={value === option}
-											onChange={e =>
-												handleTempFilterChange(field.key, e.target.value)
-											}
-											className={style.radio}
-										/>
+										<input type='radio' name={field.key} value={option} checked={value === option} onChange={e => handleTempFilterChange(field.key, e.target.value)} className={style.radio} />
 										<span>{option}</span>
 									</label>
 								))}
@@ -620,13 +516,7 @@ const Filter = ({
 					return (
 						<div key={field.key} className={style.filterGroup}>
 							<h4 className={style.filterGroupTitle}>{field.label}</h4>
-							<select
-								value={value}
-								onChange={e =>
-									handleTempFilterChange(field.key, e.target.value)
-								}
-								className={style.select}
-							>
+							<select value={value} onChange={e => handleTempFilterChange(field.key, e.target.value)} className={style.select}>
 								<option value=''>{t('all') || '全て'}</option>
 								{field.options.map(option => (
 									<option key={option} value={option}>
@@ -650,26 +540,8 @@ const Filter = ({
 				<div className={style.autocompleteField}>
 					<div className={style.inputWrapper}>
 						<div className={style.searchInputContainer}>
-							<img
-								src={SearchIcon}
-								alt='Search'
-								className={style.inputSearchIcon}
-							/>
-							<input
-								type='text'
-								value={localFilterState.search || ''}
-								onChange={handleInputChange}
-								onKeyDown={handleInputKeyDown}
-								onFocus={handleInputFocus}
-								onBlur={handleInputBlur}
-								placeholder={
-									t('search_placeholder') ||
-									'名前、ID、大学で学生を検索します...'
-								}
-								className={style.modernSearchInput}
-								aria-label={t('search_filters')}
-								autoComplete='off'
-							/>
+							<img src={SearchIcon} alt='Search' className={style.inputSearchIcon} />
+							<input type='text' value={localFilterState.search || ''} onChange={handleInputChange} onKeyDown={handleInputKeyDown} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder={t('search_placeholder') || '名前、ID、大学で学生を検索します...'} className={style.modernSearchInput} aria-label={t('search_filters')} autoComplete='off' />
 						</div>
 
 						{showSuggestions && (
@@ -677,33 +549,16 @@ const Filter = ({
 								{suggestions.length > 0 ? (
 									<ul className={style.suggestionsList}>
 										{suggestions.map((suggestion, index) => (
-											<li
-												key={`${suggestion.field}-${suggestion.label}`}
-												className={`${style.suggestionItem} ${
-													index === selectedSuggestionIndex
-														? style.suggestionItemSelected
-														: ''
-												}`}
-												onClick={() => handleSuggestionClick(suggestion)}
-												onMouseEnter={() => setSelectedSuggestionIndex(index)}
-											>
-												<span className={style.suggestionLabel}>
-													{suggestion.label}
-												</span>
-												<span className={style.suggestionField}>
-													in {suggestion.field}
-												</span>
+											<li key={`${suggestion.field}-${suggestion.label}`} className={`${style.suggestionItem} ${index === selectedSuggestionIndex ? style.suggestionItemSelected : ''}`} onClick={() => handleSuggestionClick(suggestion)} onMouseEnter={() => setSelectedSuggestionIndex(index)}>
+												<span className={style.suggestionLabel}>{suggestion.label}</span>
+												<span className={style.suggestionField}>in {suggestion.field}</span>
 											</li>
 										))}
 									</ul>
 								) : noMatches ? (
-									<div className={style.noOptions}>
-										{t('no_matches_found') || 'No matches found'}
-									</div>
+									<div className={style.noOptions}>{t('no_matches_found') || 'No matches found'}</div>
 								) : (
-									<div className={style.noOptions}>
-										{t('start_typing') || 'Start typing to see suggestions'}
-									</div>
+									<div className={style.noOptions}>{t('start_typing') || 'Start typing to see suggestions'}</div>
 								)}
 							</div>
 						)}
@@ -715,27 +570,10 @@ const Filter = ({
 				</button>
 
 				<div className={style.iconButtonsGroup}>
-					<button
-						type='button'
-						onClick={handleViewModeToggle}
-						className={`${style.viewModeButton} ${viewMode === 'grid' ? style.active : ''}`}
-						aria-label={
-							viewMode === 'grid'
-								? 'Switch to List View'
-								: 'Switch to Grid View'
-						}
-					>
-						<img
-							src={viewMode === 'grid' ? AppIconList : AppIcons}
-							alt={viewMode === 'grid' ? 'Grid View' : 'List View'}
-						/>
+					<button type='button' onClick={handleViewModeToggle} className={`${style.viewModeButton} ${viewMode === 'grid' ? style.active : ''}`} aria-label={viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'}>
+						<img src={viewMode === 'grid' ? AppIconList : AppIcons} alt={viewMode === 'grid' ? 'Grid View' : 'List View'} />
 					</button>
-					<button
-						type='button'
-						onClick={handleFilterClick}
-						className={style.filterButton}
-						aria-label='Filter'
-					>
+					<button type='button' onClick={handleFilterClick} className={style.filterButton} aria-label='Filter'>
 						<img src={FilterIcon} alt='Filter' />
 					</button>
 				</div>
@@ -743,38 +581,22 @@ const Filter = ({
 
 			{/* Filter Modal */}
 			{showFilterModal && (
-				<div
-					className={style.filterModalOverlay}
-					onClick={handleFilterModalClose}
-				>
+				<div className={style.filterModalOverlay} onClick={handleFilterModalClose}>
 					<div className={style.filterModal} onClick={e => e.stopPropagation()}>
 						<div className={style.filterModalHeader}>
 							<h3 className={style.filterModalTitle}>{t('filter')}</h3>
-							<button
-								onClick={handleFilterModalClose}
-								className={style.filterModalCloseButton}
-							>
+							<button onClick={handleFilterModalClose} className={style.filterModalCloseButton}>
 								×
 							</button>
 						</div>
 
-						<div className={style.filterModalContent}>
-							{fields
-								.filter(field => field.key !== 'search')
-								.map(renderFilterField)}
-						</div>
+						<div className={style.filterModalContent}>{fields.filter(field => field.key !== 'search').map(renderFilterField)}</div>
 
 						<div className={style.filterModalFooter}>
-							<button
-								onClick={handleFilterClear}
-								className={style.filterClearButton}
-							>
+							<button onClick={handleFilterClear} className={style.filterClearButton}>
 								{t('clear')}
 							</button>
-							<button
-								onClick={handleFilterApply}
-								className={style.filterApplyButton}
-							>
+							<button onClick={handleFilterApply} className={style.filterApplyButton}>
 								{t('apply')}
 							</button>
 						</div>
