@@ -2,16 +2,16 @@ name: Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       force_frontend:
-        description: "Force deploy frontend"
+        description: 'Force deploy frontend'
         type: boolean
         required: false
         default: false
       force_backend:
-        description: "Force deploy backend"
+        description: 'Force deploy backend'
         type: boolean
         required: false
         default: false

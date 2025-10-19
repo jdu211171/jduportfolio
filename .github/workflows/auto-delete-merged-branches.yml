@@ -44,4 +44,3 @@ jobs:
             } catch (error) {
               core.warning(`Could not delete branch ${headRef}: ${error.message}`);
             }
-

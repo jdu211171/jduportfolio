@@ -23,13 +23,13 @@ module.exports = (sequelize, DataTypes) => {
 			authorType: { type: DataTypes.STRING, allowNull: false },
 			moderatorId: { type: DataTypes.INTEGER, allowNull: true },
 			moderatorType: { type: DataTypes.STRING, allowNull: true },
-			
+
 			visible_to_recruiter: {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,
 				defaultValue: true,
-				comment: 'Recruiter uchun korinishi'
-			}
+				comment: 'Recruiter uchun korinishi',
+			},
 		},
 		{
 			sequelize,

@@ -75,7 +75,6 @@ class NewsService {
 			delete updateData.status
 		}
 
-		
 		if (updateData.visible_to_recruiter !== undefined) {
 			updateData.visible_to_recruiter = updateData.visible_to_recruiter === 'true' || updateData.visible_to_recruiter === true
 		}
@@ -107,9 +106,9 @@ class NewsService {
 		} else if (user.userType === 'Recruiter') {
 			finalConditions.push({
 				[Op.or]: [
-					{ 
+					{
 						status: 'approved',
-						visible_to_recruiter: true
+						visible_to_recruiter: true,
 					},
 					{
 						authorId: user.id,
