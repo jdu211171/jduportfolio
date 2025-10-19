@@ -51,13 +51,11 @@ class StudentController {
 						partner_university: record.partnerUniversity?.value,
 						faculty: record.faculty?.value,
 						department: record.department?.value,
-						partner_university_enrollment_date:
-							record.partnerUniversityEnrollmentDate?.value,
+						partner_university_enrollment_date: record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						student_status: record.studentStatus?.value,
 						// If Kintone field is a Date with field code 'graduation_year', prefer it
-						graduation_year:
-							record.graduation_year?.value || record.graduationYear?.value,
+						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
 						graduation_season: record.graduationSeason?.value,
 						kintone_id: record['$id']?.value,
 						active: record.semester?.value > 0, // Semestri bo'lsa, aktiv deb hisoblaymiz
@@ -101,27 +99,19 @@ class StudentController {
 						partner_university: record.partnerUniversity?.value,
 						faculty: record.faculty?.value,
 						department: record.department?.value,
-						partner_university_enrollment_date:
-							record.partnerUniversityEnrollmentDate?.value,
+						partner_university_enrollment_date: record.partnerUniversityEnrollmentDate?.value,
 						semester: record.semester?.value,
 						student_status: record.studentStatus?.value,
-						graduation_year:
-							record.graduation_year?.value || record.graduationYear?.value,
+						graduation_year: record.graduation_year?.value || record.graduationYear?.value,
 						graduation_season: record.graduationSeason?.value,
 						active: record.semester?.value > 0,
 					}
 
 					// Servis orqali kintone_id bo'yicha yangilaymiz
-					const updatedStudent =
-						await StudentService.updateStudentWithKintoneID(
-							kintoneId,
-							studentData
-						)
+					const updatedStudent = await StudentService.updateStudentWithKintoneID(kintoneId, studentData)
 
 					if (!updatedStudent) {
-						return res
-							.status(404)
-							.json({ message: 'Student not found with this Kintone ID' })
+						return res.status(404).json({ message: 'Student not found with this Kintone ID' })
 					}
 
 					return res.status(200).json({
@@ -132,13 +122,10 @@ class StudentController {
 
 				// YOZUV O'CHIRILGANDA
 				case 'DELETE_RECORD': {
-					const deletedCount =
-						await StudentService.deleteStudentByKintoneId(recordId)
+					const deletedCount = await StudentService.deleteStudentByKintoneId(recordId)
 
 					if (deletedCount === 0) {
-						return res
-							.status(404)
-							.json({ message: 'Student not found with this Kintone ID' })
+						return res.status(404).json({ message: 'Student not found with this Kintone ID' })
 					}
 
 					return res.status(204).send() // Muvaffaqiyatli o'chirish uchun javob
@@ -149,9 +136,7 @@ class StudentController {
 			}
 		} catch (error) {
 			console.error('Error in Student webhook handler:', error)
-			return res
-				.status(500)
-				.json({ error: 'Internal Server Error', message: error.message })
+			return res.status(500).json({ error: 'Internal Server Error', message: error.message })
 		}
 	}
 
@@ -172,10 +157,7 @@ class StudentController {
 
 			if (req.query.filter) {
 				try {
-					filter =
-						typeof req.query.filter === 'string'
-							? JSON.parse(req.query.filter)
-							: req.query.filter
+					filter = typeof req.query.filter === 'string' ? JSON.parse(req.query.filter) : req.query.filter
 				} catch (e) {
 					console.error('Failed to parse filter:', e.message)
 					return res.status(400).json({ error: 'Invalid filter format' })
@@ -190,19 +172,11 @@ class StudentController {
 			const sortOptions = { sortBy, sortOrder }
 
 			if (userType === 'Recruiter' && !recruiterId) {
-				console.log(
-					'Recruiter user but no recruiterId provided, returning empty result'
-				)
+				console.log('Recruiter user but no recruiterId provided, returning empty result')
 				return res.status(200).json([])
 			}
 
-			const students = await StudentService.getAllStudents(
-				filter,
-				recruiterId,
-				onlyBookmarked,
-				userType,
-				sortOptions
-			)
+			const students = await StudentService.getAllStudents(filter, recruiterId, onlyBookmarked, userType, sortOptions)
 
 			// Set cache control headers to prevent 304 responses
 			res.set({
@@ -213,11 +187,7 @@ class StudentController {
 
 			res.status(200).json(students)
 		} catch (error) {
-			console.error(
-				'Error in getAllStudents controller:',
-				error.message,
-				error.stack
-			)
+			console.error('Error in getAllStudents controller:', error.message, error.stack)
 
 			// Return empty array instead of 500 error for better UX
 			res.status(200).json([])
@@ -231,12 +201,7 @@ class StudentController {
 			// Pass requester info to service method
 			const requesterId = req.user?.id
 			const requesterRole = req.user?.userType
-			const student = await StudentService.getStudentByStudentId(
-				id,
-				false,
-				requesterId,
-				requesterRole
-			)
+			const student = await StudentService.getStudentByStudentId(id, false, requesterId, requesterRole)
 			res.status(200).json(student)
 		} catch (error) {
 			if (error.message === 'Student not found') {
@@ -270,9 +235,7 @@ class StudentController {
 
 			// visibility true bo'lsa, draft borligini va u 'approved' statusida ekanligini tekshirish
 			if (studentData.visibility === true) {
-				const studentWithDraft = await DraftService.getStudentWithDraft(
-					student.student_id
-				)
+				const studentWithDraft = await DraftService.getStudentWithDraft(student.student_id)
 
 				const studentDraft = studentWithDraft?.draft
 				console.log('Draft data for student:', studentDraft)
@@ -304,17 +267,9 @@ class StudentController {
 
 			// Agar parol o'zgartirilayotgan bo'lsa, eski parolni tekshirish
 			if (password) {
-				const studentWithPassword = await StudentService.getStudentByStudentId(
-					req.params.id,
-					true
-				)
-				if (
-					!studentWithPassword ||
-					!(await bcrypt.compare(currentPassword, studentWithPassword.password))
-				) {
-					return res
-						.status(400)
-						.json({ error: '現在のパスワードを入力してください' })
+				const studentWithPassword = await StudentService.getStudentByStudentId(req.params.id, true)
+				if (!studentWithPassword || !(await bcrypt.compare(currentPassword, studentWithPassword.password))) {
+					return res.status(400).json({ error: '現在のパスワードを入力してください' })
 				}
 				updatePayload.password = password
 			}
@@ -322,17 +277,13 @@ class StudentController {
 			console.log('Final update payload:', updatePayload)
 
 			// Studentni bir marta yangilash
-			const updatedStudent = await StudentService.updateStudent(
-				id,
-				updatePayload
-			)
+			const updatedStudent = await StudentService.updateStudent(id, updatePayload)
 
 			console.log('Updated student:', updatedStudent.dataValues)
 
 			// Notify recruiters when a student's profile is made public
 			try {
-				const becamePublic =
-					studentData.visibility === true && student.visibility !== true
+				const becamePublic = studentData.visibility === true && student.visibility !== true
 				if (becamePublic) {
 					const { Recruiter } = require('../models')
 					const NotificationService = require('../services/notificationService')
@@ -395,8 +346,7 @@ class StudentController {
 	static async getStudentWithCreditDetails(req, res, next) {
 		try {
 			const { studentId } = req.params
-			const student =
-				await StudentService.getStudentWithCreditDetails(studentId)
+			const student = await StudentService.getStudentWithCreditDetails(studentId)
 
 			res.status(200).json({
 				success: true,

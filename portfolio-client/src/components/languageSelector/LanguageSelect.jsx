@@ -3,17 +3,7 @@ import PropTypes from 'prop-types'
 import { useLanguage } from '../../contexts/LanguageContext'
 import './language.css'
 
-export const LanguageSelect = ({
-	style,
-	size = 'medium',
-	variant = 'select',
-	showLabel = false,
-	labelText = 'Language',
-	showFlags = false,
-	onChange,
-	disabled = false,
-	className = '',
-}) => {
+export const LanguageSelect = ({ style, size = 'medium', variant = 'select', showLabel = false, labelText = 'Language', showFlags = false, onChange, disabled = false, className = '' }) => {
 	const { language, changeLanguage } = useLanguage()
 
 	const handleChange = e => {
@@ -47,12 +37,7 @@ export const LanguageSelect = ({
 				{showLabel && <span className='languageLabel'>{labelText}</span>}
 				<div className='languageButtonGroup'>
 					{languages.map(lang => (
-						<button
-							key={lang.code}
-							onClick={() => handleChange({ target: { value: lang.code } })}
-							className={`languageButton ${language === lang.code ? 'active' : ''}`}
-							disabled={disabled}
-						>
+						<button key={lang.code} onClick={() => handleChange({ target: { value: lang.code } })} className={`languageButton ${language === lang.code ? 'active' : ''}`} disabled={disabled}>
 							{showFlags && <span className='languageFlag'>{lang.flag}</span>}
 							<span>{lang.shortName}</span>
 						</button>
@@ -65,12 +50,7 @@ export const LanguageSelect = ({
 	return (
 		<div className={`languageSelectWrapper ${className}`} style={style}>
 			{showLabel && <label className='languageLabel'>{labelText}</label>}
-			<select
-				className={`languageSelect ${sizeClasses[size]}`}
-				onChange={handleChange}
-				value={language}
-				disabled={disabled}
-			>
+			<select className={`languageSelect ${sizeClasses[size]}`} onChange={handleChange} value={language} disabled={disabled}>
 				{languages.map(lang => (
 					<option key={lang.code} value={lang.code}>
 						{showFlags ? `${lang.flag} ${lang.name}` : lang.name}

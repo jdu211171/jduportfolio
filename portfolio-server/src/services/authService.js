@@ -81,11 +81,8 @@ class AuthService {
 			if (user) {
 				const isMatch = await bcrypt.compare(password, user.password)
 				if (isMatch) {
-					const token = jwt.sign(
-						{ id: user.id, userType: UserType.name },
-						process.env.JWT_SECRET,
-						{ expiresIn: process.env.JWT_EXPIRATION }
-					)
+					const expiresIn = process.env.JWT_EXPIRATION || '1d'
+					const token = jwt.sign({ id: user.id, userType: UserType.name }, process.env.JWT_SECRET, { expiresIn })
 					AuthService.setAuthCookies(res, token, UserType.name)
 					return {
 						userType: UserType.name,
@@ -109,11 +106,8 @@ class AuthService {
 		for (const UserType of userTypes) {
 			const user = await UserType.findOne({ where: { email } })
 			if (user) {
-				const token = jwt.sign(
-					{ id: user.id, userType: UserType.name },
-					process.env.JWT_SECRET,
-					{ expiresIn: process.env.JWT_EXPIRATION }
-				)
+				const expiresIn = process.env.JWT_EXPIRATION || '1d'
+				const token = jwt.sign({ id: user.id, userType: UserType.name }, process.env.JWT_SECRET, { expiresIn })
 				return {
 					userType: UserType.name,
 					userData: {
@@ -130,19 +124,33 @@ class AuthService {
 	}
 
 	static setAuthCookies(res, token, userType) {
+		const toMs = val => {
+			if (!val) return 60 * 60 * 1000 // default 1h
+			if (typeof val === 'number') return val
+			const s = String(val).trim().toLowerCase()
+			// support forms like '30m', '1h', '7d', '45s', '3600000'
+			const num = parseInt(s, 10)
+			if (s.endsWith('ms')) return num
+			if (s.endsWith('s')) return num * 1000
+			if (s.endsWith('m')) return num * 60 * 1000
+			if (s.endsWith('h')) return num * 60 * 60 * 1000
+			if (s.endsWith('d')) return num * 24 * 60 * 60 * 1000
+			// plain number: interpret as hours for backward compatibility
+			return num * 60 * 60 * 1000
+		}
+
+		const ttlMs = toMs(process.env.JWT_EXPIRATION)
+		const expiresAt = new Date(Date.now() + ttlMs)
+
 		res.cookie('token', token, {
 			httpOnly: false,
 			secure: process.env.NODE_ENV === 'production',
-			expires: new Date(
-				Date.now() + parseInt(process.env.JWT_EXPIRATION) * 60 * 60 * 1000
-			),
+			expires: expiresAt,
 		})
 		res.cookie('userType', userType, {
 			httpOnly: false,
 			secure: process.env.NODE_ENV === 'production',
-			expires: new Date(
-				Date.now() + parseInt(process.env.JWT_EXPIRATION) * 60 * 60 * 1000
-			),
+			expires: expiresAt,
 		})
 	}
 

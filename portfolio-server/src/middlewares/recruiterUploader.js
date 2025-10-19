@@ -28,18 +28,11 @@ const recruiterUploader = multer({
 		}
 
 		const allowedTypes = /pdf|doc|docx|xls|xlsx|ppt|pptx/
-		const extension = allowedTypes.test(
-			path.extname(file.originalname).toLowerCase()
-		)
+		const extension = allowedTypes.test(path.extname(file.originalname).toLowerCase())
 		if (extension) {
 			cb(null, true)
 		} else {
-			cb(
-				new Error(
-					'Faqat PDF, Word, Excel, PowerPoint formatidagi fayllarga ruxsat etilgan!'
-				),
-				false
-			)
+			cb(new Error('Faqat PDF, Word, Excel, PowerPoint formatidagi fayllarga ruxsat etilgan!'), false)
 		}
 	},
 })

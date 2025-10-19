@@ -24,11 +24,7 @@ module.exports = {
 		await queryInterface.removeColumn('Recruiters', 'company_video_url')
 
 		// Rename the temp column
-		await queryInterface.renameColumn(
-			'Recruiters',
-			'company_video_url_temp',
-			'company_video_url'
-		)
+		await queryInterface.renameColumn('Recruiters', 'company_video_url_temp', 'company_video_url')
 	},
 
 	async down(queryInterface, Sequelize) {
@@ -53,10 +49,6 @@ module.exports = {
 		await queryInterface.removeColumn('Recruiters', 'company_video_url')
 
 		// Rename the temp column
-		await queryInterface.renameColumn(
-			'Recruiters',
-			'company_video_url_temp',
-			'company_video_url'
-		)
+		await queryInterface.renameColumn('Recruiters', 'company_video_url_temp', 'company_video_url')
 	},
 }

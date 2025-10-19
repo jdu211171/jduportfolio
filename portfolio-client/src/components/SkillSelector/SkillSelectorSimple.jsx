@@ -1,15 +1,5 @@
 import { useState } from 'react'
-import {
-	Autocomplete,
-	TextField,
-	Chip,
-	Box,
-	MenuItem,
-	Select,
-	FormControl,
-	InputLabel,
-	IconButton,
-} from '@mui/material'
+import { Autocomplete, TextField, Chip, Box, MenuItem, Select, FormControl, InputLabel, IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
@@ -18,19 +8,7 @@ import PropTypes from 'prop-types'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
-const SkillSelectorSimple = ({
-	title,
-	data,
-	editData,
-	editMode,
-	headers,
-	updateEditData,
-	keyName,
-	parentKey = 'draft',
-	showAutocomplete,
-	showHeaders,
-	icon,
-}) => {
+const SkillSelectorSimple = ({ title, data, editData, editMode, headers, updateEditData, keyName, parentKey = 'draft', showAutocomplete, showHeaders, icon }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
 
@@ -65,13 +43,7 @@ const SkillSelectorSimple = ({
 		console.log('📊 Current data:', currentData)
 
 		// Check for duplicates
-		const isDuplicate = Object.values(currentData).some(
-			levelSkills =>
-				Array.isArray(levelSkills) &&
-				levelSkills.some(
-					skill => skill.name?.toLowerCase() === skillName.toLowerCase()
-				)
-		)
+		const isDuplicate = Object.values(currentData).some(levelSkills => Array.isArray(levelSkills) && levelSkills.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase()))
 
 		if (isDuplicate) {
 			alert(`Skill "${skillName}" already exists!`)
@@ -106,9 +78,7 @@ const SkillSelectorSimple = ({
 		const currentData = getCurrentData()
 		const updatedSkills = {
 			...currentData,
-			[level]: (currentData[level] || []).filter(
-				skill => skill.name !== skillToDelete.name
-			),
+			[level]: (currentData[level] || []).filter(skill => skill.name !== skillToDelete.name),
 		}
 
 		console.log('✅ After delete:', updatedSkills)
@@ -119,10 +89,7 @@ const SkillSelectorSimple = ({
 
 	return (
 		<div className={styles.container}>
-			<div
-				className={styles.title}
-				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
-			>
+			<div className={styles.title} style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}>
 				{icon}
 				{title}
 			</div>
@@ -131,8 +98,7 @@ const SkillSelectorSimple = ({
 				<div className={styles.description}>
 					{Object.entries(headers).map(([level, description]) => (
 						<div key={level}>
-							<span style={{ fontWeight: 800 }}>{t('levels')[level]}</span>:{' '}
-							{description}
+							<span style={{ fontWeight: 800 }}>{t('levels')[level]}</span>: {description}
 						</div>
 					))}
 				</div>
@@ -140,40 +106,11 @@ const SkillSelectorSimple = ({
 
 			{editMode && (
 				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2}>
-					{showAutocomplete ? (
-						<Autocomplete
-							options={skills}
-							getOptionLabel={option => option.name || ''}
-							value={selectedSkill}
-							onChange={(event, newValue) => setSelectedSkill(newValue)}
-							sx={{ width: 200 }}
-							renderInput={params => (
-								<TextField
-									{...params}
-									label='Select Skill'
-									variant='outlined'
-									size='small'
-								/>
-							)}
-						/>
-					) : (
-						<TextField
-							value={selectedSkill?.name || ''}
-							onChange={event => setSelectedSkill({ name: event.target.value })}
-							label='Skill'
-							variant='outlined'
-							size='small'
-							sx={{ width: 200 }}
-						/>
-					)}
+					{showAutocomplete ? <Autocomplete options={skills} getOptionLabel={option => option.name || ''} value={selectedSkill} onChange={(event, newValue) => setSelectedSkill(newValue)} sx={{ width: 200 }} renderInput={params => <TextField {...params} label='Select Skill' variant='outlined' size='small' />} /> : <TextField value={selectedSkill?.name || ''} onChange={event => setSelectedSkill({ name: event.target.value })} label='Skill' variant='outlined' size='small' sx={{ width: 200 }} />}
 
 					<FormControl variant='outlined' size='small' sx={{ width: 150 }}>
 						<InputLabel>Level</InputLabel>
-						<Select
-							value={selectedLevel}
-							onChange={event => setSelectedLevel(event.target.value)}
-							label='Level'
-						>
+						<Select value={selectedLevel} onChange={event => setSelectedLevel(event.target.value)} label='Level'>
 							{Object.keys(headers || {}).map(key => (
 								<MenuItem key={key} value={key}>
 									{t('levels')[key]}
@@ -200,10 +137,7 @@ const SkillSelectorSimple = ({
 				<table>
 					<tbody>
 						{Object.entries(skillsToDisplay)
-							.filter(
-								([, skills]) =>
-									skills && Array.isArray(skills) && skills.length > 0
-							)
+							.filter(([, skills]) => skills && Array.isArray(skills) && skills.length > 0)
 							.map(([level, skills]) => (
 								<tr key={level}>
 									<td
@@ -224,27 +158,13 @@ const SkillSelectorSimple = ({
 													label={skill.name}
 													variant='filled'
 													style={{
-														color:
-															level === '上級'
-																? '#ffffff'
-																: level === '中級'
-																	? '#FFFFFF'
-																	: '#5627db',
-														backgroundColor:
-															level === '上級'
-																? '#5627DB'
-																: level === '中級'
-																	? '#7852e2'
-																	: '#efeafc',
+														color: level === '上級' ? '#ffffff' : level === '中級' ? '#FFFFFF' : '#5627db',
+														backgroundColor: level === '上級' ? '#5627DB' : level === '中級' ? '#7852e2' : '#efeafc',
 														fontWeight: 500,
 														fontSize: 13,
 														borderRadius: '16px',
 													}}
-													onDelete={
-														editMode
-															? () => handleDeleteSkill(skill, level)
-															: undefined
-													}
+													onDelete={editMode ? () => handleDeleteSkill(skill, level) : undefined}
 												/>
 											))}
 										</div>
@@ -261,9 +181,7 @@ const SkillSelectorSimple = ({
 										color: '#999',
 									}}
 								>
-									{editMode
-										? 'No skills added yet. Use the form above to add skills.'
-										: 'No skills available.'}
+									{editMode ? 'No skills added yet. Use the form above to add skills.' : 'No skills available.'}
 								</td>
 							</tr>
 						)}

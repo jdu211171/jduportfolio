@@ -20,12 +20,7 @@ const FirstLoginPage = () => {
 						<Typography variant='body2' className={useStyles.uploadText}>
 							アバター
 						</Typography>
-						<input
-							type='file'
-							id='avatar-upload'
-							accept='image/*'
-							className={useStyles.fileInput}
-						/>
+						<input type='file' id='avatar-upload' accept='image/*' className={useStyles.fileInput} />
 					</label>
 					<Box className={useStyles.avatarText}>
 						<Typography variant='body2' className={useStyles.greyText}>
@@ -36,18 +31,8 @@ const FirstLoginPage = () => {
 					</Box>
 				</Box>
 				<Box className={useStyles.formFields}>
-					<TextField
-						label='名'
-						variant='outlined'
-						margin='normal'
-						className={useStyles.textField}
-					/>
-					<TextField
-						label='姓'
-						variant='outlined'
-						margin='normal'
-						className={useStyles.textField}
-					/>
+					<TextField label='名' variant='outlined' margin='normal' className={useStyles.textField} />
+					<TextField label='姓' variant='outlined' margin='normal' className={useStyles.textField} />
 					<TextField
 						label='ID'
 						variant='outlined'
@@ -58,25 +43,9 @@ const FirstLoginPage = () => {
 							readOnly: true,
 						}}
 					/>
-					<TextField
-						label='電話番号'
-						variant='outlined'
-						margin='normal'
-						className={useStyles.textField}
-					/>
-					<TextField
-						label='会社名'
-						variant='outlined'
-						margin='normal'
-						className={useStyles.textField}
-					/>
-					<TextField
-						label='メール'
-						variant='outlined'
-						margin='normal'
-						className={useStyles.textField}
-						defaultValue='info@gmail.com'
-					/>
+					<TextField label='電話番号' variant='outlined' margin='normal' className={useStyles.textField} />
+					<TextField label='会社名' variant='outlined' margin='normal' className={useStyles.textField} />
+					<TextField label='メール' variant='outlined' margin='normal' className={useStyles.textField} defaultValue='info@gmail.com' />
 				</Box>
 				<div className={useStyles.dividerContainer}>
 					<Divider className={useStyles.divider} />
@@ -85,11 +54,7 @@ const FirstLoginPage = () => {
 					<Button variant='outlined' className={useStyles.cancelButton}>
 						キャンセル
 					</Button>
-					<Button
-						variant='contained'
-						color='primary'
-						className={useStyles.saveButton}
-					>
+					<Button variant='contained' color='primary' className={useStyles.saveButton}>
 						保存
 					</Button>
 				</Box>

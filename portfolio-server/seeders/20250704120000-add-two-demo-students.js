@@ -72,8 +72,7 @@ module.exports = {
 				link: 'https://portfolio.jdu.ac.jp',
 				codeLink: 'https://github.com/student1/portfolio-system',
 				imageLink: 'https://picsum.photos/600/400?random=1',
-				description:
-					'React.js、Node.js、PostgreSQLを使用した学生ポートフォリオ管理システム。学生の情報、スキル、成果物を一元管理できるWebアプリケーション。',
+				description: 'React.js、Node.js、PostgreSQLを使用した学生ポートフォリオ管理システム。学生の情報、スキル、成果物を一元管理できるWebアプリケーション。',
 				role: ['フロントエンド開発', 'バックエンド開発', 'データベース設計'],
 			},
 			{
@@ -81,8 +80,7 @@ module.exports = {
 				link: 'https://demo-ecommerce-app.com',
 				codeLink: 'https://github.com/student1/ecommerce-mobile',
 				imageLink: 'https://picsum.photos/600/400?random=2',
-				description:
-					'React Nativeで開発したECサイトのモバイルアプリ。商品検索、カート機能、決済システムを実装。',
+				description: 'React Nativeで開発したECサイトのモバイルアプリ。商品検索、カート機能、決済システムを実装。',
 				role: ['モバイル開発', 'UI/UX設計'],
 			},
 		]
@@ -93,8 +91,7 @@ module.exports = {
 				link: 'https://inventory-management-demo.com',
 				codeLink: 'https://github.com/student2/inventory-system',
 				imageLink: 'https://picsum.photos/600/400?random=3',
-				description:
-					'Vue.js、Express.js、MongoDBを使用した在庫管理システム。リアルタイムでの在庫状況確認、自動発注機能を搭載。',
+				description: 'Vue.js、Express.js、MongoDBを使用した在庫管理システム。リアルタイムでの在庫状況確認、自動発注機能を搭載。',
 				role: ['フルスタック開発', 'システム設計'],
 			},
 			{
@@ -102,8 +99,7 @@ module.exports = {
 				link: 'https://ai-chatbot-demo.com',
 				codeLink: 'https://github.com/student2/ai-chatbot',
 				imageLink: 'https://picsum.photos/600/400?random=4',
-				description:
-					'自然言語処理技術を活用したカスタマーサポート用AIチャットボット。Python、TensorFlowを使用。',
+				description: '自然言語処理技術を活用したカスタマーサポート用AIチャットボット。Python、TensorFlowを使用。',
 				role: ['AI開発', 'バックエンド開発', 'データ分析'],
 			},
 		]
@@ -150,21 +146,9 @@ module.exports = {
 		}
 
 		// Gallery images
-		const galleryStudent1 = [
-			'https://picsum.photos/300/200?random=10',
-			'https://picsum.photos/300/200?random=11',
-			'https://picsum.photos/300/200?random=12',
-			'https://picsum.photos/300/200?random=13',
-			'https://picsum.photos/300/200?random=14',
-		]
+		const galleryStudent1 = ['https://picsum.photos/300/200?random=10', 'https://picsum.photos/300/200?random=11', 'https://picsum.photos/300/200?random=12', 'https://picsum.photos/300/200?random=13', 'https://picsum.photos/300/200?random=14']
 
-		const galleryStudent2 = [
-			'https://picsum.photos/300/200?random=20',
-			'https://picsum.photos/300/200?random=21',
-			'https://picsum.photos/300/200?random=22',
-			'https://picsum.photos/300/200?random=23',
-			'https://picsum.photos/300/200?random=24',
-		]
+		const galleryStudent2 = ['https://picsum.photos/300/200?random=20', 'https://picsum.photos/300/200?random=21', 'https://picsum.photos/300/200?random=22', 'https://picsum.photos/300/200?random=23', 'https://picsum.photos/300/200?random=24']
 
 		// Credit Details data (matching the image format)
 		const creditDetailsStudent1 = [
@@ -275,14 +259,12 @@ module.exports = {
 				specialized_education_credits: 18,
 
 				// Profile information
-				self_introduction:
-					'こんにちは！私は山田太郎です。現在JDUの3年生で、Webアプリケーション開発に興味を持っています。特にReact.jsとNode.jsを使ったフルスタック開発を学んでいます。将来はIT企業でソフトウェアエンジニアとして働きたいと考えています。チームワークを大切にし、常に新しい技術を学ぶことに情熱を注いでいます。',
+				self_introduction: 'こんにちは！私は山田太郎です。現在JDUの3年生で、Webアプリケーション開発に興味を持っています。特にReact.jsとNode.jsを使ったフルスタック開発を学んでいます。将来はIT企業でソフトウェアエンジニアとして働きたいと考えています。チームワークを大切にし、常に新しい技術を学ぶことに情熱を注いでいます。',
 				hobbies: 'プログラミング、読書、映画鑑賞、サッカー',
 				gallery: JSON.stringify(galleryStudent1),
 				skills: JSON.stringify(skillsStudent1),
 				it_skills: JSON.stringify(itSkillsStudent1),
-				other_information:
-					'大学では情報システム学科に所属し、ソフトウェア開発プロジェクトに積極的に参加しています。また、プログラミングサークルのリーダーとして、後輩の指導も行っています。',
+				other_information: '大学では情報システム学科に所属し、ソフトウェア開発プロジェクトに積極的に参加しています。また、プログラミングサークルのリーダーとして、後輩の指導も行っています。',
 				semester: '6',
 				student_status: 'Active',
 				partner_university: 'テック大学',
@@ -327,14 +309,12 @@ module.exports = {
 				specialized_education_credits: 16,
 
 				// Profile information
-				self_introduction:
-					'鈴木花子と申します。JDU4年生で、AIとデータサイエンスに特に関心があります。Vue.jsとPythonを使った開発が得意で、機械学習を活用したWebアプリケーションの開発に取り組んでいます。英語が得意で、国際的な環境で働くことを目標としています。問題解決能力とコミュニケーション能力を活かして、社会に貢献したいと考えています。',
+				self_introduction: '鈴木花子と申します。JDU4年生で、AIとデータサイエンスに特に関心があります。Vue.jsとPythonを使った開発が得意で、機械学習を活用したWebアプリケーションの開発に取り組んでいます。英語が得意で、国際的な環境で働くことを目標としています。問題解決能力とコミュニケーション能力を活かして、社会に貢献したいと考えています。',
 				hobbies: 'データ分析、旅行、写真撮影、ヨガ',
 				gallery: JSON.stringify(galleryStudent2),
 				skills: JSON.stringify(skillsStudent2),
 				it_skills: JSON.stringify(itSkillsStudent2),
-				other_information:
-					'学生会の副会長を務めており、大学のイベント企画や運営に携わっています。また、AIクラブに所属し、機械学習を使った研究プロジェクトに参加しています。',
+				other_information: '学生会の副会長を務めており、大学のイベント企画や運営に携わっています。また、AIクラブに所属し、機械学習を使った研究プロジェクトに参加しています。',
 				semester: '8',
 				student_status: 'Active',
 				partner_university: 'グローバル工科大学',
@@ -350,8 +330,7 @@ module.exports = {
 				kintone_id: 1002,
 				graduation_year: '2025年',
 				graduation_season: '春',
-				language_skills:
-					'Japanese (JLPT N1), English (IELTS 7.0), Korean (TOPIK 3)',
+				language_skills: 'Japanese (JLPT N1), English (IELTS 7.0), Korean (TOPIK 3)',
 				credit_details: JSON.stringify(creditDetailsStudent2),
 				createdAt: new Date(),
 				updatedAt: new Date(),

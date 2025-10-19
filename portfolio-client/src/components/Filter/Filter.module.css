@@ -1,646 +1,648 @@
 /* Modern Filter Container */
 .modernFilterContainer {
-  display: flex;
-  width: 100%;
-  background-color: #fff;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  animation: fadeIn 0.3s ease-out;
-  border-radius: 8px;
+	display: flex;
+	width: 100%;
+	background-color: #fff;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+	animation: fadeIn 0.3s ease-out;
+	border-radius: 8px;
 }
 
 /* Autocomplete Field */
 .autocompleteField {
-  flex: 1;
-  min-width: 0;
-  position: relative;
+	flex: 1;
+	min-width: 0;
+	position: relative;
 }
 
 /* Input Wrapper */
 .inputWrapper {
-  position: relative;
-  width: 100%;
+	position: relative;
+	width: 100%;
 }
 
 /* Search Input Container */
 .searchInputContainer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background-color: rgba(249, 250, 251, 1);
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  border-radius: 5px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	background-color: rgba(249, 250, 251, 1);
+	transition: all 0.2s ease;
+	border: 1px solid transparent;
+	border-radius: 5px;
 }
 
 /* Modern Search Input */
 .modernSearchInput {
-  width: 100%;
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 10px 14px 10px 8px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #374151;
-  font-family: inherit;
+	width: 100%;
+	background: transparent;
+	border: none;
+	outline: none;
+	padding: 10px 14px 10px 8px;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #374151;
+	font-family: inherit;
 }
 
 .modernSearchInput::placeholder {
-  color: #9ca3af;
-  opacity: 1;
+	color: #9ca3af;
+	opacity: 1;
 }
 
 .modernSearchInput:focus {
-  outline: none;
+	outline: none;
 }
 
 /* Search Icon inside Input */
 .inputSearchIcon {
-  width: 20px;
-  height: 20px;
-  margin-left: 12px;
-  margin-right: 8px;
-  flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	margin-left: 12px;
+	margin-right: 8px;
+	flex-shrink: 0;
 }
 
 /* Suggestions Dropdown */
 .suggestionsDropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-top: 4px;
-  border: 1px solid #e5e7eb;
-  z-index: 1000;
-  max-height: 300px;
-  overflow-y: auto;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: white;
+	border-radius: 8px;
+	box-shadow:
+		0 4px 6px -1px rgba(0, 0, 0, 0.1),
+		0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	margin-top: 4px;
+	border: 1px solid #e5e7eb;
+	z-index: 1000;
+	max-height: 300px;
+	overflow-y: auto;
 }
 
 .suggestionsList {
-  list-style: none;
-  padding: 4px;
-  margin: 0;
+	list-style: none;
+	padding: 4px;
+	margin: 0;
 }
 
 .suggestionItem {
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background-color 0.15s ease;
+	padding: 8px 16px;
+	font-size: 14px;
+	cursor: pointer;
+	border-radius: 4px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: background-color 0.15s ease;
 }
 
 .suggestionItem:hover,
 .suggestionItemSelected {
-  background-color: #f3f4f6;
+	background-color: #f3f4f6;
 }
 
 .suggestionLabel {
-  color: #374151;
-  font-weight: 500;
+	color: #374151;
+	font-weight: 500;
 }
 
 .suggestionField {
-  color: #6b7280;
-  font-size: 12px;
-  font-style: italic;
+	color: #6b7280;
+	font-size: 12px;
+	font-style: italic;
 }
 
 .noOptions {
-  padding: 12px 16px;
-  font-size: 14px;
-  color: #6b7280;
-  text-align: center;
+	padding: 12px 16px;
+	font-size: 14px;
+	color: #6b7280;
+	text-align: center;
 }
 
 /* Modern Search Button */
 .modernSearchButton {
-  background: rgba(86, 39, 219, 1);
-  color: white;
-  text-transform: none;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 90px;
-  height: 43px;
-  white-space: nowrap;
-  font-family: inherit;
+	background: rgba(86, 39, 219, 1);
+	color: white;
+	text-transform: none;
+	border-radius: 5px;
+	padding: 10px;
+	font-size: 14px;
+	font-weight: 500;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	min-width: 90px;
+	height: 43px;
+	white-space: nowrap;
+	font-family: inherit;
 }
 
 .modernSearchButton:hover {
-  background-color: #5a3bad;
-  box-shadow: 0 2px 4px rgba(107, 70, 193, 0.3);
-  transform: translateY(-1px);
+	background-color: #5a3bad;
+	box-shadow: 0 2px 4px rgba(107, 70, 193, 0.3);
+	transform: translateY(-1px);
 }
 
 .modernSearchButton:active {
-  transform: translateY(0);
+	transform: translateY(0);
 }
 
 .modernSearchButton:focus {
-  outline: 2px solid #6b46c1;
-  outline-offset: 2px;
+	outline: 2px solid #6b46c1;
+	outline-offset: 2px;
 }
 
 /* Icon Buttons Group */
 .iconButtonsGroup {
-  display: flex;
-  gap: 16px;
-  align-items: center;
+	display: flex;
+	gap: 16px;
+	align-items: center;
 }
 
 /* Filter Button */
 .filterButton {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	background-color: white;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 10px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .filterButton:hover {
-  background-color: #f3f4f6;
-  border-color: #d1d5db;
+	background-color: #f3f4f6;
+	border-color: #d1d5db;
 }
 
 .filterButton:focus {
-  outline: 2px solid #6b46c1;
-  outline-offset: 2px;
+	outline: 2px solid #6b46c1;
+	outline-offset: 2px;
 }
 
 .filterButton img {
-  width: 20px;
-  height: 20px;
-  opacity: 0.6;
-  transition: opacity 0.2s ease;
+	width: 20px;
+	height: 20px;
+	opacity: 0.6;
+	transition: opacity 0.2s ease;
 }
 
 .filterButton:hover img {
-  opacity: 0.8;
+	opacity: 0.8;
 }
 
 /* View Mode Button */
 .viewModeButton {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+	background-color: white;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 10px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .viewModeButton:hover {
-  background-color: #f3f4f6;
-  border-color: #d1d5db;
+	background-color: #f3f4f6;
+	border-color: #d1d5db;
 }
 
 .viewModeButton:focus {
-  outline: 2px solid #6b46c1;
-  outline-offset: 2px;
+	outline: 2px solid #6b46c1;
+	outline-offset: 2px;
 }
 
 .viewModeButton img {
-  width: 20px;
-  height: 20px;
-  opacity: 0.6;
-  transition: all 0.2s ease;
+	width: 20px;
+	height: 20px;
+	opacity: 0.6;
+	transition: all 0.2s ease;
 }
 
 .viewModeButton:hover img {
-  opacity: 0.8;
+	opacity: 0.8;
 }
 
 /* Active View Mode */
 .viewModeButton.active {
-  background-color: #f3f0ff;
-  border-color: #6b46c1;
+	background-color: #f3f0ff;
+	border-color: #6b46c1;
 }
 
 .viewModeButton.active img {
-  opacity: 1;
-  filter: brightness(0) saturate(100%) invert(35%) sepia(41%) saturate(1389%) hue-rotate(236deg) brightness(92%) contrast(86%);
+	opacity: 1;
+	filter: brightness(0) saturate(100%) invert(35%) sepia(41%) saturate(1389%) hue-rotate(236deg) brightness(92%) contrast(86%);
 }
 
 /* Filter Modal Styles */
 .filterModalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  backdrop-filter: blur(4px);
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	backdrop-filter: blur(4px);
 }
 
 .filterModal {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  max-width: 1200px;
-  width: 90vw;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	max-width: 1200px;
+	width: 90vw;
+	max-height: 90vh;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 }
 
 .filterModalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px 24px;
+	border-bottom: 1px solid #e5e7eb;
+	background-color: #f9fafb;
 }
 
 .filterModalTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
+	font-size: 20px;
+	font-weight: 600;
+	color: #111827;
+	margin: 0;
 }
 
 .filterModalCloseButton {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #6b7280;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+	background: none;
+	border: none;
+	font-size: 28px;
+	cursor: pointer;
+	color: #6b7280;
+	padding: 0;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 6px;
+	transition: all 0.2s ease;
 }
 
 .filterModalCloseButton:hover {
-  background-color: #f3f4f6;
-  color: #374151;
+	background-color: #f3f4f6;
+	color: #374151;
 }
 
 .filterModalContent {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 32px;
-  align-items: start;
+	padding: 24px;
+	overflow-y: auto;
+	flex: 1;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 32px;
+	align-items: start;
 }
 
 .filterGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .filterGroupTitle {
-  font-size: 16px;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 8px 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #e5e7eb;
+	font-size: 16px;
+	font-weight: 600;
+	color: #374151;
+	margin: 0 0 8px 0;
+	padding-bottom: 8px;
+	border-bottom: 2px solid #e5e7eb;
 }
 
 .checkboxGroup,
 .radioGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
 
 /* Search input for large checkbox lists */
 .checkboxSearch {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #374151;
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 14px;
+	color: #374151;
 }
 
 /* Grid layout for many checkboxes */
 .checkboxGroupGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 6px 12px;
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 4px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 6px 12px;
+	max-height: 320px;
+	overflow-y: auto;
+	padding-right: 4px;
 }
 
 /* Bulk actions row */
 .checkboxActions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+	display: flex;
+	gap: 8px;
+	align-items: center;
 }
 
 .checkboxActions button {
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  color: #374151;
-  cursor: pointer;
+	background: #f3f4f6;
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	padding: 6px 10px;
+	font-size: 12px;
+	color: #374151;
+	cursor: pointer;
 }
 
 .checkboxActions button:hover {
-  background: #eef2ff;
-  border-color: #c7d2fe;
+	background: #eef2ff;
+	border-color: #c7d2fe;
 }
 
 /* Selected chips */
 .selectedChipsRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 6px 0 8px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 6px 0 8px;
 }
 
 .selectedChipsTitle {
-  font-size: 12px;
-  color: #6b7280;
-  white-space: nowrap;
+	font-size: 12px;
+	color: #6b7280;
+	white-space: nowrap;
 }
 
 .selectedChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
 }
 
 .chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #eef2ff;
-  color: #374151;
-  border: 1px solid #c7d2fe;
-  border-radius: 16px;
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #eef2ff;
+	color: #374151;
+	border: 1px solid #c7d2fe;
+	border-radius: 16px;
+	padding: 4px 10px;
+	font-size: 12px;
+	cursor: pointer;
 }
 
 .chip:hover {
-  background: #e0e7ff;
+	background: #e0e7ff;
 }
 
 .chipClose {
-  color: #6b7280;
-  margin-left: 2px;
+	color: #6b7280;
+	margin-left: 2px;
 }
 
 .checkboxLabel,
 .radioLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 6px;
-  transition: background-color 0.15s ease;
-  font-size: 14px;
-  color: #374151;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	padding: 6px 8px;
+	border-radius: 6px;
+	transition: background-color 0.15s ease;
+	font-size: 14px;
+	color: #374151;
 }
 
 .checkboxLabel:hover,
 .radioLabel:hover {
-  background-color: #f9fafb;
+	background-color: #f9fafb;
 }
 
 .checkbox,
 .radio {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
 }
 
 .select {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #374151;
-  background-color: white;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
+	padding: 8px 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	font-size: 14px;
+	color: #374151;
+	background-color: white;
+	cursor: pointer;
+	transition: border-color 0.15s ease;
 }
 
 .select:focus {
-  outline: none;
-  border-color: #6b46c1;
-  box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
+	outline: none;
+	border-color: #6b46c1;
+	box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.1);
 }
 
 .filterModalFooter {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e5e7eb;
-  background-color: #f9fafb;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	padding: 20px 24px;
+	border-top: 1px solid #e5e7eb;
+	background-color: #f9fafb;
 }
 
 .filterClearButton {
-  padding: 10px 20px;
-  border: 1px solid #d1d5db;
-  background-color: white;
-  color: #374151;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	padding: 10px 20px;
+	border: 1px solid #d1d5db;
+	background-color: white;
+	color: #374151;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .filterClearButton:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+	background-color: #f9fafb;
+	border-color: #9ca3af;
 }
 
 .filterApplyButton {
-  padding: 10px 20px;
-  background-color: #6b46c1;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	padding: 10px 20px;
+	background-color: #6b46c1;
+	color: white;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
 .filterApplyButton:hover {
-  background-color: #5b21b6;
+	background-color: #5b21b6;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .modernFilterContainer {
-    gap: 16px;
-  }
+	.modernFilterContainer {
+		gap: 16px;
+	}
 
-  .modernSearchButton {
-    padding: 6px 16px;
-    font-size: 13px;
-    min-width: 60px;
-    height: 40px;
-  }
+	.modernSearchButton {
+		padding: 6px 16px;
+		font-size: 13px;
+		min-width: 60px;
+		height: 40px;
+	}
 
-  .filterButton,
-  .viewModeButton {
-    width: 40px;
-    height: 40px;
-    padding: 8px;
-  }
+	.filterButton,
+	.viewModeButton {
+		width: 40px;
+		height: 40px;
+		padding: 8px;
+	}
 
-  .filterButton img,
-  .viewModeButton img {
-    width: 18px;
-    height: 18px;
-  }
+	.filterButton img,
+	.viewModeButton img {
+		width: 18px;
+		height: 18px;
+	}
 
-  .modernSearchInput {
-    padding: 8px 12px 8px 8px;
-    font-size: 13px;
-  }
+	.modernSearchInput {
+		padding: 8px 12px 8px 8px;
+		font-size: 13px;
+	}
 
-  .inputSearchIcon {
-    width: 18px;
-    height: 18px;
-  }
+	.inputSearchIcon {
+		width: 18px;
+		height: 18px;
+	}
 
-  .filterModal {
-    width: 95vw;
-    max-height: 95vh;
-  }
+	.filterModal {
+		width: 95vw;
+		max-height: 95vh;
+	}
 
-  .filterModalContent {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 16px;
-  }
+	.filterModalContent {
+		grid-template-columns: 1fr;
+		gap: 24px;
+		padding: 16px;
+	}
 
-  .filterModalHeader,
-  .filterModalFooter {
-    padding: 16px;
-  }
+	.filterModalHeader,
+	.filterModalFooter {
+		padding: 16px;
+	}
 }
 
 @media (max-width: 480px) {
-  .modernFilterContainer {
-    flex-wrap: wrap;
-  }
+	.modernFilterContainer {
+		flex-wrap: wrap;
+	}
 
-  .autocompleteField {
-    flex-basis: 100%;
-  }
+	.autocompleteField {
+		flex-basis: 100%;
+	}
 
-  .modernSearchButton {
-    flex: 1;
-  }
+	.modernSearchButton {
+		flex: 1;
+	}
 
-  .iconButtonsGroup {
-    flex: 0 0 auto;
-  }
+	.iconButtonsGroup {
+		flex: 0 0 auto;
+	}
 
-  .filterModalFooter {
-    flex-direction: column;
-  }
+	.filterModalFooter {
+		flex-direction: column;
+	}
 
-  .filterClearButton,
-  .filterApplyButton {
-    width: 100%;
-  }
+	.filterClearButton,
+	.filterApplyButton {
+		width: 100%;
+	}
 }
 
 /* Animation */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* Loading State */
 .modernFilterContainer.loading {
-  opacity: 0.6;
-  pointer-events: none;
+	opacity: 0.6;
+	pointer-events: none;
 }
 
 /* Scrollbar Styling for Suggestions */
 .suggestionsDropdown::-webkit-scrollbar {
-  width: 6px;
+	width: 6px;
 }
 
 .suggestionsDropdown::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+	background: #f1f1f1;
+	border-radius: 3px;
 }
 
 .suggestionsDropdown::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+	background: #c1c1c1;
+	border-radius: 3px;
 }
 
 .suggestionsDropdown::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+	background: #a8a8a8;
 }
 
 /* Focus States for Better Accessibility */
-.modernSearchInput:focus+.suggestionsDropdown {
-  display: block;
+.modernSearchInput:focus + .suggestionsDropdown {
+	display: block;
 }
 
 /* Smooth transitions */
 * {
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 /* Custom focus styles */
 .modernSearchButton:focus-visible,
 .filterButton:focus-visible,
 .viewModeButton:focus-visible {
-  outline: 2px solid #6b46c1;
-  outline-offset: 2px;
+	outline: 2px solid #6b46c1;
+	outline-offset: 2px;
 }

@@ -1,10 +1,5 @@
 import { useState } from 'react'
-import {
-	Accordion,
-	AccordionSummary,
-	AccordionDetails,
-	Typography,
-} from '@mui/material'
+import { Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { styled } from '@mui/material/styles'
 import PropTypes from 'prop-types'
@@ -54,11 +49,7 @@ const QAAccordion = ({
 						alignItems: 'center',
 						justifyContent: 'left',
 					}}
-					expandIcon={
-						(showExpandIcon || (notExpand && allowToggleWhenNotExpand)) && (
-							<KeyboardArrowDownIcon />
-						)
-					}
+					expandIcon={(showExpandIcon || (notExpand && allowToggleWhenNotExpand)) && <KeyboardArrowDownIcon />}
 					aria-controls='panel2-content'
 					id='panel2-header'
 					onClick={e => {

@@ -105,8 +105,17 @@ const passport = require('../passport/google-strategy')
 const AuthController = require('../controllers/authController')
 
 const { Admin, Staff, Recruiter, Student } = require('../models')
+const { sendEmail } = require('../utils/emailService')
+const generatePassword = require('generate-password')
 const authMiddleware = require('../middlewares/auth-middleware')
 const router = express.Router()
+
+// Lightweight in-memory throttling for forgot-password route
+// Limits: per-IP (30s) and per-email (60s) cooldowns
+const forgotIpLast = new Map()
+const forgotEmailLast = new Map()
+const IP_WINDOW_MS = parseInt(process.env.FORGOT_IP_WINDOW_MS || '30000', 10)
+const EMAIL_WINDOW_MS = parseInt(process.env.FORGOT_EMAIL_WINDOW_MS || '60000', 10)
 
 /**
  * @swagger
@@ -241,6 +250,188 @@ router.post('/login', AuthController.login)
 
 // Logout route
 router.post('/logout', AuthController.logout)
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Generate and email a new password
+ *     description: |
+ *       Accepts an email address. If an account exists, generates a new password,
+ *       stores it, and emails it using AWS SES. Responds with 200 regardless to
+ *       avoid account enumeration.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email]
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: If an account exists, a new password has been sent
+ */
+// Forgot password: generate and email a new password
+router.post('/forgot-password', async (req, res) => {
+	try {
+		const { email } = req.body || {}
+		if (!email) {
+			return res.status(400).json({ error: 'Email is required' })
+		}
+
+		const now = Date.now()
+		// Use Express-provided IPs (honors trust proxy). Do NOT trust raw headers.
+		const ip = (Array.isArray(req.ips) && req.ips.length > 0 ? req.ips[0] : req.ip) || ''
+
+		// IP-level cooldown to deter spamming
+		const lastIp = forgotIpLast.get(ip)
+		if (lastIp && now - lastIp < IP_WINDOW_MS) {
+			return res.status(200).json({
+				message: 'If an account exists, a new password has been sent',
+			})
+		}
+
+		// Normalize email key for cooldown tracking
+		const emailKey = String(email).toLowerCase().trim()
+
+		// Find user by email across all user types
+		const userTypes = [Admin, Staff, Recruiter, Student]
+		let foundUser = null
+		let ModelRef = null
+
+		for (const M of userTypes) {
+			// eslint-disable-next-line no-await-in-loop
+			const u = await M.findOne({ where: { email } })
+			if (u) {
+				foundUser = u
+				ModelRef = M
+				break
+			}
+		}
+
+		// To avoid account enumeration, respond success even if not found
+		if (!foundUser) {
+			// Update IP timestamp to slow down repeated requests
+			forgotIpLast.set(ip, now)
+			// Also track email cooldown to avoid differential responses across IPs
+			forgotEmailLast.set(emailKey, now)
+			return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
+		}
+
+		// Per-email cooldown to prevent rapid repeated resets
+		const lastEmail = forgotEmailLast.get(emailKey)
+		if (lastEmail && now - lastEmail < EMAIL_WINDOW_MS) {
+			forgotIpLast.set(ip, now)
+			return res.status(200).json({
+				message: 'If an account exists, a new password has been sent',
+			})
+		}
+
+		// Generate a strong password
+		const newPassword = generatePassword.generate({
+			length: 12,
+			numbers: true,
+			uppercase: true,
+			lowercase: true,
+			symbols: true,
+			strict: true,
+		})
+
+		// Keep previous hash to revert on failure
+		const prevHash = foundUser.password
+
+		// Update password (hooks hash on save)
+		foundUser.password = newPassword
+		await foundUser.save()
+
+		// Prepare and send email via existing SES integration
+		const appUrl = process.env.FRONTEND_URL || 'https://portfolio.jdu.uz'
+		const fullName = `${foundUser.first_name || ''} ${foundUser.last_name || ''}`.trim()
+		const to = email
+		const subject = 'Your new JDU Portfolio password'
+		const text = `Hello ${fullName || ''},\n\nA new password has been generated for your JDU Portfolio account.\n\nEmail: ${email}\nNew Password: ${newPassword}\n\nYou can log in here: ${appUrl}/login\n\nIf you did not request this, please contact support immediately.`
+		const html = `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Password Reset</title>
+        <style>
+          body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:0; }
+          .container { max-width:600px; margin:0 auto; background:#fff; border:1px solid #e1e1e1; border-radius:10px; }
+          .header { background:#4CAF50; color:#fff; padding:14px 20px; border-radius:10px 10px 0 0; }
+          .content { padding:20px; color:#333; line-height:1.6; }
+          .content p { margin:0 0 12px; }
+          .footer { text-align:center; color:#666; background:#f4f4f4; padding:12px; border-radius:0 0 10px 10px; }
+          .btn { display:inline-block; background:#4CAF50; color:#fff !important; padding:10px 16px; border-radius:6px; text-decoration:none; }
+          code { background:#f7f7f7; padding:2px 6px; border-radius:4px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header"><h2>Password Reset</h2></div>
+          <div class="content">
+            <p>${fullName ? `${fullName},` : 'Hello,'}</p>
+            <p>We generated a new password for your JDU Portfolio account.</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>New Password:</strong> <code>${newPassword}</code></p>
+            <p>Please use the button below to log in.</p>
+            <p><a class="btn" href="${appUrl}/login">Log In</a></p>
+            <p>If you did not request this, please contact support immediately.</p>
+          </div>
+          <div class="footer">&copy; ${new Date().getFullYear()} JDU</div>
+        </div>
+      </body>
+      </html>`
+
+		let emailResp
+		try {
+			emailResp = await sendEmail({ to, subject, text, html })
+		} catch (emailErr) {
+			console.error('SES send threw, reverting password change:', emailErr)
+			try {
+				// Revert to previous hash without triggering hashing hooks
+				await ModelRef.update({ password: prevHash }, { where: { id: foundUser.id }, hooks: false })
+			} catch (revertErr) {
+				console.error('Failed to revert password after email failure:', revertErr)
+			}
+			// Generic success response to avoid enumeration
+			forgotIpLast.set(ip, now)
+			return res.status(200).json({
+				message: 'If an account exists, a new password has been sent',
+			})
+		}
+
+		// Handle soft failures where sendEmail returns success: false
+		if (!emailResp || emailResp.success !== true) {
+			console.error('SES send reported failure, reverting password change:', emailResp)
+			try {
+				await ModelRef.update({ password: prevHash }, { where: { id: foundUser.id }, hooks: false })
+			} catch (revertErr) {
+				console.error('Failed to revert password after reported email failure:', revertErr)
+			}
+			forgotIpLast.set(ip, now)
+			return res.status(200).json({
+				message: 'If an account exists, a new password has been sent',
+			})
+		}
+
+		// Update cooldown trackers on success
+		forgotIpLast.set(ip, now)
+		forgotEmailLast.set(emailKey, now)
+
+		return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
+	} catch (error) {
+		console.error('Forgot password error:', error)
+		// For security, avoid leaking details
+		return res.status(200).json({ message: 'If an account exists, a new password has been sent' })
+	}
+})
 
 // Get current user info
 router.get('/me', authMiddleware, async (req, res) => {

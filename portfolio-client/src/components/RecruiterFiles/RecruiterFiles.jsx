@@ -23,10 +23,7 @@ const RecruiterFiles = ({ editMode = false, recruiterId, currentRole }) => {
 		try {
 			setLoading(true)
 			// For non-recruiters, send recruiterId as query param
-			const url =
-				currentRole === 'Recruiter'
-					? '/api/recruiter-files'
-					: `/api/recruiter-files?recruiterId=${recruiterId}`
+			const url = currentRole === 'Recruiter' ? '/api/recruiter-files' : `/api/recruiter-files?recruiterId=${recruiterId}`
 			const response = await axios.get(url)
 			setFiles(response.data.files || response.data) // Handle both old and new response format
 			setTotalSize(response.data.totalSize || 0)
@@ -48,11 +45,7 @@ const RecruiterFiles = ({ editMode = false, recruiterId, currentRole }) => {
 	}
 
 	// Don't render if no files exist and not in edit mode for Recruiters
-	if (
-		!loading &&
-		files.length === 0 &&
-		!(editMode && currentRole === 'Recruiter')
-	) {
+	if (!loading && files.length === 0 && !(editMode && currentRole === 'Recruiter')) {
 		return null
 	}
 
@@ -66,22 +59,9 @@ const RecruiterFiles = ({ editMode = false, recruiterId, currentRole }) => {
 			</Box>
 
 			{/* Only Recruiters can upload files */}
-			{currentRole === 'Recruiter' && (
-				<RecruiterFileUpload
-					onUploadSuccess={handleUploadSuccess}
-					existingFilesCount={files.length}
-					existingFilesSize={totalSize}
-					editMode={editMode}
-				/>
-			)}
+			{currentRole === 'Recruiter' && <RecruiterFileUpload onUploadSuccess={handleUploadSuccess} existingFilesCount={files.length} existingFilesSize={totalSize} editMode={editMode} />}
 
-			<RecruiterFileList
-				files={files}
-				onFileDeleted={handleFileDeleted}
-				loading={loading}
-				editMode={editMode && currentRole === 'Recruiter'}
-				currentRole={currentRole}
-			/>
+			<RecruiterFileList files={files} onFileDeleted={handleFileDeleted} loading={loading} editMode={editMode && currentRole === 'Recruiter'} currentRole={currentRole} />
 		</Paper>
 	)
 }

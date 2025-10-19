@@ -1,13 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
-import {
-	Box,
-	Chip,
-	TextField,
-	Typography,
-	IconButton,
-	Tooltip,
-} from '@mui/material'
+import { Box, Chip, TextField, Typography, IconButton, Tooltip } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import styles from './MultiItemInput.module.css'
 
@@ -35,14 +28,7 @@ const splitInput = value => {
 		.filter(Boolean)
 }
 
-const MultiItemInput = ({
-	value = [],
-	onChange,
-	placeholder,
-	helperText,
-	maxTotalChars = 500,
-	suggestions = [],
-}) => {
+const MultiItemInput = ({ value = [], onChange, placeholder, helperText, maxTotalChars = 500, suggestions = [] }) => {
 	const [draft, setDraft] = useState('')
 	const inputRef = useRef(null)
 
@@ -123,18 +109,7 @@ const MultiItemInput = ({
 			)}
 
 			<Box className={styles.inputRow}>
-				<TextField
-					inputRef={inputRef}
-					fullWidth
-					size='small'
-					placeholder={placeholder}
-					value={draft}
-					onChange={e => setDraft(e.target.value)}
-					onKeyDown={handleKeyDown}
-					onPaste={handlePaste}
-					inputProps={{ maxLength: Math.max(0, maxTotalChars) }}
-					helperText={helperText}
-				/>
+				<TextField inputRef={inputRef} fullWidth size='small' placeholder={placeholder} value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={handleKeyDown} onPaste={handlePaste} inputProps={{ maxLength: Math.max(0, maxTotalChars) }} helperText={helperText} />
 				<Tooltip title='Add'>
 					<IconButton color='primary' onClick={handleAdd}>
 						<AddIcon />
@@ -146,13 +121,7 @@ const MultiItemInput = ({
 				{suggestions?.length > 0 ? (
 					<Box className={styles.suggestions}>
 						{suggestions.map(s => (
-							<Chip
-								key={`sg-${s}`}
-								label={s}
-								onClick={() => handleSuggestion(s)}
-								variant='outlined'
-								size='small'
-							/>
+							<Chip key={`sg-${s}`} label={s} onClick={() => handleSuggestion(s)} variant='outlined' size='small' />
 						))}
 					</Box>
 				) : (

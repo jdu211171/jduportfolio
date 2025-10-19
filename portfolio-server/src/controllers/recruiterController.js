@@ -22,9 +22,7 @@ class RecruiterController {
 					let isPartner = false
 					const isPartnerRaw = record.isPartner?.value
 					if (Array.isArray(isPartnerRaw)) {
-						isPartner = isPartnerRaw
-							.map(v => String(v).toLowerCase())
-							.includes('true')
+						isPartner = isPartnerRaw.map(v => String(v).toLowerCase()).includes('true')
 					} else if (typeof isPartnerRaw === 'string') {
 						isPartner = isPartnerRaw.toLowerCase() === 'true'
 					}
@@ -41,12 +39,7 @@ class RecruiterController {
 					}
 					const newRecruiter = await RecruiterService.createRecruiter(data)
 					if (newRecruiter) {
-						await sendRecruiterWelcomeEmail(
-							newRecruiter.email,
-							password,
-							newRecruiter.first_name,
-							newRecruiter.last_name
-						)
+						await sendRecruiterWelcomeEmail(newRecruiter.email, password, newRecruiter.first_name, newRecruiter.last_name)
 					}
 					return res.status(201).json(newRecruiter)
 				}
@@ -54,9 +47,7 @@ class RecruiterController {
 					const isPartnerRaw = record.isPartner?.value
 					let isPartner = false
 					if (Array.isArray(isPartnerRaw)) {
-						isPartner = isPartnerRaw
-							.map(v => String(v).toLowerCase())
-							.includes('true')
+						isPartner = isPartnerRaw.map(v => String(v).toLowerCase()).includes('true')
 					} else if (typeof isPartnerRaw === 'string') {
 						isPartner = isPartnerRaw.toLowerCase() === 'true'
 					}
@@ -70,22 +61,13 @@ class RecruiterController {
 						kintone_id: record['$id'].value,
 						isPartner,
 					}
-					const updatedRecruiter =
-						await RecruiterService.updateRecruiterByKintoneId(
-							record['$id']?.value,
-							recruiterData
-						)
-					if (!updatedRecruiter)
-						return res.status(404).json({ message: 'Recruiter not found' })
-					return res
-						.status(200)
-						.json({ message: 'Updated', recruiter: updatedRecruiter })
+					const updatedRecruiter = await RecruiterService.updateRecruiterByKintoneId(record['$id']?.value, recruiterData)
+					if (!updatedRecruiter) return res.status(404).json({ message: 'Recruiter not found' })
+					return res.status(200).json({ message: 'Updated', recruiter: updatedRecruiter })
 				}
 				case 'DELETE_RECORD': {
-					const deletedCount =
-						await RecruiterService.deleteRecruiterByKintoneId(recordId)
-					if (deletedCount === 0)
-						return res.status(404).json({ message: 'Recruiter not found' })
+					const deletedCount = await RecruiterService.deleteRecruiterByKintoneId(recordId)
+					if (deletedCount === 0) return res.status(404).json({ message: 'Recruiter not found' })
 					return res.status(204).send()
 				}
 				default:
@@ -118,10 +100,7 @@ class RecruiterController {
 			// Handle both filter and filter[key] formats
 			if (req.query.filter) {
 				try {
-					filter =
-						typeof req.query.filter === 'string'
-							? JSON.parse(req.query.filter)
-							: req.query.filter
+					filter = typeof req.query.filter === 'string' ? JSON.parse(req.query.filter) : req.query.filter
 				} catch (e) {
 					console.error('Failed to parse filter:', e.message)
 					// If JSON parsing fails, treat it as a direct search value
@@ -148,11 +127,7 @@ class RecruiterController {
 
 			res.status(200).json(recruiters)
 		} catch (error) {
-			console.error(
-				'Error in getAllRecruiters controller:',
-				error.message,
-				error.stack
-			)
+			console.error('Error in getAllRecruiters controller:', error.message, error.stack)
 
 			// Return empty array instead of 500 error for better UX
 			res.status(200).json([])
@@ -176,13 +151,8 @@ class RecruiterController {
 
 			if (password) {
 				const recruiter = await RecruiterService.getRecruiterById(id, true)
-				if (
-					!recruiter ||
-					!(await bcrypt.compare(currentPassword, recruiter.password))
-				) {
-					return res
-						.status(400)
-						.json({ error: '現在のパスワードを入力してください' })
+				if (!recruiter || !(await bcrypt.compare(currentPassword, recruiter.password))) {
+					return res.status(400).json({ error: '現在のパスワードを入力してください' })
 				}
 			}
 

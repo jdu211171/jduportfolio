@@ -33,8 +33,7 @@ const options = {
 					type: 'apiKey',
 					in: 'cookie',
 					name: 'token',
-					description:
-						'Authentication token stored in a cookie. Login first using the /api/auth/login endpoint.',
+					description: 'Authentication token stored in a cookie. Login first using the /api/auth/login endpoint.',
 				},
 			},
 		},
@@ -64,6 +63,13 @@ const swaggerOptions = {
 dotenv.config()
 const CronService = require('./services/cronService')
 const app = express()
+
+// Optionally trust reverse proxies (so req.ip honors X-Forwarded-For as configured by Express)
+// Set TRUST_PROXY=1 or a boolean-like value in production behind a proxy (e.g., Nginx)
+if (process.env.TRUST_PROXY) {
+	const v = process.env.TRUST_PROXY
+	app.set('trust proxy', v === 'true' || v === '1' ? 1 : v)
+}
 
 // Use cookie-parser middleware
 app.use(cookieParser())
@@ -100,10 +106,7 @@ app.use(
 			if (allowedOrigins.indexOf(origin) !== -1) {
 				callback(null, true)
 			} else {
-				console.error(
-					`CORS error: Origin '${origin}' not allowed. Allowed origins:`,
-					allowedOrigins
-				)
+				console.error(`CORS error: Origin '${origin}' not allowed. Allowed origins:`, allowedOrigins)
 				callback(new Error(`Not allowed by CORS. Origin: ${origin}`))
 			}
 		},
@@ -131,8 +134,7 @@ app.use(
 	swaggerUi.serve,
 	swaggerUi.setup(swaggerSpec, {
 		swaggerOptions,
-		customCss:
-			'.swagger-ui .auth-wrapper .authorize {padding: 15px 20px; display: block;}',
+		customCss: '.swagger-ui .auth-wrapper .authorize {padding: 15px 20px; display: block;}',
 		customSiteTitle: 'Portfolio API Documentation',
 		customfavIcon: '',
 		customCssUrl: '',
@@ -147,9 +149,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.static(path.resolve(__dirname, '../../portfolio-client/dist')))
 
 app.get('*', (req, res) => {
-	res.sendFile(
-		path.resolve(__dirname, '../../portfolio-client/dist/index.html')
-	)
+	res.sendFile(path.resolve(__dirname, '../../portfolio-client/dist/index.html'))
 })
 
 // Start the server

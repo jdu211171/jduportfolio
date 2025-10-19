@@ -34,11 +34,7 @@ const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
 
 	return (
 		<Box>
-			<Button
-				variant='contained'
-				color='secondary'
-				onClick={handleSettingtoHonban}
-			>
+			<Button variant='contained' color='secondary' onClick={handleSettingtoHonban}>
 				本番
 			</Button>
 			<Button variant='contained' color='secondary' onClick={handleOpen}>
@@ -71,33 +67,13 @@ const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
 					>
 						{drafts.length > 0 ? (
 							drafts.map((draft, index) => (
-								<Box
-									key={index}
-									className={styles.draftBox}
-									onClick={() => draftClick(draft)}
-								>
+								<Box key={index} className={styles.draftBox} onClick={() => draftClick(draft)}>
 									{/* Header */}
-									<Stack
-										direction='row'
-										justifyContent='space-between'
-										alignItems='center'
-										sx={{ mb: 1 }}
-									>
+									<Stack direction='row' justifyContent='space-between' alignItems='center' sx={{ mb: 1 }}>
 										<Typography variant='body2' sx={{ fontWeight: 'bold' }}>
 											{index + 1}.
 										</Typography>
-										<Chip
-											label={draft.status}
-											size='small'
-											color={
-												draft.status === 'approved'
-													? 'success'
-													: draft.status === 'disapproved'
-														? 'error'
-														: 'warning'
-											}
-											variant='outlined'
-										/>
+										<Chip label={draft.status} size='small' color={draft.status === 'approved' ? 'success' : draft.status === 'disapproved' ? 'error' : 'warning'} variant='outlined' />
 									</Stack>
 
 									{/* Body */}
@@ -106,32 +82,21 @@ const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
 									</Typography>
 									<Typography variant='body2' sx={{ display: 'flex', mb: 0.5 }}>
 										<strong>Comments:</strong>&nbsp;
-										{draft.comments || (
-											<i style={{ color: 'gray' }}>No comments</i>
-										)}
+										{draft.comments || <i style={{ color: 'gray' }}>No comments</i>}
 									</Typography>
 									<Typography variant='body2' sx={{ display: 'flex', mb: 0.5 }}>
 										<strong>Reviewed By:</strong>&nbsp;
-										{draft.reviewed_by || (
-											<i style={{ color: 'gray' }}>Not reviewed</i>
-										)}
+										{draft.reviewed_by || <i style={{ color: 'gray' }}>Not reviewed</i>}
 									</Typography>
 
 									{/* Updated Date */}
-									<Typography
-										variant='caption'
-										color='text.secondary'
-										sx={{ display: 'block', textAlign: 'right' }}
-									>
+									<Typography variant='caption' color='text.secondary' sx={{ display: 'block', textAlign: 'right' }}>
 										Updated: {new Date(draft.updated_at).toLocaleString()}
 									</Typography>
 								</Box>
 							))
 						) : (
-							<Typography
-								variant='body2'
-								sx={{ mt: 2, color: 'gray', textAlign: 'center' }}
-							>
+							<Typography variant='body2' sx={{ mt: 2, color: 'gray', textAlign: 'center' }}>
 								No drafts available.
 							</Typography>
 						)}
@@ -142,12 +107,7 @@ const DraftsModal = ({ id, handleSettingtoHonban, handleSettingDraft }) => {
 							justifyContent: 'end',
 						}}
 					>
-						<Button
-							variant='outlined'
-							color='primary'
-							sx={{ mt: 2 }}
-							onClick={handleClose}
-						>
+						<Button variant='outlined' color='primary' sx={{ mt: 2 }} onClick={handleClose}>
 							Close
 						</Button>
 					</Box>

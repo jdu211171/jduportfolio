@@ -15,10 +15,7 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	// Other universities (partner universities): 124 credits
 	const getTargetCredits = () => {
 		// Check if this is JDU or University of World Languages
-		if (
-			student?.university === 'JDU' ||
-			student?.university === 'University of World Languages'
-		) {
+		if (student?.university === 'JDU' || student?.university === 'University of World Languages') {
 			return 76
 		}
 
@@ -37,10 +34,7 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	]
 
 	// Progress calculation
-	const creditPercentage = Math.min(
-		(completedCredits / targetCredits) * 100,
-		100
-	)
+	const creditPercentage = Math.min((completedCredits / targetCredits) * 100, 100)
 
 	// Fetch credit details from backend
 	const fetchCreditDetails = useCallback(async () => {
@@ -145,11 +139,7 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	}, [studentId])
 
 	useEffect(() => {
-		if (
-			credit_details &&
-			Array.isArray(credit_details) &&
-			credit_details.length > 0
-		) {
+		if (credit_details && Array.isArray(credit_details) && credit_details.length > 0) {
 			setCreditDetails(credit_details)
 			setLoading(false)
 		} else if (studentId) {
@@ -186,10 +176,7 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 	return (
 		<div className={styles.container}>
 			{/* Show error message if neither studentId nor credit_details are available */}
-			{!studentId &&
-			(!credit_details ||
-				!Array.isArray(credit_details) ||
-				credit_details.length === 0) ? (
+			{!studentId && (!credit_details || !Array.isArray(credit_details) || credit_details.length === 0) ? (
 				<div className={styles.noData}>Student ID is required</div>
 			) : (
 				<>
@@ -202,10 +189,7 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 
 						<div className={styles.progressBar}>
 							<div className={styles.progressLine}></div>
-							<div
-								className={styles.activeProgressLine}
-								style={{ width: `${creditPercentage}%` }}
-							></div>
+							<div className={styles.activeProgressLine} style={{ width: `${creditPercentage}%` }}></div>
 
 							{Array.isArray(breakpoints) &&
 								breakpoints.map((breakpoint, index) => {
@@ -213,40 +197,20 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 									const isCompleted = completedCredits >= breakpoint.point
 
 									return (
-										<div
-											key={index}
-											className={`${styles.breakpoint} ${isCompleted ? styles.completed : ''}`}
-											style={{ left: `${leftPosition}%` }}
-										>
+										<div key={index} className={`${styles.breakpoint} ${isCompleted ? styles.completed : ''}`} style={{ left: `${leftPosition}%` }}>
 											<div className={styles.circle}>
 												{isCompleted && (
-													<svg
-														width='16'
-														height='16'
-														viewBox='0 0 16 16'
-														fill='none'
-													>
-														<path
-															d='M13.5 4.5L6 12L2.5 8.5'
-															stroke='white'
-															strokeWidth='2'
-															strokeLinecap='round'
-															strokeLinejoin='round'
-														/>
+													<svg width='16' height='16' viewBox='0 0 16 16' fill='none'>
+														<path d='M13.5 4.5L6 12L2.5 8.5' stroke='white' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
 													</svg>
 												)}
 											</div>
-											<div className={styles.creditLabel}>
-												{breakpoint.point}単位
-											</div>
+											<div className={styles.creditLabel}>{breakpoint.point}単位</div>
 										</div>
 									)
 								})}
 
-							<div
-								className={styles.currentIndicator}
-								style={{ left: `${creditPercentage}%` }}
-							>
+							<div className={styles.currentIndicator} style={{ left: `${creditPercentage}%` }}>
 								<div className={styles.currentCircle}></div>
 							</div>
 						</div>
@@ -274,24 +238,14 @@ const CreditsProgressBar = ({ studentId, student, credit_details }) => {
 										{Array.isArray(creditDetails) &&
 											creditDetails.map(detail => (
 												<tr key={detail.recordId || detail.id || Math.random()}>
-													<td className={styles.subjectName}>
-														{detail.科目名}
-													</td>
+													<td className={styles.subjectName}>{detail.科目名}</td>
 													<td className={styles.credits}>{detail.単位数}</td>
 													<td>
-														<span
-															className={`${styles.gradeBadge} ${getGradeBadgeClass(detail.評価)}`}
-														>
-															{detail.評価}
-														</span>
+														<span className={`${styles.gradeBadge} ${getGradeBadgeClass(detail.評価)}`}>{detail.評価}</span>
 													</td>
-													<td className={styles.score}>
-														{detail.score || '-'}
-													</td>
+													<td className={styles.score}>{detail.score || '-'}</td>
 													<td className={styles.date}>{detail.取得日}</td>
-													<td className={styles.category}>
-														{detail.subjectCategory}
-													</td>
+													<td className={styles.category}>{detail.subjectCategory}</td>
 												</tr>
 											))}
 									</tbody>

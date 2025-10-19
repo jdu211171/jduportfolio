@@ -4,25 +4,7 @@ import axios from '../../utils/axiosUtils'
 
 import { atom, useAtom } from 'jotai'
 import UserAvatar from './Avatar/UserAvatar'
-import {
-	Box,
-	Table,
-	TableBody,
-	TableCell,
-	TableContainer,
-	TableHead,
-	TablePagination,
-	TableRow,
-	LinearProgress,
-	Menu,
-	MenuItem,
-	IconButton,
-	Grid,
-	Typography,
-	Switch,
-	Modal,
-	Button,
-} from '@mui/material'
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, LinearProgress, Menu, MenuItem, IconButton, Grid, Typography, Switch, Modal, Button } from '@mui/material'
 
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
@@ -169,14 +151,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		} finally {
 			setLoading(false)
 		}
-	}, [
-		tableProps.dataLink,
-		tableProps.filter,
-		tableProps.recruiterId,
-		tableProps.OnlyBookmarked,
-		sortBy,
-		sortOrder,
-	])
+	}, [tableProps.dataLink, tableProps.filter, tableProps.recruiterId, tableProps.OnlyBookmarked, sortBy, sortOrder])
 
 	useEffect(() => {
 		fetchUserData()
@@ -189,13 +164,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 	useEffect(() => {
 		if (updatedBookmark?.studentId) {
-			setRows(prevData =>
-				prevData.map(data =>
-					data.id === updatedBookmark.studentId
-						? { ...data, isBookmarked: !data.isBookmarked }
-						: data
-				)
-			)
+			setRows(prevData => prevData.map(data => (data.id === updatedBookmark.studentId ? { ...data, isBookmarked: !data.isBookmarked } : data)))
 		}
 	}, [updatedBookmark])
 
@@ -211,10 +180,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 	const isSelected = id => selected.indexOf(id) !== -1
 
-	const visibleRows = stableSort(rows, getComparator(order, orderBy)).slice(
-		page * rowsPerPage,
-		page * rowsPerPage + rowsPerPage
-	)
+	const visibleRows = stableSort(rows, getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
 	// Grid view da bookmark click handler
 	const handleBookmarkClickInGrid = row => {
@@ -265,18 +231,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 							}}
 						>
 							{/* Avatar va Age */}
-							<Box
-								sx={{ mr: 1.5, cursor: 'pointer', flex: 1 }}
-								onClick={() => handleProfileClickInGrid(row)}
-							>
+							<Box sx={{ mr: 1.5, cursor: 'pointer', flex: 1 }} onClick={() => handleProfileClickInGrid(row)}>
 								<UserAvatar
 									photo={row.photo}
 									name={row.first_name + ' ' + row.last_name}
-									studentId={
-										row.first_name_furigana || row.last_name_furigana
-											? `${row.last_name_furigana || ''} ${row.first_name_furigana || ''}`.trim()
-											: row.kana_name || null
-									}
+									studentId={row.first_name_furigana || row.last_name_furigana ? `${row.last_name_furigana || ''} ${row.first_name_furigana || ''}`.trim() : row.kana_name || null}
 									age={row.age}
 									isGridMode={viewMode === 'grid'}
 									style={{
@@ -288,25 +247,14 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 							{/* Bookmark */}
 							{role === 'Recruiter' && (
-								<Box
-									sx={{ cursor: 'pointer', p: 0.5 }}
-									onClick={() => handleBookmarkClickInGrid(row)}
-								>
+								<Box sx={{ cursor: 'pointer', p: 0.5 }} onClick={() => handleBookmarkClickInGrid(row)}>
 									{row.isBookmarked ? (
 										<svg width='24' height='24' viewBox='0 0 24 24' fill='none'>
-											<path
-												d='M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z'
-												fill='#FFD700'
-												stroke='#FFD700'
-											/>
+											<path d='M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z' fill='#FFD700' stroke='#FFD700' />
 										</svg>
 									) : (
 										<svg width='24' height='24' viewBox='0 0 24 24' fill='none'>
-											<path
-												d='M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z'
-												stroke='#ccc'
-												strokeWidth='1.5'
-											/>
+											<path d='M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z' stroke='#ccc' strokeWidth='1.5' />
 										</svg>
 									)}
 								</Box>
@@ -461,11 +409,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 	)
 
 	// Filtered headers for easier processing
-	const visibleHeaders = tableProps.headers.filter(
-		header =>
-			(header.role == undefined || header.role == role) &&
-			(header.visibleTo ? header.visibleTo.includes(role) : true)
-	)
+	const visibleHeaders = tableProps.headers.filter(header => (header.role == undefined || header.role == role) && (header.visibleTo ? header.visibleTo.includes(role) : true))
 
 	return (
 		<Box sx={{ width: '100%' }}>
@@ -574,19 +518,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																opacity: isActiveSortColumn ? 1 : 0.3,
 															}}
 														>
-															{isActiveSortColumn && order === 'asc' ? (
-																<KeyboardArrowUpIcon
-																	sx={{ fontSize: '16px', color: '#2563eb' }}
-																/>
-															) : isActiveSortColumn && order === 'desc' ? (
-																<KeyboardArrowDownIcon
-																	sx={{ fontSize: '16px', color: '#2563eb' }}
-																/>
-															) : (
-																<KeyboardArrowUpIcon
-																	sx={{ fontSize: '16px' }}
-																/>
-															)}
+															{isActiveSortColumn && order === 'asc' ? <KeyboardArrowUpIcon sx={{ fontSize: '16px', color: '#2563eb' }} /> : isActiveSortColumn && order === 'desc' ? <KeyboardArrowDownIcon sx={{ fontSize: '16px', color: '#2563eb' }} /> : <KeyboardArrowUpIcon sx={{ fontSize: '16px' }} />}
 														</Box>
 													)}
 												</Box>
@@ -625,9 +557,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														}
 
 														// Find the avatar header to get the profile navigation function
-														const avatarHeader = tableProps.headers.find(
-															h => h.type === 'avatar'
-														)
+														const avatarHeader = tableProps.headers.find(h => h.type === 'avatar')
 														if (avatarHeader && avatarHeader.onClickAction) {
 															avatarHeader.onClickAction(row)
 														} else if (header.onClickAction) {
@@ -652,14 +582,10 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	return header.minWidth
 															}
 														})(),
-														padding:
-															header.type === 'avatar' ? '4px' : '12px 16px',
+														padding: header.type === 'avatar' ? '4px' : '12px 16px',
 														borderRight: 'none',
 														backgroundColor: 'inherit', // Use inherit to take from parent row
-														cursor:
-															header.type === 'delete_icon'
-																? 'default'
-																: 'pointer',
+														cursor: header.type === 'delete_icon' ? 'default' : 'pointer',
 														...(rowIndex === visibleRows.length - 1 &&
 															cellIndex === 0 && {
 																borderBottom: 'none',
@@ -684,61 +610,17 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													{header.type === 'bookmark' ? (
 														<div onClick={e => e.stopPropagation()}>
 															{row.isBookmarked ? (
-																<svg
-																	width='19'
-																	height='18'
-																	viewBox='0 0 19 18'
-																	fill='none'
-																	xmlns='http://www.w3.org/2000/svg'
-																	onClick={() =>
-																		header.onClickAction &&
-																		header.onClickAction(row)
-																	}
-																	style={{ cursor: 'pointer' }}
-																>
-																	<path
-																		d='M9.3275 14.1233L4.18417 16.8275L5.16667 11.1L1 7.04417L6.75 6.21083L9.32167 1L11.8933 6.21083L17.6433 7.04417L13.4767 11.1L14.4592 16.8275L9.3275 14.1233Z'
-																		fill='#F7C02F'
-																		stroke='#F7C02F'
-																		strokeLinecap='round'
-																		strokeLinejoin='round'
-																	/>
+																<svg width='19' height='18' viewBox='0 0 19 18' fill='none' xmlns='http://www.w3.org/2000/svg' onClick={() => header.onClickAction && header.onClickAction(row)} style={{ cursor: 'pointer' }}>
+																	<path d='M9.3275 14.1233L4.18417 16.8275L5.16667 11.1L1 7.04417L6.75 6.21083L9.32167 1L11.8933 6.21083L17.6433 7.04417L13.4767 11.1L14.4592 16.8275L9.3275 14.1233Z' fill='#F7C02F' stroke='#F7C02F' strokeLinecap='round' strokeLinejoin='round' />
 																</svg>
 															) : (
-																<svg
-																	width='18'
-																	height='17'
-																	viewBox='0 0 18 17'
-																	fill='none'
-																	xmlns='http://www.w3.org/2000/svg'
-																	onClick={() =>
-																		header.onClickAction &&
-																		header.onClickAction(row)
-																	}
-																	style={{ cursor: 'pointer' }}
-																>
-																	<path
-																		d='M9.00035 13.7913L3.85702 16.4955L4.83952 10.768L0.672852 6.71214L6.42285 5.8788L8.99452 0.667969L11.5662 5.8788L17.3162 6.71214L13.1495 10.768L14.132 16.4955L9.00035 13.7913Z'
-																		stroke='#ccc'
-																		strokeWidth='1.5'
-																		strokeLinecap='round'
-																		strokeLinejoin='round'
-																	/>
+																<svg width='18' height='17' viewBox='0 0 18 17' fill='none' xmlns='http://www.w3.org/2000/svg' onClick={() => header.onClickAction && header.onClickAction(row)} style={{ cursor: 'pointer' }}>
+																	<path d='M9.00035 13.7913L3.85702 16.4955L4.83952 10.768L0.672852 6.71214L6.42285 5.8788L8.99452 0.667969L11.5662 5.8788L17.3162 6.71214L13.1495 10.768L14.132 16.4955L9.00035 13.7913Z' stroke='#ccc' strokeWidth='1.5' strokeLinecap='round' strokeLinejoin='round' />
 																</svg>
 															)}
 														</div>
 													) : header.type === 'avatar' ? (
-														<UserAvatar
-															photo={row.photo}
-															name={row.first_name + ' ' + row.last_name}
-															studentId={
-																row.first_name_furigana ||
-																row.last_name_furigana
-																	? `${row.last_name_furigana || ''} ${row.first_name_furigana || ''}`.trim()
-																	: row.kana_name || null
-															}
-															age={row.age}
-														/>
+														<UserAvatar photo={row.photo} name={row.first_name + ' ' + row.last_name} studentId={row.first_name_furigana || row.last_name_furigana ? `${row.last_name_furigana || ''} ${row.first_name_furigana || ''}`.trim() : row.kana_name || null} age={row.age} />
 													) : header.type === 'status' ? (
 														<div
 															style={{
@@ -749,9 +631,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 															{row[header.id] ? '公開' : '非公開'}
 														</div>
 													) : header.type === 'email' ? (
-														<a href={`mailto:${row[header.id]}`}>
-															{row[header.id]}
-														</a>
+														<a href={`mailto:${row[header.id]}`}>{row[header.id]}</a>
 													) : header.type === 'date' ? (
 														header.subkey ? (
 															row[header.id] ? (
@@ -776,11 +656,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 															}}
 														>
 															{(() => {
-																const status = header.subkey
-																	? row[header.id]
-																		? row[header.id][header.subkey]
-																		: ''
-																	: row[header.id]
+																const status = header.subkey ? (row[header.id] ? row[header.id][header.subkey] : '') : row[header.id]
 																const statusConfig = header.statusMap[status]
 
 																if (!statusConfig) return 'N/A'
@@ -836,15 +712,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													) : header.type === 'changed_fields' ? (
 														<div>
 															{(() => {
-																const changedFields = header.subkey
-																	? row[header.id]
-																		? row[header.id][header.subkey]
-																		: []
-																	: row[header.id] || []
-																if (
-																	!changedFields ||
-																	changedFields.length === 0
-																) {
+																const changedFields = header.subkey ? (row[header.id] ? row[header.id][header.subkey] : []) : row[header.id] || []
+																if (!changedFields || changedFields.length === 0) {
 																	return (
 																		<span
 																			style={{
@@ -905,18 +774,12 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	color = '#4caf50'
 																	icon = 'approved'
 																	text = '承認済'
-																} else if (
-																	draftStatus === 'submitted' ||
-																	draftStatus === 'checking'
-																) {
+																} else if (draftStatus === 'submitted' || draftStatus === 'checking') {
 																	// Draft yuborilgan yoki tekshirilmoqda - checking holati
 																	color = '#ff9800'
 																	icon = 'pending'
 																	text = '未確認'
-																} else if (
-																	draftStatus === 'disapproved' ||
-																	draftStatus === 'resubmission_required'
-																) {
+																} else if (draftStatus === 'disapproved' || draftStatus === 'resubmission_required') {
 																	// Draft rad etilgan
 																	color = '#f44336'
 																	icon = 'rejected'
@@ -947,11 +810,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																				borderRadius: '12px',
 																				position: 'relative',
 																			}}
-																			title={
-																				row.draft?.comments
-																					? `コメント: ${row.draft.comments}`
-																					: ''
-																			}
+																			title={row.draft?.comments ? `コメント: ${row.draft.comments}` : ''}
 																		>
 																			{icon === 'approved' && (
 																				<CheckCircleIcon
@@ -1010,11 +869,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
-																		const newRows = prevRows.map(prevRow =>
-																			prevRow.id === row.id
-																				? { ...prevRow, [header.id]: newValue }
-																				: prevRow
-																		)
+																		const newRows = prevRows.map(prevRow => (prevRow.id === row.id ? { ...prevRow, [header.id]: newValue } : prevRow))
 																		return newRows
 																	})
 
@@ -1025,29 +880,22 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																			// Check if onToggle expects (row, newValue) or just (id, newValue)
 																			if (header.onToggle.length === 2) {
 																				// New signature: (row, newValue)
-																				success = await header.onToggle(
-																					row,
-																					newValue
-																				)
+																				success = await header.onToggle(row, newValue)
 																			} else {
 																				// Legacy signature: (id, newValue)
-																				success = await header.onToggle(
-																					row.id,
-																					newValue
-																				)
+																				success = await header.onToggle(row.id, newValue)
 																			}
 
 																			if (!success) {
 																				// Revert to previous state if backend call failed
 																				setRows(prevRows => {
-																					const revertedRows = prevRows.map(
-																						prevRow =>
-																							prevRow.id === row.id
-																								? {
-																										...prevRow,
-																										[header.id]: previousValue,
-																									}
-																								: prevRow
+																					const revertedRows = prevRows.map(prevRow =>
+																						prevRow.id === row.id
+																							? {
+																									...prevRow,
+																									[header.id]: previousValue,
+																								}
+																							: prevRow
 																					)
 																					return revertedRows
 																				})
@@ -1056,14 +904,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																		} catch (error) {
 																			// Revert to previous state on error
 																			setRows(prevRows => {
-																				const revertedRows = prevRows.map(
-																					prevRow =>
-																						prevRow.id === row.id
-																							? {
-																									...prevRow,
-																									[header.id]: previousValue,
-																								}
-																							: prevRow
+																				const revertedRows = prevRows.map(prevRow =>
+																					prevRow.id === row.id
+																						? {
+																								...prevRow,
+																								[header.id]: previousValue,
+																							}
+																						: prevRow
 																				)
 																				return revertedRows
 																			})
@@ -1123,33 +970,25 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 																	// Optimistically update UI immediately
 																	setRows(prevRows => {
-																		const newRows = prevRows.map(prevRow =>
-																			prevRow.id === row.id
-																				? { ...prevRow, [header.id]: newValue }
-																				: prevRow
-																		)
+																		const newRows = prevRows.map(prevRow => (prevRow.id === row.id ? { ...prevRow, [header.id]: newValue } : prevRow))
 																		return newRows
 																	})
 
 																	// Then call backend
 																	if (header.onToggle) {
 																		try {
-																			const success = await header.onToggle(
-																				row.id,
-																				newValue
-																			)
+																			const success = await header.onToggle(row.id, newValue)
 
 																			if (!success) {
 																				// Revert to previous state if backend call failed
 																				setRows(prevRows => {
-																					const revertedRows = prevRows.map(
-																						prevRow =>
-																							prevRow.id === row.id
-																								? {
-																										...prevRow,
-																										[header.id]: previousValue,
-																									}
-																								: prevRow
+																					const revertedRows = prevRows.map(prevRow =>
+																						prevRow.id === row.id
+																							? {
+																									...prevRow,
+																									[header.id]: previousValue,
+																								}
+																							: prevRow
 																					)
 																					return revertedRows
 																				})
@@ -1158,14 +997,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																		} catch (error) {
 																			// Revert to previous state on error
 																			setRows(prevRows => {
-																				const revertedRows = prevRows.map(
-																					prevRow =>
-																						prevRow.id === row.id
-																							? {
-																									...prevRow,
-																									[header.id]: previousValue,
-																								}
-																							: prevRow
+																				const revertedRows = prevRows.map(prevRow =>
+																					prevRow.id === row.id
+																						? {
+																								...prevRow,
+																								[header.id]: previousValue,
+																							}
+																						: prevRow
 																				)
 																				return revertedRows
 																			})
@@ -1224,27 +1062,20 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																style={{
 																	width: '16px',
 																	height: '16px',
-																	filter:
-																		'invert(16%) sepia(10%) saturate(100%) hue-rotate(0deg) brightness(30%) contrast(100%)', // Dark gray color
+																	filter: 'invert(16%) sepia(10%) saturate(100%) hue-rotate(0deg) brightness(30%) contrast(100%)', // Dark gray color
 																	transition: 'filter 0.2s ease',
 																}}
 																onMouseEnter={e => {
-																	e.target.style.filter =
-																		'invert(16%) sepia(88%) saturate(6400%) hue-rotate(357deg) brightness(95%) contrast(98%)' // Red color on hover
+																	e.target.style.filter = 'invert(16%) sepia(88%) saturate(6400%) hue-rotate(357deg) brightness(95%) contrast(98%)' // Red color on hover
 																}}
 																onMouseLeave={e => {
-																	e.target.style.filter =
-																		'invert(16%) sepia(10%) saturate(100%) hue-rotate(0deg) brightness(30%) contrast(100%)' // Back to dark gray
+																	e.target.style.filter = 'invert(16%) sepia(10%) saturate(100%) hue-rotate(0deg) brightness(30%) contrast(100%)' // Back to dark gray
 																}}
 															/>
 														</div>
 													) : header.type === 'mapped' ? (
 														header.subkey ? (
-															header.map[
-																row[header.id]
-																	? row[header.id][header.subkey]
-																	: ''
-															]
+															header.map[row[header.id] ? row[header.id][header.subkey] : '']
 														) : (
 															header.map[row[header.id] ? row[header.id] : '']
 														)
@@ -1292,14 +1123,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 															}}
 															onClick={e => e.stopPropagation()}
 														>
-															<IconButton
-																aria-label='more'
-																id={'icon-button-' + row.id}
-																aria-controls={open ? 'long-menu' : undefined}
-																aria-expanded={open ? 'true' : undefined}
-																aria-haspopup='true'
-																onClick={e => handleClick(e, row.id)}
-															>
+															<IconButton aria-label='more' id={'icon-button-' + row.id} aria-controls={open ? 'long-menu' : undefined} aria-expanded={open ? 'true' : undefined} aria-haspopup='true' onClick={e => handleClick(e, row.id)}>
 																<MoreVertIcon />
 															</IconButton>
 															<Menu
@@ -1325,28 +1149,10 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																}}
 															>
 																{header.options?.map((option, key) => {
-																	const shouldBeVisible =
-																		option.visibleTo === role &&
-																		(!option.shouldShow ||
-																			option.shouldShow(row))
+																	const shouldBeVisible = option.visibleTo === role && (!option.shouldShow || option.shouldShow(row))
 
 																	return (
-																		<MenuItem
-																			key={`${option.label}-${row.id}-${key}`}
-																			onClick={() =>
-																				handleClose(
-																					option.visibleTo === 'Admin'
-																						? row.id
-																						: row.draft?.id || row.id,
-																					option.action
-																				)
-																			}
-																			sx={
-																				shouldBeVisible
-																					? {}
-																					: { display: 'none' }
-																			}
-																		>
+																		<MenuItem key={`${option.label}-${row.id}-${key}`} onClick={() => handleClose(option.visibleTo === 'Admin' ? row.id : row.draft?.id || row.id, option.action)} sx={shouldBeVisible ? {} : { display: 'none' }}>
 																			{option.label}
 																		</MenuItem>
 																	)
@@ -1361,13 +1167,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 														)
 													) : row[header.id] ? (
 														<>
-															{header.subkey
-																? row[header.id]
-																	? row[header.id][header.subkey]
-																	: 'N/A'
-																: row[header.id]
-																	? row[header.id]
-																	: 'N/A'}
+															{header.subkey ? (row[header.id] ? row[header.id][header.subkey] : 'N/A') : row[header.id] ? row[header.id] : 'N/A'}
 															{header.suffix ? header.suffix : ''}
 														</>
 													) : (
@@ -1405,9 +1205,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 			{/* Delete Confirmation Modal */}
 			<Modal
 				open={deleteModal.open}
-				onClose={() =>
-					setDeleteModal({ open: false, itemId: null, deleteAction: null })
-				}
+				onClose={() => setDeleteModal({ open: false, itemId: null, deleteAction: null })}
 				sx={{
 					display: 'flex',
 					alignItems: 'center',
@@ -1426,8 +1224,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 						flexDirection: 'column',
 						alignItems: 'center',
 						justifyContent: 'center',
-						boxShadow:
-							'0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+						boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 						outline: 'none',
 					}}
 				>
@@ -1514,11 +1311,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 			</Modal>
 
 			{/* Changed Fields Modal */}
-			<ChangedFieldsModal
-				open={Boolean(selectedChangedFields)}
-				onClose={() => setSelectedChangedFields(null)}
-				data={selectedChangedFields}
-			/>
+			<ChangedFieldsModal open={Boolean(selectedChangedFields)} onClose={() => setSelectedChangedFields(null)} data={selectedChangedFields} />
 		</Box>
 	)
 }

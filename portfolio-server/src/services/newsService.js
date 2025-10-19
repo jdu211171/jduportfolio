@@ -36,9 +36,7 @@ class NewsService {
 			try {
 				dataToCreate.hashtags = JSON.parse(dataToCreate.hashtags)
 			} catch (e) {
-				dataToCreate.hashtags = dataToCreate.hashtags
-					.split(',')
-					.map(tag => tag.trim())
+				dataToCreate.hashtags = dataToCreate.hashtags.split(',').map(tag => tag.trim())
 			}
 		}
 		return await News.create(dataToCreate)
@@ -47,10 +45,8 @@ class NewsService {
 	static async updateNews(newsId, updateData, file, user) {
 		const news = await News.findByPk(newsId)
 		if (!news) throw { status: 404, message: 'Yangilik topilmadi.' }
-		const isOwner =
-			news.authorId === user.id && news.authorType === user.userType
-		const isAdminOrStaff =
-			user.userType === 'Admin' || user.userType === 'Staff'
+		const isOwner = news.authorId === user.id && news.authorType === user.userType
+		const isAdminOrStaff = user.userType === 'Admin' || user.userType === 'Staff'
 		if (!isOwner && !isAdminOrStaff) {
 			throw { status: 403, message: "Bu amal uchun sizda ruxsat yo'q." }
 		}
@@ -62,19 +58,14 @@ class NewsService {
 			updateData.image_url = uploadResult.Location
 		} else {
 			// optional: explicit remove image when no new file provided
-			const removeImage =
-				updateData.removeImage === true || updateData.removeImage === 'true'
+			const removeImage = updateData.removeImage === true || updateData.removeImage === 'true'
 			if (removeImage && news.image_url) {
 				await deleteFile(news.image_url)
 				updateData.image_url = null
 			}
 			delete updateData.removeImage
 		}
-		if (
-			isOwner &&
-			user.userType === 'Recruiter' &&
-			news.status === 'rejected'
-		) {
+		if (isOwner && user.userType === 'Recruiter' && news.status === 'rejected') {
 			updateData.status = 'pending'
 			updateData.rejection_reason = null
 			updateData.moderatorId = null
@@ -96,10 +87,8 @@ class NewsService {
 	static async deleteNews(newsId, user) {
 		const news = await News.findByPk(newsId)
 		if (!news) throw { status: 404, message: 'Yangilik topilmadi.' }
-		const isOwner =
-			news.authorId === user.id && news.authorType === user.userType
-		const isAdminOrStaff =
-			user.userType === 'Admin' || user.userType === 'Staff'
+		const isOwner = news.authorId === user.id && news.authorType === user.userType
+		const isAdminOrStaff = user.userType === 'Admin' || user.userType === 'Staff'
 		if (!isOwner && !isAdminOrStaff) {
 			throw { status: 403, message: "Bu amal uchun sizda ruxsat yo'q." }
 		}
@@ -139,10 +128,7 @@ class NewsService {
 
 		if (search) {
 			const searchQuery = { [Op.iLike]: `%${search}%` }
-			const searchOrConditions = [
-				{ title: searchQuery },
-				{ hashtags: { [Op.contains]: [search] } },
-			]
+			const searchOrConditions = [{ title: searchQuery }, { hashtags: { [Op.contains]: [search] } }]
 			if (user.userType !== 'Student') {
 				searchOrConditions.push({
 					'$authorRecruiter.company_name$': searchQuery,
@@ -193,17 +179,12 @@ class NewsService {
 		const cleanNewsList = newsListWithIncludes.map(newsItem => {
 			const newsJson = newsItem.toJSON()
 			let author = null
-			if (newsJson.authorType === 'Admin' && newsJson.authorAdmin)
-				author = newsJson.authorAdmin
-			else if (newsJson.authorType === 'Staff' && newsJson.authorStaff)
-				author = newsJson.authorStaff
-			else if (newsJson.authorType === 'Recruiter' && newsJson.authorRecruiter)
-				author = newsJson.authorRecruiter
+			if (newsJson.authorType === 'Admin' && newsJson.authorAdmin) author = newsJson.authorAdmin
+			else if (newsJson.authorType === 'Staff' && newsJson.authorStaff) author = newsJson.authorStaff
+			else if (newsJson.authorType === 'Recruiter' && newsJson.authorRecruiter) author = newsJson.authorRecruiter
 			let moderator = null
-			if (newsJson.moderatorType === 'Admin' && newsJson.moderatorAdmin)
-				moderator = newsJson.moderatorAdmin
-			else if (newsJson.moderatorType === 'Staff' && newsJson.moderatorStaff)
-				moderator = newsJson.moderatorStaff
+			if (newsJson.moderatorType === 'Admin' && newsJson.moderatorAdmin) moderator = newsJson.moderatorAdmin
+			else if (newsJson.moderatorType === 'Staff' && newsJson.moderatorStaff) moderator = newsJson.moderatorStaff
 			delete newsJson.authorAdmin
 			delete newsJson.authorStaff
 			delete newsJson.authorRecruiter
@@ -260,11 +241,7 @@ class NewsService {
 				// Derive unread count strictly from the same news list we return,
 				// so filters (hashtags, recruiter name, etc.) are perfectly aligned.
 				const newsIds = (news || []).map(n => n.id)
-				unreadCount = await NewsViewsService.getUnreadCountForNewsIds(
-					String(userId),
-					userRole,
-					newsIds
-				)
+				unreadCount = await NewsViewsService.getUnreadCountForNewsIds(String(userId), userRole, newsIds)
 			}
 
 			return {
@@ -286,10 +263,7 @@ class NewsService {
 			// no extra restrictions
 		} else if (user.userType === 'Recruiter') {
 			finalConditions.push({
-				[Op.or]: [
-					{ status: 'approved' },
-					{ authorId: user.id, authorType: 'Recruiter' },
-				],
+				[Op.or]: [{ status: 'approved' }, { authorId: user.id, authorType: 'Recruiter' }],
 			})
 		} else {
 			finalConditions.push({ status: 'approved' })

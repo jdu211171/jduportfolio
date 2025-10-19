@@ -7,10 +7,7 @@ class SettingsService {
 	}
 
 	static async updateSetting(key, value) {
-		const [setting, created] = await Setting.upsert(
-			{ key, value },
-			{ returning: true }
-		)
+		const [setting, created] = await Setting.upsert({ key, value }, { returning: true })
 		return { setting, created }
 	}
 

@@ -73,15 +73,7 @@ const DeliverablesPage = () => {
 			>
 				{t('deliverables')}
 			</Box>
-			<Deliverables
-				data={student.draft.deliverables}
-				editData={editData.draft.deliverables}
-				editMode={editMode.deliverables}
-				updateEditData={updateEditData}
-				keyName='deliverables'
-				updateEditMode={updateEditMode}
-				onImageUpload={handleImageUpload}
-			/>
+			<Deliverables data={student.draft.deliverables} editData={editData.draft.deliverables} editMode={editMode.deliverables} updateEditData={updateEditData} keyName='deliverables' updateEditMode={updateEditMode} onImageUpload={handleImageUpload} />
 		</Box>
 	)
 }

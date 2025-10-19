@@ -23,11 +23,7 @@ const NotFound = () => {
 				<Typography variant='body1' gutterBottom>
 					{t.notFoundMessage}
 				</Typography>
-				<Button
-					onClick={handleBackToHome}
-					variant='contained'
-					className={styles.notfoundButton}
-				>
+				<Button onClick={handleBackToHome} variant='contained' className={styles.notfoundButton}>
 					{t.backToHome}
 				</Button>
 			</Container>

@@ -71,35 +71,7 @@ const TextField = ({
 				) : (
 					''
 				)}
-				<div className={styles.data}>
-					{editMode ? (
-						<MuiTextField
-							value={
-								(parentKey
-									? editData[parentKey]?.[keyName]
-									: editData[keyName]) || ''
-							}
-							onChange={handleChange}
-							variant='outlined'
-							sx={{ width: '100%' }}
-							multiline
-							inputProps={maxLength ? { maxLength } : undefined}
-							helperText={
-								showCounter && maxLength
-									? `${
-											(
-												(parentKey
-													? editData[parentKey]?.[keyName]
-													: editData[keyName]) || ''
-											).length
-										}/${maxLength}`
-									: undefined
-							}
-						/>
-					) : (
-						<div>{data ? data : '未入力'}</div>
-					)}
-				</div>
+				<div className={styles.data}>{editMode ? <MuiTextField value={(parentKey ? editData[parentKey]?.[keyName] : editData[keyName]) || ''} onChange={handleChange} variant='outlined' sx={{ width: '100%' }} multiline inputProps={maxLength ? { maxLength } : undefined} helperText={showCounter && maxLength ? `${((parentKey ? editData[parentKey]?.[keyName] : editData[keyName]) || '').length}/${maxLength}` : undefined} /> : <div>{data ? data : '未入力'}</div>}</div>
 			</div>
 			{details ? (
 				<div style={{ display: 'flex', gap: 8 }}>

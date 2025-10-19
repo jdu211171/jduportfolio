@@ -53,13 +53,7 @@ const RoleField = ({ data, editData, editMode, updateEditData, keyName }) => {
 						{items.map((role, index) => (
 							<li className={styles.listItem} key={'role' + index}>
 								{role}
-								{editMode && (
-									<Close
-										fontSize='small'
-										className={styles.icon}
-										onClick={() => handleDelete(index)}
-									/>
-								)}
+								{editMode && <Close fontSize='small' className={styles.icon} onClick={() => handleDelete(index)} />}
 							</li>
 						))}
 					</ul>

@@ -1,10 +1,5 @@
 import { useContext } from 'react'
-import {
-	BrowserRouter as Router,
-	Route,
-	Routes,
-	Navigate,
-} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 
 import Layout from './components/Layout/Layout'
 import ProtectedLayout from './components/ProtectedLayout'
@@ -40,137 +35,67 @@ const AppRoutes = () => {
 			<Routes>
 				<Route path='/' element={<Layout />}>
 					<Route element={<ProtectedLayout />}>
-						<Route
-							index
-							element={
-								role === 'Student' ? <Navigate to={`/profile`} /> : <Home />
-							}
-						/>
-						<Route
-							path='/student'
-							element={
-								<ProtectedLayout
-									allowedRoles={['Admin', 'Staff', 'Recruiter']}
-								/>
-							}
-						>
+						<Route index element={role === 'Student' ? <Navigate to={`/profile`} /> : <Home />} />
+						<Route path='/student' element={<ProtectedLayout allowedRoles={['Admin', 'Staff', 'Recruiter']} />}>
 							<Route index element={<Student key='students' />} />
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
-								<Route index element={<Navigate to='top' />} />{' '}
-								<Route path='top' element={<Top />} />
+								<Route index element={<Navigate to='top' />} /> <Route path='top' element={<Top />} />
 								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
 
-						<Route
-							path='/checkprofile'
-							element={<ProtectedLayout allowedRoles={['Admin', 'Staff']} />}
-						>
+						<Route path='/checkprofile' element={<ProtectedLayout allowedRoles={['Admin', 'Staff']} />}>
 							<Route index element={<ChekProfile key='checkprofile' />} />
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
-								<Route index element={<Navigate to='top' />} />{' '}
-								<Route path='top' element={<Top />} />
+								<Route index element={<Navigate to='top' />} /> <Route path='top' element={<Top />} />
 								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
 
-						<Route
-							path='/recruiter'
-							element={
-								<ProtectedLayout allowedRoles={['Admin', 'Staff', 'Student']} />
-							}
-						>
+						<Route path='/recruiter' element={<ProtectedLayout allowedRoles={['Admin', 'Staff', 'Student']} />}>
 							<Route index element={<Recruiter />} />
 						</Route>
 
-						<Route
-							path='/create-skill'
-							element={<ProtectedLayout allowedRoles={['Admin', 'Staff']} />}
-						>
+						<Route path='/create-skill' element={<ProtectedLayout allowedRoles={['Admin', 'Staff']} />}>
 							<Route index element={<CreateSkill />} />
 						</Route>
 
-						<Route
-							path='/news'
-							element={
-								<ProtectedLayout
-									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
-								/>
-							}
-						>
+						<Route path='/news' element={<ProtectedLayout allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']} />}>
 							<Route index element={<News />} />
 							<Route path=':id' element={<NewsDetail />} />
 						</Route>
 
-						<Route
-							path='/companyprofile'
-							element={
-								<ProtectedLayout
-									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
-								/>
-							}
-						>
-							<Route
-								index
-								element={
-									<CompanyProfile userId={role === 'Recruiter' ? userId : 0} />
-								}
-							/>
+						<Route path='/companyprofile' element={<ProtectedLayout allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']} />}>
+							<Route index element={<CompanyProfile userId={role === 'Recruiter' ? userId : 0} />} />
 						</Route>
-						<Route
-							path='/companyprofile/:id'
-							element={
-								<ProtectedLayout
-									allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']}
-								/>
-							}
-						>
+						<Route path='/companyprofile/:id' element={<ProtectedLayout allowedRoles={['Admin', 'Staff', 'Recruiter', 'Student']} />}>
 							<Route index element={<CompanyProfile userId={0} />} />
 						</Route>
 
-						<Route
-							path='/profile'
-							element={<ProtectedLayout allowedRoles={['Student']} />}
-						>
+						<Route path='/profile' element={<ProtectedLayout allowedRoles={['Student']} />}>
 							{' '}
 							<Route path='*' element={<StudentProfile userId={userId} />}>
-								<Route
-									index
-									element={<Navigate to='top' state={{ userId: userId }} />}
-								/>
+								<Route index element={<Navigate to='top' state={{ userId: userId }} />} />
 								<Route path='top' element={<Top />} />
 								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>
 						</Route>
 
-						<Route
-							path='/staff'
-							element={<ProtectedLayout allowedRoles={['Admin']} />}
-						>
+						<Route path='/staff' element={<ProtectedLayout allowedRoles={['Admin']} />}>
 							<Route index element={<Staff />} />
 						</Route>
 
-						<Route
-							path='/student-qa'
-							element={<ProtectedLayout allowedRoles={['Admin']} />}
-						>
+						<Route path='/student-qa' element={<ProtectedLayout allowedRoles={['Admin']} />}>
 							<Route index element={<QA />} />
 						</Route>
 
-						<Route
-							path='/bookmarked'
-							element={<ProtectedLayout allowedRoles={['Recruiter']} />}
-						>
-							<Route
-								index
-								element={<Student key='bookmarked' OnlyBookmarked={true} />}
-							/>
+						<Route path='/bookmarked' element={<ProtectedLayout allowedRoles={['Recruiter']} />}>
+							<Route index element={<Student key='bookmarked' OnlyBookmarked={true} />} />
 							<Route path='profile/:studentId/*' element={<StudentProfile />}>
-								<Route index element={<Navigate to='top' />} />{' '}
-								<Route path='top' element={<Top />} />
+								<Route index element={<Navigate to='top' />} /> <Route path='top' element={<Top />} />
 								<Route path='qa' element={<QA />} />
 								<Route path='stats' element={<Stats />} />
 							</Route>

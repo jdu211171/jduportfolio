@@ -1,14 +1,6 @@
 import { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-	Box,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogContentText,
-	DialogTitle,
-	Button,
-} from '@mui/material'
+import { Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material'
 import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
 
@@ -38,12 +30,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	})
 	const userId = JSON.parse(sessionStorage.getItem('loginUser')).id
 
-	const [itSkillOptions, setItSkillOptions] = useState([
-		'JS',
-		'Python',
-		'Java',
-		'SQL',
-	])
+	const [itSkillOptions, setItSkillOptions] = useState(['JS', 'Python', 'Java', 'SQL'])
 
 	useEffect(() => {
 		let cancelled = false
@@ -51,9 +38,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			try {
 				const res = await axios.get('/api/itskills')
 				if (!cancelled) {
-					const names = Array.isArray(res.data)
-						? res.data.map(s => s.name).filter(Boolean)
-						: []
+					const names = Array.isArray(res.data) ? res.data.map(s => s.name).filter(Boolean) : []
 					if (names.length > 0) setItSkillOptions(names)
 				}
 			} catch {
@@ -108,15 +93,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			key: 'partner_university',
 			label: t('partner_university'),
 			type: 'checkbox',
-			options: [
-				t('tokyo_communication_university'),
-				t('kyoto_tachibana_university'),
-				t('sanno_university'),
-				t('sanno_junior_college'),
-				t('niigata_sangyo_university'),
-				t('otemae_university'),
-				t('okayama_university_of_science'),
-			],
+			options: [t('tokyo_communication_university'), t('kyoto_tachibana_university'), t('sanno_university'), t('sanno_junior_college'), t('niigata_sangyo_university'), t('otemae_university'), t('okayama_university_of_science')],
 			minWidth: '160px',
 		},
 		{
@@ -178,11 +155,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	}
 
 	// New function to update draft status with comments
-	const updateDraftStatusWithComments = async (
-		draftId,
-		status,
-		comments = ''
-	) => {
+	const updateDraftStatusWithComments = async (draftId, status, comments = '') => {
 		try {
 			const res = await axios.put(`/api/draft/status/${draftId}`, {
 				status: status,
@@ -204,15 +177,9 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const setProfileVisibility = async (studentId, visibility) => {
 		try {
 			if (visibility) {
-				const draftsResponse = await axios.get(
-					`/api/draft/student/${studentId}`
-				)
+				const draftsResponse = await axios.get(`/api/draft/student/${studentId}`)
 
-				if (
-					draftsResponse.data &&
-					draftsResponse.data.draft &&
-					draftsResponse.data.draft.status === 'approved'
-				) {
+				if (draftsResponse.data && draftsResponse.data.draft && draftsResponse.data.draft.status === 'approved') {
 					const profileData = draftsResponse.data.draft.profile_data || {}
 
 					// Use studentId (student_id) for API calls
@@ -275,10 +242,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 				}
 			}
 		} catch (error) {
-			showAlert(
-				t['errorSettingVisibility'] || 'Error setting visibility',
-				'error'
-			)
+			showAlert(t['errorSettingVisibility'] || 'Error setting visibility', 'error')
 			return false
 		}
 	}
@@ -373,8 +337,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			disablePadding: false,
 			label: '公開状況',
 			minWidth: '100px',
-			onToggle: (row, visibility) =>
-				setProfileVisibility(row.student_id, visibility),
+			onToggle: (row, visibility) => setProfileVisibility(row.student_id, visibility),
 			disabled: role === 'Staff', // Disable for staff users
 		},
 		{
@@ -401,35 +364,18 @@ const Student = ({ OnlyBookmarked = false }) => {
 	return (
 		<div key={language}>
 			<Box sx={{ width: '100%', height: '100px' }}>
-				<Filter
-					fields={filterProps}
-					filterState={filterState}
-					onFilterChange={handleFilterChange}
-					disableStudentIdSearch={true}
-					persistKey='drafts-filter-v1'
-				/>
+				<Filter fields={filterProps} filterState={filterState} onFilterChange={handleFilterChange} disableStudentIdSearch={true} persistKey='drafts-filter-v1' />
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
 
 			{/* Warning Modal */}
-			<Dialog
-				open={warningModal.open}
-				onClose={() => setWarningModal({ open: false, message: '' })}
-				aria-labelledby='warning-dialog-title'
-				aria-describedby='warning-dialog-description'
-			>
+			<Dialog open={warningModal.open} onClose={() => setWarningModal({ open: false, message: '' })} aria-labelledby='warning-dialog-title' aria-describedby='warning-dialog-description'>
 				<DialogTitle id='warning-dialog-title'>{t('warning')}</DialogTitle>
 				<DialogContent>
-					<DialogContentText id='warning-dialog-description'>
-						{warningModal.message}
-					</DialogContentText>
+					<DialogContentText id='warning-dialog-description'>{warningModal.message}</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button
-						onClick={() => setWarningModal({ open: false, message: '' })}
-						color='primary'
-						autoFocus
-					>
+					<Button onClick={() => setWarningModal({ open: false, message: '' })} color='primary' autoFocus>
 						{t('ok')}
 					</Button>
 				</DialogActions>
