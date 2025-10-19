@@ -262,7 +262,10 @@ class NewsService {
 			// no extra restrictions
 		} else if (user.userType === 'Recruiter') {
 			finalConditions.push({
-				[Op.or]: [{ status: 'approved' }, { authorId: user.id, authorType: 'Recruiter' }],
+				[Op.or]: [
+					{ status: 'approved', visible_to_recruiter: true },
+					{ authorId: user.id, authorType: 'Recruiter' },
+				],
 			})
 		} else {
 			finalConditions.push({ status: 'approved' })
