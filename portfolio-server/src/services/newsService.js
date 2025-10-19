@@ -16,6 +16,13 @@ class NewsService {
 		dataToCreate.image_url = uploadResult.Location
 		dataToCreate.authorId = user.id
 		dataToCreate.authorType = user.userType
+
+		if (newsData.visible_to_recruiter !== undefined) {
+			dataToCreate.visible_to_recruiter = newsData.visible_to_recruiter === 'true' || newsData.visible_to_recruiter === true
+		} else {
+			dataToCreate.visible_to_recruiter = true
+		}
+
 		if (user.userType === 'Admin' || user.userType === 'Staff') {
 			dataToCreate.type = 'university'
 			dataToCreate.status = 'approved'
@@ -76,6 +83,12 @@ class NewsService {
 		if (!isOwner && isAdminOrStaff) {
 			delete updateData.status
 		}
+
+		
+		if (updateData.visible_to_recruiter !== undefined) {
+			updateData.visible_to_recruiter = updateData.visible_to_recruiter === 'true' || updateData.visible_to_recruiter === true
+		}
+
 		await news.update(updateData)
 		return news
 	}
@@ -105,7 +118,10 @@ class NewsService {
 		} else if (user.userType === 'Recruiter') {
 			finalConditions.push({
 				[Op.or]: [
-					{ status: 'approved' },
+					{ 
+						status: 'approved',
+						visible_to_recruiter: true
+					},
 					{
 						authorId: user.id,
 						authorType: 'Recruiter',
