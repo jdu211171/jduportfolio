@@ -193,8 +193,7 @@ class NotificationController {
 			const { userType } = req.user
 			if (!userType || userType !== 'Staff') {
 				return res.status(403).json({
-					error:
-						"Permission denied. Only Staff can view a student's notifications.",
+					error: "Permission denied. Only Staff can view a student's notifications.",
 				})
 			}
 
@@ -204,15 +203,10 @@ class NotificationController {
 			}
 
 			// Fetch both unread and read notifications for the given student_id
-			const notifications = await NotificationService.getByUserId(
-				String(studentId),
-				{ user_role: 'student' }
-			)
+			const notifications = await NotificationService.getByUserId(String(studentId), { user_role: 'student' })
 
 			return res.status(200).json({
-				message: notifications.length
-					? 'History notifications found'
-					: 'No history notifications found',
+				message: notifications.length ? 'History notifications found' : 'No history notifications found',
 				notifications,
 			})
 		} catch (error) {

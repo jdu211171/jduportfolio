@@ -37,7 +37,7 @@ export const NewsDetail = () => {
 	const [marking, setMarking] = useState(false)
 
 	useEffect(() => {
- 		document.title = item?.title ? `${item.title} | JDU Portfolio` : `${t('newsDetails')} | JDU Portfolio`
+		document.title = item?.title ? `${item.title} | JDU Portfolio` : `${t('newsDetails')} | JDU Portfolio`
 	}, [item, language])
 
 	const fetchDetail = async () => {

@@ -17,9 +17,7 @@ export const NewsForAdmin = () => {
 		try {
 			if (!s) return ''
 			const d = new Date(s)
-			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(
-				d
-			)
+			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(d)
 		} catch {
 			return s?.split?.('T')?.[0] || ''
 		}
@@ -694,9 +692,7 @@ export const NewsForAdmin = () => {
 								border: '1px solid #e1e8ed',
 							}}
 						>
-							<div
-								style={{ width: '100%', height: 'clamp(150px, 25vw, 200px)' }}
-							>
+							<div style={{ width: '100%', height: 'clamp(150px, 25vw, 200px)' }}>
 								<Skeleton variant='rectangular' width='100%' height='100%' />
 							</div>
 							<div style={{ padding: '12px' }}>

@@ -191,9 +191,7 @@ export const NewsForUsers = () => {
 		<div className={styles.page}>
 			{/* Header */}
 			<div className={styles.header}>
-				<h1 className={styles.headerTitle}>
-					{t('newsHighlights') || 'Latest News'}
-				</h1>
+				<h1 className={styles.headerTitle}>{t('newsHighlights') || 'Latest News'}</h1>
 				<p className={styles.headerSub}>{t('checkOut')}</p>
 			</div>
 

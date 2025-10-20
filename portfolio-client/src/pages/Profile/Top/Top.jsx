@@ -1107,11 +1107,7 @@ const Top = () => {
 			)}
 
 			{/* Past staff comment history block (Student sees own, Staff sees target student's) */}
-			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && (
-				<HistoryComments
-					targetStudentId={role === 'Student' ? null : studentId}
-				/>
-			)}
+			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && <HistoryComments targetStudentId={role === 'Student' ? null : studentId} />}
 
 			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id && currentDraft.status === 'submitted' ? (
 				<Box
@@ -1820,11 +1816,7 @@ function HistoryComments({ targetStudentId }) {
 		let mounted = true
 		;(async () => {
 			try {
-				const url = targetStudentId
-					? `/api/notification/history/student/${encodeURIComponent(
-							targetStudentId
-						)}`
-					: '/api/notification/history'
+				const url = targetStudentId ? `/api/notification/history/student/${encodeURIComponent(targetStudentId)}` : '/api/notification/history'
 				const res = await axios.get(url)
 				const list = res?.data?.notifications || []
 				const filtered = list.filter(n => typeof n.message === 'string' && n.message.includes('|||COMMENT_SEPARATOR|||')).slice(0, 2)

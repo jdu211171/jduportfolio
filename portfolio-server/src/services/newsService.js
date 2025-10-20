@@ -290,17 +290,12 @@ class NewsService {
 		if (!item) return null
 		const newsJson = item.toJSON()
 		let author = null
-		if (newsJson.authorType === 'Admin' && newsJson.authorAdmin)
-			author = newsJson.authorAdmin
-		else if (newsJson.authorType === 'Staff' && newsJson.authorStaff)
-			author = newsJson.authorStaff
-		else if (newsJson.authorType === 'Recruiter' && newsJson.authorRecruiter)
-			author = newsJson.authorRecruiter
+		if (newsJson.authorType === 'Admin' && newsJson.authorAdmin) author = newsJson.authorAdmin
+		else if (newsJson.authorType === 'Staff' && newsJson.authorStaff) author = newsJson.authorStaff
+		else if (newsJson.authorType === 'Recruiter' && newsJson.authorRecruiter) author = newsJson.authorRecruiter
 		let moderator = null
-		if (newsJson.moderatorType === 'Admin' && newsJson.moderatorAdmin)
-			moderator = newsJson.moderatorAdmin
-		else if (newsJson.moderatorType === 'Staff' && newsJson.moderatorStaff)
-			moderator = newsJson.moderatorStaff
+		if (newsJson.moderatorType === 'Admin' && newsJson.moderatorAdmin) moderator = newsJson.moderatorAdmin
+		else if (newsJson.moderatorType === 'Staff' && newsJson.moderatorStaff) moderator = newsJson.moderatorStaff
 		delete newsJson.authorAdmin
 		delete newsJson.authorStaff
 		delete newsJson.authorRecruiter
