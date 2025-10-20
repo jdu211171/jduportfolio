@@ -76,7 +76,7 @@ echo_success "Changed directory successfully"
 
 # Install dependencies
 echo_status "Installing npm dependencies"
-if ! npm install; then
+if ! NPM_CONFIG_PRODUCTION=false npm install; then
     echo_error "Failed to install dependencies"
 fi
 echo_success "Dependencies installed"
