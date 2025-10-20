@@ -1252,12 +1252,11 @@ const Top = () => {
 				)}
 
 			{/* Past staff comment history block (Student sees own, Staff sees target student's) */}
-			{(role === 'Student' || role === 'Staff') &&
-				subTabIndex === 0 && (
-					<HistoryComments
-						targetStudentId={role === 'Student' ? null : studentId}
-					/>
-				)}
+			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && (
+				<HistoryComments
+					targetStudentId={role === 'Student' ? null : studentId}
+				/>
+			)}
 
 			{role === 'Staff' &&
 			!isLoading &&
@@ -2246,7 +2245,7 @@ function HistoryComments({ targetStudentId }) {
 				const url = targetStudentId
 					? `/api/notification/history/student/${encodeURIComponent(
 							targetStudentId
-					  )}`
+						)}`
 					: '/api/notification/history'
 				const res = await axios.get(url)
 				const list = res?.data?.notifications || []

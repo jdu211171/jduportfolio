@@ -48,11 +48,9 @@ class FileRecordController {
 			})
 
 			if (!fileRecord) {
-				return res
-					.status(404)
-					.json({
-						error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q.",
-					})
+				return res.status(404).json({
+					error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q.",
+				})
 			}
 
 			// 1. Faylni S3 omboridan o'chirish

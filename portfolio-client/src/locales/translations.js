@@ -1724,7 +1724,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		noSkills: 'Hech qanday ko‘nikma mavjud emas.',
 		pleaseAnswerRequired: 'Majburiy savollarga javob bering',
 		// News page UI/UX additions
-		readMore: "Batafsil o‘qish",
+		readMore: 'Batafsil o‘qish',
 		close: 'Yopish',
 		retry: 'Qayta urinish',
 		source: 'Manba',

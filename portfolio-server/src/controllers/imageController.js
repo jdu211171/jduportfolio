@@ -8,12 +8,9 @@ exports.createImages = async (req, res) => {
 	try {
 		// req.files multer.array() orqali keladi
 		if (!req.user || req.user.userType !== 'Admin') {
-			return res
-				.status(403)
-				.json({
-					message:
-						"Ruxsat yo'q. Faqat administratorlar bu amalni bajara oladi.",
-				})
+			return res.status(403).json({
+				message: "Ruxsat yo'q. Faqat administratorlar bu amalni bajara oladi.",
+			})
 		}
 
 		const files = req.files
@@ -80,12 +77,9 @@ exports.getImagesByType = async (req, res) => {
 exports.deleteImage = async (req, res) => {
 	try {
 		if (!req.user || req.user.userType !== 'Admin') {
-			return res
-				.status(403)
-				.json({
-					message:
-						"Ruxsat yo'q. Faqat administratorlar bu amalni bajara oladi.",
-				})
+			return res.status(403).json({
+				message: "Ruxsat yo'q. Faqat administratorlar bu amalni bajara oladi.",
+			})
 		}
 
 		const { id } = req.params

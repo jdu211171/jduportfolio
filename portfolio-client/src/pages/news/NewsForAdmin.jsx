@@ -31,7 +31,9 @@ export const NewsForAdmin = () => {
 		try {
 			if (!s) return ''
 			const d = new Date(s)
-			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(d)
+			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(
+				d
+			)
 		} catch {
 			return s?.split?.('T')?.[0] || ''
 		}
@@ -733,23 +735,37 @@ export const NewsForAdmin = () => {
 						)
 					})
 				)}
-				{loading && (
+				{loading &&
 					Array.from({ length: 6 }).map((_, idx) => (
-						<div key={`sk-${idx}`} style={{ backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid #e1e8ed' }}>
-							<div style={{ width: '100%', height: 'clamp(150px, 25vw, 200px)' }}>
+						<div
+							key={`sk-${idx}`}
+							style={{
+								backgroundColor: '#FFFFFF',
+								borderRadius: '16px',
+								border: '1px solid #e1e8ed',
+							}}
+						>
+							<div
+								style={{ width: '100%', height: 'clamp(150px, 25vw, 200px)' }}
+							>
 								<Skeleton variant='rectangular' width='100%' height='100%' />
 							</div>
 							<div style={{ padding: '12px' }}>
 								<Skeleton variant='text' width='80%' height={28} />
 								<Skeleton variant='text' width='60%' height={18} />
-								<div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										marginTop: 8,
+									}}
+								>
 									<Skeleton variant='text' width={90} height={16} />
 									<Skeleton variant='rectangular' width={100} height={32} />
 								</div>
 							</div>
 						</div>
-					))
-				)}
+					))}
 			</div>
 
 			{/* Create News Dialog */}

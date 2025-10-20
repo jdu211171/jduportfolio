@@ -224,7 +224,8 @@ class NotificationController {
 			const { userType } = req.user
 			if (!userType || userType !== 'Staff') {
 				return res.status(403).json({
-					error: 'Permission denied. Only Staff can view a student\'s notifications.',
+					error:
+						"Permission denied. Only Staff can view a student's notifications.",
 				})
 			}
 

@@ -5,11 +5,9 @@ class ItSkillController {
 		try {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
-				return res
-					.status(403)
-					.json({
-						error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikma yarata oladi.",
-					})
+				return res.status(403).json({
+					error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikma yarata oladi.",
+				})
 			}
 			const { name, color } = req.body
 			if (!name || !color) {
@@ -51,12 +49,10 @@ class ItSkillController {
 		try {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
-				return res
-					.status(403)
-					.json({
-						error:
-							"Ruxsat yo'q. Faqat Admin va Staff ko'nikma yangilashi mumkin.",
-					})
+				return res.status(403).json({
+					error:
+						"Ruxsat yo'q. Faqat Admin va Staff ko'nikma yangilashi mumkin.",
+				})
 			}
 			const { id } = req.params
 			const updatedSkill = await ItSkillService.updateSkill(id, req.body)
@@ -73,12 +69,10 @@ class ItSkillController {
 		try {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
-				return res
-					.status(403)
-					.json({
-						error:
-							"Ruxsat yo'q. Faqat Admin va Staff ko'nikma o'chirishi mumkin.",
-					})
+				return res.status(403).json({
+					error:
+						"Ruxsat yo'q. Faqat Admin va Staff ko'nikma o'chirishi mumkin.",
+				})
 			}
 			const { id } = req.params
 			const deletedSkill = await ItSkillService.deleteSkill(id)

@@ -24,11 +24,9 @@ exports.uploadRecruiterFiles = async (req, res) => {
 		})
 
 		if (existingFilesCount + filesToUpload.length > 3) {
-			return res
-				.status(400)
-				.json({
-					message: `Siz jami 3 tagacha fayl yuklay olasiz. Sizda allaqachon ${existingFilesCount} ta fayl mavjud.`,
-				})
+			return res.status(400).json({
+				message: `Siz jami 3 tagacha fayl yuklay olasiz. Sizda allaqachon ${existingFilesCount} ta fayl mavjud.`,
+			})
 		}
 
 		// Check total size quota (20MB)
@@ -144,11 +142,9 @@ exports.updateRecruiterFile = async (req, res) => {
 			where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' },
 		})
 		if (!oldFileRecord) {
-			return res
-				.status(404)
-				.json({
-					error: "Fayl topilmadi yoki uni yangilashga ruxsatingiz yo'q.",
-				})
+			return res.status(404).json({
+				error: "Fayl topilmadi yoki uni yangilashga ruxsatingiz yo'q.",
+			})
 		}
 
 		// 1. Eski faylni ombordan o'chiramiz
@@ -186,11 +182,9 @@ exports.deleteRecruiterFile = async (req, res) => {
 			where: { id: fileId, owner_id: recruiterId, owner_type: 'Recruiter' },
 		})
 		if (!fileRecord) {
-			return res
-				.status(404)
-				.json({
-					error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q.",
-				})
+			return res.status(404).json({
+				error: "Fayl topilmadi yoki uni o'chirishga ruxsatingiz yo'q.",
+			})
 		}
 
 		// Delete from database first (faster response)
@@ -232,11 +226,9 @@ exports.downloadRecruiterFile = async (req, res) => {
 		}
 
 		if (!fileRecord) {
-			return res
-				.status(404)
-				.json({
-					error: "Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo'q.",
-				})
+			return res.status(404).json({
+				error: "Fayl topilmadi yoki uni yuklab olishga ruxsatingiz yo'q.",
+			})
 		}
 
 		// Properly encode filename for Unicode support (RFC 5987)

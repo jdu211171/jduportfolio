@@ -5,11 +5,9 @@ class SkillController {
 		try {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
-				return res
-					.status(403)
-					.json({
-						error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikma yarata oladi.",
-					})
+				return res.status(403).json({
+					error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikma yarata oladi.",
+				})
 			}
 
 			const { name } = req.body
@@ -52,12 +50,9 @@ class SkillController {
 		try {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
-				return res
-					.status(403)
-					.json({
-						error:
-							"Ruxsat yo'q. Faqat Admin va Staff ko'nikmani yangilay oladi.",
-					})
+				return res.status(403).json({
+					error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikmani yangilay oladi.",
+				})
 			}
 
 			const { id } = req.params
@@ -75,12 +70,9 @@ class SkillController {
 		try {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
-				return res
-					.status(403)
-					.json({
-						error:
-							"Ruxsat yo'q. Faqat Admin va Staff ko'nikmani o'chira oladi.",
-					})
+				return res.status(403).json({
+					error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikmani o'chira oladi.",
+				})
 			}
 
 			const { id } = req.params
