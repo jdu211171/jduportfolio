@@ -29,8 +29,6 @@ class NewsViewsService {
 				attributes: ['id'],
 			})
 
-			console.log('Total approved news:', allNews.length)
-
 			if (allNews.length === 0) {
 				return 0
 			}

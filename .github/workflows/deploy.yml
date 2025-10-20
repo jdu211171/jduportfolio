@@ -161,8 +161,9 @@ jobs:
           git reset --hard origin/main
 
           echo "=> Install backend dependencies"
+          NPM_CONFIG_PRODUCTION=false npm install --include=dev
           cd portfolio-server
-          NPM_CONFIG_PRODUCTION=false npm install
+          NPM_CONFIG_PRODUCTION=false npm install --include=dev
 
           echo "=> Backup production database before migrations"
           BACKUP_DIR="/home/ec2-user/db_backups"

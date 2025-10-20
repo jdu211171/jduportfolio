@@ -104,7 +104,6 @@ class KintoneCreditDetailsService {
 					gradeUniverGroup: record.gradeUniverGroup?.value || '',
 				}))
 
-				console.log(`✅ Found ${creditDetails.length} credit records for student ${studentId} from Kintone`)
 				return creditDetails
 			}
 
