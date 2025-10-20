@@ -162,7 +162,7 @@ jobs:
 
           echo "=> Install backend dependencies"
           cd portfolio-server
-          npm install --production
+          NPM_CONFIG_PRODUCTION=false npm install
 
           echo "=> Backup production database before migrations"
           BACKUP_DIR="/home/ec2-user/db_backups"

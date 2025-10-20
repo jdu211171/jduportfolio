@@ -67,19 +67,23 @@ validate_env_vars
 # Test SSH connection
 test_ssh_connection
 
-# Change to the script's directory
-echo_status "Changing to the script's directory"
-if ! cd "$(dirname "$0")"; then
-    echo_error "Failed to change directory to script location"
-fi
-echo_success "Changed directory successfully"
+# Determine project paths
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Install dependencies
+# Install dependencies at repository root so workspace devDependencies are available
 echo_status "Installing npm dependencies"
-if ! npm install; then
+if ! (cd "$ROOT_DIR" && NPM_CONFIG_PRODUCTION=false npm install --include=dev); then
     echo_error "Failed to install dependencies"
 fi
 echo_success "Dependencies installed"
+
+# Change to the script's directory
+echo_status "Changing to the script's directory"
+if ! cd "$SCRIPT_DIR"; then
+    echo_error "Failed to change directory to script location"
+fi
+echo_success "Changed directory successfully"
 
 # Build the project
 echo_status "Building the project"
