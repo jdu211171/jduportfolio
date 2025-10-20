@@ -44,6 +44,7 @@
 		"react-router-dom": "^6.24.0",
 		"react-zoom-pan-pinch": "^3.7.0",
 		"swiper": "^11.2.10",
+		"prop-types": "^15.8.1",
 		"react-window": "^1.8.9"
 	},
 	"devDependencies": {
