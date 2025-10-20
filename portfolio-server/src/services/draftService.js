@@ -26,10 +26,7 @@ const getChangedKeys = (newData, oldData) => {
 class DraftService {
 	static async getAll(filter) {
 		try {
-			console.log(
-				'DraftService.getAll called with filter:',
-				JSON.stringify(filter, null, 2)
-			)
+			console.log('DraftService.getAll called with filter:', JSON.stringify(filter, null, 2))
 
 			const semesterMapping = {
 				'1年生': ['1', '2'],
@@ -61,9 +58,7 @@ class DraftService {
 			const getSemesterNumbers = term => semesterMapping[term] || []
 
 			if (filter.semester) {
-				filter.semester = filter.semester.flatMap(term =>
-					getSemesterNumbers(term)
-				)
+				filter.semester = filter.semester.flatMap(term => getSemesterNumbers(term))
 			}
 
 			let query = {}
@@ -80,9 +75,7 @@ class DraftService {
 				const perSkill = safeNames.map(n => {
 					const json = JSON.stringify([{ name: String(n) }])
 					const esc = sequelize.escape(json)
-					const levelExpr = lvls
-						.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`)
-						.join(' OR ')
+					const levelExpr = lvls.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`).join(' OR ')
 					return `(${levelExpr})`
 				})
 				const joiner = match === 'all' ? ' AND ' : ' OR '
@@ -90,38 +83,20 @@ class DraftService {
 			}
 
 			// Process visibility filter before the main loop
-			if (
-				filter.visibility &&
-				Array.isArray(filter.visibility) &&
-				filter.visibility.length > 0
-			) {
-				const visibilityValues = filter.visibility
-					.map(val => visibilityMapping[val])
-					.filter(val => val !== undefined)
+			if (filter.visibility && Array.isArray(filter.visibility) && filter.visibility.length > 0) {
+				const visibilityValues = filter.visibility.map(val => visibilityMapping[val]).filter(val => val !== undefined)
 				if (visibilityValues.length) {
 					queryOther['visibility'] = { [Op.in]: visibilityValues }
 				}
 				delete filter.visibility // Remove to avoid double handling
 			}
 
-			const searchableColumns = [
-				'email',
-				'first_name',
-				'last_name',
-				'student_id',
-				'self_introduction',
-				'hobbies',
-				'jlpt',
-			]
+			const searchableColumns = ['email', 'first_name', 'last_name', 'student_id', 'self_introduction', 'hobbies', 'jlpt']
 			let statusFilter = ''
 			let approvalStatusFilter = '' // New filter for approval_status
 
 			// Process approval_status filter
-			if (
-				filter.approval_status &&
-				Array.isArray(filter.approval_status) &&
-				filter.approval_status.length > 0
-			) {
+			if (filter.approval_status && Array.isArray(filter.approval_status) && filter.approval_status.length > 0) {
 				const draftStatuses = []
 				filter.approval_status.forEach(approvalStatus => {
 					if (approvalStatusMapping[approvalStatus]) {
@@ -129,9 +104,7 @@ class DraftService {
 					}
 				})
 
-				approvalStatusFilter = draftStatuses.length
-					? `AND d.status IN (${draftStatuses.map(s => `'${s}'`).join(', ')})`
-					: ''
+				approvalStatusFilter = draftStatuses.length ? `AND d.status IN (${draftStatuses.map(s => `'${s}'`).join(', ')})` : ''
 
 				delete filter.approval_status // Remove to avoid double handling
 			}
@@ -144,24 +117,12 @@ class DraftService {
 						}))
 
 						// Add JSONB search conditions for skills and it_skills using sequelize.where
-						searchConditions.push(
-							sequelize.where(
-								sequelize.cast(sequelize.col('Student.skills'), 'TEXT'),
-								{ [Op.iLike]: `%${filter[key]}%` }
-							)
-						)
-						searchConditions.push(
-							sequelize.where(
-								sequelize.cast(sequelize.col('Student.it_skills'), 'TEXT'),
-								{ [Op.iLike]: `%${filter[key]}%` }
-							)
-						)
+						searchConditions.push(sequelize.where(sequelize.cast(sequelize.col('Student.skills'), 'TEXT'), { [Op.iLike]: `%${filter[key]}%` }))
+						searchConditions.push(sequelize.where(sequelize.cast(sequelize.col('Student.it_skills'), 'TEXT'), { [Op.iLike]: `%${filter[key]}%` }))
 
 						querySearch[Op.or] = searchConditions
 					} else if (key === 'it_skills') {
-						const values = Array.isArray(filter[key])
-							? filter[key]
-							: [filter[key]]
+						const values = Array.isArray(filter[key]) ? filter[key] : [filter[key]]
 						const match = filter.it_skills_match === 'all' ? 'all' : 'any'
 						const expr = buildItSkillsCondition(values, match)
 						if (expr) {
@@ -184,8 +145,7 @@ class DraftService {
 					} else if (key === 'partner_university_credits') {
 						queryOther[key] = { [Op.lt]: Number(filter[key]) }
 					} else if (key === 'other_information') {
-						queryOther[key] =
-							filter[key] === '有り' ? { [Op.ne]: null } : { [Op.is]: null }
+						queryOther[key] = filter[key] === '有り' ? { [Op.ne]: null } : { [Op.is]: null }
 					} else if (key === 'jlpt' || key === 'jdu_japanese_certification') {
 						// Match only the highest level within stored JSON string
 						queryOther[Op.and].push({
@@ -212,14 +172,8 @@ class DraftService {
 				}
 
 				if (filter[key] && key === 'draft_status') {
-					const filteredStatuses = filter[key].map(
-						status => statusMapping[status]
-					)
-					statusFilter = filteredStatuses.length
-						? `AND d.status IN (${filteredStatuses
-								.map(s => `'${s}'`)
-								.join(', ')})`
-						: ''
+					const filteredStatuses = filter[key].map(status => statusMapping[status])
+					statusFilter = filteredStatuses.length ? `AND d.status IN (${filteredStatuses.map(s => `'${s}'`).join(', ')})` : ''
 				}
 			})
 
@@ -289,14 +243,7 @@ class DraftService {
 			draft.profile_data = newProfileData
 			draft.changed_fields = _.union(draft.changed_fields || [], changedKeys)
 
-			if (
-				[
-					'submitted',
-					'approved',
-					'resubmission_required',
-					'disapproved',
-				].includes(draft.status)
-			) {
+			if (['submitted', 'approved', 'resubmission_required', 'disapproved'].includes(draft.status)) {
 				draft.status = 'draft'
 			}
 
@@ -325,9 +272,7 @@ class DraftService {
 		}
 
 		if (draft.status === 'submitted') {
-			throw new Error(
-				'Sizda allaqachon tekshiruvga yuborilgan faol qoralama mavjud. Yangisini yuborish uchun avvalgisining natijasini kuting.'
-			)
+			throw new Error('Sizda allaqachon tekshiruvga yuborilgan faol qoralama mavjud. Yangisini yuborish uchun avvalgisining natijasini kuting.')
 		}
 
 		// Server-side validation: ensure all required QA answers are filled
@@ -342,8 +287,7 @@ class DraftService {
 				}
 				if (settings && typeof settings === 'object') {
 					// Prefer answers from current draft.profile_data.qa if present
-					const profileQA =
-						(draft.profile_data && draft.profile_data.qa) || null
+					const profileQA = (draft.profile_data && draft.profile_data.qa) || null
 
 					let answersByCategory = {}
 					if (profileQA && typeof profileQA === 'object') {
@@ -371,13 +315,7 @@ class DraftService {
 							if (q && q.required === true) {
 								// Accept legacy answer shapes: object { answer } or plain string
 								const raw = answers[key]
-								const ans =
-									raw &&
-									typeof raw === 'object' &&
-									raw !== null &&
-									'answer' in raw
-										? raw.answer
-										: raw
+								const ans = raw && typeof raw === 'object' && raw !== null && 'answer' in raw ? raw.answer : raw
 								if (!ans || String(ans).trim() === '') {
 									missing.push({ category, key })
 								}
@@ -385,9 +323,7 @@ class DraftService {
 						}
 					}
 					if (missing.length > 0) {
-						throw new Error(
-							`Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`
-						)
+						throw new Error(`Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`)
 					}
 				}
 			}
@@ -399,10 +335,7 @@ class DraftService {
 		draft.submit_count += 1
 		draft.comments = null
 
-		await Student.update(
-			{ visibility: false },
-			{ where: { student_id: draft.student_id } }
-		)
+		await Student.update({ visibility: false }, { where: { student_id: draft.student_id } })
 		await draft.save()
 		return draft
 	}

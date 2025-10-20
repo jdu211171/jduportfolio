@@ -19,13 +19,7 @@ const RichTextEditor = ({ value, onChange }) => {
 			quillInstanceRef.current = new Quill(editorRef.current, {
 				theme: 'snow',
 				modules: {
-					toolbar: [
-						[{ header: [1, 2, false] }],
-						[{ size: fontSizeArr }],
-						['bold', 'italic', 'underline'],
-						[{ color: [] }],
-						['link'],
-					],
+					toolbar: [[{ header: [1, 2, false] }], [{ size: fontSizeArr }], ['bold', 'italic', 'underline'], [{ color: [] }], ['link']],
 				},
 			})
 		}
@@ -40,10 +34,7 @@ const RichTextEditor = ({ value, onChange }) => {
 	}, [])
 
 	useEffect(() => {
-		if (
-			quillInstanceRef.current &&
-			value !== quillInstanceRef.current.root.innerHTML
-		) {
+		if (quillInstanceRef.current && value !== quillInstanceRef.current.root.innerHTML) {
 			quillInstanceRef.current.root.innerHTML = value
 		}
 	}, [value])

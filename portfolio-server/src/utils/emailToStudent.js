@@ -97,28 +97,15 @@ const formatStudentWelcomeEmail = (email, password, firstName, lastName) => {
  * Bu funksiya formatlash funksiyasini chaqiradi va darhol jo'natadi.
  * Webhook kabi yakka hodisalar uchun ishlatiladi.
  */
-const sendStudentWelcomeEmail = async (
-	email,
-	password,
-	firstName,
-	lastName
-) => {
+const sendStudentWelcomeEmail = async (email, password, firstName, lastName) => {
 	// Yuqoridagi formatlash funksiyasidan foydalanamiz
-	const mailData = formatStudentWelcomeEmail(
-		email,
-		password,
-		firstName,
-		lastName
-	)
+	const mailData = formatStudentWelcomeEmail(email, password, firstName, lastName)
 
 	try {
 		await sendEmail(mailData) // Asosiy servis orqali jo'natamiz
 		return 'Email sent successfully'
 	} catch (error) {
-		console.error(
-			`Talabaga yakka tartibda email jo'natishda xatolik (${email}): `,
-			error
-		)
+		console.error(`Talabaga yakka tartibda email jo'natishda xatolik (${email}): `, error)
 		throw error
 	}
 }

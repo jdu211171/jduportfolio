@@ -23,11 +23,7 @@ const Unauthorized = () => {
 				<Typography variant='body1' gutterBottom>
 					{t.unauthorizedMessage}
 				</Typography>
-				<Button
-					onClick={handleBackToLogin}
-					variant='contained'
-					className={styles.unauthorizedButton}
-				>
+				<Button onClick={handleBackToLogin} variant='contained' className={styles.unauthorizedButton}>
 					{t.unauthorizedButton}
 				</Button>
 			</Container>

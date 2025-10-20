@@ -127,18 +127,10 @@ class DeliverableService {
 		}
 
 		// Default to append behavior unless explicitly told to replace
-		const replaceAll = parseBool(
-			updateData.replace_all ||
-				updateData.replaceAll ||
-				updateData.mode === 'replace'
-		)
-		const removeImageUrls = toArray(
-			updateData.remove_image_urls || updateData.removeImageUrls
-		)
+		const replaceAll = parseBool(updateData.replace_all || updateData.replaceAll || updateData.mode === 'replace')
+		const removeImageUrls = toArray(updateData.remove_image_urls || updateData.removeImageUrls)
 
-		let currentUrls = Array.isArray(deliverableToUpdate.image_urls)
-			? [...deliverableToUpdate.image_urls]
-			: []
+		let currentUrls = Array.isArray(deliverableToUpdate.image_urls) ? [...deliverableToUpdate.image_urls] : []
 
 		// Remove specific images if requested
 		if (removeImageUrls.length > 0 && currentUrls.length > 0) {
@@ -206,9 +198,7 @@ class DeliverableService {
 		}
 
 		if (deliverableToRemove.image_urls) {
-			await Promise.all(
-				deliverableToRemove.image_urls.map(url => deleteFile(url))
-			)
+			await Promise.all(deliverableToRemove.image_urls.map(url => deleteFile(url)))
 		}
 
 		const updatedDeliverables = deliverables.filter(d => d.id != deliverableId)

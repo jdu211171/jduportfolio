@@ -1,39 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import {
-	Box,
-	Button,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-	TextField,
-	IconButton,
-	Card,
-	CardContent,
-	CardMedia,
-	Typography,
-	Grid,
-	Chip,
-	Menu,
-	MenuItem,
-	CircularProgress,
-	Tooltip,
-	ImageList,
-	ImageListItem,
-} from '@mui/material'
-import {
-	Add as AddIcon,
-	Edit as EditIcon,
-	Delete as DeleteIcon,
-	Launch as LaunchIcon,
-	Close as CloseIcon,
-	PhotoCamera as PhotoCameraIcon,
-	MoreVert as MoreVertIcon,
-	ZoomIn as ZoomInIcon,
-	NavigateBefore as NavigateBeforeIcon,
-	NavigateNext as NavigateNextIcon,
-	Code as CodeIcon,
-} from '@mui/icons-material'
+import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Card, CardContent, CardMedia, Typography, Grid, Chip, Menu, MenuItem, CircularProgress, Tooltip, ImageList, ImageListItem } from '@mui/material'
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Launch as LaunchIcon, Close as CloseIcon, PhotoCamera as PhotoCameraIcon, MoreVert as MoreVertIcon, ZoomIn as ZoomInIcon, NavigateBefore as NavigateBeforeIcon, NavigateNext as NavigateNextIcon, Code as CodeIcon } from '@mui/icons-material'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useAlert } from '../../contexts/AlertContext'
 import translations from '../../locales/translations'
@@ -41,17 +8,7 @@ import axios from '../../utils/axiosUtils'
 import PropTypes from 'prop-types'
 import styles from './Deliverables.module.css'
 
-const Deliverables = ({
-	data = [],
-	editData,
-	editMode,
-	updateEditData,
-	keyName,
-	updateEditMode,
-	onImageUpload,
-	resetPreviews,
-	isChanged = false,
-}) => {
+const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName, updateEditMode, onImageUpload, resetPreviews, isChanged = false }) => {
 	const { language } = useLanguage()
 	const showAlert = useAlert()
 	const t = key => translations[language][key] || key
@@ -86,9 +43,7 @@ const Deliverables = ({
 	const [removeUrls, setRemoveUrls] = useState([])
 
 	const toggleRemoveUrl = url => {
-		setRemoveUrls(prev =>
-			prev.includes(url) ? prev.filter(u => u !== url) : [...prev, url]
-		)
+		setRemoveUrls(prev => (prev.includes(url) ? prev.filter(u => u !== url) : [...prev, url]))
 	}
 
 	// Initialize deliverables from data
@@ -225,17 +180,11 @@ const Deliverables = ({
 				updateEditData(keyName, newDeliverables)
 			}
 
-			showAlert(
-				t('deliverableCreated') || 'Deliverable created successfully!',
-				'success'
-			)
+			showAlert(t('deliverableCreated') || 'Deliverable created successfully!', 'success')
 			handleCreateDialogClose()
 		} catch (error) {
 			console.error('Error creating deliverable:', error)
-			showAlert(
-				error.response?.data?.message || 'Failed to create deliverable',
-				'error'
-			)
+			showAlert(error.response?.data?.message || 'Failed to create deliverable', 'error')
 		} finally {
 			setLoading(false)
 		}
@@ -268,15 +217,11 @@ const Deliverables = ({
 				formDataToSend.append('remove_image_urls', JSON.stringify(removeUrls))
 			}
 
-			const response = await axios.put(
-				`/api/deliverables/${currentDeliverable.id}`,
-				formDataToSend,
-				{
-					headers: {
-						'Content-Type': 'multipart/form-data',
-					},
-				}
-			)
+			const response = await axios.put(`/api/deliverables/${currentDeliverable.id}`, formDataToSend, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
 
 			// Update local state
 			const updatedDeliverables = response.data.profile_data?.deliverables || []
@@ -287,17 +232,11 @@ const Deliverables = ({
 				updateEditData(keyName, updatedDeliverables)
 			}
 
-			showAlert(
-				t('deliverableUpdated') || 'Deliverable updated successfully!',
-				'success'
-			)
+			showAlert(t('deliverableUpdated') || 'Deliverable updated successfully!', 'success')
 			handleEditDialogClose()
 		} catch (error) {
 			console.error('Error updating deliverable:', error)
-			showAlert(
-				error.response?.data?.message || 'Failed to update deliverable',
-				'error'
-			)
+			showAlert(error.response?.data?.message || 'Failed to update deliverable', 'error')
 		} finally {
 			setLoading(false)
 		}
@@ -305,12 +244,7 @@ const Deliverables = ({
 
 	// Handle delete deliverable
 	const handleDelete = async deliverableId => {
-		if (
-			!window.confirm(
-				t('confirmDelete') ||
-					'Are you sure you want to delete this deliverable?'
-			)
-		) {
+		if (!window.confirm(t('confirmDelete') || 'Are you sure you want to delete this deliverable?')) {
 			return
 		}
 
@@ -327,17 +261,11 @@ const Deliverables = ({
 				updateEditData(keyName, updatedDeliverables)
 			}
 
-			showAlert(
-				t('deliverableDeleted') || 'Deliverable deleted successfully!',
-				'success'
-			)
+			showAlert(t('deliverableDeleted') || 'Deliverable deleted successfully!', 'success')
 			setMenuAnchor(null)
 		} catch (error) {
 			console.error('Error deleting deliverable:', error)
-			showAlert(
-				error.response?.data?.message || 'Failed to delete deliverable',
-				'error'
-			)
+			showAlert(error.response?.data?.message || 'Failed to delete deliverable', 'error')
 		} finally {
 			setLoading(false)
 		}
@@ -366,9 +294,7 @@ const Deliverables = ({
 			description: selectedDeliverable.description || '',
 			link: selectedDeliverable.link || '',
 			codeLink: selectedDeliverable.codeLink || '',
-			role: Array.isArray(selectedDeliverable.role)
-				? selectedDeliverable.role.join(', ')
-				: selectedDeliverable.role || '',
+			role: Array.isArray(selectedDeliverable.role) ? selectedDeliverable.role.join(', ') : selectedDeliverable.role || '',
 			files: [],
 		})
 		setEditDialogOpen(true)
@@ -383,16 +309,14 @@ const Deliverables = ({
 	}
 
 	const handlePrevImage = () => {
-		const images =
-			currentDeliverable?.image_urls || currentDeliverable?.files || []
+		const images = currentDeliverable?.image_urls || currentDeliverable?.files || []
 		if (images.length > 0) {
 			setCurrentImageIndex(prev => (prev === 0 ? images.length - 1 : prev - 1))
 		}
 	}
 
 	const handleNextImage = () => {
-		const images =
-			currentDeliverable?.image_urls || currentDeliverable?.files || []
+		const images = currentDeliverable?.image_urls || currentDeliverable?.files || []
 		if (images.length > 0) {
 			setCurrentImageIndex(prev => (prev === images.length - 1 ? 0 : prev + 1))
 		}
@@ -450,16 +374,7 @@ const Deliverables = ({
 								}}
 							>
 								{/* Main Image */}
-								{images.length > 0 && (
-									<CardMedia
-										component='img'
-										image={images[0]}
-										alt={deliverable.title}
-										className={styles.cardImage}
-										onClick={() => handleViewDeliverable(deliverable, 0)}
-										sx={{ cursor: 'pointer' }}
-									/>
-								)}
+								{images.length > 0 && <CardMedia component='img' image={images[0]} alt={deliverable.title} className={styles.cardImage} onClick={() => handleViewDeliverable(deliverable, 0)} sx={{ cursor: 'pointer' }} />}
 
 								<CardContent
 									sx={{
@@ -478,18 +393,11 @@ const Deliverables = ({
 											mb: 1,
 										}}
 									>
-										<Typography
-											variant='h6'
-											className={styles.title}
-											sx={{ flex: 1 }}
-										>
+										<Typography variant='h6' className={styles.title} sx={{ flex: 1 }}>
 											{deliverable.title}
 										</Typography>
 										{editMode && (
-											<IconButton
-												size='small'
-												onClick={e => handleMenuOpen(e, deliverable)}
-											>
+											<IconButton size='small' onClick={e => handleMenuOpen(e, deliverable)}>
 												<MoreVertIcon />
 											</IconButton>
 										)}
@@ -499,41 +407,23 @@ const Deliverables = ({
 									<Box sx={{ flexGrow: 1 }}>
 										{/* Description */}
 										{deliverable.description && (
-											<Typography
-												variant='body2'
-												className={styles.description}
-												sx={{ mb: 2 }}
-											>
+											<Typography variant='body2' className={styles.description} sx={{ mb: 2 }}>
 												{deliverable.description}
 											</Typography>
 										)}
 										{/* Code Link */}
 
 										{/* Role */}
-										{deliverable.role &&
-											Array.isArray(deliverable.role) &&
-											deliverable.role.length > 0 && (
-												<Box sx={{ mb: 2 }}>
-													{deliverable.role.map((item, ind) => (
-														<Chip
-															key={ind}
-															label={item.trim()}
-															size='small'
-															sx={{ mr: 0.5, mb: 0.5 }}
-															variant='outlined'
-														/>
-													))}
-												</Box>
-											)}
+										{deliverable.role && Array.isArray(deliverable.role) && deliverable.role.length > 0 && (
+											<Box sx={{ mb: 2 }}>
+												{deliverable.role.map((item, ind) => (
+													<Chip key={ind} label={item.trim()} size='small' sx={{ mr: 0.5, mb: 0.5 }} variant='outlined' />
+												))}
+											</Box>
+										)}
 
 										{/* Image Count */}
-										{images.length > 1 && (
-											<Chip
-												label={`${images.length} ${t('images') || 'images'}`}
-												size='small'
-												sx={{ mb: 2 }}
-											/>
-										)}
+										{images.length > 1 && <Chip label={`${images.length} ${t('images') || 'images'}`} size='small' sx={{ mb: 2 }} />}
 									</Box>
 
 									{/* Actions - Always at bottom */}
@@ -547,29 +437,17 @@ const Deliverables = ({
 										}}
 									>
 										{images.length > 0 && (
-											<Button
-												size='small'
-												startIcon={<ZoomInIcon />}
-												onClick={() => handleViewDeliverable(deliverable)}
-											>
+											<Button size='small' startIcon={<ZoomInIcon />} onClick={() => handleViewDeliverable(deliverable)}>
 												{t('view') || 'View'}
 											</Button>
 										)}
 										{hasNonEmpty(deliverable.link) && (
-											<Button
-												size='small'
-												startIcon={<LaunchIcon />}
-												onClick={() => handleOpenLink(deliverable.link)}
-											>
+											<Button size='small' startIcon={<LaunchIcon />} onClick={() => handleOpenLink(deliverable.link)}>
 												{t('openLink') || 'Open Link'}
 											</Button>
 										)}
 										{hasNonEmpty(deliverable.codeLink) && (
-											<Button
-												size='small'
-												startIcon={<CodeIcon />}
-												onClick={() => handleOpenLink(deliverable.codeLink)}
-											>
+											<Button size='small' startIcon={<CodeIcon />} onClick={() => handleOpenLink(deliverable.codeLink)}>
 												{t('openCodeLink') || 'Open Code Link'}
 											</Button>
 										)}
@@ -588,12 +466,7 @@ const Deliverables = ({
 						{t('noDeliverables') || 'No deliverables yet'}
 					</Typography>
 					{editMode && (
-						<Button
-							variant='outlined'
-							startIcon={<AddIcon />}
-							onClick={() => setCreateDialogOpen(true)}
-							sx={{ mt: 2 }}
-						>
+						<Button variant='outlined' startIcon={<AddIcon />} onClick={() => setCreateDialogOpen(true)} sx={{ mt: 2 }}>
 							{t('addFirstDeliverable') || 'Add your first deliverable'}
 						</Button>
 					)}
@@ -601,11 +474,7 @@ const Deliverables = ({
 			)}
 
 			{/* Context Menu */}
-			<Menu
-				anchorEl={menuAnchor}
-				open={Boolean(menuAnchor)}
-				onClose={handleMenuClose}
-			>
+			<Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={handleMenuClose}>
 				<MenuItem onClick={handleEditClick}>
 					<EditIcon sx={{ mr: 1 }} />
 					{t('edit') || 'Edit'}
@@ -623,89 +492,21 @@ const Deliverables = ({
 			</Menu>
 
 			{/* Create Dialog */}
-			<Dialog
-				open={createDialogOpen}
-				onClose={handleCreateDialogClose}
-				maxWidth='md'
-				fullWidth
-			>
-				<DialogTitle>
-					{t('createDeliverable') || 'Create Deliverable'}
-				</DialogTitle>
+			<Dialog open={createDialogOpen} onClose={handleCreateDialogClose} maxWidth='md' fullWidth>
+				<DialogTitle>{t('createDeliverable') || 'Create Deliverable'}</DialogTitle>
 				<DialogContent>
 					<Box sx={{ pt: 1 }}>
-						<TextField
-							fullWidth
-							label={t('title') || 'Title'}
-							value={formData.title}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, title: e.target.value }))
-							}
-							margin='normal'
-							required
-						/>
-						<TextField
-							fullWidth
-							label={t('description') || 'Description'}
-							value={formData.description}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, description: e.target.value }))
-							}
-							margin='normal'
-							multiline
-							rows={3}
-						/>
-						<TextField
-							fullWidth
-							label={t('link') || 'Link'}
-							value={formData.link}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, link: e.target.value }))
-							}
-							margin='normal'
-							placeholder='https://...'
-						/>
-						<TextField
-							fullWidth
-							label={t('role') || 'Role'}
-							value={formData.role}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, role: e.target.value }))
-							}
-							margin='normal'
-							placeholder='frontend developer, designer, UI/UX'
-						/>
-						<TextField
-							fullWidth
-							label={t('codeLink') || 'Code link'}
-							value={formData.codeLink}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, codeLink: e.target.value }))
-							}
-							margin='normal'
-							placeholder='https://github.com/...'
-						/>
+						<TextField fullWidth label={t('title') || 'Title'} value={formData.title} onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))} margin='normal' required />
+						<TextField fullWidth label={t('description') || 'Description'} value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} margin='normal' multiline rows={3} />
+						<TextField fullWidth label={t('link') || 'Link'} value={formData.link} onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))} margin='normal' placeholder='https://...' />
+						<TextField fullWidth label={t('role') || 'Role'} value={formData.role} onChange={e => setFormData(prev => ({ ...prev, role: e.target.value }))} margin='normal' placeholder='frontend developer, designer, UI/UX' />
+						<TextField fullWidth label={t('codeLink') || 'Code link'} value={formData.codeLink} onChange={e => setFormData(prev => ({ ...prev, codeLink: e.target.value }))} margin='normal' placeholder='https://github.com/...' />
 
 						{/* File Upload */}
 						<Box sx={{ mt: 2 }}>
-							<input
-								ref={fileInputRef}
-								type='file'
-								multiple
-								accept='image/*'
-								onChange={handleFileSelect}
-								style={{ display: 'none' }}
-							/>
-							<Button
-								variant='outlined'
-								startIcon={<PhotoCameraIcon />}
-								onClick={() => fileInputRef.current?.click()}
-								fullWidth
-								sx={{ mb: 2 }}
-							>
-								{selectedFiles.length > 0
-									? `${t('addMoreImages') || 'Add More Images'} (${selectedFiles.length})`
-									: t('selectImages') || 'Select Images'}
+							<input ref={fileInputRef} type='file' multiple accept='image/*' onChange={handleFileSelect} style={{ display: 'none' }} />
+							<Button variant='outlined' startIcon={<PhotoCameraIcon />} onClick={() => fileInputRef.current?.click()} fullWidth sx={{ mb: 2 }}>
+								{selectedFiles.length > 0 ? `${t('addMoreImages') || 'Add More Images'} (${selectedFiles.length})` : t('selectImages') || 'Select Images'}
 							</Button>
 
 							{/* Image Previews */}
@@ -746,110 +547,34 @@ const Deliverables = ({
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleCreateDialogClose}>
-						{t('cancel') || 'Cancel'}
-					</Button>
-					<Button
-						onClick={handleCreate}
-						variant='contained'
-						disabled={loading}
-						startIcon={loading ? <CircularProgress size={20} /> : null}
-					>
+					<Button onClick={handleCreateDialogClose}>{t('cancel') || 'Cancel'}</Button>
+					<Button onClick={handleCreate} variant='contained' disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>
 						{t('create') || 'Create'}
 					</Button>
 				</DialogActions>
 			</Dialog>
 
 			{/* Edit Dialog */}
-			<Dialog
-				open={editDialogOpen}
-				onClose={handleEditDialogClose}
-				maxWidth='md'
-				fullWidth
-			>
+			<Dialog open={editDialogOpen} onClose={handleEditDialogClose} maxWidth='md' fullWidth>
 				<DialogTitle>{t('editDeliverable') || 'Edit Deliverable'}</DialogTitle>
 				<DialogContent>
 					<Box sx={{ pt: 1 }}>
-						<TextField
-							fullWidth
-							label={t('title') || 'Title'}
-							value={formData.title}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, title: e.target.value }))
-							}
-							margin='normal'
-							required
-						/>
-						<TextField
-							fullWidth
-							label={t('description') || 'Description'}
-							value={formData.description}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, description: e.target.value }))
-							}
-							margin='normal'
-							multiline
-							rows={3}
-						/>
-						<TextField
-							fullWidth
-							label={t('link') || 'Link'}
-							value={formData.link}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, link: e.target.value }))
-							}
-							margin='normal'
-							placeholder='https://...'
-						/>
-						<TextField
-							fullWidth
-							label={t('role') || 'Role'}
-							value={formData.role}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, role: e.target.value }))
-							}
-							margin='normal'
-							placeholder='frontend developer, designer, UI/UX'
-						/>
-						<TextField
-							fullWidth
-							label={t('codeLink') || 'Code link'}
-							value={formData.codeLink}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, codeLink: e.target.value }))
-							}
-							margin='normal'
-							placeholder='https://github.com/...'
-						/>
+						<TextField fullWidth label={t('title') || 'Title'} value={formData.title} onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))} margin='normal' required />
+						<TextField fullWidth label={t('description') || 'Description'} value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} margin='normal' multiline rows={3} />
+						<TextField fullWidth label={t('link') || 'Link'} value={formData.link} onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))} margin='normal' placeholder='https://...' />
+						<TextField fullWidth label={t('role') || 'Role'} value={formData.role} onChange={e => setFormData(prev => ({ ...prev, role: e.target.value }))} margin='normal' placeholder='frontend developer, designer, UI/UX' />
+						<TextField fullWidth label={t('codeLink') || 'Code link'} value={formData.codeLink} onChange={e => setFormData(prev => ({ ...prev, codeLink: e.target.value }))} margin='normal' placeholder='https://github.com/...' />
 
 						{/* File Upload for Edit */}
 						<Box sx={{ mt: 2 }}>
-							<input
-								ref={fileInputRef}
-								type='file'
-								multiple
-								accept='image/*'
-								onChange={handleFileSelect}
-								style={{ display: 'none' }}
-							/>
-							<Button
-								variant='outlined'
-								startIcon={<PhotoCameraIcon />}
-								onClick={() => fileInputRef.current?.click()}
-								fullWidth
-								sx={{ mb: 2 }}
-							>
-								{selectedFiles.length > 0
-									? `${t('addMoreImages') || 'Add More Images'} (${selectedFiles.length})`
-									: t('replaceImages') || 'Add Images'}
+							<input ref={fileInputRef} type='file' multiple accept='image/*' onChange={handleFileSelect} style={{ display: 'none' }} />
+							<Button variant='outlined' startIcon={<PhotoCameraIcon />} onClick={() => fileInputRef.current?.click()} fullWidth sx={{ mb: 2 }}>
+								{selectedFiles.length > 0 ? `${t('addMoreImages') || 'Add More Images'} (${selectedFiles.length})` : t('replaceImages') || 'Add Images'}
 							</Button>
 
 							{/* Current Images */}
 							{(() => {
-								const images =
-									currentDeliverable?.image_urls ||
-									currentDeliverable?.files ||
-									[]
+								const images = currentDeliverable?.image_urls || currentDeliverable?.files || []
 								return (
 									images.length > 0 && (
 										<Box sx={{ mb: 2 }}>
@@ -860,10 +585,7 @@ const Deliverables = ({
 												<Button
 													size='small'
 													onClick={() => {
-														const imgs =
-															currentDeliverable?.image_urls ||
-															currentDeliverable?.files ||
-															[]
+														const imgs = currentDeliverable?.image_urls || currentDeliverable?.files || []
 														setRemoveUrls(imgs)
 													}}
 												>
@@ -875,10 +597,7 @@ const Deliverables = ({
 											</Box>
 											<ImageList cols={3} gap={8}>
 												{images.map((url, index) => (
-													<ImageListItem
-														key={index}
-														sx={{ position: 'relative' }}
-													>
+													<ImageListItem key={index} sx={{ position: 'relative' }}>
 														<img
 															src={url}
 															alt={`Current ${index + 1}`}
@@ -888,18 +607,10 @@ const Deliverables = ({
 																objectFit: 'cover',
 																borderRadius: 4,
 																opacity: removeUrls.includes(url) ? 0.4 : 1,
-																outline: removeUrls.includes(url)
-																	? '2px solid #d32f2f'
-																	: 'none',
+																outline: removeUrls.includes(url) ? '2px solid #d32f2f' : 'none',
 															}}
 														/>
-														<Tooltip
-															title={
-																removeUrls.includes(url)
-																	? t('unmarkRemoval') || 'Unmark removal'
-																	: t('markForRemoval') || 'Mark for removal'
-															}
-														>
+														<Tooltip title={removeUrls.includes(url) ? t('unmarkRemoval') || 'Unmark removal' : t('markForRemoval') || 'Mark for removal'}>
 															<IconButton
 																size='small'
 																onClick={() => toggleRemoveUrl(url)}
@@ -910,14 +621,7 @@ const Deliverables = ({
 																	bgcolor: 'rgba(255,255,255,0.85)',
 																}}
 															>
-																<DeleteIcon
-																	fontSize='small'
-																	color={
-																		removeUrls.includes(url)
-																			? 'error'
-																			: 'action'
-																	}
-																/>
+																<DeleteIcon fontSize='small' color={removeUrls.includes(url) ? 'error' : 'action'} />
 															</IconButton>
 														</Tooltip>
 														{removeUrls.includes(url) && (
@@ -989,27 +693,15 @@ const Deliverables = ({
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleEditDialogClose}>
-						{t('cancel') || 'Cancel'}
-					</Button>
-					<Button
-						onClick={handleUpdate}
-						variant='contained'
-						disabled={loading}
-						startIcon={loading ? <CircularProgress size={20} /> : null}
-					>
+					<Button onClick={handleEditDialogClose}>{t('cancel') || 'Cancel'}</Button>
+					<Button onClick={handleUpdate} variant='contained' disabled={loading} startIcon={loading ? <CircularProgress size={20} /> : null}>
 						{t('update') || 'Update'}
 					</Button>
 				</DialogActions>
 			</Dialog>
 
 			{/* View Modal with Image Carousel */}
-			<Dialog
-				open={viewModalOpen}
-				onClose={() => setViewModalOpen(false)}
-				maxWidth='lg'
-				fullWidth
-			>
+			<Dialog open={viewModalOpen} onClose={() => setViewModalOpen(false)} maxWidth='lg' fullWidth>
 				<DialogTitle
 					sx={{
 						display: 'flex',
@@ -1027,10 +719,7 @@ const Deliverables = ({
 						<Box>
 							{/* Image Carousel */}
 							{(() => {
-								const images =
-									currentDeliverable.image_urls ||
-									currentDeliverable.files ||
-									[]
+								const images = currentDeliverable.image_urls || currentDeliverable.files || []
 								return (
 									images.length > 0 && (
 										<Box sx={{ position: 'relative', mb: 3 }}>
@@ -1112,65 +801,39 @@ const Deliverables = ({
 							{/* Code Link */}
 							{hasNonEmpty(currentDeliverable.codeLink) && (
 								<Box sx={{ mt: 2 }}>
-									<Typography
-										variant='body2'
-										sx={{ fontWeight: 'bold', mb: 1 }}
-									>
+									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
 										Code Repository:
 									</Typography>
-									<Button
-										variant='outlined'
-										startIcon={<CodeIcon />}
-										onClick={() => handleOpenLink(currentDeliverable.codeLink)}
-										size='small'
-									>
+									<Button variant='outlined' startIcon={<CodeIcon />} onClick={() => handleOpenLink(currentDeliverable.codeLink)} size='small'>
 										{t('openCodeLink') || 'Open Code Link'}
 									</Button>
 								</Box>
 							)}
 
 							{/* Role */}
-							{currentDeliverable.role &&
-								Array.isArray(currentDeliverable.role) &&
-								currentDeliverable.role.length > 0 && (
-									<Box sx={{ mt: 2 }}>
-										<Typography
-											variant='body2'
-											sx={{ fontWeight: 'bold', mb: 1 }}
-										>
-											Role:
-										</Typography>
-										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-											{currentDeliverable.role.map((item, ind) => (
-												<Chip
-													key={ind}
-													label={item.trim()}
-													size='small'
-													variant='outlined'
-												/>
-											))}
-										</Box>
+							{currentDeliverable.role && Array.isArray(currentDeliverable.role) && currentDeliverable.role.length > 0 && (
+								<Box sx={{ mt: 2 }}>
+									<Typography variant='body2' sx={{ fontWeight: 'bold', mb: 1 }}>
+										Role:
+									</Typography>
+									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+										{currentDeliverable.role.map((item, ind) => (
+											<Chip key={ind} label={item.trim()} size='small' variant='outlined' />
+										))}
 									</Box>
-								)}
+								</Box>
+							)}
 
 							{/* Link */}
 							{hasNonEmpty(currentDeliverable.link) && (
-								<Button
-									variant='outlined'
-									startIcon={<LaunchIcon />}
-									onClick={() => handleOpenLink(currentDeliverable.link)}
-									sx={{ mt: 2, mr: 1 }}
-								>
+								<Button variant='outlined' startIcon={<LaunchIcon />} onClick={() => handleOpenLink(currentDeliverable.link)} sx={{ mt: 2, mr: 1 }}>
 									{t('openLink') || 'Open Link'}
 								</Button>
 							)}
 
 							{/* Image Grid for Quick Navigation */}
 							{(() => {
-								const images =
-									currentDeliverable.image_urls ||
-									currentDeliverable.files ||
-									[]
+								const images = currentDeliverable.image_urls || currentDeliverable.files || []
 								return (
 									images.length > 1 && (
 										<Box sx={{ mt: 3 }}>
@@ -1189,10 +852,7 @@ const Deliverables = ({
 																objectFit: 'cover',
 																borderRadius: 4,
 																cursor: 'pointer',
-																border:
-																	index === currentImageIndex
-																		? '2px solid #5627DB'
-																		: 'none',
+																border: index === currentImageIndex ? '2px solid #5627DB' : 'none',
 															}}
 															onClick={() => setCurrentImageIndex(index)}
 														/>

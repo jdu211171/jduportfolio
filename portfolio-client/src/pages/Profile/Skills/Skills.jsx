@@ -61,44 +61,17 @@ const Skills = () => {
 		<Box sx={{ padding: '20px' }}>
 			{/* Special Skills */}
 			<Box sx={{ marginBottom: '40px' }}>
-				<SkillSelector
-					title={t('specialSkills')}
-					data={student.draft.special_skills}
-					editData={editData.draft.special_skills}
-					editMode={editMode.special_skills}
-					updateEditData={updateEditData}
-					keyName='special_skills'
-					updateEditMode={updateEditMode}
-					placeholder={t('specialSkills')}
-				/>
+				<SkillSelector title={t('specialSkills')} data={student.draft.special_skills} editData={editData.draft.special_skills} editMode={editMode.special_skills} updateEditData={updateEditData} keyName='special_skills' updateEditMode={updateEditMode} placeholder={t('specialSkills')} />
 			</Box>
 
 			{/* IT Skills */}
 			<Box sx={{ marginBottom: '40px' }}>
-				<SkillSelector
-					title={t('itSkills')}
-					data={student.draft.it_skills}
-					editData={editData.draft.it_skills}
-					editMode={editMode.it_skills}
-					updateEditData={updateEditData}
-					keyName='it_skills'
-					updateEditMode={updateEditMode}
-					placeholder={t('itSkills')}
-				/>
+				<SkillSelector title={t('itSkills')} data={student.draft.it_skills} editData={editData.draft.it_skills} editMode={editMode.it_skills} updateEditData={updateEditData} keyName='it_skills' updateEditMode={updateEditMode} placeholder={t('itSkills')} />
 			</Box>
 
 			{/* Other Skills */}
 			<Box sx={{ marginBottom: '40px' }}>
-				<SkillSelector
-					title={t('otherSkills')}
-					data={student.draft.skills}
-					editData={editData.draft.skills}
-					editMode={editMode.skills}
-					updateEditData={updateEditData}
-					keyName='skills'
-					updateEditMode={updateEditMode}
-					placeholder={t('otherSkills')}
-				/>
+				<SkillSelector title={t('otherSkills')} data={student.draft.skills} editData={editData.draft.skills} editMode={editMode.skills} updateEditData={updateEditData} keyName='skills' updateEditMode={updateEditMode} placeholder={t('otherSkills')} />
 			</Box>
 
 			{/* Language Skills */}

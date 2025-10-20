@@ -1,10 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const StaffController = require('../controllers/staffController')
-const {
-	validateStaffCreation,
-	validateStaffUpdate,
-} = require('../middlewares/staff-validation')
+const { validateStaffCreation, validateStaffUpdate } = require('../middlewares/staff-validation')
 
 /**
  * @swagger

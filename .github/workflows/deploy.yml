@@ -1,0 +1,242 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      force_frontend:
+        description: "Force deploy frontend"
+        type: boolean
+        required: false
+        default: false
+      force_backend:
+        description: "Force deploy backend"
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'portfolio-client/**'
+            backend:
+              - 'portfolio-server/**'
+
+  frontend:
+    name: Frontend Deploy
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.force_frontend == 'true')
+    defaults:
+      run:
+        working-directory: portfolio-client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Prepare SSH key
+        id: ssh-key
+        shell: bash
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="$RUNNER_TEMP/ec2_key.pem"
+          echo "$EC2_SSH_KEY" > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+          echo "key_file=$KEY_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Create .env for deploy.sh
+        shell: bash
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          FRONTEND_EC2_PATH: ${{ secrets.FRONTEND_EC2_PATH }}
+          PM2_FRONTEND_SERVICE: ${{ secrets.PM2_FRONTEND_SERVICE }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_APP_API_BASE_URL: ${{ secrets.VITE_APP_API_BASE_URL }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="${{ steps.ssh-key.outputs.key_file }}"
+          cat > .env << 'ENVVARS'
+          EC2_KEY="__WILL_BE_REPLACED__"
+          EC2_USER="${EC2_USER:-ec2-user}"
+          EC2_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
+          EC2_PATH="${FRONTEND_EC2_PATH:-/home/ec2-user/jduportfolio/portfolio-client}"
+          PM2_SERVICE_NAME="${PM2_FRONTEND_SERVICE:-portfolio-client}"
+          VITE_API_URL="${VITE_API_URL:-http://localhost:4000}"
+          VITE_APP_API_BASE_URL="${VITE_APP_API_BASE_URL:-http://localhost:4000/api}"
+          FRONTEND_URL="${FRONTEND_URL:-http://localhost:5173}"
+          ENVVARS
+          # Inject actual key path (avoid expanding inside here-doc)
+          sed -i.bak "s|__WILL_BE_REPLACED__|$KEY_FILE|g" .env && rm -f .env.bak
+          echo "Created portfolio-client/.env"
+
+      - name: Run frontend deploy script
+        run: |
+          set -euo pipefail
+          chmod +x deploy.sh
+          bash deploy.sh
+
+  backend:
+    name: Backend Deploy
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.force_backend == 'true')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        id: ssh-key
+        shell: bash
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="$RUNNER_TEMP/ec2_key.pem"
+          echo "$EC2_SSH_KEY" > "$KEY_FILE"
+          chmod 600 "$KEY_FILE"
+          echo "key_file=$KEY_FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy backend via SSH (pull + migrate + restart)
+        shell: bash
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          BACKEND_REPO_PATH: ${{ secrets.BACKEND_REPO_PATH }}
+          PM2_BACKEND_SERVICE: ${{ secrets.PM2_BACKEND_SERVICE }}
+        run: |
+          set -euo pipefail
+          KEY_FILE="${{ steps.ssh-key.outputs.key_file }}"
+          REMOTE_USER="${EC2_USER:-ec2-user}"
+          REMOTE_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
+          REPO_PATH="${BACKEND_REPO_PATH:-/home/ec2-user/jduportfolio}"
+          SERVICE_NAME="${PM2_BACKEND_SERVICE:-portfolio-server}"
+
+          # Pass runner-side values into the remote shell via env vars to avoid unbound variables with `set -u`
+          ssh -o StrictHostKeyChecking=accept-new -i "$KEY_FILE" "$REMOTE_USER@$REMOTE_HOST" \
+            "REPO_PATH='$REPO_PATH' SERVICE_NAME='$SERVICE_NAME' bash -s" << 'EOF'
+          set -euo pipefail
+
+          echo "=> Using repo path: $REPO_PATH"
+          cd "$REPO_PATH"
+
+          echo "=> Fetch latest changes"
+          git fetch --all --prune
+
+          if git rev-parse --verify main >/dev/null 2>&1; then
+            git checkout main
+          else
+            git switch -c main origin/main || git checkout -B main origin/main
+          fi
+          git reset --hard origin/main
+
+          echo "=> Install backend dependencies"
+          cd portfolio-server
+          npm install --production
+
+          echo "=> Backup production database before migrations"
+          BACKUP_DIR="/home/ec2-user/db_backups"
+          mkdir -p "$BACKUP_DIR"
+          chmod 700 "$BACKUP_DIR" || true
+          TS=
+          TS=$(date -u +%Y%m%d-%H%M%S)
+          # Load env to get DB_*_PROD
+          set -a
+          [ -f .env ] && . ./.env || true
+          set +a
+          DB_HOST="${DB_HOST_PROD:-localhost}"
+          DB_PORT="${DB_PORT_PROD:-5432}"
+          DB_USER="${DB_USER_PROD:-postgres}"
+          DB_PASS="${DB_PASSWORD_PROD:-}"
+          DB_NAME="${DB_NAME_PROD:-postgres}"
+          DB_SSL="${DB_SSL_PROD:-false}"
+          BNAME="${DB_NAME}-${TS}.dump"
+          DEST="$BACKUP_DIR/$BNAME"
+
+          # Prefer local pg_dump for localhost; use Docker Postgres 16 for remote or version mismatches
+          if [ "$DB_HOST" = "localhost" ] || [ "$DB_HOST" = "127.0.0.1" ]; then
+            echo "   • Local DB detected ($DB_HOST). Using local pg_dump"
+            if [ -n "$DB_PASS" ]; then export PGPASSWORD="$DB_PASS"; fi
+            pg_dump -Fc -Z9 -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -f "$DEST" || {
+              echo "   ! Local pg_dump failed; attempting Docker-based pg_dump"
+              if command -v docker >/dev/null 2>&1; then :; else
+                if command -v yum >/dev/null 2>&1; then sudo yum -y install docker || true; fi
+                if command -v dnf >/dev/null 2>&1; then sudo dnf -y install docker || true; fi
+                if command -v apt-get >/dev/null 2>&1; then sudo apt-get update && sudo apt-get -y install docker.io || true; fi
+              fi
+              sudo systemctl start docker 2>/dev/null || sudo service docker start 2>/dev/null || true
+              sudo docker run --rm --network host -e PGPASSWORD="$DB_PASS" -v "$BACKUP_DIR":/backups postgres:16 \
+                bash -lc "pg_dump -Fc -Z9 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /backups/$BNAME"
+            }
+          else
+            echo "   • Remote DB detected ($DB_HOST). Using Docker Postgres 16 with SSL if requested"
+            if command -v docker >/dev/null 2>&1; then :; else
+              if command -v yum >/dev/null 2>&1; then sudo yum -y install docker || true; fi
+              if command -v dnf >/dev/null 2>&1; then sudo dnf -y install docker || true; fi
+              if command -v apt-get >/dev/null 2>&1; then sudo apt-get update && sudo apt-get -y install docker.io || true; fi
+            fi
+            sudo systemctl start docker 2>/dev/null || sudo service docker start 2>/dev/null || true
+            if [ "${DB_SSL,,}" = "true" ]; then
+              SSLENV="-e PGSSLMODE=require"
+            else
+              SSLENV=""
+            fi
+            sudo docker run --rm -e PGPASSWORD="$DB_PASS" $SSLENV -v "$BACKUP_DIR":/backups postgres:16 \
+              bash -lc "pg_dump -Fc -Z9 -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f /backups/$BNAME"
+          fi
+          ls -lh "$DEST" || true
+          echo "   ✓ Backup completed: $DEST"
+
+          echo "=> Run DB migrations (production)"
+          set -a
+          [ -f .env ] && . ./.env || true
+          export NODE_ENV=production
+          # Ensure SSL for Neon/managed PG when NODE_ENV=production
+          export DB_SSL_PROD=${DB_SSL_PROD:-true}
+          set +a
+          NODE_ENV=production npm run migrate
+
+          echo "=> Restart PM2 service"
+          pm2 delete "$SERVICE_NAME" 2>/dev/null || true
+          pm2 start ecosystem.config.js --env production --update-env
+          pm2 save || true
+          pm2 status "$SERVICE_NAME"
+          EOF
+
+  noop:
+    name: No-op
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.frontend != 'true' && needs.changes.outputs.backend != 'true' && !(github.event_name == 'workflow_dispatch' && (github.event.inputs.force_frontend == 'true' || github.event.inputs.force_backend == 'true'))
+    steps:
+      - run: echo "No deployable changes detected. Skipping."

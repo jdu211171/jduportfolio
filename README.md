@@ -79,3 +79,23 @@ Kintone DBとの統合 – 学生データの管理と検索がスムーズ
 ### ライセンス
 このプロジェクトはGNU一般公衆ライセンスバージョン3の下で提供されています。詳細については、[LICENSE](LICENSE)ファイルを参照してください。
 
+## CI/CD (GitHub Actions)
+- main ブランチへ push すると自動デプロイが走ります（フロント/バックエンドは変更有無で判定）。
+- セットアップ（リポジトリ Secrets 推奨）
+  - `EC2_SSH_KEY`: EC2 への SSH 秘密鍵（.pem の中身）
+  - `EC2_HOST`: 例 `ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com`
+  - 任意（未設定時は既定値使用）:
+    - `EC2_USER` (既定: `ec2-user`)
+    - `FRONTEND_EC2_PATH` (既定: `/home/ec2-user/jduportfolio/portfolio-client`)
+    - `PM2_FRONTEND_SERVICE` (既定: `portfolio-client`)
+    - `BACKEND_REPO_PATH` (既定: `/home/ec2-user/jduportfolio`)
+    - `PM2_BACKEND_SERVICE` (既定: `portfolio-server`)
+    - `VITE_API_URL`, `VITE_APP_API_BASE_URL`, `FRONTEND_URL`（必要に応じて）
+- フロントは `portfolio-client/deploy.sh` をそのまま呼び出します。
+- バックエンドは EC2 に SSH 接続し、`main` を pull → `pm2` で再起動します。
+
+EC2 の状態を確認するには（ローカルから）:
+
+```
+ssh -i "/Users/muhammadnurislomtukhtamishhoji-zoda/Jduportfolio.pem" ec2-user@ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com
+```

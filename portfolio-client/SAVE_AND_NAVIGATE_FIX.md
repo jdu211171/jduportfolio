@@ -3,60 +3,72 @@
 ## Issues Fixed
 
 ### 1. Save & Leave Not Working
-**Problem**: 
+
+**Problem**:
+
 - Form stayed in edit mode after clicking "Save & Leave"
 - Navigation didn't happen
 - Page remained on profile edit
 
 **Solution**:
+
 - Added `setEditMode(false)` to exit edit mode
 - Used `window.location.href` for clean navigation
 - Added 100ms delay to ensure state updates complete
 
 ### 2. Navigation Blocking Improvements
+
 **Problem**:
+
 - Navigation was being blocked even after choosing an option
 - Multiple intercepts causing issues
 
 **Solution**:
+
 - Added flags to prevent multiple intercepts
 - Check edit mode state before blocking
 - Improved navigation detection logic
 
 ### 3. Data Recovery After Navigation
+
 **Problem**:
+
 - No restore dialog when returning after "Save & Leave"
 
 **Solution**:
+
 - Modified the `isNavigatingAfterSave` check to show recovery dialog
 - User can restore their saved work when returning to profile
 
 ## Implementation Details
 
 ### handleSaveAndNavigate Function
+
 ```javascript
 const handleSaveAndNavigate = () => {
-  // 1. Save data immediately
-  immediateSave(editData)
-  
-  // 2. Set navigation flag
-  localStorage.setItem('isNavigatingAfterSave', 'true')
-  
-  // 3. Exit edit mode (critical!)
-  setEditMode(false)
-  
-  // 4. Clear warning dialog
-  setShowUnsavedWarning(false)
-  
-  // 5. Navigate after delay
-  setTimeout(() => {
-    window.location.href = pendingNavigation.pathname
-  }, 100)
+	// 1. Save data immediately
+	immediateSave(editData)
+
+	// 2. Set navigation flag
+	localStorage.setItem('isNavigatingAfterSave', 'true')
+
+	// 3. Exit edit mode (critical!)
+	setEditMode(false)
+
+	// 4. Clear warning dialog
+	setShowUnsavedWarning(false)
+
+	// 5. Navigate after delay
+	setTimeout(() => {
+		window.location.href = pendingNavigation.pathname
+	}, 100)
 }
 ```
 
 ### Recovery on Return
+
 When returning to profile after "Save & Leave":
+
 1. Checks for `isNavigatingAfterSave` flag
 2. Loads saved data from localStorage
 3. Shows recovery dialog
@@ -65,6 +77,7 @@ When returning to profile after "Save & Leave":
 ## User Flow
 
 ### Save & Leave Flow:
+
 1. User in edit mode tries to navigate
 2. Warning dialog appears
 3. User clicks "Save & Leave"
@@ -74,6 +87,7 @@ When returning to profile after "Save & Leave":
 7. When returning, recovery dialog appears
 
 ### Discard & Leave Flow:
+
 1. User clicks "Discard & Leave"
 2. Changes are cleared
 3. Edit mode is exited

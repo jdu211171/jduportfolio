@@ -1,9 +1,6 @@
 const express = require('express')
 const StudentController = require('../controllers/studentController')
-const {
-	validateStudentCreation,
-	validateStudentUpdate,
-} = require('../middlewares/student-validation')
+const { validateStudentCreation, validateStudentUpdate } = require('../middlewares/student-validation')
 
 const router = express.Router()
 
@@ -170,10 +167,7 @@ router.get('/:id/credit-details', StudentController.getCreditDetails)
  *         description: Student not found
  */
 // POST /api/students/:id/sync-credit-details
-router.post(
-	'/:id/sync-credit-details',
-	StudentController.syncStudentCreditDetails
-)
+router.post('/:id/sync-credit-details', StudentController.syncStudentCreditDetails)
 
 /**
  * @swagger

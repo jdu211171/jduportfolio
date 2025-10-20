@@ -93,18 +93,8 @@ const formatRecruiterWelcomeEmail = (email, password, firstName, lastName) => {
 	return { to, subject, text, html }
 }
 
-const sendRecruiterWelcomeEmail = async (
-	email,
-	password,
-	firstName,
-	lastName
-) => {
-	const mailData = formatRecruiterWelcomeEmail(
-		email,
-		password,
-		firstName,
-		lastName
-	)
+const sendRecruiterWelcomeEmail = async (email, password, firstName, lastName) => {
+	const mailData = formatRecruiterWelcomeEmail(email, password, firstName, lastName)
 	await sendEmail(mailData)
 }
 

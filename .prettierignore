@@ -1,0 +1,25 @@
+# Dependencies
+**/node_modules
+
+# Builds and caches
+**/dist
+**/build
+**/.next
+**/.cache
+**/coverage
+**/.vite
+
+# Logs
+**/*.log
+**/logs
+
+# Generated
+**/*.min.js
+**/*.min.css
+
+# Misc
+**/.DS_Store
+**/.env
+**/.env.*
+**/bun.lock
+

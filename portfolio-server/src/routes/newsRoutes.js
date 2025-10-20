@@ -14,18 +14,9 @@ const upload = multer({
 
 router.get('/', authMiddleware, NewsController.getAll)
 router.post('/', authMiddleware, upload.single('image'), NewsController.create)
-router.put(
-	'/:id',
-	authMiddleware,
-	upload.single('image'),
-	NewsController.update
-)
+router.put('/:id', authMiddleware, upload.single('image'), NewsController.update)
 router.delete('/:id', authMiddleware, NewsController.delete)
-router.get(
-	'/with-unread-count',
-	authMiddleware,
-	NewsController.getAllWithUnreadCount
-)
+router.get('/with-unread-count', authMiddleware, NewsController.getAllWithUnreadCount)
 
 router.put('/:id/moderate', authMiddleware, NewsController.moderate)
 

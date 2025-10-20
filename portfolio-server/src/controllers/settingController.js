@@ -40,9 +40,7 @@ class SettingsController {
 			const { keys } = req.body // Expecting an array of keys in the body
 			// console.log(keys, "Ushbu get settings by keysga muroojat qilindi");
 			if (!Array.isArray(keys)) {
-				return res
-					.status(400)
-					.json({ error: 'Invalid input: keys should be an array' })
+				return res.status(400).json({ error: 'Invalid input: keys should be an array' })
 			}
 
 			const settings = await SettingsService.getSettingsByKeys(keys)

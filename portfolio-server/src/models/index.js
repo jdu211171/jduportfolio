@@ -11,19 +11,11 @@ const env = process.env.NODE_ENV || 'development'
 let sequelize
 
 if (config.use_env_variable) {
-	sequelize = new Sequelize(
-		process.env[config.use_env_variable],
-		config[config.use_env_variable]
-	)
+	sequelize = new Sequelize(process.env[config.use_env_variable], config[config.use_env_variable])
 } else {
-	sequelize = new Sequelize(
-		config[env].database,
-		config[env].username,
-		config[env].password,
-		{
-			...config[env],
-		}
-	)
+	sequelize = new Sequelize(config[env].database, config[env].username, config[env].password, {
+		...config[env],
+	})
 }
 
 const db = {}

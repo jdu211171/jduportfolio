@@ -21,15 +21,8 @@ class AdminController {
 			}
 
 			// Fetch settings for the admin
-			const settingsKeys = [
-				'contactEmail',
-				'contactPhone',
-				'workingHours',
-				'location',
-			]
-			const settingsPromises = settingsKeys.map(key =>
-				SettingsService.getSetting(key)
-			)
+			const settingsKeys = ['contactEmail', 'contactPhone', 'workingHours', 'location']
+			const settingsPromises = settingsKeys.map(key => SettingsService.getSetting(key))
 
 			// Resolve all settings in parallel
 			const settingsValues = await Promise.all(settingsPromises)
@@ -89,24 +82,11 @@ class AdminController {
 
 	static async update(req, res) {
 		try {
-			const {
-				currentPassword,
-				password,
-				contactEmail,
-				contactPhone,
-				workingHours,
-				location,
-				...updateData
-			} = req.body
+			const { currentPassword, password, contactEmail, contactPhone, workingHours, location, ...updateData } = req.body
 			if (password) {
 				const admin = await AdminService.getAdminById(req.params.id)
-				if (
-					!admin ||
-					!(await bcrypt.compare(currentPassword, admin.password))
-				) {
-					return res
-						.status(400)
-						.json({ error: '現在のパスワードを入力してください' })
+				if (!admin || !(await bcrypt.compare(currentPassword, admin.password))) {
+					return res.status(400).json({ error: '現在のパスワードを入力してください' })
 				}
 			}
 			let response = await AdminService.updateAdmin(req.params.id, {

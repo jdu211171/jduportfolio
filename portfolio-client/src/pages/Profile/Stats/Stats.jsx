@@ -9,13 +9,9 @@ import styles from './Stats.module.css'
 
 const Stats = () => {
 	// Helper function to safely parse JSON data
-	const safeParseJSON = (
-		jsonString,
-		fallback = { highest: '未提出', list: [] }
-	) => {
+	const safeParseJSON = (jsonString, fallback = { highest: '未提出', list: [] }) => {
 		try {
-			if (!jsonString || jsonString === 'null' || jsonString === 'undefined')
-				return fallback
+			if (!jsonString || jsonString === 'null' || jsonString === 'undefined') return fallback
 			const parsed = JSON.parse(jsonString)
 			return parsed || fallback
 		} catch (error) {
@@ -62,21 +58,9 @@ const Stats = () => {
 
 				const fetchCertificates = async () => {
 					setCertificateData('main', 'JLPT', safeParseJSON(studentData.jlpt))
-					setCertificateData(
-						'main',
-						'JDU_JLPT',
-						safeParseJSON(studentData.jdu_japanese_certification)
-					)
-					setCertificateData(
-						'other',
-						'日本語弁論大会学内',
-						safeParseJSON(studentData.japanese_speech_contest)
-					)
-					setCertificateData(
-						'other',
-						'ITコンテスト学内',
-						safeParseJSON(studentData.it_contest)
-					)
+					setCertificateData('main', 'JDU_JLPT', safeParseJSON(studentData.jdu_japanese_certification))
+					setCertificateData('other', '日本語弁論大会学内', safeParseJSON(studentData.japanese_speech_contest))
+					setCertificateData('other', 'ITコンテスト学内', safeParseJSON(studentData.it_contest))
 
 					setStudent(studentData)
 				}
@@ -128,11 +112,7 @@ const Stats = () => {
 	const openCreditDetails = event => {
 		event.preventDefault()
 		// Use student_id as the URL parameter for CreditDetails route
-		window.open(
-			`/credit-details/${student.student_id}`,
-			'_blank',
-			'width=600,height=400'
-		)
+		window.open(`/credit-details/${student.student_id}`, '_blank', 'width=600,height=400')
 	}
 
 	const handleCloseAlert = () => {
@@ -243,17 +223,8 @@ const Stats = () => {
 					keyName='other'
 				/>
 			</Box>
-			<Snackbar
-				open={alert.open}
-				autoHideDuration={6000}
-				onClose={handleCloseAlert}
-				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-			>
-				<Alert
-					onClose={handleCloseAlert}
-					severity={alert.severity}
-					sx={{ width: '100%' }}
-				>
+			<Snackbar open={alert.open} autoHideDuration={6000} onClose={handleCloseAlert} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+				<Alert onClose={handleCloseAlert} severity={alert.severity} sx={{ width: '100%' }}>
 					{alert.message}
 				</Alert>
 			</Snackbar>

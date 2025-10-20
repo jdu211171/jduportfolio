@@ -13,26 +13,17 @@ class DraftController {
 			// Middleware'da tekshirilgan foydalanuvchini olamiz
 			const student = await Student.findOne({ where: { id: req.user.id } })
 			if (!student) {
-				return res
-					.status(403)
-					.json({ error: "Faqat talabalar profilni o'zgartirishi mumkin." })
+				return res.status(403).json({ error: "Faqat talabalar profilni o'zgartirishi mumkin." })
 			}
 
 			const { profile_data } = req.body
 			if (!profile_data) {
-				return res
-					.status(400)
-					.json({ error: 'profile_data yuborilishi shart.' })
+				return res.status(400).json({ error: 'profile_data yuborilishi shart.' })
 			}
 
-			const { draft, created } = await DraftService.upsertDraft(
-				student.student_id,
-				profile_data
-			)
+			const { draft, created } = await DraftService.upsertDraft(student.student_id, profile_data)
 
-			const message = created
-				? 'Qoralama muvaffaqiyatli yaratildi'
-				: 'Qoralama muvaffaqiyatli yangilandi'
+			const message = created ? 'Qoralama muvaffaqiyatli yaratildi' : 'Qoralama muvaffaqiyatli yangilandi'
 			return res.status(created ? 201 : 200).json({ message, draft })
 		} catch (error) {
 			return res.status(400).json({ error: error.message })
@@ -119,17 +110,10 @@ class DraftController {
 				if (comments.length === 0) comments = null
 			}
 			if (comments && comments.length > 2000) {
-				return res
-					.status(400)
-					.json({ error: 'コメントが長すぎます（最大2000文字）。' })
+				return res.status(400).json({ error: 'コメントが長すぎます（最大2000文字）。' })
 			}
 
-			const draft = await DraftService.updateStatusByStaff(
-				id,
-				status,
-				comments,
-				reviewed_by
-			)
+			const draft = await DraftService.updateStatusByStaff(id, status, comments, reviewed_by)
 			const student = await Student.findOne({
 				where: { student_id: draft.student_id },
 			})
@@ -153,12 +137,8 @@ class DraftController {
 				}
 
 				const staffMember = await Staff.findByPk(reviewed_by)
-				const staffName = staffMember
-					? `${staffMember.first_name} ${staffMember.last_name}`
-					: 'JDU Staff'
-				const studentName = student
-					? `${student.first_name} ${student.last_name}`
-					: draft.student_id
+				const staffName = staffMember ? `${staffMember.first_name} ${staffMember.last_name}` : 'JDU Staff'
+				const studentName = student ? `${student.first_name} ${student.last_name}` : draft.student_id
 
 				const mailData = {
 					to: 'academic-affairs@jdu.uz',
@@ -171,16 +151,12 @@ class DraftController {
                     `,
 				}
 				await sendEmail(mailData)
-				console.log(
-					"✅ Academic Affairs bo'limiga tasdiqlash emaili muvaffaqiyatli jo'natildi."
-				)
+				console.log("✅ Academic Affairs bo'limiga tasdiqlash emaili muvaffaqiyatli jo'natildi.")
 			}
 
 			// Talabaga bildirishnoma yuborish (multi-language)
 			const staffMember = await StaffService.getStaffById(draft.reviewed_by)
-			const staffDisplayName = staffMember
-				? `${staffMember.first_name || ''} ${staffMember.last_name || ''}`.trim()
-				: 'JDU Staff'
+			const staffDisplayName = staffMember ? `${staffMember.first_name || ''} ${staffMember.last_name || ''}`.trim() : 'JDU Staff'
 
 			const statusKey = String(status || '').toLowerCase()
 			const statusLabels = {
@@ -215,12 +191,7 @@ class DraftController {
 			const statusUz = statusLabels.uz[statusKey] || status
 			const statusRu = statusLabels.ru[statusKey] || status
 
-			let notificationMessage = [
-				`【JA】あなたの情報は${staffDisplayName} によって「${statusJa}」ステータスに変更されました。`,
-				`【EN】Your profile status has been changed to "${statusEn}" by ${staffDisplayName}.`,
-				`【UZ】Sizning profilingiz holati "${statusUz}" ga o'zgartirildi (${staffDisplayName} tomonidan).`,
-				`【RU】Статус вашего профиля изменен на «${statusRu}» (${staffDisplayName}).`,
-			].join('\n')
+			let notificationMessage = [`【JA】あなたの情報は${staffDisplayName} によって「${statusJa}」ステータスに変更されました。`, `【EN】Your profile status has been changed to "${statusEn}" by ${staffDisplayName}.`, `【UZ】Sizning profilingiz holati "${statusUz}" ga o'zgartirildi (${staffDisplayName} tomonidan).`, `【RU】Статус вашего профиля изменен на «${statusRu}» (${staffDisplayName}).`].join('\n')
 
 			// Always include staff comment in notification if provided (including approved)
 			if (comments) {
@@ -327,15 +298,7 @@ class DraftController {
 
 			if (!studentWithDraft.draft) {
 				const studentProfile = studentWithDraft.toJSON()
-				const draftKeys = [
-					'self_introduction',
-					'hobbies',
-					'skills',
-					'it_skills',
-					'gallery',
-					'deliverables',
-					'other_information',
-				]
+				const draftKeys = ['self_introduction', 'hobbies', 'skills', 'it_skills', 'gallery', 'deliverables', 'other_information']
 				const defaultDraftData = draftKeys.reduce((acc, key) => {
 					acc[key] = studentProfile[key] || null
 					return acc

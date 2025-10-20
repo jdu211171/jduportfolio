@@ -1,15 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-	Autocomplete,
-	TextField,
-	Chip,
-	Box,
-	MenuItem,
-	Select,
-	FormControl,
-	InputLabel,
-	IconButton,
-} from '@mui/material'
+import { Autocomplete, TextField, Chip, Box, MenuItem, Select, FormControl, InputLabel, IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
 import skills from '../../utils/skills'
@@ -19,21 +9,7 @@ import PropTypes from 'prop-types'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
-const SkillSelector = ({
-	title,
-	data,
-	editData,
-	editMode,
-	headers,
-	updateEditData,
-	keyName,
-	parentKey = 'draft',
-	showAutocomplete,
-	showHeaders,
-	icon,
-	isChanged = false,
-	showEmptyAsNotSubmitted = false,
-}) => {
+const SkillSelector = ({ title, data, editData, editMode, headers, updateEditData, keyName, parentKey = 'draft', showAutocomplete, showHeaders, icon, isChanged = false, showEmptyAsNotSubmitted = false }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [selectedLevel, setSelectedLevel] = useState('初級')
 	const [databaseSkills, setDatabaseSkills] = useState([])
@@ -53,9 +29,7 @@ const SkillSelector = ({
 	const fetchSkillsFromDatabase = async (search = '') => {
 		try {
 			setLoadingSkills(true)
-			const url = search
-				? `/api/itskills?search=${encodeURIComponent(search)}`
-				: '/api/itskills'
+			const url = search ? `/api/itskills?search=${encodeURIComponent(search)}` : '/api/itskills'
 			const response = await axios.get(url)
 			setDatabaseSkills(response.data || [])
 		} catch (error) {
@@ -92,13 +66,7 @@ const SkillSelector = ({
 		const currentSkillsData = getCurrentSkillsData()
 
 		// Check for duplicates
-		const isDuplicate = Object.values(currentSkillsData).some(
-			levelSkills =>
-				Array.isArray(levelSkills) &&
-				levelSkills.some(
-					skill => skill.name?.toLowerCase() === skillName.toLowerCase()
-				)
-		)
+		const isDuplicate = Object.values(currentSkillsData).some(levelSkills => Array.isArray(levelSkills) && levelSkills.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase()))
 
 		if (isDuplicate) {
 			alert(`Skill "${skillName}" already exists!`)
@@ -132,9 +100,7 @@ const SkillSelector = ({
 		const currentSkillsData = getCurrentSkillsData()
 		const updatedSkills = {
 			...currentSkillsData,
-			[level]: (currentSkillsData[level] || []).filter(
-				skill => skill.name !== skillToDelete.name
-			),
+			[level]: (currentSkillsData[level] || []).filter(skill => skill.name !== skillToDelete.name),
 		}
 
 		try {
@@ -180,10 +146,7 @@ const SkillSelector = ({
 					変更あり
 				</div>
 			)}
-			<div
-				className={styles.title}
-				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
-			>
+			<div className={styles.title} style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}>
 				{icon}
 				{title}
 			</div>
@@ -192,22 +155,14 @@ const SkillSelector = ({
 				<div className={styles.description}>
 					{Object.entries(headers).map(([level, description]) => (
 						<div key={level}>
-							<span style={{ fontWeight: 800 }}>{t('levels')[level]}</span>:{' '}
-							{description}
+							<span style={{ fontWeight: 800 }}>{t('levels')[level]}</span>: {description}
 						</div>
 					))}
 				</div>
 			)}
 
 			{editMode && (
-				<Box
-					display='flex'
-					alignItems='center'
-					mb={2}
-					mt={2}
-					gap={2}
-					className={styles.addSkillForm}
-				>
+				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2} className={styles.addSkillForm}>
 					{showAutocomplete ? (
 						<Autocomplete
 							options={getSkillsForAutocomplete()}
@@ -235,14 +190,7 @@ const SkillSelector = ({
 							}}
 							loading={loadingSkills}
 							sx={{ width: 200 }}
-							renderInput={params => (
-								<TextField
-									{...params}
-									label={t('selectSkill')}
-									variant='outlined'
-									size='small'
-								/>
-							)}
+							renderInput={params => <TextField {...params} label={t('selectSkill')} variant='outlined' size='small' />}
 						/>
 					) : (
 						<TextField
@@ -301,8 +249,7 @@ const SkillSelector = ({
 					<tbody>
 						{keysToRender.map(level => {
 							const levelSkills = skillsToDisplay[level] || []
-							const hasSkills =
-								Array.isArray(levelSkills) && levelSkills.length > 0
+							const hasSkills = Array.isArray(levelSkills) && levelSkills.length > 0
 							return (
 								<tr key={level}>
 									<td
@@ -321,25 +268,11 @@ const SkillSelector = ({
 												{levelSkills.map((skill, index) => (
 													<Chip
 														key={`${level}-${index}-${skill.name}`}
-														label={
-															skill.name + (skill.date ? `\n${skill.date}` : '')
-														}
+														label={skill.name + (skill.date ? `\n${skill.date}` : '')}
 														variant='filled'
 														style={{
-															color: skill.date
-																? skill.color
-																: level === '上級'
-																	? '#ffffff'
-																	: level === '中級'
-																		? '#FFFFFF'
-																		: '#5627db',
-															backgroundColor: skill.date
-																? skill.color + '16'
-																: level === '上級'
-																	? '#5627DB'
-																	: level === '中級'
-																		? '#7852e2'
-																		: '#efeafc',
+															color: skill.date ? skill.color : level === '上級' ? '#ffffff' : level === '中級' ? '#FFFFFF' : '#5627db',
+															backgroundColor: skill.date ? skill.color + '16' : level === '上級' ? '#5627DB' : level === '中級' ? '#7852e2' : '#efeafc',
 															fontWeight: 500,
 															fontSize: 13,
 															borderRadius: '16px',
@@ -352,21 +285,13 @@ const SkillSelector = ({
 																padding: '6px 12px',
 															},
 														}}
-														onDelete={
-															editMode
-																? () => handleDeleteSkill(skill, level)
-																: undefined
-														}
+														onDelete={editMode ? () => handleDeleteSkill(skill, level) : undefined}
 													/>
 												))}
 											</div>
 										) : (
 											// Show 未提出 when explicitly requested
-											showEmptyAsNotSubmitted && (
-												<div style={{ color: '#666', fontSize: 14 }}>
-													未提出
-												</div>
-											)
+											showEmptyAsNotSubmitted && <div style={{ color: '#666', fontSize: 14 }}>未提出</div>
 										)}
 									</td>
 								</tr>
@@ -382,9 +307,7 @@ const SkillSelector = ({
 										color: '#999',
 									}}
 								>
-									{editMode
-										? 'No skills added yet. Use the form above to add skills.'
-										: t('noSkills')}
+									{editMode ? 'No skills added yet. Use the form above to add skills.' : t('noSkills')}
 								</td>
 							</tr>
 						)}

@@ -8,17 +8,7 @@ import styles from './OtherSkillsSelector.module.css'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
-const OtherSkillsSelector = ({
-	title,
-	data,
-	editData,
-	editMode,
-	updateEditData,
-	keyName,
-	parentKey = 'draft',
-	icon,
-	isChanged = false,
-}) => {
+const OtherSkillsSelector = ({ title, data, editData, editMode, updateEditData, keyName, parentKey = 'draft', icon, isChanged = false }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [skillLevel, setSkillLevel] = useState('')
 	const [availableSkills, setAvailableSkills] = useState([])
@@ -35,9 +25,7 @@ const OtherSkillsSelector = ({
 	const fetchSkillsFromAPI = async (search = '') => {
 		try {
 			setLoadingSkills(true)
-			const url = search
-				? `/api/skills?search=${encodeURIComponent(search)}`
-				: '/api/skills'
+			const url = search ? `/api/skills?search=${encodeURIComponent(search)}` : '/api/skills'
 			const response = await axios.get(url)
 			setAvailableSkills(response.data || [])
 		} catch (error) {
@@ -69,11 +57,7 @@ const OtherSkillsSelector = ({
 		}
 
 		// If it's an object (old format), convert to array
-		if (
-			skillsData &&
-			typeof skillsData === 'object' &&
-			!Array.isArray(skillsData)
-		) {
+		if (skillsData && typeof skillsData === 'object' && !Array.isArray(skillsData)) {
 			// Convert old format to new array format
 			const convertedArray = []
 			Object.entries(skillsData).forEach(([level, skills]) => {
@@ -104,9 +88,7 @@ const OtherSkillsSelector = ({
 		const currentSkillsData = getCurrentSkillsData()
 
 		// Check for duplicates
-		const isDuplicate = currentSkillsData.some(
-			skill => skill.name?.toLowerCase() === skillName.toLowerCase()
-		)
+		const isDuplicate = currentSkillsData.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase())
 
 		if (isDuplicate) {
 			alert(`Skill "${skillName}" already exists!`)
@@ -137,9 +119,7 @@ const OtherSkillsSelector = ({
 
 	const handleDeleteSkill = skillToDelete => {
 		const currentSkillsData = getCurrentSkillsData()
-		const updatedSkills = currentSkillsData.filter(
-			skill => skill.name !== skillToDelete.name
-		)
+		const updatedSkills = currentSkillsData.filter(skill => skill.name !== skillToDelete.name)
 
 		try {
 			updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
@@ -186,23 +166,13 @@ const OtherSkillsSelector = ({
 				</div>
 			)}
 
-			<div
-				className={styles.title}
-				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
-			>
+			<div className={styles.title} style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}>
 				{icon}
 				{title}
 			</div>
 
 			{editMode && (
-				<Box
-					display='flex'
-					alignItems='center'
-					mb={2}
-					mt={2}
-					gap={2}
-					className={styles.addSkillForm}
-				>
+				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2} className={styles.addSkillForm}>
 					<TextField
 						value={selectedSkill?.name || ''}
 						onChange={event => {
@@ -216,16 +186,7 @@ const OtherSkillsSelector = ({
 						sx={{ width: 250 }}
 					/>
 
-					<TextField
-						value={skillLevel}
-						onChange={event => setSkillLevel(event.target.value)}
-						onKeyPress={handleKeyPress}
-						label={t('level') || 'Level/Score'}
-						placeholder='e.g., Gold Medal, 1st Place, 850'
-						variant='outlined'
-						size='small'
-						sx={{ width: 200 }}
-					/>
+					<TextField value={skillLevel} onChange={event => setSkillLevel(event.target.value)} onKeyPress={handleKeyPress} label={t('level') || 'Level/Score'} placeholder='e.g., Gold Medal, 1st Place, 850' variant='outlined' size='small' sx={{ width: 200 }} />
 
 					<IconButton
 						onClick={handleAddSkill}

@@ -1,21 +1,7 @@
 import SearchIcon from '@mui/icons-material/Search'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import {
-	Alert,
-	Box,
-	Button,
-	Chip,
-	CircularProgress,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogTitle,
-	IconButton,
-	Skeleton,
-	Snackbar,
-	TextField,
-} from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Snackbar, TextField } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
 import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
@@ -147,8 +133,7 @@ export const NewsForAdmin = () => {
 
 			if (err.response) {
 				const status = err.response.status
-				const serverMessage =
-					err.response.data?.message || err.response.data?.error
+				const serverMessage = err.response.data?.message || err.response.data?.error
 			} else {
 				errorMessage = `Failed to delete news: ${err.message}`
 			}
@@ -212,9 +197,7 @@ export const NewsForAdmin = () => {
 			})
 			setCreateDialogOpen(false)
 		} catch (err) {
-			setError(
-				`Failed to create news: ${err.response?.data?.message || err.message}`
-			)
+			setError(`Failed to create news: ${err.response?.data?.message || err.message}`)
 			console.error('Error creating news:', err)
 		} finally {
 			setCreateLoading(false)
@@ -241,10 +224,7 @@ export const NewsForAdmin = () => {
 		setNewNews({
 			title: news.title || '',
 			description: news.description || '',
-			hashtags:
-				news.hashtags && Array.isArray(news.hashtags)
-					? news.hashtags.join(', ')
-					: news.hashtags || '',
+			hashtags: news.hashtags && Array.isArray(news.hashtags) ? news.hashtags.join(', ') : news.hashtags || '',
 			image: null,
 			source_link: news.source_link || '',
 		})
@@ -286,26 +266,17 @@ export const NewsForAdmin = () => {
 				formData.append('removeImage', 'true')
 			}
 
-			const response = await axios.put(
-				`/api/news/${editingNews.id}`,
-				formData,
-				{
-					headers: {
-						'Content-Type': 'multipart/form-data',
-					},
-				}
-			)
+			const response = await axios.put(`/api/news/${editingNews.id}`, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+			})
 
 			const updatedNews = {
 				...response.data,
-				hashtags:
-					typeof response.data.hashtags === 'string'
-						? JSON.parse(response.data.hashtags)
-						: response.data.hashtags,
+				hashtags: typeof response.data.hashtags === 'string' ? JSON.parse(response.data.hashtags) : response.data.hashtags,
 			}
-			setNewsData(prevNews =>
-				prevNews.map(news => (news.id === editingNews.id ? updatedNews : news))
-			)
+			setNewsData(prevNews => prevNews.map(news => (news.id === editingNews.id ? updatedNews : news)))
 
 			setNewNews({
 				title: '',
@@ -318,9 +289,7 @@ export const NewsForAdmin = () => {
 			setRemoveImage(false)
 			setEditDialogOpen(false)
 		} catch (err) {
-			setError(
-				`Failed to update news: ${err.response?.data?.message || err.message}`
-			)
+			setError(`Failed to update news: ${err.response?.data?.message || err.message}`)
 			console.error('Error updating news:', err)
 		} finally {
 			setEditLoading(false)
@@ -329,12 +298,7 @@ export const NewsForAdmin = () => {
 
 	return (
 		<div>
-			<Snackbar
-				open={toastOpen}
-				autoHideDuration={3000}
-				onClose={() => setToastOpen(false)}
-				anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-			>
+			<Snackbar open={toastOpen} autoHideDuration={3000} onClose={() => setToastOpen(false)} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
 				<Alert
 					onClose={() => setToastOpen(false)}
 					severity='success' // success | error | warning | info
@@ -437,11 +401,7 @@ export const NewsForAdmin = () => {
 							minWidth: '80px',
 						}}
 					>
-						{loading ? (
-							<CircularProgress size={20} color='inherit' />
-						) : (
-							t('search')
-						)}
+						{loading ? <CircularProgress size={20} color='inherit' /> : t('search')}
 					</Button>
 				</div>
 			</div>
@@ -463,8 +423,7 @@ export const NewsForAdmin = () => {
 					maxWidth: '1200px',
 					margin: '0 auto',
 					display: 'grid',
-					gridTemplateColumns:
-						'repeat(auto-fit, minmax(min(300px, 100%), 1fr))',
+					gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))',
 					gap: 'clamp(12px, 2vw, 20px)',
 					padding: '0 10px',
 				}}
@@ -478,9 +437,7 @@ export const NewsForAdmin = () => {
 							color: '#7f8c8d',
 						}}
 					>
-						<div style={{ fontSize: '18px', marginBottom: '8px' }}>
-							{t('noNewsFound')}
-						</div>
+						<div style={{ fontSize: '18px', marginBottom: '8px' }}>{t('noNewsFound')}</div>
 						<div style={{ fontSize: '14px' }}>{t('tryAdjusting')}</div>
 					</div>
 				) : (
@@ -607,31 +564,29 @@ export const NewsForAdmin = () => {
 										</div>
 
 										{/* Hashtags */}
-										{news.hashtags &&
-											Array.isArray(news.hashtags) &&
-											news.hashtags.length > 0 && (
-												<div
-													style={{
-														display: 'flex',
-														flexWrap: 'wrap',
-														gap: '6px',
-													}}
-												>
-													{news.hashtags.map((hashtag, index) => (
-														<Chip
-															key={index}
-															label={`${hashtag}`}
-															size='small'
-															style={{
-																backgroundColor: '#e3f2fd',
-																color: '#1976d2',
-																fontSize: 'clamp(10px, 1.5vw, 12px)',
-																height: 'clamp(20px, 3vw, 24px)',
-															}}
-														/>
-													))}
-												</div>
-											)}
+										{news.hashtags && Array.isArray(news.hashtags) && news.hashtags.length > 0 && (
+											<div
+												style={{
+													display: 'flex',
+													flexWrap: 'wrap',
+													gap: '6px',
+												}}
+											>
+												{news.hashtags.map((hashtag, index) => (
+													<Chip
+														key={index}
+														label={`${hashtag}`}
+														size='small'
+														style={{
+															backgroundColor: '#e3f2fd',
+															color: '#1976d2',
+															fontSize: 'clamp(10px, 1.5vw, 12px)',
+															height: 'clamp(20px, 3vw, 24px)',
+														}}
+													/>
+												))}
+											</div>
+										)}
 									</div>
 								</div>
 								<div style={{ padding: 10, width: '100%' }}>
@@ -655,9 +610,7 @@ export const NewsForAdmin = () => {
 										>
 											{news.type}
 										</div>
-										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>
-											{formatDate(news.createdAt)}
-										</div>
+										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>{formatDate(news.createdAt)}</div>
 									</div>
 									{/* Action Buttons */}
 									<div
@@ -722,11 +675,7 @@ export const NewsForAdmin = () => {
 											size='small'
 											aria-label={t('delete')}
 										>
-											{deleteLoading === news.id ? (
-												<CircularProgress size={18} color='inherit' />
-											) : (
-												<DeleteIcon />
-											)}
+											{deleteLoading === news.id ? <CircularProgress size={18} color='inherit' /> : <DeleteIcon />}
 										</IconButton>
 										{/* <div onClick={()=>users()} style={{background:'pink'}}>users</div> */}
 									</div>
@@ -769,23 +718,12 @@ export const NewsForAdmin = () => {
 			</div>
 
 			{/* Create News Dialog */}
-			<Dialog
-				open={createDialogOpen}
-				onClose={() => setCreateDialogOpen(false)}
-				maxWidth='md'
-				fullWidth
-			>
+			<Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} maxWidth='md' fullWidth>
 				<DialogTitle>{t('CreateNews')}</DialogTitle>
 				<DialogContent>
 					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
 						<Box>
-							<input
-								accept='image/*'
-								style={{ display: 'none' }}
-								id='image-upload'
-								type='file'
-								onChange={handleFileChange}
-							/>
+							<input accept='image/*' style={{ display: 'none' }} id='image-upload' type='file' onChange={handleFileChange} />
 							<label htmlFor='image-upload'>
 								<Button
 									variant='outlined'
@@ -802,31 +740,9 @@ export const NewsForAdmin = () => {
 								</Button>
 							</label>
 						</Box>
-						<TextField
-							label={t('title')}
-							value={newNews.title}
-							onChange={e => handleInputChange('title', e.target.value)}
-							fullWidth
-							required
-						/>
-						<TextField
-							label={t('description')}
-							value={newNews.description}
-							onChange={e => handleInputChange('description', e.target.value)}
-							fullWidth
-							multiline
-							rows={4}
-							maxRows={6}
-							required
-						/>
-						<TextField
-							label={t('hashtag')}
-							value={newNews.hashtags}
-							onChange={e => handleInputChange('hashtags', e.target.value)}
-							fullWidth
-							placeholder={t('hashtagPlaceholder')}
-							required
-						/>
+						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required />
+						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required />
+						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} required />
 						<TextField
 							label={t('sourseLink')}
 							value={newNews.source_link}
@@ -838,19 +754,9 @@ export const NewsForAdmin = () => {
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setCreateDialogOpen(false)}>
-						{t('cencel')}
-					</Button>
-					<Button
-						onClick={handleCreateNews}
-						variant='contained'
-						disabled={createLoading || !newNews.title || !newNews.description}
-					>
-						{createLoading ? (
-							<CircularProgress size={20} color='inherit' />
-						) : (
-							t('create')
-						)}
+					<Button onClick={() => setCreateDialogOpen(false)}>{t('cencel')}</Button>
+					<Button onClick={handleCreateNews} variant='contained' disabled={createLoading || !newNews.title || !newNews.description}>
+						{createLoading ? <CircularProgress size={20} color='inherit' /> : t('create')}
 					</Button>
 				</DialogActions>
 			</Dialog>
@@ -877,13 +783,7 @@ export const NewsForAdmin = () => {
 				<DialogContent>
 					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
 						<Box>
-							<input
-								accept='image/*'
-								style={{ display: 'none' }}
-								id='edit-image-upload'
-								type='file'
-								onChange={handleFileChange}
-							/>
+							<input accept='image/*' style={{ display: 'none' }} id='edit-image-upload' type='file' onChange={handleFileChange} />
 							<label htmlFor='edit-image-upload'>
 								<Button variant='outlined' component='span' fullWidth>
 									{newNews.image ? newNews.image.name : t('upload_picture')}
@@ -908,38 +808,10 @@ export const NewsForAdmin = () => {
 								</Button>
 							</Box>
 						)}
-						<TextField
-							label={t('title')}
-							value={newNews.title}
-							onChange={e => handleInputChange('title', e.target.value)}
-							fullWidth
-							required
-						/>
-						<TextField
-							label={t('description')}
-							value={newNews.description}
-							onChange={e => handleInputChange('description', e.target.value)}
-							fullWidth
-							multiline
-							rows={4}
-							maxRows={6}
-							required
-						/>
-						<TextField
-							label={t('hashtag')}
-							value={newNews.hashtags}
-							onChange={e => handleInputChange('hashtags', e.target.value)}
-							fullWidth
-							placeholder={t('hashtagPlaceholder')}
-							required
-						/>
-						<TextField
-							label={t('sourseLink')}
-							value={newNews.source_link}
-							onChange={e => handleInputChange('source_link', e.target.value)}
-							fullWidth
-							placeholder='https://example.com'
-						/>
+						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required />
+						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required />
+						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} required />
+						<TextField label={t('sourseLink')} value={newNews.source_link} onChange={e => handleInputChange('source_link', e.target.value)} fullWidth placeholder='https://example.com' />
 					</Box>
 				</DialogContent>
 				<DialogActions>
@@ -958,16 +830,8 @@ export const NewsForAdmin = () => {
 					>
 						{t('cancel')}
 					</Button>
-					<Button
-						onClick={handleUpdateNews}
-						variant='contained'
-						disabled={editLoading || !newNews.title || !newNews.description}
-					>
-						{editLoading ? (
-							<CircularProgress size={20} color='inherit' />
-						) : (
-							t('updateNews')
-						)}
+					<Button onClick={handleUpdateNews} variant='contained' disabled={editLoading || !newNews.title || !newNews.description}>
+						{editLoading ? <CircularProgress size={20} color='inherit' /> : t('updateNews')}
 					</Button>
 				</DialogActions>
 			</Dialog>

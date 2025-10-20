@@ -13,9 +13,7 @@ class KintoneController {
 			const students = await KintoneService.getAllRecords('students')
 			res.status(200).json(students)
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'Error fetching students', error: error.message })
+			res.status(500).json({ message: 'Error fetching students', error: error.message })
 		}
 	}
 	static async getBy(req, res, next) {
@@ -24,9 +22,7 @@ class KintoneController {
 			const records = await KintoneService.getRecordBy(table, col, val)
 			res.status(200).json(records)
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'Error fetching records', error: error.message })
+			res.status(500).json({ message: 'Error fetching records', error: error.message })
 		}
 	}
 	static async create(req, res) {
@@ -41,9 +37,7 @@ class KintoneController {
 			const result = await KintoneService.createRecord(appName, data)
 			res.status(201).json(result)
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'Error creating record', error: error.message })
+			res.status(500).json({ message: 'Error creating record', error: error.message })
 		}
 	}
 	static async update(req, res) {
@@ -53,16 +47,10 @@ class KintoneController {
 			if (!appName) {
 				throw new Error(`No app name found for appId: ${appId}`)
 			}
-			const updatedRecord = await KintoneService.updateRecord(
-				appName,
-				req.params.id,
-				req.body
-			)
+			const updatedRecord = await KintoneService.updateRecord(appName, req.params.id, req.body)
 			res.status(200).json(updatedRecord)
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'Error updating record', error: error.message })
+			res.status(500).json({ message: 'Error updating record', error: error.message })
 		}
 	}
 	static async delete(req, res) {
@@ -82,9 +70,7 @@ class KintoneController {
 			res.status(204).json()
 		} catch (error) {
 			console.error('Error deleting record:', error.message) // Debugging uchun
-			res
-				.status(500)
-				.json({ message: 'Error deleting record', error: error.message })
+			res.status(500).json({ message: 'Error deleting record', error: error.message })
 		}
 	}
 	static async sync(req, res) {
@@ -92,9 +78,7 @@ class KintoneController {
 			const result = await KintoneService.syncData()
 			res.status(200).json(result)
 		} catch (error) {
-			res
-				.status(500)
-				.json({ message: 'Error syncing data', error: error.message })
+			res.status(500).json({ message: 'Error syncing data', error: error.message })
 		}
 	}
 }

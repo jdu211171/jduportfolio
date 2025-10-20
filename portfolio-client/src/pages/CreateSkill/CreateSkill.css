@@ -1,233 +1,249 @@
-
 /* Container animations */
 .create-skill-container {
-  animation: fadeInUp 0.6s ease-out;
+	animation: fadeInUp 0.6s ease-out;
 }
 
 /* Card hover effects */
 .skill-card {
-  position: relative;
-  overflow: hidden;
+	position: relative;
+	overflow: hidden;
 }
 
 .skill-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transition: left 0.5s;
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+	transition: left 0.5s;
 }
 
 .skill-card:hover::before {
-  left: 100%;
+	left: 100%;
 }
 
 /* Button animations */
 .pulse-button {
-  animation: pulse 2s infinite;
+	animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(86, 39, 220, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(86, 39, 220, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(86, 39, 220, 0);
-  }
+	0% {
+		box-shadow: 0 0 0 0 rgba(86, 39, 220, 0.7);
+	}
+	70% {
+		box-shadow: 0 0 0 10px rgba(86, 39, 220, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(86, 39, 220, 0);
+	}
 }
 
 /* Loading animation */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* Color picker hover effects */
 .color-option {
-  position: relative;
-  transition: all 0.2s ease;
+	position: relative;
+	transition: all 0.2s ease;
 }
 
 .color-option:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	transform: scale(1.15);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .color-option::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  background: white;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.2s ease;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 8px;
+	height: 8px;
+	background: white;
+	border-radius: 50%;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: opacity 0.2s ease;
 }
 
 .color-option.selected::after {
-  opacity: 1;
+	opacity: 1;
 }
 
 /* Search input focus effects */
 .search-input-focused {
-  box-shadow: 0 0 0 2px rgba(86, 39, 220, 0.2);
+	box-shadow: 0 0 0 2px rgba(86, 39, 220, 0.2);
 }
 
 /* Chip animations */
 .skill-chip {
-  animation: slideInFromLeft 0.3s ease-out;
+	animation: slideInFromLeft 0.3s ease-out;
 }
 
 @keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 /* Empty state styling */
 .empty-state {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border: 2px dashed #ddd;
+	background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+	border: 2px dashed #ddd;
 }
 
 /* Modal backdrop blur */
 .modal-backdrop {
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(5px);
+	background-color: rgba(0, 0, 0, 0.4);
 }
 
 /* Success/Error state animations */
 .success-shake {
-  animation: successShake 0.5s ease-in-out;
+	animation: successShake 0.5s ease-in-out;
 }
 
 @keyframes successShake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-5px);
+	}
+	75% {
+		transform: translateX(5px);
+	}
 }
 
 /* Hover effect for skill cards */
 .skill-card-hover {
-  background: linear-gradient(145deg, #ffffff, #f0f0f0);
-  box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+	background: linear-gradient(145deg, #ffffff, #f0f0f0);
+	box-shadow:
+		20px 20px 60px #d9d9d9,
+		-20px -20px 60px #ffffff;
 }
 
 /* Typography enhancement */
 .gradient-text {
-  background: linear-gradient(45deg, #5627DC, #8B5CF6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+	background: linear-gradient(45deg, #5627dc, #8b5cf6);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
 }
 
 /* Icon rotation on hover */
 .rotate-on-hover:hover {
-  transform: rotate(180deg);
+	transform: rotate(180deg);
 }
 
 /* Floating action button effect */
 .fab-float {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 1000;
-  box-shadow: 0 8px 16px rgba(86, 39, 220, 0.3);
+	position: fixed;
+	bottom: 24px;
+	right: 24px;
+	z-index: 1000;
+	box-shadow: 0 8px 16px rgba(86, 39, 220, 0.3);
 }
 
 /* Responsive improvements */
 @media (max-width: 768px) {
-  .skill-card {
-    margin-bottom: 16px;
-  }
-  
-  .color-option {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .fab-float {
-    bottom: 16px;
-    right: 16px;
-  }
+	.skill-card {
+		margin-bottom: 16px;
+	}
+
+	.color-option {
+		width: 32px;
+		height: 32px;
+	}
+
+	.fab-float {
+		bottom: 16px;
+		right: 16px;
+	}
 }
 
 /* Dark mode support (if needed) */
 @media (prefers-color-scheme: dark) {
-  .skill-card {
-    background: #2d2d2d;
-    color: #ffffff;
-  }
-  
-  .empty-state {
-    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-    border-color: #555;
-  }
+	.skill-card {
+		background: #2d2d2d;
+		color: #ffffff;
+	}
+
+	.empty-state {
+		background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+		border-color: #555;
+	}
 }
 
 /* Print styles */
 @media print {
-  .skill-card {
-    break-inside: avoid;
-    margin-bottom: 16px;
-  }
+	.skill-card {
+		break-inside: avoid;
+		margin-bottom: 16px;
+	}
 }
 
 /* Focus accessibility */
 .focus-visible {
-  outline: 2px solid #5627DC;
-  outline-offset: 2px;
+	outline: 2px solid #5627dc;
+	outline-offset: 2px;
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .skill-card {
-    border: 2px solid #000;
-  }
-  
-  .color-option {
-    border: 2px solid #000;
-  }
+	.skill-card {
+		border: 2px solid #000;
+	}
+
+	.color-option {
+		border: 2px solid #000;
+	}
 }
 
 /* Animation for entering elements */
 .enter-animation {
-  animation: enterFromBottom 0.4s ease-out forwards;
+	animation: enterFromBottom 0.4s ease-out forwards;
 }
 
 @keyframes enterFromBottom {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* Stagger animation for multiple cards */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
+.stagger-1 {
+	animation-delay: 0.1s;
+}
+.stagger-2 {
+	animation-delay: 0.2s;
+}
+.stagger-3 {
+	animation-delay: 0.3s;
+}
+.stagger-4 {
+	animation-delay: 0.4s;
+}

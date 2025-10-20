@@ -1,15 +1,5 @@
 import React from 'react'
-import {
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-	Button,
-	Box,
-	Typography,
-	Chip,
-	IconButton,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, Chip, IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import PropTypes from 'prop-types'
 
@@ -53,12 +43,7 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 			},
 			skills: {
 				name: 'スキル・能力',
-				fields: [
-					'skills',
-					'it_skills',
-					'special_skills',
-					'special_skills_description',
-				],
+				fields: ['skills', 'it_skills', 'special_skills', 'special_skills_description'],
 			},
 			interests: {
 				name: '趣味・興味',
@@ -66,12 +51,7 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 			},
 			certifications: {
 				name: '資格・認定',
-				fields: [
-					'jlpt',
-					'jdu_japanese_certification',
-					'japanese_speech_contest',
-					'it_contest',
-				],
+				fields: ['jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest'],
 			},
 			portfolio: {
 				name: 'ポートフォリオ',
@@ -92,10 +72,7 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 		fields.forEach(field => {
 			let placed = false
 			for (const [key, category] of Object.entries(categories)) {
-				if (
-					category.fields.includes(field) ||
-					(key === 'qa' && field.startsWith('qa.'))
-				) {
+				if (category.fields.includes(field) || (key === 'qa' && field.startsWith('qa.'))) {
 					if (!groupedFields[key]) {
 						groupedFields[key] = {
 							name: category.name,
@@ -174,11 +151,7 @@ const ChangedFieldsModal = ({ open, onClose, data }) => {
 
 				{Object.entries(categorizedFields).map(([categoryKey, category]) => (
 					<Box key={categoryKey} sx={{ mb: 3 }}>
-						<Typography
-							variant='subtitle2'
-							color='primary'
-							sx={{ mb: 1, fontWeight: 600 }}
-						>
+						<Typography variant='subtitle2' color='primary' sx={{ mb: 1, fontWeight: 600 }}>
 							{category.name}
 						</Typography>
 						<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>

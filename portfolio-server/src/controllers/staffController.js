@@ -27,12 +27,7 @@ class StaffController {
 					}
 					const newStaff = await StaffService.createStaff(data)
 					if (newStaff) {
-						await sendStaffWelcomeEmail(
-							newStaff.email,
-							password,
-							newStaff.first_name,
-							newStaff.last_name
-						)
+						await sendStaffWelcomeEmail(newStaff.email, password, newStaff.first_name, newStaff.last_name)
 					}
 					return res.status(201).json(newStaff)
 				}
@@ -45,21 +40,13 @@ class StaffController {
 						position: record.staffPosition.value,
 						kintone_id: record['$id'].value,
 					}
-					const updatedStaff = await StaffService.updateStaffByKintoneId(
-						record['$id']?.value,
-						staffData
-					)
-					if (!updatedStaff)
-						return res.status(404).json({ message: 'Staff not found' })
-					return res
-						.status(200)
-						.json({ message: 'Updated', staff: updatedStaff })
+					const updatedStaff = await StaffService.updateStaffByKintoneId(record['$id']?.value, staffData)
+					if (!updatedStaff) return res.status(404).json({ message: 'Staff not found' })
+					return res.status(200).json({ message: 'Updated', staff: updatedStaff })
 				}
 				case 'DELETE_RECORD': {
-					const deletedCount =
-						await StaffService.deleteStaffByKintoneId(recordId)
-					if (deletedCount === 0)
-						return res.status(404).json({ message: 'Staff not found' })
+					const deletedCount = await StaffService.deleteStaffByKintoneId(recordId)
+					if (deletedCount === 0) return res.status(404).json({ message: 'Staff not found' })
 					return res.status(204).send()
 				}
 				default:
@@ -97,13 +84,8 @@ class StaffController {
 
 			if (password) {
 				const staff = await StaffService.getStaffById(req.params.id, true)
-				if (
-					!staff ||
-					!(await bcrypt.compare(currentPassword, staff.password))
-				) {
-					return res
-						.status(400)
-						.json({ error: '現在のパスワードを入力してください' })
+				if (!staff || !(await bcrypt.compare(currentPassword, staff.password))) {
+					return res.status(400).json({ error: '現在のパスワードを入力してください' })
 				}
 			}
 			const updatedStaff = await StaffService.updateStaff(req.params.id, {

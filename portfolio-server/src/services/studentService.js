@@ -239,13 +239,7 @@ class StudentService {
 	// 	}
 	// }
 
-	static async getAllStudents(
-		filter,
-		recruiterId,
-		onlyBookmarked,
-		userType,
-		sortOptions = {}
-	) {
+	static async getAllStudents(filter, recruiterId, onlyBookmarked, userType, sortOptions = {}) {
 		try {
 			// 1. FILTRLASH MANTIG'I (o'zgarishsiz qoladi)
 			const semesterMapping = {
@@ -255,9 +249,7 @@ class StudentService {
 				'4年生': ['7', '8', '9'],
 			}
 			if (filter && filter.semester) {
-				filter.semester = filter.semester.flatMap(
-					term => semesterMapping[term] || []
-				)
+				filter.semester = filter.semester.flatMap(term => semesterMapping[term] || [])
 			}
 
 			let query = {}
@@ -268,17 +260,7 @@ class StudentService {
 				filter = {}
 			}
 
-			const searchableColumns = [
-				'email',
-				'first_name',
-				'last_name',
-				'self_introduction',
-				'hobbies',
-				'skills',
-				'it_skills',
-				'jlpt',
-				'student_id',
-			]
+			const searchableColumns = ['email', 'first_name', 'last_name', 'self_introduction', 'hobbies', 'skills', 'it_skills', 'jlpt', 'student_id']
 
 			// Helper to build JSONB @> conditions for it_skills across levels
 			const buildItSkillsCondition = (names = [], match = 'any') => {
@@ -290,9 +272,7 @@ class StudentService {
 					// JSON array string for [{"name":"<n>"}]
 					const json = JSON.stringify([{ name: String(n) }])
 					const esc = sequelize.escape(json) // safe string with quotes
-					const levelExpr = lvls
-						.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`)
-						.join(' OR ')
+					const levelExpr = lvls.map(l => `(("Student"."it_skills"->'${l}') @> ${esc}::jsonb)`).join(' OR ')
 					return `(${levelExpr})`
 				})
 				const joiner = match === 'all' ? ' AND ' : ' OR '
@@ -328,9 +308,7 @@ class StudentService {
 							return { [column]: { [Op.iLike]: `%${searchValue}%` } }
 						})
 					} else if (key === 'it_skills') {
-						const values = Array.isArray(filter[key])
-							? filter[key]
-							: [filter[key]]
+						const values = Array.isArray(filter[key]) ? filter[key] : [filter[key]]
 						const match = filter.it_skills_match === 'all' ? 'all' : 'any'
 						const expr = buildItSkillsCondition(values, match)
 						if (expr) {
@@ -396,22 +374,13 @@ class StudentService {
 				query[Op.and].push({ visibility: true })
 			}
 			if (onlyBookmarked === 'true' && recruiterId) {
-				query[Op.and].push(
-					sequelize.literal(
-						`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(
-							recruiterId
-						)})`
-					)
-				)
+				query[Op.and].push(sequelize.literal(`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)})`))
 			}
 
 			// 2. SARALASH MANTIG'I (YANGI QISM)
 			let order = []
 			const { sortBy, sortOrder } = sortOptions
-			const validSortOrder =
-				sortOrder && ['ASC', 'DESC'].includes(sortOrder.toUpperCase())
-					? sortOrder.toUpperCase()
-					: 'ASC'
+			const validSortOrder = sortOrder && ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC'
 
 			// Frontend'dan kelgan nomni DB'dagi ustun nomiga o'girish (xavfsizlik uchun)
 			const columnMap = {
@@ -439,16 +408,7 @@ class StudentService {
 			// 3. MA'LUMOTLARNI OLISH (order parametri qo'shildi)
 			const attributes = {}
 			if (recruiterId) {
-				attributes.include = [
-					[
-						sequelize.literal(
-							`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(
-								recruiterId
-							)})`
-						),
-						'isBookmarked',
-					],
-				]
+				attributes.include = [[sequelize.literal(`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)})`), 'isBookmarked']]
 			}
 
 			const students = await Student.findAll({
@@ -468,23 +428,9 @@ class StudentService {
 			// 4. DRAFT MA'LUMOTLARINI BIRLASHTIRISH (o'zgarishsiz qoladi)
 			const studentsWithDraftData = students.map(student => {
 				const studentJson = student.toJSON()
-				if (
-					studentJson.draft &&
-					studentJson.draft.profile_data &&
-					studentJson.draft.status !== 'draft'
-				) {
+				if (studentJson.draft && studentJson.draft.profile_data && studentJson.draft.status !== 'draft') {
 					const draftData = studentJson.draft.profile_data
-					const fieldsToMerge = [
-						'deliverables',
-						'gallery',
-						'self_introduction',
-						'hobbies',
-						'hobbies_description',
-						'special_skills_description',
-						'other_information',
-						'it_skills',
-						'skills',
-					]
+					const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
 					fieldsToMerge.forEach(field => {
 						if (draftData[field] !== undefined) {
 							studentJson[field] = draftData[field]
@@ -502,12 +448,7 @@ class StudentService {
 	}
 
 	// Service method to retrieve a student by ID
-	static async getStudentById(
-		studentId,
-		password = false,
-		requesterId = null,
-		requesterRole = null
-	) {
+	static async getStudentById(studentId, password = false, requesterId = null, requesterRole = null) {
 		try {
 			let excluded = ['createdAt', 'updatedAt']
 			if (!password) {
@@ -554,20 +495,11 @@ class StudentService {
 						isMatch: requesterId === student.id,
 					})
 
-					if (
-						requesterRole === 'Student' &&
-						requesterId &&
-						student.id === requesterId
-					) {
+					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
 						shouldMergeDraft = true
 					}
 					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (
-					studentJson.draft.status === 'submitted' ||
-					studentJson.draft.status === 'approved' ||
-					studentJson.draft.status === 'disapproved' ||
-					studentJson.draft.status === 'resubmission_required'
-				) {
+				} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
 					// Non-draft statuses: visible to authorized users
 					shouldMergeDraft = true
 				}
@@ -578,17 +510,7 @@ class StudentService {
 				const draftData = studentJson.draft.profile_data
 
 				// Merge draft fields into the main student object
-				const fieldsToMerge = [
-					'deliverables',
-					'gallery',
-					'self_introduction',
-					'hobbies',
-					'hobbies_description',
-					'special_skills_description',
-					'other_information',
-					'it_skills',
-					'skills',
-				]
+				const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
 
 				fieldsToMerge.forEach(field => {
 					if (draftData[field] !== undefined) {
@@ -604,12 +526,7 @@ class StudentService {
 	}
 
 	// Service method to retrieve a student by student_id
-	static async getStudentByStudentId(
-		studentId,
-		password = false,
-		requesterId = null,
-		requesterRole = null
-	) {
+	static async getStudentByStudentId(studentId, password = false, requesterId = null, requesterRole = null) {
 		try {
 			let excluded = ['createdAt', 'updatedAt']
 			if (!password) {
@@ -659,20 +576,11 @@ class StudentService {
 						isMatch: requesterId === student.id,
 					})
 
-					if (
-						requesterRole === 'Student' &&
-						requesterId &&
-						student.id === requesterId
-					) {
+					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
 						shouldMergeDraft = true
 					}
 					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (
-					studentJson.draft.status === 'submitted' ||
-					studentJson.draft.status === 'approved' ||
-					studentJson.draft.status === 'disapproved' ||
-					studentJson.draft.status === 'resubmission_required'
-				) {
+				} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
 					// Non-draft statuses: visible to authorized users
 					shouldMergeDraft = true
 				}
@@ -683,17 +591,7 @@ class StudentService {
 				const draftData = studentJson.draft.profile_data
 
 				// Merge draft fields into the main student object
-				const fieldsToMerge = [
-					'deliverables',
-					'gallery',
-					'self_introduction',
-					'hobbies',
-					'hobbies_description',
-					'special_skills_description',
-					'other_information',
-					'it_skills',
-					'skills',
-				]
+				const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
 
 				fieldsToMerge.forEach(field => {
 					if (draftData[field] !== undefined) {
@@ -729,20 +627,13 @@ class StudentService {
 			// If we're setting visibility to true, ensure we have the latest approved draft
 			if (studentData.visibility === true) {
 				// Check if we already have draft data in the request
-				const hasDraftData =
-					studentData.hasOwnProperty('self_introduction') ||
-					studentData.hasOwnProperty('hobbies') ||
-					studentData.hasOwnProperty('skills') ||
-					studentData.hasOwnProperty('it_skills')
+				const hasDraftData = studentData.hasOwnProperty('self_introduction') || studentData.hasOwnProperty('hobbies') || studentData.hasOwnProperty('skills') || studentData.hasOwnProperty('it_skills')
 
 				console.log('Has draft data:', hasDraftData)
 
 				// If no draft data provided, try to find the latest approved draft
 				if (!hasDraftData) {
-					const latestApprovedDraft =
-						await DraftService.getLatestApprovedDraftByStudentId(
-							student.student_id
-						)
+					const latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id)
 
 					console.log('Latest approved draft:', latestApprovedDraft)
 
@@ -941,8 +832,7 @@ class StudentService {
 					parents_phone_number: data.parentsPhoneNumber,
 					phone: data.phoneNumber,
 					enrollment_date: data.jduDate,
-					partner_university_enrollment_date:
-						data.partnerUniversityEnrollmentDate,
+					partner_university_enrollment_date: data.partnerUniversityEnrollmentDate,
 					// Kintone'dan yangi qo'shilgan maydonlar
 					faculty: data.faculty,
 					department: data.department,
@@ -953,18 +843,13 @@ class StudentService {
 					graduation_year: data.graduation_year || data.graduationYear,
 					graduation_season: data.graduationSeason,
 					kintone_id: data.kintone_id_value,
-					world_language_university_credits:
-						Number(data.worldLanguageUniversityCredits) || 0,
+					world_language_university_credits: Number(data.worldLanguageUniversityCredits) || 0,
 					business_skills_credits: Number(data.businessSkillsCredits) || 0,
-					japanese_employment_credits:
-						Number(data.japaneseEmploymentCredits) || 0,
-					liberal_arts_education_credits:
-						Number(data.liberalArtsEducationCredits) || 0,
+					japanese_employment_credits: Number(data.japaneseEmploymentCredits) || 0,
+					liberal_arts_education_credits: Number(data.liberalArtsEducationCredits) || 0,
 					total_credits: Number(data.totalCredits) || 0,
-					specialized_education_credits:
-						Number(data.specializedEducationCredits) || 0,
-					partner_university_credits:
-						Number(data.partnerUniversityCredits) || 0,
+					specialized_education_credits: Number(data.specializedEducationCredits) || 0,
+					partner_university_credits: Number(data.partnerUniversityCredits) || 0,
 					jlpt: data.jlpt,
 					jdu_japanese_certification: data.jdu_japanese_certification,
 					ielts: data.ielts,
@@ -973,10 +858,7 @@ class StudentService {
 				}
 
 				// Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
-				if (
-					!existingStudent ||
-					(data.semester > 0 && !existingStudent.active)
-				) {
+				if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
 					const password = generatePassword.generate({
 						length: 12,
 						numbers: true,
@@ -987,14 +869,7 @@ class StudentService {
 					formattedData.active = true
 
 					// >>> O'ZGARISH: Emailni darhol jo'natmaymiz! Faqat vazifani tayyorlab, ro'yxatga qo'shamiz. <<<
-					emailTasks.push(
-						formatStudentWelcomeEmail(
-							formattedData.email,
-							password,
-							formattedData.first_name,
-							formattedData.last_name
-						)
-					)
+					emailTasks.push(formatStudentWelcomeEmail(formattedData.email, password, formattedData.first_name, formattedData.last_name))
 				}
 
 				// Upsert operatsiyasi
@@ -1010,9 +885,7 @@ class StudentService {
 
 			// Barcha talabalarni bazaga yozib olamiz
 			await Promise.all(upsertPromises)
-			console.log(
-				`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`
-			)
+			console.log(`${upsertPromises.length} ta talaba ma'lumotlari DBda yangilandi/yaratildi.`)
 
 			// >>> O'ZGARISH: Tayyor bo'lgan email vazifalari ro'yxatini qaytaramiz <<<
 			return emailTasks
@@ -1048,10 +921,7 @@ class StudentService {
 						[Op.or]: [
 							{ student_id: { [Op.iLike]: `%${search}%` } },
 							{
-								[Op.or]: [
-									{ first_name: { [Op.iLike]: `%${search}%` } },
-									{ last_name: { [Op.iLike]: `%${search}%` } },
-								],
+								[Op.or]: [{ first_name: { [Op.iLike]: `%${search}%` } }, { last_name: { [Op.iLike]: `%${search}%` } }],
 							},
 						],
 						active: true,
@@ -1079,30 +949,20 @@ class StudentService {
 	static async updateStudentCreditDetails(studentId) {
 		try {
 			// Fetch credit details from Kintone
-			const creditDetails =
-				await kintoneCreditDetailsService.getCreditDetailsByStudentId(studentId)
+			const creditDetails = await kintoneCreditDetailsService.getCreditDetailsByStudentId(studentId)
 
 			// Update student record with credit details
-			const [updatedRowsCount] = await Student.update(
-				{ credit_details: creditDetails },
-				{ where: { student_id: studentId } }
-			)
+			const [updatedRowsCount] = await Student.update({ credit_details: creditDetails }, { where: { student_id: studentId } })
 
 			if (updatedRowsCount === 0) {
 				throw new Error('Student not found or no update needed')
 			}
 
 			// Calculate total credits and update if needed
-			const totalCredits =
-				kintoneCreditDetailsService.calculateTotalCredits(creditDetails)
-			await Student.update(
-				{ total_credits: totalCredits },
-				{ where: { student_id: studentId } }
-			)
+			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(creditDetails)
+			await Student.update({ total_credits: totalCredits }, { where: { student_id: studentId } })
 
-			console.log(
-				`✅ Updated credit details for student ${studentId}: ${creditDetails.length} records, ${totalCredits} total credits`
-			)
+			console.log(`✅ Updated credit details for student ${studentId}: ${creditDetails.length} records, ${totalCredits} total credits`)
 
 			return {
 				studentId,
@@ -1111,10 +971,7 @@ class StudentService {
 				creditDetails,
 			}
 		} catch (error) {
-			console.error(
-				`❌ Error updating credit details for student ${studentId}:`,
-				error.message
-			)
+			console.error(`❌ Error updating credit details for student ${studentId}:`, error.message)
 			throw error
 		}
 	}
@@ -1127,17 +984,13 @@ class StudentService {
 			}
 
 			// Always fetch fresh data from Kintone for real-time updates
-			console.log(
-				`🔄 Fetching fresh credit details from Kintone for student ${studentId}`
-			)
+			console.log(`🔄 Fetching fresh credit details from Kintone for student ${studentId}`)
 			await this.updateStudentCreditDetails(studentId)
 			// Fetch updated student data
 			const updatedStudent = await this.getStudentByStudentId(studentId)
 
 			// Calculate total credits from credit details (like Sanno University)
-			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(
-				updatedStudent.credit_details || []
-			)
+			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(updatedStudent.credit_details || [])
 
 			return {
 				...updatedStudent,
@@ -1159,15 +1012,10 @@ class StudentService {
 			const results = []
 			for (const student of students) {
 				try {
-					const result = await this.updateStudentCreditDetails(
-						student.student_id
-					)
+					const result = await this.updateStudentCreditDetails(student.student_id)
 					results.push(result)
 				} catch (error) {
-					console.error(
-						`Failed to sync credit details for ${student.student_id}:`,
-						error.message
-					)
+					console.error(`Failed to sync credit details for ${student.student_id}:`, error.message)
 					results.push({
 						studentId: student.student_id,
 						error: error.message,

@@ -92,10 +92,7 @@ const StudentProfile = ({ userId = 0 }) => {
 		let age = today.getFullYear() - birthDate.getFullYear()
 		const monthDifference = today.getMonth() - birthDate.getMonth()
 
-		if (
-			monthDifference < 0 ||
-			(monthDifference === 0 && today.getDate() < birthDate.getDate())
-		) {
+		if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
 			age--
 		}
 
@@ -185,8 +182,7 @@ const StudentProfile = ({ userId = 0 }) => {
 							style={{
 								width: '24px',
 								height: '24px',
-								filter:
-									'brightness(0) saturate(100%) invert(24%) sepia(84%) saturate(2270%) hue-rotate(249deg) brightness(95%) contrast(96%)',
+								filter: 'brightness(0) saturate(100%) invert(24%) sepia(84%) saturate(2270%) hue-rotate(249deg) brightness(95%) contrast(96%)',
 							}}
 						/>
 					</IconButton>
@@ -194,11 +190,7 @@ const StudentProfile = ({ userId = 0 }) => {
 			</Box>
 			<Box className={styles.container}>
 				<Box className={styles.avatarContainer}>
-					<Avatar
-						src={student.photo}
-						alt={student.first_name}
-						sx={{ width: 120, height: 120 }}
-					/>
+					<Avatar src={student.photo} alt={student.first_name} sx={{ width: 120, height: 120 }} />
 				</Box>
 				<Box className={styles.infoContainer}>
 					<Box className={styles.nameEmailContainer}>
@@ -210,8 +202,7 @@ const StudentProfile = ({ userId = 0 }) => {
 							{/* furigana */}
 							{(student.first_name_furigana || student.last_name_furigana) && (
 								<div style={{ fontSize: 14, color: '#666' }}>
-									{student.last_name_furigana || ''}{' '}
-									{student.first_name_furigana || ''}
+									{student.last_name_furigana || ''} {student.first_name_furigana || ''}
 								</div>
 							)}
 							{/* student id and birthday */}
@@ -222,11 +213,7 @@ const StudentProfile = ({ userId = 0 }) => {
 								</div>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>年齢:</div>
-									<div>
-										{student.date_of_birth
-											? calculateAge(student.date_of_birth)
-											: '0'}
-									</div>
+									<div>{student.date_of_birth ? calculateAge(student.date_of_birth) : '0'}</div>
 								</div>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>JDU卒業予定年月:</div>
@@ -237,19 +224,7 @@ const StudentProfile = ({ userId = 0 }) => {
 							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
 								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>在籍提携大学:</div>
-									<div>
-										{student.partner_university &&
-										student.faculty &&
-										student.department
-											? [
-													student.partner_university,
-													student.faculty,
-													student.department,
-												]
-													.filter(Boolean)
-													.join(' ')
-											: student.partner_university || '未設定'}
-									</div>
+									<div>{student.partner_university && student.faculty && student.department ? [student.partner_university, student.faculty, student.department].filter(Boolean).join(' ') : student.partner_university || '未設定'}</div>
 								</div>
 							</div>
 						</Box>
@@ -260,13 +235,7 @@ const StudentProfile = ({ userId = 0 }) => {
 									{student.email}
 								</a>
 								<Box className={styles.statusChipContainer}>
-									<div>
-										{student.visibility ? (
-											<div style={{ color: '#7ED6A7' }}>{t.published}</div>
-										) : (
-											<div style={{ color: '#812958' }}>{t.private}</div>
-										)}
-									</div>
+									<div>{student.visibility ? <div style={{ color: '#7ED6A7' }}>{t.published}</div> : <div style={{ color: '#812958' }}>{t.private}</div>}</div>
 									<Box id='saveButton'></Box>
 								</Box>
 							</Box>

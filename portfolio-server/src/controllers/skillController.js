@@ -12,9 +12,7 @@ class SkillController {
 
 			const { name } = req.body
 			if (!name) {
-				return res
-					.status(400)
-					.json({ error: "Ko'nikma nomi yuborilishi shart." })
+				return res.status(400).json({ error: "Ko'nikma nomi yuborilishi shart." })
 			}
 			const newSkill = await SkillService.createSkill({ name })
 			res.status(201).json(newSkill)

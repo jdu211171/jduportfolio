@@ -4,35 +4,8 @@ import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import Tabs from '@mui/material/Tabs'
 import Tab from '@mui/material/Tab'
-import {
-	Container,
-	Typography,
-	Box,
-	Button,
-	TextField,
-	Card,
-	CardContent,
-	Chip,
-	Grid,
-	IconButton,
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-	Alert,
-	Snackbar,
-	InputAdornment,
-	CircularProgress,
-	Paper,
-} from '@mui/material'
-import {
-	Add as AddIcon,
-	Edit as EditIcon,
-	Delete as DeleteIcon,
-	Search as SearchIcon,
-	Palette as PaletteIcon,
-	Code as CodeIcon,
-} from '@mui/icons-material'
+import { Container, Typography, Box, Button, TextField, Card, CardContent, Chip, Grid, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar, InputAdornment, CircularProgress, Paper } from '@mui/material'
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Search as SearchIcon, Palette as PaletteIcon, Code as CodeIcon } from '@mui/icons-material'
 import './CreateSkill.css'
 
 export const CreateSkill = () => {
@@ -68,23 +41,7 @@ export const CreateSkill = () => {
 	})
 
 	// Predefined colors for skills
-	const colorOptions = [
-		'#4caf50',
-		'#2196f3',
-		'#ff9800',
-		'#f44336',
-		'#9c27b0',
-		'#3f51b5',
-		'#00bcd4',
-		'#ff5722',
-		'#795548',
-		'#607d8b',
-		'#e91e63',
-		'#cddc39',
-		'#ffeb3b',
-		'#009688',
-		'#8bc34a',
-	]
+	const colorOptions = ['#4caf50', '#2196f3', '#ff9800', '#f44336', '#9c27b0', '#3f51b5', '#00bcd4', '#ff5722', '#795548', '#607d8b', '#e91e63', '#cddc39', '#ffeb3b', '#009688', '#8bc34a']
 
 	// Fetch skills from API
 	const fetchSkills = async (search = '') => {
@@ -124,14 +81,10 @@ export const CreateSkill = () => {
 	// Filter skills based on search term
 	useEffect(() => {
 		if (searchTerm) {
-			const filtered = skills.filter(skill =>
-				skill.name.toLowerCase().includes(searchTerm.toLowerCase())
-			)
+			const filtered = skills.filter(skill => skill.name.toLowerCase().includes(searchTerm.toLowerCase()))
 			setFilteredSkills(filtered)
 
-			const filteredLang = languageSkills.filter(skill =>
-				skill.name.toLowerCase().includes(searchTerm.toLowerCase())
-			)
+			const filteredLang = languageSkills.filter(skill => skill.name.toLowerCase().includes(searchTerm.toLowerCase()))
 			setFilteredLanguageSkills(filteredLang)
 		} else {
 			setFilteredSkills(skills)
@@ -282,11 +235,7 @@ export const CreateSkill = () => {
 								),
 								endAdornment: searchTerm && (
 									<InputAdornment position='end'>
-										<Button
-											size='small'
-											onClick={handleSearch}
-											sx={{ minWidth: 'auto' }}
-										>
+										<Button size='small' onClick={handleSearch} sx={{ minWidth: 'auto' }}>
 											{t('search')}
 										</Button>
 									</InputAdornment>
@@ -361,19 +310,12 @@ export const CreateSkill = () => {
 							<CircularProgress size={60} sx={{ color: '#5627DC' }} />
 						</Box>
 					) : filteredSkills.length === 0 ? (
-						<Paper
-							elevation={1}
-							sx={{ p: 8, textAlign: 'center', borderRadius: 2 }}
-						>
+						<Paper elevation={1} sx={{ p: 8, textAlign: 'center', borderRadius: 2 }}>
 							<CodeIcon sx={{ fontSize: '4rem', color: '#ccc', mb: 2 }} />
 							<Typography variant='h6' color='text.secondary' gutterBottom>
 								{searchTerm ? t('no_skills_found') : t('no_skills_available')}
 							</Typography>
-							<Typography color='text.secondary'>
-								{searchTerm
-									? t('try_adjusting_search')
-									: t('start_adding_skill')}
-							</Typography>
+							<Typography color='text.secondary'>{searchTerm ? t('try_adjusting_search') : t('start_adding_skill')}</Typography>
 						</Paper>
 					) : (
 						<Grid container spacing={2}>
@@ -391,9 +333,7 @@ export const CreateSkill = () => {
 										}}
 									>
 										<CardContent sx={{ p: 3 }}>
-											<Box
-												sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
-											>
+											<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
 												<Box
 													sx={{
 														width: 16,
@@ -441,9 +381,7 @@ export const CreateSkill = () => {
 												</IconButton>
 												<IconButton
 													size='small'
-													onClick={() =>
-														setDeleteConfirm({ open: true, skillId: skill.id })
-													}
+													onClick={() => setDeleteConfirm({ open: true, skillId: skill.id })}
 													sx={{
 														bgcolor: '#ffebee',
 														color: '#d32f2f',
@@ -471,19 +409,12 @@ export const CreateSkill = () => {
 							<CircularProgress size={60} sx={{ color: '#5627DC' }} />
 						</Box>
 					) : filteredLanguageSkills.length === 0 ? (
-						<Paper
-							elevation={1}
-							sx={{ p: 8, textAlign: 'center', borderRadius: 2 }}
-						>
+						<Paper elevation={1} sx={{ p: 8, textAlign: 'center', borderRadius: 2 }}>
 							<CodeIcon sx={{ fontSize: '4rem', color: '#ccc', mb: 2 }} />
 							<Typography variant='h6' color='text.secondary' gutterBottom>
 								{searchTerm ? t('no_skills_found') : t('no_skills_available')}
 							</Typography>
-							<Typography color='text.secondary'>
-								{searchTerm
-									? t('try_adjusting_search')
-									: t('start_adding_language_skill')}
-							</Typography>
+							<Typography color='text.secondary'>{searchTerm ? t('try_adjusting_search') : t('start_adding_language_skill')}</Typography>
 						</Paper>
 					) : (
 						<Grid container spacing={2}>
@@ -501,9 +432,7 @@ export const CreateSkill = () => {
 										}}
 									>
 										<CardContent sx={{ p: 3 }}>
-											<Box
-												sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
-											>
+											<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
 												<Typography
 													variant='h6'
 													sx={{
@@ -530,9 +459,7 @@ export const CreateSkill = () => {
 												</IconButton>
 												<IconButton
 													size='small'
-													onClick={() =>
-														setDeleteConfirm({ open: true, skillId: skill.id })
-													}
+													onClick={() => setDeleteConfirm({ open: true, skillId: skill.id })}
 													sx={{
 														bgcolor: '#ffebee',
 														color: '#d32f2f',
@@ -577,18 +504,7 @@ export const CreateSkill = () => {
 				</DialogTitle>
 				<form onSubmit={handleSubmit}>
 					<DialogContent sx={{ p: 3 }}>
-						<TextField
-							autoFocus
-							margin='normal'
-							label={t('skill_name')}
-							fullWidth
-							required
-							value={formData.name}
-							onChange={e =>
-								setFormData(prev => ({ ...prev, name: e.target.value }))
-							}
-							sx={{ mb: 3 }}
-						/>
+						<TextField autoFocus margin='normal' label={t('skill_name')} fullWidth required value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} sx={{ mb: 3 }} />
 
 						{tabsIndex === 'it_skills' && (
 							<>
@@ -617,15 +533,7 @@ export const CreateSkill = () => {
 											border: '2px solid #ddd',
 										}}
 									/>
-									<TextField
-										label={t('color_code')}
-										value={formData.color}
-										onChange={e =>
-											setFormData(prev => ({ ...prev, color: e.target.value }))
-										}
-										size='small'
-										sx={{ flexGrow: 1 }}
-									/>
+									<TextField label={t('color_code')} value={formData.color} onChange={e => setFormData(prev => ({ ...prev, color: e.target.value }))} size='small' sx={{ flexGrow: 1 }} />
 								</Box>
 
 								{/* Color Options */}
@@ -640,10 +548,7 @@ export const CreateSkill = () => {
 												borderRadius: '50%',
 												backgroundColor: color,
 												cursor: 'pointer',
-												border:
-													formData.color === color
-														? '3px solid #333'
-														: '2px solid #ddd',
+												border: formData.color === color ? '3px solid #333' : '2px solid #ddd',
 												transition: 'all 0.2s ease',
 												'&:hover': {
 													transform: 'scale(1.1)',
@@ -657,11 +562,7 @@ export const CreateSkill = () => {
 						)}
 					</DialogContent>
 					<DialogActions sx={{ p: 3, gap: 1 }}>
-						<Button
-							onClick={resetForm}
-							variant='outlined'
-							sx={{ borderRadius: 2 }}
-						>
+						<Button onClick={resetForm} variant='outlined' sx={{ borderRadius: 2 }}>
 							{t('cancel')}
 						</Button>
 						<Button
@@ -680,48 +581,24 @@ export const CreateSkill = () => {
 			</Dialog>
 
 			{/* Delete Confirmation Dialog */}
-			<Dialog
-				open={deleteConfirm.open}
-				onClose={() => setDeleteConfirm({ open: false, skillId: null })}
-				PaperProps={{ sx: { borderRadius: 2 } }}
-			>
-				<DialogTitle sx={{ color: '#d32f2f' }}>
-					{t('confirm_delete')}
-				</DialogTitle>
+			<Dialog open={deleteConfirm.open} onClose={() => setDeleteConfirm({ open: false, skillId: null })} PaperProps={{ sx: { borderRadius: 2 } }}>
+				<DialogTitle sx={{ color: '#d32f2f' }}>{t('confirm_delete')}</DialogTitle>
 				<DialogContent>
 					<Typography>{t('delete_skill_confirmation')}</Typography>
 				</DialogContent>
 				<DialogActions sx={{ p: 3, gap: 1 }}>
-					<Button
-						onClick={() => setDeleteConfirm({ open: false, skillId: null })}
-						variant='outlined'
-						sx={{ borderRadius: 2 }}
-					>
+					<Button onClick={() => setDeleteConfirm({ open: false, skillId: null })} variant='outlined' sx={{ borderRadius: 2 }}>
 						Cancel
 					</Button>
-					<Button
-						onClick={() => handleDelete(deleteConfirm.skillId)}
-						variant='contained'
-						color='error'
-						sx={{ borderRadius: 2 }}
-					>
+					<Button onClick={() => handleDelete(deleteConfirm.skillId)} variant='contained' color='error' sx={{ borderRadius: 2 }}>
 						{t('delete')}
 					</Button>
 				</DialogActions>
 			</Dialog>
 
 			{/* Snackbar Notifications */}
-			<Snackbar
-				open={snackbar.open}
-				autoHideDuration={4000}
-				onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-			>
-				<Alert
-					onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-					severity={snackbar.severity}
-					sx={{ borderRadius: 2 }}
-				>
+			<Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+				<Alert onClose={() => setSnackbar(prev => ({ ...prev, open: false }))} severity={snackbar.severity} sx={{ borderRadius: 2 }}>
 					{snackbar.message}
 				</Alert>
 			</Snackbar>

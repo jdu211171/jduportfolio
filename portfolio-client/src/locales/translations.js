@@ -209,26 +209,21 @@ const translations = {
 		changesSaved: 'Changes saved',
 		dataRecovered: 'Data recovered successfully',
 		recoverUnsavedChanges: 'Recover Unsaved Changes?',
-		unsavedChangesFound:
-			'We found unsaved changes from your previous editing session. Would you like to restore them?',
+		unsavedChangesFound: 'We found unsaved changes from your previous editing session. Would you like to restore them?',
 		lastModified: 'Last modified',
 		discard: 'Discard',
 		restore: 'Restore',
 		unsavedChangesTitle: 'Unsaved Changes',
-		unsavedChangesMessage:
-			'You have unsaved changes. Are you sure you want to discard them?',
+		unsavedChangesMessage: 'You have unsaved changes. Are you sure you want to discard them?',
 		continueEditing: 'Continue Editing',
 		discardChanges: 'Discard Changes',
 		unsavedChangesLanguageTitle: 'Save changes before switching language?',
-		unsavedChangesLanguageMessage:
-			'You have unsaved changes. Would you like to save them before changing the language?',
+		unsavedChangesLanguageMessage: 'You have unsaved changes. Would you like to save them before changing the language?',
 		discardAndSwitch: 'Discard & Switch',
 		saveAndSwitch: 'Save & Switch',
-		dataRestoredAfterLanguageSwitch:
-			'Your data has been restored after language switch',
+		dataRestoredAfterLanguageSwitch: 'Your data has been restored after language switch',
 		unsavedChangesNavigationTitle: 'Save changes before leaving?',
-		unsavedChangesNavigationMessage:
-			'You have unsaved changes. Would you like to save them before leaving this page?',
+		unsavedChangesNavigationMessage: 'You have unsaved changes. Would you like to save them before leaving this page?',
 		discardAndLeave: 'Discard & Leave',
 		saveAndLeave: 'Save & Leave',
 		fileUploadSuccess: 'File uploaded successfully.',
@@ -257,8 +252,7 @@ const translations = {
 		noLanguageSkills: 'No skills available',
 		noAwardsEdit: 'No awards added yet',
 		noAwards: 'No awards available',
-		levelInfo:
-			'Advanced: Over 3 years | Intermediate: Less than 3 years | Beginner: Less than 1 year',
+		levelInfo: 'Advanced: Over 3 years | Intermediate: Less than 3 years | Beginner: Less than 1 year',
 		// Deliverables translations
 		addDeliverable: 'Add Deliverable',
 		createDeliverable: 'Create Deliverable',
@@ -315,23 +309,19 @@ const translations = {
 		warning: 'Warning',
 		confirmApprove: 'Approve?',
 		confirmSendBack: 'Send Back?',
-		confirmApproveDesc:
-			'This action will send an "approved" notification to the student. Do you want to continue?',
-		confirmSendBackDesc:
-			'This action will send a rejection notification with comments to the student. Do you want to continue?',
+		confirmApproveDesc: 'This action will send an "approved" notification to the student. Do you want to continue?',
+		confirmSendBackDesc: 'This action will send a rejection notification with comments to the student. Do you want to continue?',
 		studentNotApprovedByStaff: 'Student must be approved by staff',
 		profileVisibilityEnabled: 'Profile visibility enabled successfully',
 		profileHidden: 'Profile hidden successfully',
 		errorSettingVisibility: 'Error setting visibility',
 		navigationWarningTitle: 'Unsaved Changes',
-		navigationWarningMessage:
-			'You have unsaved changes. Do you want to discard them and navigate away?',
+		navigationWarningMessage: 'You have unsaved changes. Do you want to discard them and navigate away?',
 		discardChanges: 'Discard Changes',
 		cancel: 'Cancel',
 		welcome: 'JDU Portfolio',
 		forgotPassword: 'Forgot Password',
-		resetPassword2:
-			'Enter your email address to receive password reset instructions',
+		resetPassword2: 'Enter your email address to receive password reset instructions',
 		enterYourLogin: 'Enter your email',
 		enterYourPassword: 'Enter your password',
 		mailAddress: 'Email Address',
@@ -357,8 +347,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 <li>Engaging in criminal acts, or acts that violate laws or public order and morals, or acts likely to lead to such outcomes</li>
 <li>Being involved with anti-social forces, providing benefits to or using such forces, or maintaining inappropriate relationships with them, or engaging in acts likely to lead to such outcomes</li>
 </ol>`,
-		confirm_no_prohibited_actions:
-			'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
+		confirm_no_prohibited_actions: 'I have confirmed that the above-mentioned prohibited acts do not apply to me.',
 		no_button: 'No',
 		apply_button: 'Submit',
 		// Missing keys for Top.jsx
@@ -376,8 +365,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		hobbiesTagPlaceholder: 'Please enter hobby tags',
 		specialSkillsTagPlaceholder: 'Please enter special skill tags',
 		hobbiesDescriptionPlaceholder: 'Please describe your hobbies in detail',
-		specialSkillsDescriptionPlaceholder:
-			'Please describe your special skills in detail',
+		specialSkillsDescriptionPlaceholder: 'Please describe your special skills in detail',
 		hobbiesTags: 'Hobby Tags',
 		specialSkillsTags: 'Special Skill Tags',
 		// Missing keys for ChekProfile.jsx
@@ -416,15 +404,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		confirmation_status: 'Confirmation Status',
 		unconfirmed: 'Unconfirmed',
 		confirmed: 'Confirmed',
-		company_video_url_placeholder:
-			'e.g., https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
+		company_video_url_placeholder: 'e.g., https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		save_button: 'Save',
 		no_video_set: 'No video has been set',
-		company_introduction_video_description:
-			'You can view the company introduction video provided by the employer',
+		company_introduction_video_description: 'You can view the company introduction video provided by the employer',
 		new_target_audience_add: 'Add new target audience',
-		required_skills_placeholder:
-			'e.g., Practical experience with HTML/CSS/JavaScript (3+ years)',
+		required_skills_placeholder: 'e.g., Practical experience with HTML/CSS/JavaScript (3+ years)',
 		preferred_skills_placeholder: 'e.g., Practical experience with TypeScript',
 		// CompanyProfile page translations
 		business_overview: 'Business Overview',
@@ -456,8 +441,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		saving: 'Saving...',
 		// Language settings translations
 		unsaved_changes_title: 'Unsaved Changes',
-		language_change_unsaved_message:
-			'You have unsaved changes. Would you like to save them before changing the language?',
+		language_change_unsaved_message: 'You have unsaved changes. Would you like to save them before changing the language?',
 		save_and_continue: 'Save and Continue',
 		discard_changes: 'Discard Changes',
 		display_language: 'Display Language',
@@ -481,8 +465,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		create: 'Create',
 		skill: 'Skill',
 		confirm_delete: 'Confirm Delete',
-		delete_skill_confirmation:
-			'Are you sure you want to delete this skill? This action cannot be undone.',
+		delete_skill_confirmation: 'Are you sure you want to delete this skill? This action cannot be undone.',
 		failed_fetch_skills: 'Failed to fetch skills',
 		skill_name_required: 'Skill name is required',
 		skill_updated_success: 'Skill updated successfully',
@@ -492,14 +475,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'Failed to delete skill',
 		// Recruiter file translations
 		company_documents: 'Documents',
-		upload_info:
-			'You can upload up to 3 files (PDF, Word, Excel, PowerPoint). Maximum total size: 20MB',
+		upload_info: 'You can upload up to 3 files (PDF, Word, Excel, PowerPoint). Maximum total size: 20MB',
 		select_files: 'Select Files',
 		selected_files: 'Selected files',
 		uploading: 'Uploading...',
 		upload: 'Upload',
-		max_files_info:
-			'You have reached the maximum number of files (3). Please delete existing files to upload new ones.',
+		max_files_info: 'You have reached the maximum number of files (3). Please delete existing files to upload new ones.',
 		max_files_reached: 'Maximum files reached (3 files)',
 		can_upload_only: 'Can upload only',
 		more_files: 'more file(s)',
@@ -757,16 +738,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		personal_info: '個人情報',
 		user_fetch_error: 'ユーザーデータの取得に失敗しました。',
 		profile_update_success: 'プロフィールが更新されました。',
-		profile_update_failed_retry:
-			'プロフィールの更新に失敗しました。再試行してください。',
+		profile_update_failed_retry: 'プロフィールの更新に失敗しました。再試行してください。',
 		unknown_role_error: '不明な役割が検出されました。',
 		password_mismatch: 'パスワードが一致しません。',
 		current_password_required: '現在のパスワードを入力してください。',
 		unknown_role: '不明な役割です。',
 		fetch_user_failed: 'ユーザーデータの取得に失敗しました。',
 		profile_updated: 'プロフィールが更新されました。',
-		profile_update_failed:
-			'プロフィールの更新に失敗しました。再試行してください。',
+		profile_update_failed: 'プロフィールの更新に失敗しました。再試行してください。',
 		sync_successful: '同期に成功しました。',
 		notFoundTitle: '404 - ページが見つかりません',
 		notFoundMessage: 'お探しのページは見つかりませんでした。',
@@ -793,8 +772,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		changesSaved: '変更が保存されました',
 		dataRecovered: 'データが正常に復元されました',
 		recoverUnsavedChanges: '未保存の変更を復元しますか？',
-		unsavedChangesFound:
-			'前回の編集セッションから未保存の変更が見つかりました。復元しますか？',
+		unsavedChangesFound: '前回の編集セッションから未保存の変更が見つかりました。復元しますか？',
 		lastModified: '最終更新',
 		discard: '破棄',
 		restore: '復元',
@@ -803,14 +781,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		continueEditing: '編集を続ける',
 		discardChanges: '変更を破棄',
 		unsavedChangesLanguageTitle: '言語を切り替える前に変更を保存しますか？',
-		unsavedChangesLanguageMessage:
-			'未保存の変更があります。言語を変更する前に保存しますか？',
+		unsavedChangesLanguageMessage: '未保存の変更があります。言語を変更する前に保存しますか？',
 		discardAndSwitch: '破棄して切り替え',
 		saveAndSwitch: '保存して切り替え',
 		dataRestoredAfterLanguageSwitch: '言語切り替え後、データが復元されました',
 		unsavedChangesNavigationTitle: 'ページを離れる前に変更を保存しますか？',
-		unsavedChangesNavigationMessage:
-			'未保存の変更があります。このページを離れる前に保存しますか？',
+		unsavedChangesNavigationMessage: '未保存の変更があります。このページを離れる前に保存しますか？',
 		discardAndLeave: '破棄して離れる',
 		saveAndLeave: '保存して離れる',
 		fileUploadSuccess: 'ファイルのアップロードが完了しました。',
@@ -898,23 +874,19 @@ Please make sure that your profile does not fall under any of the prohibited act
 		warning: '警告',
 		confirmApprove: '承認しますか？',
 		confirmSendBack: '差し戻しますか？',
-		confirmApproveDesc:
-			'この操作は学生に「承認済」通知を送ります。続行しますか？',
-		confirmSendBackDesc:
-			'この操作は学生に差し戻し通知をコメント付きで送ります。続行しますか？',
+		confirmApproveDesc: 'この操作は学生に「承認済」通知を送ります。続行しますか？',
+		confirmSendBackDesc: 'この操作は学生に差し戻し通知をコメント付きで送ります。続行しますか？',
 		studentNotApprovedByStaff: '学生はスタッフによる承認が必要です',
 		profileVisibilityEnabled: 'プロフィールの公開設定が正常に有効化されました',
 		profileHidden: 'プロフィールが正常に非公開になりました',
 		errorSettingVisibility: '公開設定エラー',
 		navigationWarningTitle: '未保存の変更',
-		navigationWarningMessage:
-			'保存されていない変更があります。変更を破棄して移動しますか？',
+		navigationWarningMessage: '保存されていない変更があります。変更を破棄して移動しますか？',
 		discardChanges: '変更を破棄',
 		cancel: 'キャンセル',
 		welcome: 'JDU Portfolio',
 		forgotPassword: 'パスワードをお忘れですか',
-		resetPassword2:
-			'パスワードリセット手順を受け取るメールアドレスを入力してください',
+		resetPassword2: 'パスワードリセット手順を受け取るメールアドレスを入力してください',
 		enterYourLogin: 'メールアドレスを入力',
 		enterYourPassword: 'パスワードを入力',
 		mailAddress: 'メールアドレス',
@@ -938,8 +910,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 <li>犯罪行為、または法令に反する行為等公序良俗に反する行為、もしくはそれらのおそれのある行為</li>
 <li>反社会的勢力等に関連する組織に属する行為、反社会的勢力に利益を与え、または利用する等不適切な関係を持つ行為、もしくはそれらのおそれのある行為</li>
 </ol>`,
-		confirm_no_prohibited_actions:
-			'上記の禁止行為に該当しないことを確認しました。',
+		confirm_no_prohibited_actions: '上記の禁止行為に該当しないことを確認しました。',
 		no_button: 'いいえ',
 		apply_button: '申請する',
 		// Missing keys for Top.jsx
@@ -989,8 +960,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		company_video_url_placeholder: '例：https://youtube.com/',
 		save_button: '保存',
 		no_video_set: '動画が設定されていません',
-		company_introduction_video_description:
-			'雇用主から提供された企業紹介動画をご覧いただけます',
+		company_introduction_video_description: '雇用主から提供された企業紹介動画をご覧いただけます',
 		new_target_audience_add: '新しい対象者を追加',
 		required_skills_placeholder: '例: HTML/CSS/JavaScriptの実務経験（3年以上）',
 		preferred_skills_placeholder: '例: TypeScriptの実務経験',
@@ -1024,8 +994,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		saving: '保存中...',
 		// Language settings translations
 		unsaved_changes_title: '未保存の変更',
-		language_change_unsaved_message:
-			'未保存の変更があります。言語を変更する前に保存しますか？',
+		language_change_unsaved_message: '未保存の変更があります。言語を変更する前に保存しますか？',
 		save_and_continue: '保存して続行',
 		discard_changes: '変更を破棄',
 		display_language: '表示言語',
@@ -1049,8 +1018,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		create: '作成',
 		skill: 'スキル',
 		confirm_delete: '削除の確認',
-		delete_skill_confirmation:
-			'このスキルを削除してもよろしいですか？この操作は元に戻せません。',
+		delete_skill_confirmation: 'このスキルを削除してもよろしいですか？この操作は元に戻せません。',
 		failed_fetch_skills: 'スキルの取得に失敗しました',
 		skill_name_required: 'スキル名は必須です',
 		skill_updated_success: 'スキルが正常に更新されました',
@@ -1060,14 +1028,12 @@ Please make sure that your profile does not fall under any of the prohibited act
 		failed_delete_skill: 'スキルの削除に失敗しました',
 		// Recruiter file translations
 		company_documents: '資料',
-		upload_info:
-			'最大3ファイル（PDF、Word、Excel、PowerPoint）をアップロードできます。合計最大サイズ：20MB',
+		upload_info: '最大3ファイル（PDF、Word、Excel、PowerPoint）をアップロードできます。合計最大サイズ：20MB',
 		select_files: 'ファイルを選択',
 		selected_files: '選択されたファイル',
 		uploading: 'アップロード中...',
 		upload: 'アップロード',
-		max_files_info:
-			'ファイル数の上限（３ファイル）に達しました。新しいファイルをアップロードするには、既存のファイルを削除してください。',
+		max_files_info: 'ファイル数の上限（３ファイル）に達しました。新しいファイルをアップロードするには、既存のファイルを削除してください。',
 		max_files_reached: '最大ファイル数に達しました（3ファイル）',
 		can_upload_only: 'アップロード可能：',
 		more_files: 'ファイル',
@@ -1216,10 +1182,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		CreateNews: 'Yengilik yaratish',
 		EditNews: "Yangilikni o'zgartirish",
 		cencel: 'Bekor qilish',
-		searchByHashtag:
-			'Xeshteg, kompaniya nomi yoki yangilik sarlavhasi bo‘yicha qidiring...',
-		checkOut:
-			"Korxonalardan eng so‘nggi e'lonlar va takliflarni ko‘rib chiqing",
+		searchByHashtag: 'Xeshteg, kompaniya nomi yoki yangilik sarlavhasi bo‘yicha qidiring...',
+		checkOut: "Korxonalardan eng so‘nggi e'lonlar va takliflarni ko‘rib chiqing",
 		newsHighlights: 'Yangiliklar',
 		news: 'Korxona yangiliklari',
 		Qualifications: 'Sertifikatlar',
@@ -1325,20 +1289,16 @@ Please make sure that your profile does not fall under any of the prohibited act
 		personal_info: "Shaxsiy ma'lumotlar",
 		user_fetch_error: 'Foydalanuvchi maʼlumotlarini olishda xatolik yuz berdi.',
 		profile_update_success: 'Profil muvaffaqiyatli yangilandi.',
-		profile_update_failed_retry:
-			'Profilni yangilashda xatolik yuz berdi. Qayta urinib ko‘ring.',
+		profile_update_failed_retry: 'Profilni yangilashda xatolik yuz berdi. Qayta urinib ko‘ring.',
 		unknown_role_error: 'Nomaʼlum rol aniqlangan.',
 		password_mismatch: 'Parollar mos kelmadi.',
 		current_password_required: 'Joriy parolingizni kiriting.',
 		unknown_role: "Noma'lum rol.",
-		fetch_user_failed:
-			"Foydalanuvchi ma'lumotlarini olish muvaffaqiyatsiz tugadi.",
+		fetch_user_failed: "Foydalanuvchi ma'lumotlarini olish muvaffaqiyatsiz tugadi.",
 		profile_updated: 'Profil muvaffaqiyatli yangilandi.',
-		profile_update_failed:
-			"Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko'ring.",
+		profile_update_failed: "Profilni yangilashda xatolik yuz berdi. Qaytadan urinib ko'ring.",
 		sync_successful: "Sinxronizatsiya muvaffaqiyatli o'tdi.",
-		sync_failed:
-			"Sinxronizatsiya muvaffaqiyatsiz tugadi. Qaytadan urinib ko'ring.",
+		sync_failed: "Sinxronizatsiya muvaffaqiyatsiz tugadi. Qaytadan urinib ko'ring.",
 		notFoundTitle: '404 - Sahifa topilmadi',
 		notFoundMessage: 'Qidirgan sahifangiz mavjud emas.',
 		backToHome: 'Bosh sahifaga qaytish',
@@ -1364,28 +1324,21 @@ Please make sure that your profile does not fall under any of the prohibited act
 		changesSaved: "O'zgarishlar saqlandi",
 		dataRecovered: "Ma'lumotlar muvaffaqiyatli tiklandi",
 		recoverUnsavedChanges: "Saqlanmagan o'zgarishlarni tiklaysizmi?",
-		unsavedChangesFound:
-			"Oldingi tahrir sessiyangizdan saqlanmagan o'zgarishlar topildi. Ularni tiklashni xohlaysizmi?",
+		unsavedChangesFound: "Oldingi tahrir sessiyangizdan saqlanmagan o'zgarishlar topildi. Ularni tiklashni xohlaysizmi?",
 		lastModified: "Oxirgi o'zgarish",
 		discard: 'Bekor qilish',
 		restore: 'Tiklash',
 		unsavedChangesTitle: "Saqlanmagan o'zgarishlar",
-		unsavedChangesMessage:
-			"Saqlanmagan o'zgarishlaringiz bor. Ularni bekor qilishni xohlaysizmi?",
+		unsavedChangesMessage: "Saqlanmagan o'zgarishlaringiz bor. Ularni bekor qilishni xohlaysizmi?",
 		continueEditing: 'Tahrirlashni davom ettirish',
 		discardChanges: "O'zgarishlarni bekor qilish",
-		unsavedChangesLanguageTitle:
-			"Tilni o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?",
-		unsavedChangesLanguageMessage:
-			"Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
+		unsavedChangesLanguageTitle: "Tilni o'zgartirishdan oldin o'zgarishlarni saqlaysizmi?",
+		unsavedChangesLanguageMessage: "Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
 		discardAndSwitch: "Bekor qilish va o'zgartirish",
 		saveAndSwitch: "Saqlash va o'zgartirish",
-		dataRestoredAfterLanguageSwitch:
-			"Til o'zgartirilgandan so'ng ma'lumotlaringiz tiklandi",
-		unsavedChangesNavigationTitle:
-			"Sahifadan chiqishdan oldin o'zgarishlarni saqlaysizmi?",
-		unsavedChangesNavigationMessage:
-			"Saqlanmagan o'zgarishlaringiz bor. Bu sahifadan chiqishdan oldin ularni saqlashni xohlaysizmi?",
+		dataRestoredAfterLanguageSwitch: "Til o'zgartirilgandan so'ng ma'lumotlaringiz tiklandi",
+		unsavedChangesNavigationTitle: "Sahifadan chiqishdan oldin o'zgarishlarni saqlaysizmi?",
+		unsavedChangesNavigationMessage: "Saqlanmagan o'zgarishlaringiz bor. Bu sahifadan chiqishdan oldin ularni saqlashni xohlaysizmi?",
 		discardAndLeave: 'Bekor qilish va chiqish',
 		saveAndLeave: 'Saqlash va chiqish',
 		fileUploadSuccess: 'Fayl muvaffaqiyatli yuklandi.',
@@ -1439,8 +1392,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		noLanguageSkills: "Ko'nikmalar yo'q",
 		noAwardsEdit: "Hali qo'shilmagan",
 		noAwards: "Mukofotlar yo'q",
-		levelInfo:
-			"Yuqori: 3 yildan ortiq | O'rtacha: 3 yildan kam | Boshlang'ich: 1 yildan kam",
+		levelInfo: "Yuqori: 3 yildan ortiq | O'rtacha: 3 yildan kam | Boshlang'ich: 1 yildan kam",
 		notifications: 'Bildirishnomalar',
 		mark_all_read: "Barchasini o'qish",
 		mark_as_read: "O'qilgan deb belgilash",
@@ -1457,17 +1409,14 @@ Please make sure that your profile does not fall under any of the prohibited act
 		warning: 'Ogohlantirish',
 		confirmApprove: 'Tasdiqlaysizmi?',
 		confirmSendBack: 'Qaytarasizmi?',
-		confirmApproveDesc:
-			'Bu amal talabaga "tasdiqlandi" xabarini yuboradi. Davom etishni xohlaysizmi?',
-		confirmSendBackDesc:
-			'Bu amal talabaga izoh bilan qaytarish xabarini yuboradi. Davom etishni xohlaysizmi?',
+		confirmApproveDesc: 'Bu amal talabaga "tasdiqlandi" xabarini yuboradi. Davom etishni xohlaysizmi?',
+		confirmSendBackDesc: 'Bu amal talabaga izoh bilan qaytarish xabarini yuboradi. Davom etishni xohlaysizmi?',
 		studentNotApprovedByStaff: 'Talaba xodimlar tomonidan tasdiqlanishi kerak',
 		profileVisibilityEnabled: "Profil ko'rinishi muvaffaqiyatli yoqildi",
 		profileHidden: 'Profil muvaffaqiyatli yashirildi',
 		errorSettingVisibility: "Ko'rinishni o'rnatishda xatolik",
 		navigationWarningTitle: "Saqlanmagan o'zgarishlar",
-		navigationWarningMessage:
-			"Sizda saqlanmagan o'zgarishlar bor. Ularni bekor qilib boshqa sahifaga o'tmoqchimisiz?",
+		navigationWarningMessage: "Sizda saqlanmagan o'zgarishlar bor. Ularni bekor qilib boshqa sahifaga o'tmoqchimisiz?",
 		discardChanges: "O'zgarishlarni bekor qilish",
 		cancel: 'Bekor qilish',
 		levels: {
@@ -1489,8 +1438,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		private: 'Maxfiy',
 		welcome: 'JDU Portfolio',
 		forgotPassword: 'Parolni unutdingizmi',
-		resetPassword2:
-			"Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
+		resetPassword2: "Parolni tiklash yo'riqnomasini olish uchun elektron pochta manzilingizni kiriting",
 		enterYourLogin: 'Elektron pochtangizni kiriting',
 		enterYourPassword: 'Parolingizni kiriting',
 		mailAddress: 'Elektron pochta manzili',
@@ -1514,8 +1462,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 </ol>`,
 		apply_button: 'Yuborish',
 		no_button: "Yo'q",
-		confirm_no_prohibited_actions:
-			'Yuqoridagi taqiqlangan xatti-harakatlarni qilmaslikni tasdiqlayman.',
+		confirm_no_prohibited_actions: 'Yuqoridagi taqiqlangan xatti-harakatlarni qilmaslikni tasdiqlayman.',
 		// Missing keys for Top.jsx
 		draftSubmittedSuccessfully: 'Qoralama muvaffaqiyatli topshirildi!',
 		noDraftToSubmit: 'Topshirish uchun qoralama mavjud emas',
@@ -1531,8 +1478,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		hobbiesTagPlaceholder: 'Qiziqish teglarini kiriting',
 		specialSkillsTagPlaceholder: "Maxsus ko'nikma teglarini kiriting",
 		hobbiesDescriptionPlaceholder: 'Qiziqishlaringiz haqida batafsil yozing',
-		specialSkillsDescriptionPlaceholder:
-			"Maxsus ko'nikmalaringiz haqida batafsil yozing",
+		specialSkillsDescriptionPlaceholder: "Maxsus ko'nikmalaringiz haqida batafsil yozing",
 		hobbiesTags: 'Qiziqish teglari',
 		specialSkillsTags: "Maxsus ko'nikma teglari",
 		// Missing keys for ChekProfile.jsx
@@ -1568,15 +1514,12 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		confirmation_status: 'Tasdiqlash holati',
 		unconfirmed: 'Tasdiqlanmagan',
 		confirmed: 'Tasdiqlangan',
-		company_video_url_placeholder:
-			'masalan: https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
+		company_video_url_placeholder: 'masalan: https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		save_button: 'Saqlash',
 		no_video_set: "Video o'rnatilmagan",
-		company_introduction_video_description:
-			"Ish beruvchi tomonidan taqdim etilgan kompaniya tanishtiruv videosini ko'rishingiz mumkin",
+		company_introduction_video_description: "Ish beruvchi tomonidan taqdim etilgan kompaniya tanishtiruv videosini ko'rishingiz mumkin",
 		new_target_audience_add: "Yangi maqsadli auditoriya qo'shish",
-		required_skills_placeholder:
-			'masalan: HTML/CSS/JavaScript bilan amaliy tajriba (3+ yil)',
+		required_skills_placeholder: 'masalan: HTML/CSS/JavaScript bilan amaliy tajriba (3+ yil)',
 		preferred_skills_placeholder: 'masalan: TypeScript bilan amaliy tajriba',
 		// CompanyProfile page translations
 		business_overview: 'Biznes haqida umumiy maʼlumot',
@@ -1608,8 +1551,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		saving: 'Saqlanmoqda...',
 		// Language settings translations
 		unsaved_changes_title: "Saqlanmagan o'zgarishlar",
-		language_change_unsaved_message:
-			"Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
+		language_change_unsaved_message: "Saqlanmagan o'zgarishlaringiz bor. Tilni o'zgartirishdan oldin ularni saqlashni xohlaysizmi?",
 		save_and_continue: 'Saqlash va davom etish',
 		discard_changes: "O'zgarishlarni bekor qilish",
 		display_language: 'Displey tili',
@@ -1633,8 +1575,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		create: 'Yaratish',
 		skill: "Ko'nikma",
 		confirm_delete: "O'chirishni tasdiqlash",
-		delete_skill_confirmation:
-			"Ushbu ko'nikmani o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.",
+		delete_skill_confirmation: "Ushbu ko'nikmani o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.",
 		failed_fetch_skills: "Ko'nikmalarni yuklashda xatolik",
 		skill_name_required: "Ko'nikma nomi majburiy",
 		skill_updated_success: "Ko'nikma muvaffaqiyatli yangilandi",
@@ -1644,14 +1585,12 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		failed_delete_skill: "Ko'nikmani o'chirishda xatolik",
 		// Recruiter file translations
 		company_documents: 'Materiallar',
-		upload_info:
-			'3 tagacha fayl (PDF, Word, Excel, PowerPoint) yuklashingiz mumkin. Maksimal hajm: 20MB',
+		upload_info: '3 tagacha fayl (PDF, Word, Excel, PowerPoint) yuklashingiz mumkin. Maksimal hajm: 20MB',
 		select_files: 'Fayllarni tanlash',
 		selected_files: 'Tanlangan fayllar',
 		uploading: 'Yuklanmoqda...',
 		upload: 'Yuklash',
-		max_files_info:
-			"Maksimal fayllar soniga (3 ta) yetdingiz. Yangi fayllar yuklash uchun mavjud fayllarni o'chiring.",
+		max_files_info: "Maksimal fayllar soniga (3 ta) yetdingiz. Yangi fayllar yuklash uchun mavjud fayllarni o'chiring.",
 		max_files_reached: 'Maksimal fayllar soniga yetildi (3 ta fayl)',
 		can_upload_only: 'Faqat yuklash mumkin:',
 		more_files: 'ta fayl',
@@ -1746,10 +1685,8 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		CreateNews: 'Создать новость',
 		EditNews: 'Редактировать новость',
 		cencel: 'Отмена',
-		searchByHashtag:
-			'Поиск по хэштегу, названию компании или заголовку новости...',
-		checkOut:
-			'Ознакомьтесь с последними объявлениями и предложениями от компаний',
+		searchByHashtag: 'Поиск по хэштегу, названию компании или заголовку новости...',
+		checkOut: 'Ознакомьтесь с последними объявлениями и предложениями от компаний',
 		newsHighlights: 'Основные новости',
 		news: 'Новости компании',
 		Qualifications: 'Квалификации',
@@ -1852,8 +1789,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		location: 'Местоположение',
 		user_fetch_error: 'Не удалось получить данные пользователя.',
 		profile_update_success: 'Профиль успешно обновлен.',
-		profile_update_failed_retry:
-			'Ошибка при обновлении профиля. Попробуйте снова.',
+		profile_update_failed_retry: 'Ошибка при обновлении профиля. Попробуйте снова.',
 		unknown_role_error: 'Неизвестная роль.',
 		password_mismatch: 'Пароли не совпадают.',
 		current_password_required: 'Введите текущий пароль.',
@@ -1891,26 +1827,21 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		changesSaved: 'Изменения сохранены',
 		dataRecovered: 'Данные успешно восстановлены',
 		recoverUnsavedChanges: 'Восстановить несохраненные изменения?',
-		unsavedChangesFound:
-			'Мы нашли несохраненные изменения из вашей предыдущей сессии редактирования. Восстановить их?',
+		unsavedChangesFound: 'Мы нашли несохраненные изменения из вашей предыдущей сессии редактирования. Восстановить их?',
 		lastModified: 'Последнее изменение',
 		discard: 'Отменить',
 		restore: 'Восстановить',
 		unsavedChangesTitle: 'Несохраненные изменения',
-		unsavedChangesMessage:
-			'У вас есть несохраненные изменения. Вы уверены, что хотите их отменить?',
+		unsavedChangesMessage: 'У вас есть несохраненные изменения. Вы уверены, что хотите их отменить?',
 		continueEditing: 'Продолжить редактирование',
 		discardChanges: 'Отменить изменения',
 		unsavedChangesLanguageTitle: 'Сохранить изменения перед сменой языка?',
-		unsavedChangesLanguageMessage:
-			'У вас есть несохраненные изменения. Хотите сохранить их перед сменой языка?',
+		unsavedChangesLanguageMessage: 'У вас есть несохраненные изменения. Хотите сохранить их перед сменой языка?',
 		discardAndSwitch: 'Отменить и переключить',
 		saveAndSwitch: 'Сохранить и переключить',
-		dataRestoredAfterLanguageSwitch:
-			'Ваши данные восстановлены после смены языка',
+		dataRestoredAfterLanguageSwitch: 'Ваши данные восстановлены после смены языка',
 		unsavedChangesNavigationTitle: 'Сохранить изменения перед уходом?',
-		unsavedChangesNavigationMessage:
-			'У вас есть несохраненные изменения. Хотите сохранить их перед уходом со страницы?',
+		unsavedChangesNavigationMessage: 'У вас есть несохраненные изменения. Хотите сохранить их перед уходом со страницы?',
 		discardAndLeave: 'Отменить и выйти',
 		saveAndLeave: 'Сохранить и выйти',
 		fileUploadSuccess: 'Файл успешно загружен.',
@@ -1939,8 +1870,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		noLanguageSkills: 'Нет доступных навыков',
 		noAwardsEdit: 'Награды пока не добавлены',
 		noAwards: 'Нет доступных наград',
-		levelInfo:
-			'Продвинутый: более 3 лет | Средний: менее 3 лет | Начинающий: менее 1 года',
+		levelInfo: 'Продвинутый: более 3 лет | Средний: менее 3 лет | Начинающий: менее 1 года',
 		addDeliverable: 'Добавить результат',
 		createDeliverable: 'Создать результат',
 		editDeliverable: 'Редактировать результат',
@@ -1996,36 +1926,29 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		warning: 'Предупреждение',
 		confirmApprove: 'Одобрить?',
 		confirmSendBack: 'Отправить обратно?',
-		confirmApproveDesc:
-			'Это действие отправит уведомление об «одобрении» студенту. Хотите продолжить?',
-		confirmSendBackDesc:
-			'Это действие отправит уведомление об отклонении с комментариями студенту. Хотите продолжить?',
+		confirmApproveDesc: 'Это действие отправит уведомление об «одобрении» студенту. Хотите продолжить?',
+		confirmSendBackDesc: 'Это действие отправит уведомление об отклонении с комментариями студенту. Хотите продолжить?',
 		studentNotApprovedByStaff: 'Студент должен быть одобрен персоналом',
 		profileVisibilityEnabled: 'Видимость профиля успешно включена',
 		profileHidden: 'Профиль успешно скрыт',
 		errorSettingVisibility: 'Ошибка при установке видимости',
 		navigationWarningTitle: 'Несохраненные изменения',
-		navigationWarningMessage:
-			'У вас есть несохраненные изменения. Отменить их и покинуть страницу?',
+		navigationWarningMessage: 'У вас есть несохраненные изменения. Отменить их и покинуть страницу?',
 		discardChanges: 'Отменить изменения',
 		cancel: 'Отмена',
 		welcome: 'JDU Портфолио',
 		forgotPassword: 'Забыли пароль',
-		resetPassword2:
-			'Введите свой email, чтобы получить инструкции по сбросу пароля',
+		resetPassword2: 'Введите свой email, чтобы получить инструкции по сбросу пароля',
 		enterYourLogin: 'Введите вашу почту',
 		enterYourPassword: 'Введите ваш пароль',
 		mailAddress: 'Адрес электронной почты',
 		send: 'Отправить письмо',
 		loginLabel: 'Войти',
 		profile_publish_request: 'Заявка на публикацию',
-		profile_publish_explanation:
-			'Мы опубликуем ваш профиль в сервисе JDU Portfolio для облегчения поиска работы. После подачи заявки она будет отправлена в Отдел трудоустройства JDU в Японии, где сотрудник проверит содержание. Если будут вопросы, мы свяжемся с вами по почте. При отсутствии вопросов ваша заявка будет одобрена, и профиль станет публичным.',
+		profile_publish_explanation: 'Мы опубликуем ваш профиль в сервисе JDU Portfolio для облегчения поиска работы. После подачи заявки она будет отправлена в Отдел трудоустройства JDU в Японии, где сотрудник проверит содержание. Если будут вопросы, мы свяжемся с вами по почте. При отсутствии вопросов ваша заявка будет одобрена, и профиль станет публичным.',
 		prohibited_actions: 'Запрещенные действия',
-		prohibited_actions_content:
-			'Студентам JDU запрещено: <ol><li>Предоставлять ложную или неточную информацию</li><li>Оскорблять, клеветать, угрожать людям или организациям</li><li>Нарушать права других (авторские, товарные знаки и т.д.)</li><li>Мешать работе сервиса или наносить вред репутации</li><li>Совершать преступления или нарушать закон</li><li>Сотрудничать с антисоциальными организациями</li></ol>',
-		confirm_no_prohibited_actions:
-			'Я подтверждаю, что вышеуказанные запрещённые действия ко мне не относятся.',
+		prohibited_actions_content: 'Студентам JDU запрещено: <ol><li>Предоставлять ложную или неточную информацию</li><li>Оскорблять, клеветать, угрожать людям или организациям</li><li>Нарушать права других (авторские, товарные знаки и т.д.)</li><li>Мешать работе сервиса или наносить вред репутации</li><li>Совершать преступления или нарушать закон</li><li>Сотрудничать с антисоциальными организациями</li></ol>',
+		confirm_no_prohibited_actions: 'Я подтверждаю, что вышеуказанные запрещённые действия ко мне не относятся.',
 		no_button: 'Нет',
 		apply_button: 'Отправить',
 		draftSubmittedSuccessfully: 'Черновик успешно отправлен!',
@@ -2076,15 +1999,12 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		confirmation_status: 'Статус подтверждения',
 		unconfirmed: 'Не подтверждено',
 		confirmed: 'Подтверждено',
-		company_video_url_placeholder:
-			'например: https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
+		company_video_url_placeholder: 'например: https://youtu.be/rSRpRd1E45w?si=3r7PqVgWt67ZA2i5',
 		save_button: 'Сохранить',
 		no_video_set: 'Видео не установлено',
-		company_introduction_video_description:
-			'Вы можете посмотреть видео-презентацию компании, предоставленное работодателем',
+		company_introduction_video_description: 'Вы можете посмотреть видео-презентацию компании, предоставленное работодателем',
 		new_target_audience_add: 'Добавить новую целевую аудиторию',
-		required_skills_placeholder:
-			'например: Опыт работы с HTML/CSS/JavaScript (3+ года)',
+		required_skills_placeholder: 'например: Опыт работы с HTML/CSS/JavaScript (3+ года)',
 		preferred_skills_placeholder: 'например: Опыт работы с TypeScript',
 		business_overview: 'Обзор бизнеса',
 		business_content_placeholder: 'Введите описание деятельности',
@@ -2128,8 +2048,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		company_description_placeholder: 'Введите описание компании',
 		saving: 'Сохранение...',
 		unsaved_changes_title: 'Несохраненные изменения',
-		language_change_unsaved_message:
-			'У вас есть несохраненные изменения. Хотите сохранить их перед сменой языка?',
+		language_change_unsaved_message: 'У вас есть несохраненные изменения. Хотите сохранить их перед сменой языка?',
 		save_and_continue: 'Сохранить и продолжить',
 		discard_changes: 'Отменить изменения',
 		display_language: 'Язык отображения',
@@ -2150,8 +2069,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		update: 'Обновить',
 		create: 'Создать',
 		confirm_delete: 'Подтвердите удаление',
-		delete_skill_confirmation:
-			'Вы уверены, что хотите удалить этот навык? Это действие необратимо.',
+		delete_skill_confirmation: 'Вы уверены, что хотите удалить этот навык? Это действие необратимо.',
 		failed_fetch_skills: 'Не удалось загрузить навыки',
 		skill_name_required: 'Название навыка обязательно',
 		skill_updated_success: 'Навык успешно обновлен',
@@ -2160,14 +2078,12 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		skill_deleted_success: 'Навык успешно удален',
 		failed_delete_skill: 'Ошибка при удалении навыка',
 		company_documents: 'Документы компании',
-		upload_info:
-			'Можно загрузить до 3 файлов (PDF, Word, Excel, PowerPoint). Максимальный общий размер: 20MB',
+		upload_info: 'Можно загрузить до 3 файлов (PDF, Word, Excel, PowerPoint). Максимальный общий размер: 20MB',
 		select_files: 'Выбрать файлы',
 		selected_files: 'Выбранные файлы',
 		uploading: 'Загрузка...',
 		upload: 'Загрузить',
-		max_files_info:
-			'Вы достигли максимального количества файлов (3). Удалите старые, чтобы загрузить новые.',
+		max_files_info: 'Вы достигли максимального количества файлов (3). Удалите старые, чтобы загрузить новые.',
 		max_files_reached: 'Максимум файлов достигнут (3 файла)',
 		can_upload_only: 'Можно загрузить только',
 		more_files: 'файл(а)',

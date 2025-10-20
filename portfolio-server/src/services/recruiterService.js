@@ -78,11 +78,7 @@ class RecruiterService {
 
 			return recruiters
 		} catch (error) {
-			console.error(
-				'Error in getAllRecruiters service:',
-				error.message,
-				error.stack
-			)
+			console.error('Error in getAllRecruiters service:', error.message, error.stack)
 			// Return empty array instead of throwing to prevent 500 errors
 			return []
 		}
@@ -202,10 +198,7 @@ class RecruiterService {
 			// Handle password separately with verification
 			if (data.currentPassword && data.password) {
 				const bcrypt = require('bcrypt')
-				const isValidPassword = await bcrypt.compare(
-					data.currentPassword,
-					recruiter.password
-				)
+				const isValidPassword = await bcrypt.compare(data.currentPassword, recruiter.password)
 				if (!isValidPassword) {
 					throw new Error('Current password is incorrect')
 				}
@@ -255,9 +248,7 @@ class RecruiterService {
 	 * @returns {Array} Yangi rekruterlar uchun email vazifalari massivi.
 	 */
 	static async syncRecruiterData(recruiterRecords) {
-		console.log(
-			`Rekruter sinxronizatsiyasi boshlandi: ${recruiterRecords.length} ta yozuv topildi.`
-		)
+		console.log(`Rekruter sinxronizatsiyasi boshlandi: ${recruiterRecords.length} ta yozuv topildi.`)
 		const emailTasks = []
 		for (const record of recruiterRecords) {
 			const kintoneId = record['$id']?.value
@@ -266,13 +257,9 @@ class RecruiterService {
 			const existingRecruiter = await Recruiter.findOne({
 				where: { kintone_id: kintoneId },
 			})
-			console.log(
-				`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`
-			)
+			console.log(`Kintone ID: ${typeof kintoneId}, Mavjud rekruter: ${!!existingRecruiter}`)
 			if (!existingRecruiter) {
-				console.log(
-					`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`
-				)
+				console.log(`Yangi rekruter topildi: Kintone ID ${kintoneId}. Bazaga qo'shilmoqda...`)
 				const password = generatePassword.generate({
 					length: 12,
 					numbers: true,
@@ -284,9 +271,7 @@ class RecruiterService {
 				let isPartner = false
 				const isPartnerRaw = record.isPartner?.value
 				if (Array.isArray(isPartnerRaw)) {
-					isPartner = isPartnerRaw
-						.map(v => String(v).toLowerCase())
-						.includes('true')
+					isPartner = isPartnerRaw.map(v => String(v).toLowerCase()).includes('true')
 				} else if (typeof isPartnerRaw === 'string') {
 					isPartner = isPartnerRaw.toLowerCase() === 'true'
 				}
@@ -310,14 +295,7 @@ class RecruiterService {
 
 				if (newRecruiter) {
 					// >>> O'ZGARISH: Email vazifasini ro'yxatga qo'shamiz <<<
-					emailTasks.push(
-						formatRecruiterWelcomeEmail(
-							newRecruiter.email,
-							password,
-							newRecruiter.first_name,
-							newRecruiter.last_name
-						)
-					)
+					emailTasks.push(formatRecruiterWelcomeEmail(newRecruiter.email, password, newRecruiter.first_name, newRecruiter.last_name))
 				}
 			}
 		}

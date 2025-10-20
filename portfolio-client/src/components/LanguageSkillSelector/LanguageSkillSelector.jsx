@@ -8,17 +8,7 @@ import styles from './LanguageSkillSelector.module.css'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
-const LanguageSkillSelector = ({
-	title,
-	data,
-	editData,
-	editMode,
-	updateEditData,
-	keyName,
-	parentKey = 'draft',
-	icon,
-	isChanged = false,
-}) => {
+const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData, keyName, parentKey = 'draft', icon, isChanged = false }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
 	const [skillLevel, setSkillLevel] = useState('')
 	const [availableSkills, setAvailableSkills] = useState([])
@@ -36,9 +26,7 @@ const LanguageSkillSelector = ({
 	const fetchSkillsFromAPI = async (search = '') => {
 		try {
 			setLoadingSkills(true)
-			const url = search
-				? `/api/skills?search=${encodeURIComponent(search)}`
-				: '/api/skills'
+			const url = search ? `/api/skills?search=${encodeURIComponent(search)}` : '/api/skills'
 			const response = await axios.get(url)
 			setAvailableSkills(response.data || [])
 		} catch (error) {
@@ -83,9 +71,7 @@ const LanguageSkillSelector = ({
 		const currentSkillsData = getCurrentSkillsData()
 
 		// Check for duplicates
-		const isDuplicate = currentSkillsData.some(
-			skill => skill.name?.toLowerCase() === skillName.toLowerCase()
-		)
+		const isDuplicate = currentSkillsData.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase())
 
 		if (isDuplicate) {
 			alert(`Skill "${skillName}" already exists!`)
@@ -117,9 +103,7 @@ const LanguageSkillSelector = ({
 
 	const handleDeleteSkill = skillToDelete => {
 		const currentSkillsData = getCurrentSkillsData()
-		const updatedSkills = currentSkillsData.filter(
-			skill => skill.name !== skillToDelete.name
-		)
+		const updatedSkills = currentSkillsData.filter(skill => skill.name !== skillToDelete.name)
 
 		try {
 			updateEditData(keyName, JSON.stringify(updatedSkills), parentKey)
@@ -159,23 +143,13 @@ const LanguageSkillSelector = ({
 				</div>
 			)}
 
-			<div
-				className={styles.title}
-				style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}
-			>
+			<div className={styles.title} style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}>
 				{icon}
 				{title}
 			</div>
 
 			{editMode && (
-				<Box
-					display='flex'
-					alignItems='center'
-					mb={2}
-					mt={2}
-					gap={2}
-					className={styles.addSkillForm}
-				>
+				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2} className={styles.addSkillForm}>
 					<Autocomplete
 						options={availableSkills}
 						getOptionLabel={option => option.name || ''}
@@ -201,15 +175,7 @@ const LanguageSkillSelector = ({
 						}}
 						loading={loadingSkills}
 						sx={{ width: 200 }}
-						renderInput={params => (
-							<TextField
-								{...params}
-								label={t('languageName') || 'Language Name'}
-								variant='outlined'
-								size='small'
-								placeholder='e.g., IELTS, JLPT, TOEFL'
-							/>
-						)}
+						renderInput={params => <TextField {...params} label={t('languageName') || 'Language Name'} variant='outlined' size='small' placeholder='e.g., IELTS, JLPT, TOEFL' />}
 					/>
 
 					<TextField

@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+# Treat common binary formats explicitly
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.mp4 binary
+*.mov binary
+*.ico binary
+

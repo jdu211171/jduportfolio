@@ -1,25 +1,10 @@
 import { useState, useEffect } from 'react'
-import {
-	TextField as MuiTextField,
-	IconButton,
-	Box,
-	Switch,
-	Chip,
-} from '@mui/material'
+import { TextField as MuiTextField, IconButton, Box, Switch, Chip } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PropTypes from 'prop-types'
 import styles from './QATextField.module.css'
 
-const QATextField = ({
-	category,
-	question,
-	keyName,
-	editData,
-	updateEditData,
-	DeleteQA,
-	aEdit = false,
-	qEdit = false,
-}) => {
+const QATextField = ({ category, question, keyName, editData, updateEditData, DeleteQA, aEdit = false, qEdit = false }) => {
 	const [localEditData, setLocalEditData] = useState('')
 	const [localEditQuestion, setLocalQuestion] = useState('')
 	const [localRequired, setLocalRequired] = useState(false)
@@ -65,28 +50,9 @@ const QATextField = ({
 			<div className={styles.title}>
 				{aEdit ? (
 					<Box display={'flex'} alignItems={'center'} gap={1}>
-						<MuiTextField
-							value={localEditQuestion}
-							onChange={e => handleChange(e, 'question')}
-							variant='outlined'
-							fullWidth
-							multiline
-						/>
-						<Chip
-							size='small'
-							color={localRequired ? 'warning' : 'default'}
-							label={localRequired ? '必須' : '任意'}
-						/>
-						<Switch
-							checked={localRequired}
-							onChange={e =>
-								handleChange(
-									{ target: { value: e.target.checked } },
-									'required'
-								)
-							}
-							inputProps={{ 'aria-label': 'required-toggle' }}
-						/>
+						<MuiTextField value={localEditQuestion} onChange={e => handleChange(e, 'question')} variant='outlined' fullWidth multiline />
+						<Chip size='small' color={localRequired ? 'warning' : 'default'} label={localRequired ? '必須' : '任意'} />
+						<Switch checked={localRequired} onChange={e => handleChange({ target: { value: e.target.checked } }, 'required')} inputProps={{ 'aria-label': 'required-toggle' }} />
 						{aEdit && (
 							<IconButton
 								aria-label='削除'
@@ -102,30 +68,11 @@ const QATextField = ({
 				) : (
 					<div>
 						{localEditQuestion}
-						{localRequired && (
-							<Chip
-								size='small'
-								color='warning'
-								label='必須'
-								sx={{ ml: 1, mb: '2px' }}
-							/>
-						)}
+						{localRequired && <Chip size='small' color='warning' label='必須' sx={{ ml: 1, mb: '2px' }} />}
 					</div>
 				)}
 			</div>
-			<div className={styles.data}>
-				{qEdit ? (
-					<MuiTextField
-						value={localEditData}
-						onChange={e => handleChange(e, 'answer')}
-						variant='outlined'
-						fullWidth
-						multiline
-					/>
-				) : (
-					<>{!aEdit && <div>{localEditData}</div>}</>
-				)}
-			</div>
+			<div className={styles.data}>{qEdit ? <MuiTextField value={localEditData} onChange={e => handleChange(e, 'answer')} variant='outlined' fullWidth multiline /> : <>{!aEdit && <div>{localEditData}</div>}</>}</div>
 		</div>
 	)
 }

@@ -11,9 +11,7 @@ class ItSkillController {
 			}
 			const { name, color } = req.body
 			if (!name || !color) {
-				return res
-					.status(400)
-					.json({ error: "Ko'nikma nomi va rangi yuborilishi shart." })
+				return res.status(400).json({ error: "Ko'nikma nomi va rangi yuborilishi shart." })
 			}
 			const newSkill = await ItSkillService.createSkill({ name, color })
 			res.status(201).json(newSkill)
@@ -50,8 +48,7 @@ class ItSkillController {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
 				return res.status(403).json({
-					error:
-						"Ruxsat yo'q. Faqat Admin va Staff ko'nikma yangilashi mumkin.",
+					error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikma yangilashi mumkin.",
 				})
 			}
 			const { id } = req.params
@@ -70,8 +67,7 @@ class ItSkillController {
 			const userType = req.user.userType.toLowerCase()
 			if (userType !== 'admin' && userType !== 'staff') {
 				return res.status(403).json({
-					error:
-						"Ruxsat yo'q. Faqat Admin va Staff ko'nikma o'chirishi mumkin.",
+					error: "Ruxsat yo'q. Faqat Admin va Staff ko'nikma o'chirishi mumkin.",
 				})
 			}
 			const { id } = req.params

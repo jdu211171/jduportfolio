@@ -1,15 +1,5 @@
 import React from 'react'
-import {
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	DialogActions,
-	Typography,
-	Button,
-	Checkbox,
-	Divider,
-	Box,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Button, Checkbox, Divider, Box } from '@mui/material'
 import PropTypes from 'prop-types'
 import translations from '../../locales/translations.js'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
@@ -132,37 +122,22 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 				{t('profile_publish_request')}
 			</DialogTitle>
 
-			<DialogContent
-				dividers
-				sx={{ backgroundColor: '#fafafa', borderRadius: 2 }}
-			>
+			<DialogContent dividers sx={{ backgroundColor: '#fafafa', borderRadius: 2 }}>
 				{/* Main content */}
-				<Typography
-					variant='body2'
-					className='profileExplanation'
-					sx={{ mt: 1 }}
-				>
+				<Typography variant='body2' className='profileExplanation' sx={{ mt: 1 }}>
 					{t('profile_publish_explanation')}
 				</Typography>
 
 				<Divider sx={{ my: 2 }} />
 
 				{/* Prohibited actions section */}
-				<Typography
-					variant='body2'
-					className='prohibitedActionsTitle'
-					sx={{ mt: 1, textAlign: 'center', fontSize: '1.25rem' }}
-				>
+				<Typography variant='body2' className='prohibitedActionsTitle' sx={{ mt: 1, textAlign: 'center', fontSize: '1.25rem' }}>
 					{t('prohibited_actions')}
 				</Typography>
 				{/*<Typography variant='body2' className='prohibitedActionsContent'>*/}
 				{/*	{t('prohibited_actions_content')}*/}
 				{/*</Typography>*/}
-				<Box
-					component='ul'
-					sx={{ pl: 3, mt: 1, mb: 2, listStyle: 'none' }}
-					className='prohibitedActionsContent'
-				>
+				<Box component='ul' sx={{ pl: 3, mt: 1, mb: 2, listStyle: 'none' }} className='prohibitedActionsContent'>
 					{t('prohibited_actions_content')
 						.split(/\n(?=\d+\.)/)
 						.map((item, index) => (
@@ -189,11 +164,7 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 						pl: 0.5,
 					}}
 				>
-					<Checkbox
-						checked={checked}
-						onChange={e => setChecked(e.target.checked)}
-						sx={{ mr: 1 }}
-					/>
+					<Checkbox checked={checked} onChange={e => setChecked(e.target.checked)} sx={{ mr: 1 }} />
 					<Typography>{t('confirm_no_prohibited_actions')}</Typography>
 				</Box>
 			</DialogContent>
@@ -206,22 +177,11 @@ function ConfirmationDialog({ open, onClose, onConfirm }) {
 					pb: 3,
 				}}
 			>
-				<Button
-					variant='outlined'
-					color='error'
-					onClick={onClose}
-					sx={{ width: 120 }}
-				>
+				<Button variant='outlined' color='error' onClick={onClose} sx={{ width: 120 }}>
 					{t('no_button')}
 				</Button>
 
-				<Button
-					variant='contained'
-					color='primary'
-					onClick={onConfirm}
-					disabled={!checked}
-					sx={{ width: 120 }}
-				>
+				<Button variant='contained' color='primary' onClick={onConfirm} disabled={!checked} sx={{ width: 120 }}>
 					{t('apply_button')}
 				</Button>
 			</DialogActions>

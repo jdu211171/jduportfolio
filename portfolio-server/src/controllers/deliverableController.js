@@ -15,9 +15,7 @@ class DeliverableController {
 			// >>> TUZATISH: Avval studentni to'liq topib olamiz <<<
 			const student = await Student.findByPk(req.user.id)
 			if (!student) {
-				return res
-					.status(404)
-					.json({ error: "Foydalanuvchi ma'lumotlari topilmadi." })
+				return res.status(404).json({ error: "Foydalanuvchi ma'lumotlari topilmadi." })
 			}
 
 			const updatedDraft = await DeliverableService.addDeliverable(
@@ -42,18 +40,11 @@ class DeliverableController {
 			// >>> TUZATISH: Bu yerda ham studentni topib olamiz <<<
 			const student = await Student.findByPk(req.user.id)
 			if (!student) {
-				return res
-					.status(404)
-					.json({ error: "Foydalanuvchi ma'lumotlari topilmadi." })
+				return res.status(404).json({ error: "Foydalanuvchi ma'lumotlari topilmadi." })
 			}
 
 			const { deliverableId } = req.params
-			const updatedDraft = await DeliverableService.updateDeliverable(
-				student.student_id,
-				deliverableId,
-				req.body,
-				req.files
-			)
+			const updatedDraft = await DeliverableService.updateDeliverable(student.student_id, deliverableId, req.body, req.files)
 			res.status(200).json(updatedDraft)
 		} catch (err) {
 			next(err)
@@ -71,16 +62,11 @@ class DeliverableController {
 			// >>> TUZATISH: Bu yerda ham studentni topib olamiz <<<
 			const student = await Student.findByPk(req.user.id)
 			if (!student) {
-				return res
-					.status(404)
-					.json({ error: "Foydalanuvchi ma'lumotlari topilmadi." })
+				return res.status(404).json({ error: "Foydalanuvchi ma'lumotlari topilmadi." })
 			}
 
 			const { deliverableId } = req.params
-			const updatedDraft = await DeliverableService.removeDeliverable(
-				student.student_id,
-				deliverableId
-			)
+			const updatedDraft = await DeliverableService.removeDeliverable(student.student_id, deliverableId)
 			res.status(200).json(updatedDraft)
 		} catch (err) {
 			next(err)

@@ -1,15 +1,5 @@
 import { useState } from 'react'
-import {
-	Dialog,
-	DialogTitle,
-	DialogContent,
-	Box,
-	Button,
-	Typography,
-	Card,
-	CardContent,
-	CardActionArea,
-} from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, Box, Button, Typography, Card, CardContent, CardActionArea } from '@mui/material'
 import { useLanguage } from '../../contexts/LanguageContext'
 import styles from './LanguageSelectionModal.module.css'
 
@@ -89,14 +79,9 @@ const LanguageSelectionModal = ({ open, onClose }) => {
 					{languages.map(lang => (
 						<Card
 							key={lang.code}
-							variant={
-								selectedLanguage === lang.code ? 'elevation' : 'outlined'
-							}
+							variant={selectedLanguage === lang.code ? 'elevation' : 'outlined'}
 							sx={{
-								border:
-									selectedLanguage === lang.code
-										? '2px solid #5627DB'
-										: '1px solid #e0e0e0',
+								border: selectedLanguage === lang.code ? '2px solid #5627DB' : '1px solid #e0e0e0',
 								transition: 'all 0.2s ease',
 								'&:hover': {
 									transform: 'translateY(-2px)',

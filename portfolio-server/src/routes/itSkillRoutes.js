@@ -4,15 +4,8 @@ const ItSkillController = require('../controllers/itSkillController')
 
 const router = express.Router()
 
-router
-	.route('/')
-	.post(ItSkillController.createSkill)
-	.get(ItSkillController.getAllSkills)
+router.route('/').post(ItSkillController.createSkill).get(ItSkillController.getAllSkills)
 
-router
-	.route('/:id')
-	.get(ItSkillController.getSkill)
-	.patch(ItSkillController.updateSkill)
-	.delete(ItSkillController.deleteSkill)
+router.route('/:id').get(ItSkillController.getSkill).patch(ItSkillController.updateSkill).delete(ItSkillController.deleteSkill)
 
 module.exports = router

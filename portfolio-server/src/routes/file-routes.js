@@ -91,11 +91,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
 	try {
 		// Delete old file if specified
-		if (
-			oldFilePath &&
-			oldFilePath !== 'none' &&
-			!oldFilePath.startsWith('blob:')
-		) {
+		if (oldFilePath && oldFilePath !== 'none' && !oldFilePath.startsWith('blob:')) {
 			try {
 				await deleteFile(oldFilePath)
 				console.log(`Deleted old file: ${oldFilePath}`)
@@ -109,9 +105,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 		}
 
 		if (!role || !imageType || !id) {
-			return res
-				.status(400)
-				.send('Missing required parameters: role, imageType, id')
+			return res.status(400).send('Missing required parameters: role, imageType, id')
 		}
 
 		const fileBuffer = file.buffer
@@ -130,56 +124,51 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 })
 
 // Multiple files upload endpoint (with authentication)
-router.post(
-	'/upload-multiple',
-	authMiddleware,
-	upload.array('files'),
-	async (req, res) => {
-		// 3. Foydalanuvchi ma'lumotlari authMiddleware'dan olinadi
-		const ownerId = req.user.id
-		const ownerType = req.user.userType
-		const { imageType } = req.body
-		const files = req.files // Endi bu har doim massiv bo'ladi
+router.post('/upload-multiple', authMiddleware, upload.array('files'), async (req, res) => {
+	// 3. Foydalanuvchi ma'lumotlari authMiddleware'dan olinadi
+	const ownerId = req.user.id
+	const ownerType = req.user.userType
+	const { imageType } = req.body
+	const files = req.files // Endi bu har doim massiv bo'ladi
 
-		if (!files || files.length === 0) {
-			return res.status(400).send('Yuklash uchun fayllar topilmadi.')
-		}
-
-		if (!imageType) {
-			return res.status(400).send('Fayl maqsadi (imageType) talab qilinadi.')
-		}
-
-		try {
-			const uploadedFileRecords = []
-
-			for (const file of files) {
-				const fileBuffer = file.buffer
-				const uniqueFilename = generateUniqueFilename(file.originalname)
-				const objectName = `${ownerType}/${ownerId}/${imageType}/${uniqueFilename}`
-
-				// S3 ga yuklash
-				const uploadedS3Info = await uploadFile(fileBuffer, objectName)
-
-				// 4. Ma'lumotlar bazasiga yozuv yaratish
-				const newFileRecord = await UserFile.create({
-					file_url: uploadedS3Info.Location,
-					object_name: objectName,
-					original_filename: file.originalname,
-					imageType: imageType,
-					owner_id: ownerId,
-					owner_type: ownerType,
-				})
-
-				uploadedFileRecords.push(newFileRecord)
-			}
-
-			res.status(201).send(uploadedFileRecords)
-		} catch (error) {
-			console.error('Fayl yuklash va yozuv yaratishda xatolik:', error)
-			res.status(500).send('Fayllarni qayta ishlashda xatolik yuz berdi.')
-		}
+	if (!files || files.length === 0) {
+		return res.status(400).send('Yuklash uchun fayllar topilmadi.')
 	}
-)
+
+	if (!imageType) {
+		return res.status(400).send('Fayl maqsadi (imageType) talab qilinadi.')
+	}
+
+	try {
+		const uploadedFileRecords = []
+
+		for (const file of files) {
+			const fileBuffer = file.buffer
+			const uniqueFilename = generateUniqueFilename(file.originalname)
+			const objectName = `${ownerType}/${ownerId}/${imageType}/${uniqueFilename}`
+
+			// S3 ga yuklash
+			const uploadedS3Info = await uploadFile(fileBuffer, objectName)
+
+			// 4. Ma'lumotlar bazasiga yozuv yaratish
+			const newFileRecord = await UserFile.create({
+				file_url: uploadedS3Info.Location,
+				object_name: objectName,
+				original_filename: file.originalname,
+				imageType: imageType,
+				owner_id: ownerId,
+				owner_type: ownerType,
+			})
+
+			uploadedFileRecords.push(newFileRecord)
+		}
+
+		res.status(201).send(uploadedFileRecords)
+	} catch (error) {
+		console.error('Fayl yuklash va yozuv yaratishda xatolik:', error)
+		res.status(500).send('Fayllarni qayta ishlashda xatolik yuz berdi.')
+	}
+})
 
 /**
  * @swagger

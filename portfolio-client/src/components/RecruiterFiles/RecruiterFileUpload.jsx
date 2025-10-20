@@ -6,12 +6,7 @@ import { useAlert } from '../../contexts/AlertContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 
-const RecruiterFileUpload = ({
-	onUploadSuccess,
-	existingFilesCount = 0,
-	existingFilesSize = 0,
-	editMode = false,
-}) => {
+const RecruiterFileUpload = ({ onUploadSuccess, existingFilesCount = 0, existingFilesSize = 0, editMode = false }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 	const showAlert = useAlert()
@@ -26,14 +21,11 @@ const RecruiterFileUpload = ({
 	const ALLOWED_TYPES = {
 		'application/pdf': '.pdf',
 		'application/msword': '.doc',
-		'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-			'.docx',
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
 		'application/vnd.ms-excel': '.xls',
-		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-			'.xlsx',
+		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
 		'application/vnd.ms-powerpoint': '.ppt',
-		'application/vnd.openxmlformats-officedocument.presentationml.presentation':
-			'.pptx',
+		'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
 		'application/vnd.ms-powerpoint.presentation.macroEnabled.12': '.pptx',
 		'application/powerpoint': '.ppt',
 		'application/x-mspowerpoint': '.ppt',
@@ -60,10 +52,7 @@ const RecruiterFileUpload = ({
 		}
 
 		if (files.length > remainingSlots) {
-			showAlert(
-				`${t('can_upload_only')} ${remainingSlots} ${t('more_files')}`,
-				'error'
-			)
+			showAlert(`${t('can_upload_only')} ${remainingSlots} ${t('more_files')}`, 'error')
 			return
 		}
 
@@ -84,10 +73,7 @@ const RecruiterFileUpload = ({
 
 			// Check file type
 			if (!ALLOWED_TYPES[file.type]) {
-				showAlert(
-					`${file.name}: ${t('invalid_file_type')} (${file.type})`,
-					'error'
-				)
+				showAlert(`${file.name}: ${t('invalid_file_type')} (${file.type})`, 'error')
 				continue
 			}
 
@@ -126,9 +112,7 @@ const RecruiterFileUpload = ({
 					'Content-Type': 'multipart/form-data',
 				},
 				onUploadProgress: progressEvent => {
-					const percentCompleted = Math.round(
-						(progressEvent.loaded * 100) / progressEvent.total
-					)
+					const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
 					setUploadProgress(percentCompleted)
 				},
 			})
@@ -174,31 +158,14 @@ const RecruiterFileUpload = ({
 
 			{existingFilesSize > 0 && (
 				<Typography variant='body2' sx={{ mb: 2, color: 'info.main' }}>
-					{t('space_used')}: {(existingFilesSize / 1024 / 1024).toFixed(1)}MB /
-					20MB | {t('available')}:{' '}
-					{((MAX_SIZE - existingFilesSize) / 1024 / 1024).toFixed(1)}MB
+					{t('space_used')}: {(existingFilesSize / 1024 / 1024).toFixed(1)}MB / 20MB | {t('available')}: {((MAX_SIZE - existingFilesSize) / 1024 / 1024).toFixed(1)}MB
 				</Typography>
 			)}
 
-			<input
-				ref={fileInputRef}
-				type='file'
-				multiple
-				accept={Object.values(ALLOWED_TYPES).join(',')}
-				onChange={handleFileSelect}
-				style={{ display: 'none' }}
-				id='recruiter-file-input'
-				disabled={existingFilesCount >= MAX_FILES}
-			/>
+			<input ref={fileInputRef} type='file' multiple accept={Object.values(ALLOWED_TYPES).join(',')} onChange={handleFileSelect} style={{ display: 'none' }} id='recruiter-file-input' disabled={existingFilesCount >= MAX_FILES} />
 
 			<label htmlFor='recruiter-file-input'>
-				<Button
-					variant='outlined'
-					component='span'
-					startIcon={<CloudUploadIcon />}
-					disabled={uploading || existingFilesCount >= MAX_FILES}
-					sx={{ mb: 2 }}
-				>
+				<Button variant='outlined' component='span' startIcon={<CloudUploadIcon />} disabled={uploading || existingFilesCount >= MAX_FILES} sx={{ mb: 2 }}>
 					{t('select_files')}
 				</Button>
 			</label>
@@ -214,24 +181,13 @@ const RecruiterFileUpload = ({
 						</Typography>
 					))}
 
-					<Button
-						variant='contained'
-						onClick={handleUpload}
-						disabled={uploading}
-						sx={{ mt: 2 }}
-					>
+					<Button variant='contained' onClick={handleUpload} disabled={uploading} sx={{ mt: 2 }}>
 						{uploading ? t('uploading') : t('upload')}
 					</Button>
 				</Box>
 			)}
 
-			{uploading && (
-				<LinearProgress
-					variant='determinate'
-					value={uploadProgress}
-					sx={{ mb: 2 }}
-				/>
-			)}
+			{uploading && <LinearProgress variant='determinate' value={uploadProgress} sx={{ mb: 2 }} />}
 
 			{existingFilesCount >= MAX_FILES && (
 				<Alert severity='info' sx={{ mt: 2 }}>

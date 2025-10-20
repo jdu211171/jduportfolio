@@ -128,10 +128,7 @@ router.get('/user', NotificationController.getNotificationsByUserId)
  *         description: Notification marked as read
  */
 
-router.patch(
-	'/:notificationId/read',
-	NotificationController.markNotificationAsRead
-)
+router.patch('/:notificationId/read', NotificationController.markNotificationAsRead)
 
 /**
  * @swagger

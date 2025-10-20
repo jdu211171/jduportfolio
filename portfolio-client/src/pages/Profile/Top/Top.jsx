@@ -11,40 +11,13 @@ import RestoreIcon from '@mui/icons-material/Restore'
 import SaveIcon from '@mui/icons-material/Save'
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
-import {
-	Alert,
-	Box,
-	Button,
-	Chip,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogContentText,
-	DialogTitle,
-	LinearProgress,
-	TextField as MuiTextField,
-	Snackbar,
-	Typography,
-} from '@mui/material'
+import { Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, TextField as MuiTextField, Snackbar, Typography } from '@mui/material'
 import { useAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import {
-	activeUniverAtom,
-	deletedUrlsAtom,
-	deliverableImagesAtom,
-	editDataAtom,
-	editModeAtom,
-	hobbiesInputAtom,
-	newImagesAtom,
-	showHobbiesInputAtom,
-	showSpecialSkillsInputAtom,
-	specialSkillsInputAtom,
-	subTabIndexAtom,
-	updateQAAtom,
-} from '../../../atoms/profileEditAtoms'
+import { activeUniverAtom, deletedUrlsAtom, deliverableImagesAtom, editDataAtom, editModeAtom, hobbiesInputAtom, newImagesAtom, showHobbiesInputAtom, showSpecialSkillsInputAtom, specialSkillsInputAtom, subTabIndexAtom, updateQAAtom } from '../../../atoms/profileEditAtoms'
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 import LanguageSkillSelector from '../../../components/LanguageSkillSelector/LanguageSkillSelector'
@@ -153,14 +126,7 @@ const Top = () => {
 	const getJLPTData = jlptString => {
 		try {
 			// Treat empty, 'null', or 'undefined' as not submitted
-			if (
-				jlptString === null ||
-				jlptString === undefined ||
-				(typeof jlptString === 'string' &&
-					(jlptString.trim() === '' ||
-						jlptString.trim().toLowerCase() === 'null' ||
-						jlptString.trim().toLowerCase() === 'undefined'))
-			) {
+			if (jlptString === null || jlptString === undefined || (typeof jlptString === 'string' && (jlptString.trim() === '' || jlptString.trim().toLowerCase() === 'null' || jlptString.trim().toLowerCase() === 'undefined'))) {
 				return { highest: '未提出', list: [] }
 			}
 
@@ -181,9 +147,7 @@ const Top = () => {
 			}
 
 			if (typeof jlptString === 'object') {
-				return jlptString && jlptString.highest
-					? jlptString
-					: { highest: '未提出', list: [] }
+				return jlptString && jlptString.highest ? jlptString : { highest: '未提出', list: [] }
 			}
 
 			return { highest: '未提出', list: [] }
@@ -195,12 +159,7 @@ const Top = () => {
 	// Helper function to safely parse certificate data (for japanese_speech_contest and it_contest)
 	const getCertificateData = certificateString => {
 		try {
-			if (
-				!certificateString ||
-				certificateString === 'null' ||
-				certificateString === 'undefined'
-			)
-				return { highest: '未提出', list: [] }
+			if (!certificateString || certificateString === 'null' || certificateString === 'undefined') return { highest: '未提出', list: [] }
 
 			// If it's already a plain string (not JSON), return it as the highest value
 			if (typeof certificateString === 'string') {
@@ -221,9 +180,7 @@ const Top = () => {
 
 			// If it's already an object, return it
 			if (typeof certificateString === 'object' && certificateString !== null) {
-				return certificateString.highest
-					? certificateString
-					: { highest: '未提出', list: [] }
+				return certificateString.highest ? certificateString : { highest: '未提出', list: [] }
 			}
 
 			return { highest: '未提出', list: [] }
@@ -248,26 +205,19 @@ const Top = () => {
 	const [updateQA, SetUpdateQA] = useAtom(updateQAAtom)
 	const [newImages, setNewImages] = useAtom(newImagesAtom)
 	const [deletedUrls, setDeletedUrls] = useAtom(deletedUrlsAtom)
-	const [deliverableImages, setDeliverableImages] = useAtom(
-		deliverableImagesAtom
-	)
+	const [deliverableImages, setDeliverableImages] = useAtom(deliverableImagesAtom)
 	const [subTabIndex, setSubTabIndex] = useAtom(subTabIndexAtom)
 	const [hasDraft, setHasDraft] = useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 	const [confirmMode, setConfirmMode] = useState(false)
 	const [activeUniver, setActiveUniver] = useAtom(activeUniverAtom)
-	const [resetDeliverablePreviews, setResetDeliverablePreviews] =
-		useState(false)
+	const [resetDeliverablePreviews, setResetDeliverablePreviews] = useState(false)
 	const [filteredLanguageSkills, setFilteredLanguageSkills] = useState([])
 	// ✅ New state for hobbies and special skills tags
 	const [hobbiesInput, setHobbiesInput] = useAtom(hobbiesInputAtom)
-	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(
-		specialSkillsInputAtom
-	)
+	const [specialSkillsInput, setSpecialSkillsInput] = useAtom(specialSkillsInputAtom)
 	const [showHobbiesInput, setShowHobbiesInput] = useAtom(showHobbiesInputAtom)
-	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useAtom(
-		showSpecialSkillsInputAtom
-	)
+	const [showSpecialSkillsInput, setShowSpecialSkillsInput] = useAtom(showSpecialSkillsInputAtom)
 
 	// Simple form state for unsaved changes tracking
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -312,10 +262,7 @@ const Top = () => {
 
 		window.addEventListener('beforeLanguageChange', handleBeforeLanguageChange)
 		return () => {
-			window.removeEventListener(
-				'beforeLanguageChange',
-				handleBeforeLanguageChange
-			)
+			window.removeEventListener('beforeLanguageChange', handleBeforeLanguageChange)
 		}
 	}, [editMode, role])
 
@@ -407,10 +354,7 @@ const Top = () => {
 
 		window.addEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
 		return () => {
-			window.removeEventListener(
-				'checkUnsavedChanges',
-				handleCheckUnsavedChanges
-			)
+			window.removeEventListener('checkUnsavedChanges', handleCheckUnsavedChanges)
 		}
 	}, [editMode, role])
 
@@ -432,12 +376,8 @@ const Top = () => {
 				// Check for persisted data after loading
 				if (role === 'Student' && !editMode) {
 					// Check if we just switched languages or navigated back
-					const isLanguageSwitching = localStorage.getItem(
-						'isLanguageSwitching'
-					)
-					const isNavigatingAfterSave = localStorage.getItem(
-						'isNavigatingAfterSave'
-					)
+					const isLanguageSwitching = localStorage.getItem('isLanguageSwitching')
+					const isNavigatingAfterSave = localStorage.getItem('isNavigatingAfterSave')
 
 					if (isLanguageSwitching === 'true') {
 						localStorage.removeItem('isLanguageSwitching')
@@ -447,11 +387,7 @@ const Top = () => {
 							// Automatically restore without dialog
 							setEditData(persistedEditData)
 							setEditMode(true)
-							showAlert(
-								t('dataRestoredAfterLanguageSwitch') ||
-									'Your data has been restored after language switch',
-								'success'
-							)
+							showAlert(t('dataRestoredAfterLanguageSwitch') || 'Your data has been restored after language switch', 'success')
 							// Clear the saved data since we've restored it
 							setTimeout(() => {
 								immediateSave(persistedEditData)
@@ -490,10 +426,7 @@ const Top = () => {
 	const handleStateData = () => {
 		if (statedata.draft) {
 			setDraft(statedata.draft)
-			if (
-				statedata.draft.status === 'checking' ||
-				statedata.draft.status === 'approved'
-			) {
+			if (statedata.draft.status === 'checking' || statedata.draft.status === 'approved') {
 				// Status is checking or approved
 			} else {
 				// Status is not checking or approved
@@ -521,8 +454,7 @@ const Top = () => {
 
 	const fetchDraftData = async () => {
 		try {
-			const studentIdToUse =
-				role === 'Student' ? getStudentIdFromLoginUser() : id
+			const studentIdToUse = role === 'Student' ? getStudentIdFromLoginUser() : id
 
 			if (!studentIdToUse) {
 				showAlert('Unable to determine student ID', 'error')
@@ -540,10 +472,7 @@ const Top = () => {
 					setCurrentDraft(draftData)
 					setHasDraft(true)
 
-					if (
-						draftData.status === 'checking' ||
-						draftData.status === 'approved'
-					) {
+					if (draftData.status === 'checking' || draftData.status === 'approved') {
 						// Status is checking or approved
 					}
 				}
@@ -624,8 +553,7 @@ const Top = () => {
 
 	const fetchDraft = async (studentData = null) => {
 		try {
-			const studentIdToUse =
-				studentData?.student_id || student?.student_id || id
+			const studentIdToUse = studentData?.student_id || student?.student_id || id
 			const response = await axios.get(`/api/draft/student/${studentIdToUse}`)
 
 			if (response.data && response.data.draft) {
@@ -661,21 +589,7 @@ const Top = () => {
 	}
 
 	const mapData = data => {
-		const draftKeys = [
-			'deliverables',
-			'gallery',
-			'self_introduction',
-			'hobbies',
-			'other_information',
-			'it_skills',
-			'skills',
-			'address',
-			'jlpt',
-			'jdu_japanese_certification',
-			'japanese_speech_contest',
-			'it_contest',
-			'qa',
-		]
+		const draftKeys = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'other_information', 'it_skills', 'skills', 'address', 'jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest', 'qa']
 		return {
 			...data,
 			draft: draftKeys.reduce((acc, key) => {
@@ -683,10 +597,7 @@ const Top = () => {
 					// For certificate fields, parse JSON and extract highest value
 					if (key === 'jlpt' || key === 'jdu_japanese_certification') {
 						acc[key] = getJLPTData(data[key]).highest
-					} else if (
-						key === 'japanese_speech_contest' ||
-						key === 'it_contest'
-					) {
+					} else if (key === 'japanese_speech_contest' || key === 'it_contest') {
 						acc[key] = getCertificateData(data[key]).highest
 					} else {
 						acc[key] = data[key] || ''
@@ -703,10 +614,7 @@ const Top = () => {
 	const handleSubmitDraft = async () => {
 		try {
 			if (currentDraft && currentDraft.id) {
-				const response = await axios.put(
-					`/api/draft/${currentDraft.id}/submit`,
-					{}
-				)
+				const response = await axios.put(`/api/draft/${currentDraft.id}/submit`, {})
 				if (response.status === 200) {
 					showAlert(t('draftSubmittedSuccessfully'), 'success')
 					setCurrentDraft({
@@ -730,10 +638,7 @@ const Top = () => {
 			if (status === 400) {
 				setWarningModal({
 					open: true,
-					message:
-						t('pleaseAnswerRequired') ||
-						serverMsg ||
-						'Required questions are missing.',
+					message: t('pleaseAnswerRequired') || serverMsg || 'Required questions are missing.',
 				})
 			} else if (serverMsg) {
 				setWarningModal({ open: true, message: serverMsg })
@@ -856,18 +761,14 @@ const Top = () => {
 
 	const handleRemoveHobby = indexToRemove => {
 		const currentHobbies = parseTagsFromString(editData.draft.hobbies || '')
-		const updatedHobbies = currentHobbies.filter(
-			(_, index) => index !== indexToRemove
-		)
+		const updatedHobbies = currentHobbies.filter((_, index) => index !== indexToRemove)
 		handleUpdateEditData('hobbies', updatedHobbies.join('、'))
 	}
 
 	const handleAddSpecialSkill = () => {
 		if (!specialSkillsInput.trim()) return
 
-		const currentSkills = parseTagsFromString(
-			editData.draft.other_information || ''
-		)
+		const currentSkills = parseTagsFromString(editData.draft.other_information || '')
 		const newSkills = [...currentSkills, specialSkillsInput.trim()]
 		handleUpdateEditData('other_information', newSkills.join('、'))
 		setSpecialSkillsInput('')
@@ -875,12 +776,8 @@ const Top = () => {
 	}
 
 	const handleRemoveSpecialSkill = indexToRemove => {
-		const currentSkills = parseTagsFromString(
-			editData.draft.other_information || ''
-		)
-		const updatedSkills = currentSkills.filter(
-			(_, index) => index !== indexToRemove
-		)
+		const currentSkills = parseTagsFromString(editData.draft.other_information || '')
+		const updatedSkills = currentSkills.filter((_, index) => index !== indexToRemove)
 		handleUpdateEditData('other_information', updatedSkills.join('、'))
 	}
 
@@ -953,13 +850,9 @@ const Top = () => {
 					formData.append(`oldFilePath[${index}]`, url)
 				})
 
-				const fileResponse = await axios.post(
-					'/api/files/upload-multiple',
-					formData,
-					{
-						headers: { 'Content-Type': 'multipart/form-data' },
-					}
-				)
+				const fileResponse = await axios.post('/api/files/upload-multiple', formData, {
+					headers: { 'Content-Type': 'multipart/form-data' },
+				})
 
 				let oldFiles = editData.draft.gallery || []
 				if (Array.isArray(fileResponse.data)) {
@@ -988,11 +881,7 @@ const Top = () => {
 					}
 
 					try {
-						const deliverableFileResponse = await axios.post(
-							'/api/files/upload',
-							deliverableFormData,
-							{ headers: { 'Content-Type': 'multipart/form-data' } }
-						)
+						const deliverableFileResponse = await axios.post('/api/files/upload', deliverableFormData, { headers: { 'Content-Type': 'multipart/form-data' } })
 
 						if (deliverableFileResponse.data.Location) {
 							// Make sure we have a deliverable at this index
@@ -1006,8 +895,7 @@ const Top = () => {
 									imageLink: '',
 								}
 							}
-							updatedDeliverables[index].imageLink =
-								deliverableFileResponse.data.Location
+							updatedDeliverables[index].imageLink = deliverableFileResponse.data.Location
 						}
 					} catch (imageUploadError) {}
 				}
@@ -1093,20 +981,10 @@ const Top = () => {
 		<Box className={styles.buttonsContainer}>
 			{editMode ? (
 				<>
-					<Button
-						onClick={handleDraftUpsert}
-						variant='contained'
-						color='primary'
-						size='small'
-					>
+					<Button onClick={handleDraftUpsert} variant='contained' color='primary' size='small'>
 						{t('updateDraft')}
 					</Button>
-					<Button
-						onClick={handleCancel}
-						variant='outlined'
-						color='error'
-						size='small'
-					>
+					<Button onClick={handleCancel} variant='outlined' color='error' size='small'>
 						{t('cancel')}
 					</Button>
 				</>
@@ -1134,13 +1012,7 @@ const Top = () => {
 					</Button>
 
 					{hasDraft && currentDraft && (
-						<Button
-							onClick={toggleConfirmMode}
-							variant='contained'
-							color='success'
-							size='small'
-							sx={{ ml: 1 }}
-						>
+						<Button onClick={toggleConfirmMode} variant='contained' color='success' size='small' sx={{ ml: 1 }}>
 							{t('submitAgree')}
 						</Button>
 					)}
@@ -1150,8 +1022,7 @@ const Top = () => {
 	)
 
 	// ✅ Safe partner university name with null check
-	const partnerUniversityName =
-		student.partner_university || 'Partner University'
+	const partnerUniversityName = student.partner_university || 'Partner University'
 
 	const creditMap = {
 		JDU: student.japanese_employment_credits,
@@ -1161,11 +1032,7 @@ const Top = () => {
 	return (
 		<Box mb={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student'
-				? createPortal(portalContent, portalContainer)
-				: role === 'Student'
-					? portalContent
-					: null}
+			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : role === 'Student' ? portalContent : null}
 
 			<div
 				style={{
@@ -1180,76 +1047,64 @@ const Top = () => {
 					borderEndStartRadius: 10,
 				}}
 			>
-				{['selfIntroduction', 'skill', 'deliverables', 'qa'].map(
-					(item, ind) => (
-						<div
-							key={ind}
-							style={{
-								fontWeight: 500,
-								fontSize: 16,
-								color: subTabIndex === ind ? '#5627db' : '#4b4b4b',
-								borderBottom:
-									subTabIndex === ind ? '2px solid #5627db' : '#4b4b4b',
-								cursor: 'pointer',
-							}}
-							onClick={() => {
-								setSubTabIndex(ind)
-							}}
-						>
-							{t(item)}
-						</div>
-					)
-				)}
+				{['selfIntroduction', 'skill', 'deliverables', 'qa'].map((item, ind) => (
+					<div
+						key={ind}
+						style={{
+							fontWeight: 500,
+							fontSize: 16,
+							color: subTabIndex === ind ? '#5627db' : '#4b4b4b',
+							borderBottom: subTabIndex === ind ? '2px solid #5627db' : '#4b4b4b',
+							cursor: 'pointer',
+						}}
+						onClick={() => {
+							setSubTabIndex(ind)
+						}}
+					>
+						{t(item)}
+					</div>
+				))}
 			</div>
 
 			{/* Staff Comment Display Section for Students */}
-			{role === 'Student' &&
-				subTabIndex === 0 &&
-				currentDraft &&
-				currentDraft.comments &&
-				(currentDraft.status === 'resubmission_required' ||
-					currentDraft.status === 'disapproved') && (
+			{role === 'Student' && subTabIndex === 0 && currentDraft && currentDraft.comments && (currentDraft.status === 'resubmission_required' || currentDraft.status === 'disapproved') && (
+				<Box
+					sx={{
+						my: 2,
+						mx: 2,
+						p: 2,
+						backgroundColor: '#fff3e0',
+						border: '1px solid #ff9800',
+						borderRadius: '8px',
+						borderLeft: '4px solid #ff9800',
+					}}
+				>
+					<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+						<span style={{ fontWeight: 'bold', color: '#e65100' }}>スタッフからのフィードバック</span>
+					</Box>
 					<Box
 						sx={{
-							my: 2,
-							mx: 2,
+							backgroundColor: '#ffffff',
 							p: 2,
-							backgroundColor: '#fff3e0',
-							border: '1px solid #ff9800',
-							borderRadius: '8px',
-							borderLeft: '4px solid #ff9800',
+							borderRadius: '4px',
+							border: '1px solid #ffcc80',
 						}}
 					>
-						<Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-							<span style={{ fontWeight: 'bold', color: '#e65100' }}>
-								スタッフからのフィードバック
-							</span>
-						</Box>
-						<Box
-							sx={{
-								backgroundColor: '#ffffff',
-								p: 2,
-								borderRadius: '4px',
-								border: '1px solid #ffcc80',
+						<pre
+							style={{
+								whiteSpace: 'pre-wrap',
+								wordWrap: 'break-word',
+								fontFamily: 'inherit',
+								margin: 0,
+								color: '#424242',
 							}}
 						>
-							<pre
-								style={{
-									whiteSpace: 'pre-wrap',
-									wordWrap: 'break-word',
-									fontFamily: 'inherit',
-									margin: 0,
-									color: '#424242',
-								}}
-							>
-								{currentDraft.comments}
-							</pre>
-						</Box>
-						<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>
-							プロフィールを修正して再度提出してください。
-						</Box>
+							{currentDraft.comments}
+						</pre>
 					</Box>
-				)}
+					<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>プロフィールを修正して再度提出してください。</Box>
+				</Box>
+			)}
 
 			{/* Past staff comment history block (Student sees own, Staff sees target student's) */}
 			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && (
@@ -1258,11 +1113,7 @@ const Top = () => {
 				/>
 			)}
 
-			{role === 'Staff' &&
-			!isLoading &&
-			currentDraft &&
-			currentDraft.id &&
-			currentDraft.status === 'submitted' ? (
+			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id && currentDraft.status === 'submitted' ? (
 				<Box
 					sx={{
 						my: 2,
@@ -1270,13 +1121,7 @@ const Top = () => {
 						justifyContent: 'center',
 					}}
 				>
-					<Button
-						onClick={() => updateDraftStatus(currentDraft.id)}
-						variant='contained'
-						color='warning'
-						size='small'
-						sx={{ width: '80%', height: '36px', fontSize: '18px' }}
-					>
+					<Button onClick={() => updateDraftStatus(currentDraft.id)} variant='contained' color='warning' size='small' sx={{ width: '80%', height: '36px', fontSize: '18px' }}>
 						{t('start_checking')}
 					</Button>
 				</Box>
@@ -1284,69 +1129,37 @@ const Top = () => {
 			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>
-					<TextField
-						title={t('selfIntroduction')}
-						data={student.draft.self_introduction}
-						editData={editData}
-						editMode={editMode}
-						updateEditData={handleUpdateEditData}
-						keyName='self_introduction'
-						parentKey='draft'
-						icon={BadgeOutlinedIcon}
-						imageUrl={student.photo}
-						isChanged={
-							role === 'Staff' &&
-							currentDraft?.changed_fields?.includes('self_introduction')
-						}
-					/>
+					<TextField title={t('selfIntroduction')} data={student.draft.self_introduction} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='self_introduction' parentKey='draft' icon={BadgeOutlinedIcon} imageUrl={student.photo} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('self_introduction')} />
 					{/* New Design for Hobbies and Special Skills */}
 					<div style={{ display: 'flex', gap: 25, marginTop: 25 }}>
 						{/* Hobbies Section */}
 						<div
 							style={{
 								flex: 1,
-								backgroundColor:
-									role === 'Staff' &&
-									(currentDraft?.changed_fields?.includes('hobbies') ||
-										currentDraft?.changed_fields?.includes(
-											'hobbies_description'
-										))
-										? '#fff3cd'
-										: '#ffffff',
+								backgroundColor: role === 'Staff' && (currentDraft?.changed_fields?.includes('hobbies') || currentDraft?.changed_fields?.includes('hobbies_description')) ? '#fff3cd' : '#ffffff',
 								padding: 20,
 								borderRadius: 10,
-								border:
-									role === 'Staff' &&
-									(currentDraft?.changed_fields?.includes('hobbies') ||
-										currentDraft?.changed_fields?.includes(
-											'hobbies_description'
-										))
-										? '2px solid #ffc107'
-										: '1px solid #e1e1e1',
+								border: role === 'Staff' && (currentDraft?.changed_fields?.includes('hobbies') || currentDraft?.changed_fields?.includes('hobbies_description')) ? '2px solid #ffc107' : '1px solid #e1e1e1',
 								position: 'relative',
 							}}
 						>
-							{role === 'Staff' &&
-								(currentDraft?.changed_fields?.includes('hobbies') ||
-									currentDraft?.changed_fields?.includes(
-										'hobbies_description'
-									)) && (
-									<div
-										style={{
-											position: 'absolute',
-											top: -10,
-											right: 10,
-											backgroundColor: '#ffc107',
-											color: '#fff',
-											padding: '2px 8px',
-											borderRadius: '4px',
-											fontSize: '12px',
-											fontWeight: 'bold',
-										}}
-									>
-										変更あり
-									</div>
-								)}
+							{role === 'Staff' && (currentDraft?.changed_fields?.includes('hobbies') || currentDraft?.changed_fields?.includes('hobbies_description')) && (
+								<div
+									style={{
+										position: 'absolute',
+										top: -10,
+										right: 10,
+										backgroundColor: '#ffc107',
+										color: '#fff',
+										padding: '2px 8px',
+										borderRadius: '4px',
+										fontSize: '12px',
+										fontWeight: 'bold',
+									}}
+								>
+									変更あり
+								</div>
+							)}
 							<div
 								style={{
 									fontSize: 20,
@@ -1366,20 +1179,14 @@ const Top = () => {
 								<>
 									{/* Description Input */}
 									<div style={{ marginBottom: 20 }}>
-										<div
-											style={{ marginBottom: 8, color: '#666', fontSize: 14 }}
-										>
-											{t('hobbiesDetailDescription')}
-										</div>
+										<div style={{ marginBottom: 8, color: '#666', fontSize: 14 }}>{t('hobbiesDetailDescription')}</div>
 										<MuiTextField
 											fullWidth
 											multiline
 											rows={3}
 											placeholder={t('hobbiesDescriptionPlaceholder')}
 											value={editData.draft.hobbies_description || ''}
-											onChange={e =>
-												handleHobbiesDescriptionUpdate(e.target.value)
-											}
+											onChange={e => handleHobbiesDescriptionUpdate(e.target.value)}
 											sx={{
 												'& .MuiOutlinedInput-root': {
 													borderRadius: 2,
@@ -1390,11 +1197,7 @@ const Top = () => {
 
 									{/* Tag Creation Section */}
 									<div style={{ marginBottom: 20 }}>
-										<div
-											style={{ marginBottom: 10, color: '#666', fontSize: 14 }}
-										>
-											{t('hobbiesTags')}
-										</div>
+										<div style={{ marginBottom: 10, color: '#666', fontSize: 14 }}>{t('hobbiesTags')}</div>
 										{!showHobbiesInput ? (
 											<Button
 												onClick={showAddHobbyInput}
@@ -1475,48 +1278,40 @@ const Top = () => {
 												flexWrap: 'wrap',
 											}}
 										>
-											{parseTagsFromString(editData.draft.hobbies || '').map(
-												(hobby, index) => (
-													<Chip
-														key={index}
-														label={hobby}
-														onDelete={() => handleRemoveHobby(index)}
-														deleteIcon={<CloseIcon />}
-														size='small'
-														sx={{
-															backgroundColor: '#5627DB',
+											{parseTagsFromString(editData.draft.hobbies || '').map((hobby, index) => (
+												<Chip
+													key={index}
+													label={hobby}
+													onDelete={() => handleRemoveHobby(index)}
+													deleteIcon={<CloseIcon />}
+													size='small'
+													sx={{
+														backgroundColor: '#5627DB',
+														color: 'white',
+														'& .MuiChip-deleteIcon': {
 															color: 'white',
-															'& .MuiChip-deleteIcon': {
-																color: 'white',
-															},
-														}}
-													/>
-												)
-											)}
+														},
+													}}
+												/>
+											))}
 										</div>
 									</div>
 								</>
 							) : (
 								<>
-									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>
-										{editData.draft.hobbies_description ||
-											student.draft.hobbies ||
-											'未入力'}
-									</div>
+									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>{editData.draft.hobbies_description || student.draft.hobbies || '未入力'}</div>
 									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-										{parseTagsFromString(student.draft.hobbies || '').map(
-											(hobby, index) => (
-												<Chip
-													key={index}
-													label={hobby}
-													size='small'
-													sx={{
-														backgroundColor: '#5627DB',
-														color: 'white',
-													}}
-												/>
-											)
-										)}
+										{parseTagsFromString(student.draft.hobbies || '').map((hobby, index) => (
+											<Chip
+												key={index}
+												label={hobby}
+												size='small'
+												sx={{
+													backgroundColor: '#5627DB',
+													color: 'white',
+												}}
+											/>
+										))}
 									</div>
 								</>
 							)}
@@ -1526,48 +1321,30 @@ const Top = () => {
 						<div
 							style={{
 								flex: 1,
-								backgroundColor:
-									role === 'Staff' &&
-									(currentDraft?.changed_fields?.includes('special_skills') ||
-										currentDraft?.changed_fields?.includes(
-											'special_skills_description'
-										))
-										? '#fff3cd'
-										: '#ffffff',
+								backgroundColor: role === 'Staff' && (currentDraft?.changed_fields?.includes('special_skills') || currentDraft?.changed_fields?.includes('special_skills_description')) ? '#fff3cd' : '#ffffff',
 								padding: 20,
 								borderRadius: 10,
-								border:
-									role === 'Staff' &&
-									(currentDraft?.changed_fields?.includes('special_skills') ||
-										currentDraft?.changed_fields?.includes(
-											'special_skills_description'
-										))
-										? '2px solid #ffc107'
-										: '1px solid #e1e1e1',
+								border: role === 'Staff' && (currentDraft?.changed_fields?.includes('special_skills') || currentDraft?.changed_fields?.includes('special_skills_description')) ? '2px solid #ffc107' : '1px solid #e1e1e1',
 								position: 'relative',
 							}}
 						>
-							{role === 'Staff' &&
-								(currentDraft?.changed_fields?.includes('special_skills') ||
-									currentDraft?.changed_fields?.includes(
-										'special_skills_description'
-									)) && (
-									<div
-										style={{
-											position: 'absolute',
-											top: -10,
-											right: 10,
-											backgroundColor: '#ffc107',
-											color: '#fff',
-											padding: '2px 8px',
-											borderRadius: '4px',
-											fontSize: '12px',
-											fontWeight: 'bold',
-										}}
-									>
-										変更あり
-									</div>
-								)}
+							{role === 'Staff' && (currentDraft?.changed_fields?.includes('special_skills') || currentDraft?.changed_fields?.includes('special_skills_description')) && (
+								<div
+									style={{
+										position: 'absolute',
+										top: -10,
+										right: 10,
+										backgroundColor: '#ffc107',
+										color: '#fff',
+										padding: '2px 8px',
+										borderRadius: '4px',
+										fontSize: '12px',
+										fontWeight: 'bold',
+									}}
+								>
+									変更あり
+								</div>
+							)}
 							<div
 								style={{
 									fontSize: 20,
@@ -1587,20 +1364,14 @@ const Top = () => {
 								<>
 									{/* Description Input */}
 									<div style={{ marginBottom: 20 }}>
-										<div
-											style={{ marginBottom: 8, color: '#666', fontSize: 14 }}
-										>
-											{t('specialSkillsDetailDescription')}
-										</div>
+										<div style={{ marginBottom: 8, color: '#666', fontSize: 14 }}>{t('specialSkillsDetailDescription')}</div>
 										<MuiTextField
 											fullWidth
 											multiline
 											rows={3}
 											placeholder={t('specialSkillsDescriptionPlaceholder')}
 											value={editData.draft.special_skills_description || ''}
-											onChange={e =>
-												handleSpecialSkillsDescriptionUpdate(e.target.value)
-											}
+											onChange={e => handleSpecialSkillsDescriptionUpdate(e.target.value)}
 											sx={{
 												'& .MuiOutlinedInput-root': {
 													borderRadius: 2,
@@ -1611,11 +1382,7 @@ const Top = () => {
 
 									{/* Tag Creation Section */}
 									<div style={{ marginBottom: 20 }}>
-										<div
-											style={{ marginBottom: 10, color: '#666', fontSize: 14 }}
-										>
-											{t('specialSkillsTags')}
-										</div>
+										<div style={{ marginBottom: 10, color: '#666', fontSize: 14 }}>{t('specialSkillsTags')}</div>
 										{!showSpecialSkillsInput ? (
 											<Button
 												onClick={showAddSpecialSkillInput}
@@ -1696,9 +1463,7 @@ const Top = () => {
 												flexWrap: 'wrap',
 											}}
 										>
-											{parseTagsFromString(
-												editData.draft.other_information || ''
-											).map((skill, index) => (
+											{parseTagsFromString(editData.draft.other_information || '').map((skill, index) => (
 												<Chip
 													key={index}
 													label={skill}
@@ -1719,15 +1484,9 @@ const Top = () => {
 								</>
 							) : (
 								<>
-									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>
-										{editData.draft.special_skills_description ||
-											student.draft.other_information ||
-											'未入力'}
-									</div>
+									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>{editData.draft.special_skills_description || student.draft.other_information || '未入力'}</div>
 									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-										{parseTagsFromString(
-											student.draft.other_information || ''
-										).map((skill, index) => (
+										{parseTagsFromString(student.draft.other_information || '').map((skill, index) => (
 											<Chip
 												key={index}
 												label={skill}
@@ -1744,36 +1503,9 @@ const Top = () => {
 						</div>
 					</div>
 					<div style={{ display: 'flex', gap: 25 }}>
-						<TextField
-							title={t('origin')}
-							data={student.draft.address || student.address}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='address'
-							parentKey='draft'
-							icon={LocationOnOutlinedIcon}
-						/>
-						<TextField
-							title={t('major')}
-							data={student.draft.major || '未入力'}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='major'
-							parentKey='draft'
-							icon={SchoolOutlinedIcon}
-						/>
-						<TextField
-							title={t('jobType')}
-							data={student.draft.job_type || '未入力'}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='job_type'
-							parentKey='draft'
-							icon={BusinessCenterOutlinedIcon}
-						/>
+						<TextField title={t('origin')} data={student.draft.address || student.address} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='address' parentKey='draft' icon={LocationOnOutlinedIcon} />
+						<TextField title={t('major')} data={student.draft.major || '未入力'} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='major' parentKey='draft' icon={SchoolOutlinedIcon} />
+						<TextField title={t('jobType')} data={student.draft.job_type || '未入力'} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='job_type' parentKey='draft' icon={BusinessCenterOutlinedIcon} />
 					</div>
 				</Box>
 			)}
@@ -1796,10 +1528,7 @@ const Top = () => {
 							keyName='it_skills'
 							parentKey='draft'
 							icon={<CodeIcon sx={{ color: '#5627DB' }} />}
-							isChanged={
-								role === 'Staff' &&
-								currentDraft?.changed_fields?.includes('it_skills')
-							}
+							isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('it_skills')}
 						/>
 						<div
 							style={{
@@ -1824,13 +1553,9 @@ const Top = () => {
 								{t('Qualifications')}
 							</div>
 
-							<div
-								style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
-							>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 								{/* JLPT */}
-								<div
-									style={{ display: 'flex', alignItems: 'center', height: 36 }}
-								>
+								<div style={{ display: 'flex', alignItems: 'center', height: 36 }}>
 									<span style={{ minWidth: 160, fontWeight: 500 }}>JLPT:</span>
 									<span
 										style={{
@@ -1843,26 +1568,18 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={
-											editMode ? 'この情報はKintoneから管理されています' : ''
-										}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
 									>
 										{(() => {
-											const jlptData = editData.draft.jlpt
-												? getJLPTData(editData.draft.jlpt).highest
-												: getJLPTData(student.jlpt).highest
+											const jlptData = editData.draft.jlpt ? getJLPTData(editData.draft.jlpt).highest : getJLPTData(student.jlpt).highest
 											return jlptData || t('none')
 										})()}
 									</span>
 								</div>
 
 								{/* JDU Certification */}
-								<div
-									style={{ display: 'flex', alignItems: 'center', height: 36 }}
-								>
-									<span style={{ minWidth: 160, fontWeight: 500 }}>
-										{t('jdu_certification')}:
-									</span>
+								<div style={{ display: 'flex', alignItems: 'center', height: 36 }}>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>{t('jdu_certification')}:</span>
 									<span
 										style={{
 											padding: '6px 20px',
@@ -1874,28 +1591,18 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={
-											editMode ? 'この情報はKintoneから管理されています' : ''
-										}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
 									>
 										{(() => {
-											const jduData = editData.draft.jdu_japanese_certification
-												? getJLPTData(editData.draft.jdu_japanese_certification)
-														.highest
-												: getJLPTData(student.jdu_japanese_certification)
-														.highest
+											const jduData = editData.draft.jdu_japanese_certification ? getJLPTData(editData.draft.jdu_japanese_certification).highest : getJLPTData(student.jdu_japanese_certification).highest
 											return jduData || t('none')
 										})()}
 									</span>
 								</div>
 
 								{/* Japanese Speech Contest */}
-								<div
-									style={{ display: 'flex', alignItems: 'center', height: 36 }}
-								>
-									<span style={{ minWidth: 160, fontWeight: 500 }}>
-										{t('japaneseSpeechContest')}:
-									</span>
+								<div style={{ display: 'flex', alignItems: 'center', height: 36 }}>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>{t('japaneseSpeechContest')}:</span>
 									<span
 										style={{
 											padding: '6px 20px',
@@ -1907,17 +1614,10 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={
-											editMode ? 'この情報はKintoneから管理されています' : ''
-										}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
 									>
 										{(() => {
-											const speechData = editData.draft.japanese_speech_contest
-												? getCertificateData(
-														editData.draft.japanese_speech_contest
-													).highest
-												: getCertificateData(student.japanese_speech_contest)
-														.highest
+											const speechData = editData.draft.japanese_speech_contest ? getCertificateData(editData.draft.japanese_speech_contest).highest : getCertificateData(student.japanese_speech_contest).highest
 											return speechData || t('none')
 										})()}
 									</span>
@@ -1925,12 +1625,8 @@ const Top = () => {
 								</div>
 
 								{/* IT Contest */}
-								<div
-									style={{ display: 'flex', alignItems: 'center', height: 36 }}
-								>
-									<span style={{ minWidth: 160, fontWeight: 500 }}>
-										{t('itContest')}:
-									</span>
+								<div style={{ display: 'flex', alignItems: 'center', height: 36 }}>
+									<span style={{ minWidth: 160, fontWeight: 500 }}>{t('itContest')}:</span>
 									<span
 										style={{
 											padding: '6px 20px',
@@ -1942,14 +1638,10 @@ const Top = () => {
 											color: editMode ? '#666' : '#000',
 											cursor: editMode ? 'not-allowed' : 'default',
 										}}
-										title={
-											editMode ? 'この情報はKintoneから管理されています' : ''
-										}
+										title={editMode ? 'この情報はKintoneから管理されています' : ''}
 									>
 										{(() => {
-											const itData = editData.draft.it_contest
-												? getCertificateData(editData.draft.it_contest).highest
-												: getCertificateData(student.it_contest).highest
+											const itData = editData.draft.it_contest ? getCertificateData(editData.draft.it_contest).highest : getCertificateData(student.it_contest).highest
 											return itData || t('none')
 										})()}
 									</span>
@@ -1974,45 +1666,17 @@ const Top = () => {
 							keyName='language_skills'
 							parentKey='draft'
 							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
-							isChanged={
-								role === 'Staff' &&
-								currentDraft?.changed_fields?.includes('language_skills')
-							}
+							isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('language_skills')}
 						/>
 
-						<OtherSkillsSelector
-							title={t('otherSkills')}
-							data={student.draft}
-							editData={editData}
-							editMode={editMode}
-							updateEditData={handleUpdateEditData}
-							keyName='other_skills'
-							parentKey='draft'
-							icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />}
-							isChanged={
-								role === 'Staff' &&
-								currentDraft?.changed_fields?.includes('other_skills')
-							}
-						/>
+						<OtherSkillsSelector title={t('otherSkills')} data={student.draft} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='other_skills' parentKey='draft' icon={<ExtensionOutlinedIcon sx={{ color: '#5627DB' }} />} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('other_skills')} />
 					</div>
 				</Box>
 			)}
 			{/* deliverables */}
 			{subTabIndex === 2 && (
 				<Box my={2}>
-					<Deliverables
-						data={student.draft.deliverables}
-						editMode={editMode}
-						editData={editData.draft}
-						updateEditData={handleUpdateEditData}
-						onImageUpload={handleImageUpload}
-						keyName='deliverables'
-						resetPreviews={resetDeliverablePreviews}
-						isChanged={
-							role === 'Staff' &&
-							currentDraft?.changed_fields?.includes('deliverables')
-						}
-					/>
+					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} />
 				</Box>
 			)}
 			{/* Credits section is temporarily disabled */}
@@ -2025,72 +1689,32 @@ const Top = () => {
 					{console.log('editData.draft:', editData.draft)}
 					{console.log('editData.draft.qa:', editData.draft?.qa)}
 					{console.log('typeof qa:', typeof editData.draft?.qa)} */}
-					<QA
-						updateQA={updateQA}
-						data={editData.draft?.qa || {}}
-						currentDraft={currentDraft}
-						handleQAUpdate={handleQAUpdate}
-						isFromTopPage={true}
-						topEditMode={editMode}
-						handleDraftUpsert={handleDraftUpsert}
-						isHonban={currentDraft && currentDraft.status === 'approved'}
-						setTopEditMode={setTopEditMode}
-						updateCurrentDraft={updateCurrentDraft}
-						studentId={student?.student_id || id}
-					/>
+					<QA updateQA={updateQA} data={editData.draft?.qa || {}} currentDraft={currentDraft} handleQAUpdate={handleQAUpdate} isFromTopPage={true} topEditMode={editMode} handleDraftUpsert={handleDraftUpsert} isHonban={currentDraft && currentDraft.status === 'approved'} setTopEditMode={setTopEditMode} updateCurrentDraft={updateCurrentDraft} studentId={student?.student_id || id} />
 				</Box>
 			)}
-			<ProfileConfirmDialog
-				open={confirmMode}
-				onClose={toggleConfirmMode}
-				onConfirm={handleSubmitDraft}
-			/>
+			<ProfileConfirmDialog open={confirmMode} onClose={toggleConfirmMode} onConfirm={handleSubmitDraft} />
 
 			{/* Auto-save indicator */}
 			{editMode && role === 'Student' && (
-				<Snackbar
-					open={saveStatus.isSaving || !!saveStatus.lastSaved}
-					autoHideDuration={saveStatus.isSaving ? null : 2000}
-					anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-					onClose={() => setSaveStatus(prev => ({ ...prev, lastSaved: null }))}
-				>
-					<Alert
-						severity='info'
-						icon={saveStatus.isSaving ? <SaveIcon /> : <SaveIcon />}
-						sx={{ alignItems: 'center' }}
-					>
-						{saveStatus.isSaving
-							? t('savingChanges') || 'Saving...'
-							: t('changesSaved') || 'Changes saved'}
-						{saveStatus.isSaving && (
-							<LinearProgress color='inherit' sx={{ ml: 2, width: 100 }} />
-						)}
+				<Snackbar open={saveStatus.isSaving || !!saveStatus.lastSaved} autoHideDuration={saveStatus.isSaving ? null : 2000} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} onClose={() => setSaveStatus(prev => ({ ...prev, lastSaved: null }))}>
+					<Alert severity='info' icon={saveStatus.isSaving ? <SaveIcon /> : <SaveIcon />} sx={{ alignItems: 'center' }}>
+						{saveStatus.isSaving ? t('savingChanges') || 'Saving...' : t('changesSaved') || 'Changes saved'}
+						{saveStatus.isSaving && <LinearProgress color='inherit' sx={{ ml: 2, width: 100 }} />}
 					</Alert>
 				</Snackbar>
 			)}
 
 			{/* Recovery dialog */}
-			<Dialog
-				open={showRecoveryDialog}
-				onClose={() => setShowRecoveryDialog(false)}
-			>
+			<Dialog open={showRecoveryDialog} onClose={() => setShowRecoveryDialog(false)}>
 				<DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
 					<RestoreIcon color='info' />
 					{t('recoverUnsavedChanges') || 'Recover Unsaved Changes?'}
 				</DialogTitle>
 				<DialogContent>
-					<Typography>
-						{t('unsavedChangesFound') ||
-							'We found unsaved changes from your previous editing session. Would you like to restore them?'}
-					</Typography>
+					<Typography>{t('unsavedChangesFound') || 'We found unsaved changes from your previous editing session. Would you like to restore them?'}</Typography>
 					{persistedData.timestamp && (
-						<Typography
-							variant='caption'
-							color='text.secondary'
-							sx={{ mt: 1, display: 'block' }}
-						>
-							{t('lastModified') || 'Last modified'}:{' '}
-							{new Date(persistedData.timestamp).toLocaleString()}
+						<Typography variant='caption' color='text.secondary' sx={{ mt: 1, display: 'block' }}>
+							{t('lastModified') || 'Last modified'}: {new Date(persistedData.timestamp).toLocaleString()}
 						</Typography>
 					)}
 				</DialogContent>
@@ -2098,11 +1722,7 @@ const Top = () => {
 					<Button onClick={handleDiscardRecovery} color='error'>
 						{t('discard') || 'Discard'}
 					</Button>
-					<Button
-						onClick={handleRecoverData}
-						variant='contained'
-						startIcon={<RestoreIcon />}
-					>
+					<Button onClick={handleRecoverData} variant='contained' startIcon={<RestoreIcon />}>
 						{t('restore') || 'Restore'}
 					</Button>
 				</DialogActions>
@@ -2121,26 +1741,9 @@ const Top = () => {
 					}
 				}}
 			>
-				<DialogTitle>
-					{pendingLanguageChange
-						? t('unsavedChangesLanguageTitle') ||
-							'Save changes before switching language?'
-						: pendingNavigation
-							? t('unsavedChangesNavigationTitle') ||
-								'Save changes before leaving?'
-							: t('unsavedChangesTitle') || 'Unsaved Changes'}
-				</DialogTitle>
+				<DialogTitle>{pendingLanguageChange ? t('unsavedChangesLanguageTitle') || 'Save changes before switching language?' : pendingNavigation ? t('unsavedChangesNavigationTitle') || 'Save changes before leaving?' : t('unsavedChangesTitle') || 'Unsaved Changes'}</DialogTitle>
 				<DialogContent>
-					<Typography>
-						{pendingLanguageChange
-							? t('unsavedChangesLanguageMessage') ||
-								'You have unsaved changes. Would you like to save them before changing the language?'
-							: pendingNavigation
-								? t('unsavedChangesNavigationMessage') ||
-									'You have unsaved changes. Would you like to save them before leaving this page?'
-								: t('unsavedChangesMessage') ||
-									'You have unsaved changes. Are you sure you want to discard them?'}
-					</Typography>
+					<Typography>{pendingLanguageChange ? t('unsavedChangesLanguageMessage') || 'You have unsaved changes. Would you like to save them before changing the language?' : pendingNavigation ? t('unsavedChangesNavigationMessage') || 'You have unsaved changes. Would you like to save them before leaving this page?' : t('unsavedChangesMessage') || 'You have unsaved changes. Are you sure you want to discard them?'}</Typography>
 				</DialogContent>
 				<DialogActions>
 					<Button
@@ -2171,11 +1774,7 @@ const Top = () => {
 							>
 								{t('discardAndSwitch') || 'Discard & Switch'}
 							</Button>
-							<Button
-								onClick={handleConfirmCancel}
-								variant='contained'
-								color='primary'
-							>
+							<Button onClick={handleConfirmCancel} variant='contained' color='primary'>
 								{t('saveAndSwitch') || 'Save & Switch'}
 							</Button>
 						</>
@@ -2184,20 +1783,12 @@ const Top = () => {
 							<Button onClick={handleConfirmCancel} color='error'>
 								{t('discardAndLeave') || 'Discard & Leave'}
 							</Button>
-							<Button
-								onClick={handleSaveAndNavigate}
-								variant='contained'
-								color='primary'
-							>
+							<Button onClick={handleSaveAndNavigate} variant='contained' color='primary'>
 								{t('saveAndLeave') || 'Save & Leave'}
 							</Button>
 						</>
 					) : (
-						<Button
-							onClick={handleConfirmCancel}
-							color='error'
-							variant='contained'
-						>
+						<Button onClick={handleConfirmCancel} color='error' variant='contained'>
 							{t('discardChanges') || 'Discard Changes'}
 						</Button>
 					)}
@@ -2205,26 +1796,13 @@ const Top = () => {
 			</Dialog>
 
 			{/* Submit warning modal (e.g., missing required QA answers) */}
-			<Dialog
-				open={warningModal.open}
-				onClose={() => setWarningModal({ open: false, message: '' })}
-				aria-labelledby='submit-warning-title'
-				aria-describedby='submit-warning-desc'
-			>
-				<DialogTitle id='submit-warning-title'>
-					{t('warning') || 'Warning'}
-				</DialogTitle>
+			<Dialog open={warningModal.open} onClose={() => setWarningModal({ open: false, message: '' })} aria-labelledby='submit-warning-title' aria-describedby='submit-warning-desc'>
+				<DialogTitle id='submit-warning-title'>{t('warning') || 'Warning'}</DialogTitle>
 				<DialogContent>
-					<DialogContentText id='submit-warning-desc'>
-						{warningModal.message}
-					</DialogContentText>
+					<DialogContentText id='submit-warning-desc'>{warningModal.message}</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button
-						onClick={() => setWarningModal({ open: false, message: '' })}
-						color='primary'
-						autoFocus
-					>
+					<Button onClick={() => setWarningModal({ open: false, message: '' })} color='primary' autoFocus>
 						{t('ok')}
 					</Button>
 				</DialogActions>
@@ -2249,13 +1827,7 @@ function HistoryComments({ targetStudentId }) {
 					: '/api/notification/history'
 				const res = await axios.get(url)
 				const list = res?.data?.notifications || []
-				const filtered = list
-					.filter(
-						n =>
-							typeof n.message === 'string' &&
-							n.message.includes('|||COMMENT_SEPARATOR|||')
-					)
-					.slice(0, 2)
+				const filtered = list.filter(n => typeof n.message === 'string' && n.message.includes('|||COMMENT_SEPARATOR|||')).slice(0, 2)
 				if (mounted) setItems(filtered)
 			} catch (e) {
 				// ignore
@@ -2281,17 +1853,13 @@ function HistoryComments({ targetStudentId }) {
 				border: '1px solid #e0e0e0',
 			}}
 		>
-			<Typography sx={{ fontWeight: 600, mb: 1 }}>
-				過去のスタッフコメント
-			</Typography>
+			<Typography sx={{ fontWeight: 600, mb: 1 }}>過去のスタッフコメント</Typography>
 			{items.map((n, idx) => {
 				const parts = n.message.split('|||COMMENT_SEPARATOR|||')
 				const commentRaw = parts[1] || ''
 				const comment = (() => {
 					const lines = String(commentRaw).split('\n')
-					return lines.length > 1
-						? lines.slice(1).join('\n').trim()
-						: commentRaw.trim()
+					return lines.length > 1 ? lines.slice(1).join('\n').trim() : commentRaw.trim()
 				})()
 				return (
 					<Box
