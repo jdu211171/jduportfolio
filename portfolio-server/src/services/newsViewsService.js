@@ -234,7 +234,11 @@ class NewsViewsService {
 			const toCreateIds = newsIds.filter(id => !viewedSet.has(id))
 
 			if (toCreateIds.length === 0) {
-				return { markedCount: 0, total: newsIds.length, skipped: newsIds.length }
+				return {
+					markedCount: 0,
+					total: newsIds.length,
+					skipped: newsIds.length,
+				}
 			}
 
 			const now = new Date()

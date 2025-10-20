@@ -154,4 +154,7 @@ router.patch('/read-all', NotificationController.markNotificationAsReadAll)
  */
 router.get('/history', NotificationController.historyNotification)
 
+// Staff-only: get notifications (read and unread) for a specific student by student_id
+router.get('/history/student/:studentId', NotificationController.historyNotificationForStudent)
+
 module.exports = router

@@ -186,6 +186,34 @@ class NotificationController {
 			return res.status(500).json({ error: 'Internal Server Error' })
 		}
 	}
+
+	// Staff-only: get notifications (read and unread) for a specific student by student_id
+	static async historyNotificationForStudent(req, res) {
+		try {
+			const { userType } = req.user
+			if (!userType || userType !== 'Staff') {
+				return res.status(403).json({
+					error: "Permission denied. Only Staff can view a student's notifications.",
+				})
+			}
+
+			const { studentId } = req.params
+			if (!studentId) {
+				return res.status(400).json({ error: 'studentId is required' })
+			}
+
+			// Fetch both unread and read notifications for the given student_id
+			const notifications = await NotificationService.getByUserId(String(studentId), { user_role: 'student' })
+
+			return res.status(200).json({
+				message: notifications.length ? 'History notifications found' : 'No history notifications found',
+				notifications,
+			})
+		} catch (error) {
+			console.error('Error fetching student history notifications:', error)
+			return res.status(500).json({ error: 'Internal Server Error' })
+		}
+	}
 }
 
 module.exports = NotificationController

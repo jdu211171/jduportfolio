@@ -273,11 +273,36 @@ class NewsService {
 		const item = await News.findOne({
 			where: { [Op.and]: finalConditions },
 			include: [
-				{ model: Admin, as: 'authorAdmin', attributes: ['id', 'first_name', 'last_name'], required: false },
-				{ model: Staff, as: 'authorStaff', attributes: ['id', 'first_name', 'last_name'], required: false },
-				{ model: Recruiter, as: 'authorRecruiter', attributes: ['id', 'company_name'], required: false },
-				{ model: Admin, as: 'moderatorAdmin', attributes: ['id', 'first_name', 'last_name'], required: false },
-				{ model: Staff, as: 'moderatorStaff', attributes: ['id', 'first_name', 'last_name'], required: false },
+				{
+					model: Admin,
+					as: 'authorAdmin',
+					attributes: ['id', 'first_name', 'last_name'],
+					required: false,
+				},
+				{
+					model: Staff,
+					as: 'authorStaff',
+					attributes: ['id', 'first_name', 'last_name'],
+					required: false,
+				},
+				{
+					model: Recruiter,
+					as: 'authorRecruiter',
+					attributes: ['id', 'company_name'],
+					required: false,
+				},
+				{
+					model: Admin,
+					as: 'moderatorAdmin',
+					attributes: ['id', 'first_name', 'last_name'],
+					required: false,
+				},
+				{
+					model: Staff,
+					as: 'moderatorStaff',
+					attributes: ['id', 'first_name', 'last_name'],
+					required: false,
+				},
 			],
 		})
 		if (!item) return null
