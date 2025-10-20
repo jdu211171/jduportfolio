@@ -1106,8 +1106,8 @@ const Top = () => {
 				</Box>
 			)}
 
-			{/* Past staff comment history for students (only on 自己紹介 tab) */}
-			{role === 'Student' && subTabIndex === 0 && <HistoryComments />}
+			{/* Past staff comment history block (Student sees own, Staff sees target student's) */}
+			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && <HistoryComments targetStudentId={role === 'Student' ? null : studentId} />}
 
 			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id && currentDraft.status === 'submitted' ? (
 				<Box
@@ -1808,7 +1808,7 @@ const Top = () => {
 }
 
 // --- Helper component: Student's past staff comment history (from notifications) ---
-function HistoryComments() {
+function HistoryComments({ targetStudentId }) {
 	const [items, setItems] = useState([])
 	const [loaded, setLoaded] = useState(false)
 
@@ -1816,7 +1816,8 @@ function HistoryComments() {
 		let mounted = true
 		;(async () => {
 			try {
-				const res = await axios.get('/api/notification/history')
+				const url = targetStudentId ? `/api/notification/history/student/${encodeURIComponent(targetStudentId)}` : '/api/notification/history'
+				const res = await axios.get(url)
 				const list = res?.data?.notifications || []
 				const filtered = list.filter(n => typeof n.message === 'string' && n.message.includes('|||COMMENT_SEPARATOR|||')).slice(0, 2)
 				if (mounted) setItems(filtered)
@@ -1829,7 +1830,7 @@ function HistoryComments() {
 		return () => {
 			mounted = false
 		}
-	}, [])
+	}, [targetStudentId])
 
 	if (!loaded || items.length === 0) return null
 
