@@ -1,12 +1,13 @@
 import AddIcon from '@mui/icons-material/Add'
-import { Autocomplete, Box, Chip, IconButton, TextField } from '@mui/material'
-import axios from 'axios'
+import { Box, Chip, IconButton, TextField } from '@mui/material'
+import axios from '../../utils/axiosUtils'
 import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import styles from './OtherSkillsSelector.module.css'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
+import { useAlert } from '../../contexts/AlertContext'
 
 const OtherSkillsSelector = ({ title, data, editData, editMode, updateEditData, keyName, parentKey = 'draft', icon, isChanged = false }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
@@ -16,6 +17,7 @@ const OtherSkillsSelector = ({ title, data, editData, editMode, updateEditData, 
 
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+	const showAlert = useAlert()
 
 	// Fetch available skills from API
 	useEffect(() => {
@@ -91,7 +93,9 @@ const OtherSkillsSelector = ({ title, data, editData, editMode, updateEditData, 
 		const isDuplicate = currentSkillsData.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase())
 
 		if (isDuplicate) {
-			alert(`Skill "${skillName}" already exists!`)
+			if (typeof showAlert === 'function') {
+				showAlert(t('skillExists'), 'warning')
+			}
 			return
 		}
 
@@ -162,7 +166,7 @@ const OtherSkillsSelector = ({ title, data, editData, editMode, updateEditData, 
 						fontWeight: 'bold',
 					}}
 				>
-					変更あり
+					{t('changed')}
 				</div>
 			)}
 
@@ -232,7 +236,7 @@ const OtherSkillsSelector = ({ title, data, editData, editMode, updateEditData, 
 							color: '#999',
 						}}
 					>
-						{editMode ? t('noAwardsEdit') : t('noAwards')}
+						{t('notEntered')}
 					</div>
 				)}
 			</div>

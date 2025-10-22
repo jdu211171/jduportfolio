@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Autocomplete, TextField, Chip, Box, MenuItem, Select, FormControl, InputLabel, IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import styles from './SkillSelector.module.css'
@@ -8,6 +8,7 @@ import PropTypes from 'prop-types'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
+import { useAlert } from '../../contexts/AlertContext'
 
 const SkillSelector = ({ title, data, editData, editMode, headers, updateEditData, keyName, parentKey = 'draft', showAutocomplete, showHeaders, icon, isChanged = false, showEmptyAsNotSubmitted = false }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
@@ -15,9 +16,11 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 	const [databaseSkills, setDatabaseSkills] = useState([])
 	const [inputValue, setInputValue] = useState('')
 	const [loadingSkills, setLoadingSkills] = useState(false)
+	const debounceRef = useRef(null)
 
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+	const showAlert = useAlert()
 
 	// Fetch skills from database when showAutocomplete is true
 	useEffect(() => {
@@ -25,6 +28,15 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 			fetchSkillsFromDatabase()
 		}
 	}, [showAutocomplete])
+
+	useEffect(() => {
+		if (!showAutocomplete) return
+		if (debounceRef.current) clearTimeout(debounceRef.current)
+		debounceRef.current = setTimeout(() => {
+			fetchSkillsFromDatabase(inputValue)
+		}, 350)
+		return () => debounceRef.current && clearTimeout(debounceRef.current)
+	}, [inputValue, showAutocomplete])
 
 	const fetchSkillsFromDatabase = async (search = '') => {
 		try {
@@ -69,7 +81,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 		const isDuplicate = Object.values(currentSkillsData).some(levelSkills => Array.isArray(levelSkills) && levelSkills.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase()))
 
 		if (isDuplicate) {
-			alert(`Skill "${skillName}" already exists!`)
+			showAlert(t('skillExists'), 'warning')
 			return
 		}
 
@@ -93,7 +105,9 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 			setSelectedSkill(null)
 			setSelectedLevel('初級')
 			setInputValue('')
-		} catch (error) {}
+		} catch (error) {
+			console.error('Error updating skills:', error)
+		}
 	}
 
 	const handleDeleteSkill = (skillToDelete, level) => {
@@ -105,7 +119,9 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 
 		try {
 			updateEditData(keyName, updatedSkills, parentKey)
-		} catch (error) {}
+		} catch (error) {
+			console.error('Error deleting skill:', error)
+		}
 	}
 
 	const skillsToDisplay = getCurrentSkillsData()
@@ -143,7 +159,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 						fontWeight: 'bold',
 					}}
 				>
-					変更あり
+					{t('changed')}
 				</div>
 			)}
 			<div className={styles.title} style={icon ? { display: 'flex', alignItems: 'center', gap: 8 } : {}}>
@@ -174,13 +190,6 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 							inputValue={inputValue}
 							onInputChange={(event, newInputValue) => {
 								setInputValue(newInputValue || '')
-								// Search skills when user types
-								if (newInputValue && newInputValue.length > 0) {
-									fetchSkillsFromDatabase(newInputValue)
-								} else {
-									// When cleared, reload full list
-									fetchSkillsFromDatabase('')
-								}
 							}}
 							onOpen={() => {
 								// Ensure full list appears when opening without a search term
@@ -290,8 +299,8 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 												))}
 											</div>
 										) : (
-											// Show 未提出 when explicitly requested
-											showEmptyAsNotSubmitted && <div style={{ color: '#666', fontSize: 14 }}>未提出</div>
+											// Show not submitted when explicitly requested
+											showEmptyAsNotSubmitted && <div style={{ color: '#666', fontSize: 14 }}>{t('none')}</div>
 										)}
 									</td>
 								</tr>
@@ -307,7 +316,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 										color: '#999',
 									}}
 								>
-									{editMode ? 'No skills added yet. Use the form above to add skills.' : t('noSkills')}
+									{t('notEntered')}
 								</td>
 							</tr>
 						)}
@@ -330,6 +339,7 @@ SkillSelector.propTypes = {
 	showAutocomplete: PropTypes.bool,
 	showHeaders: PropTypes.bool,
 	icon: PropTypes.node,
+	isChanged: PropTypes.bool,
 	showEmptyAsNotSubmitted: PropTypes.bool,
 }
 

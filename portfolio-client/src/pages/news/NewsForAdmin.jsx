@@ -1,7 +1,7 @@
 import SearchIcon from '@mui/icons-material/Search'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Snackbar, Switch, TextField } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, IconButton, Skeleton, Snackbar, Switch, TextField } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
 import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
@@ -30,6 +30,7 @@ export const NewsForAdmin = () => {
 	const [error, setError] = useState(null)
 	const [searchTerm, setSearchTerm] = useState('')
 	const [deleteLoading, setDeleteLoading] = useState(null)
+	const [deleteConfirm, setDeleteConfirm] = useState({ open: false, newsId: null })
 	const [createDialogOpen, setCreateDialogOpen] = useState(false)
 	const [createLoading, setCreateLoading] = useState(false)
 	const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -64,7 +65,6 @@ export const NewsForAdmin = () => {
 
 			const response = await axios.get('/api/news', { params })
 			const data = response.data
-			console.log(data)
 
 			setNewsData(Array.isArray(data) ? data : data.news || [])
 		} catch (err) {
@@ -80,7 +80,6 @@ export const NewsForAdmin = () => {
 		try {
 			const response = await axios.get('/api/news-views/with-status')
 			const data = response.data
-			console.log(data)
 
 			setReadedUser(data.news || [])
 		} catch (err) {
@@ -117,34 +116,19 @@ export const NewsForAdmin = () => {
 		}
 	}
 
-	// Delete news
+	// Delete news (confirmed via modal)
 	const handleDeleteNews = async newsId => {
-		if (!window.confirm(t('confirmDeleteNews'))) {
-			return
-		}
-
 		setDeleteLoading(newsId)
 		setError(null)
 
 		try {
-			const response = await axios.delete(`/api/news/${newsId}`)
-
+			await axios.delete(`/api/news/${newsId}`)
 			setNewsData(prevNews => prevNews.filter(news => news.id !== newsId))
-
-			console.log('News deleted successfully')
+			setDeleteConfirm({ open: false, newsId: null })
 		} catch (err) {
 			console.error('Error deleting news:', err)
-
-			let errorMessage = 'Failed to delete news'
-
-			if (err.response) {
-				const status = err.response.status
-				const serverMessage = err.response.data?.message || err.response.data?.error
-			} else {
-				errorMessage = `Failed to delete news: ${err.message}`
-			}
-
-			setError(errorMessage)
+			const serverMessage = err.response?.data?.message || err.response?.data?.error
+			setError(serverMessage || `Failed to delete news: ${err.message}`)
 		} finally {
 			setDeleteLoading(null)
 		}
@@ -154,14 +138,7 @@ export const NewsForAdmin = () => {
 		setToastOpen(true)
 	}
 
-	const toggleExpand = key => {
-		setExpandedKeys(prev => {
-			const next = new Set(prev)
-			if (next.has(key)) next.delete(key)
-			else next.add(key)
-			return next
-		})
-	}
+	// removed unused toggleExpand state handler
 	// Create new news
 	const handleCreateNews = async () => {
 		// Validate required fields
@@ -175,7 +152,7 @@ export const NewsForAdmin = () => {
 
 		// Check if any validation errors exist
 		if (errors.title || errors.description || errors.image) {
-			setError('Please fill in all required fields (Title, Description, and Image)')
+			setError(t('fillRequiredFields'))
 			return
 		}
 
@@ -188,13 +165,15 @@ export const NewsForAdmin = () => {
 			formData.append('title', newNews.title)
 			formData.append('description', newNews.description)
 			formData.append('source_link', newNews.source_link)
-			formData.append('visible_to_recruiter', newNews.visible_to_recruiter)
+			formData.append('visible_to_recruiter', String(newNews.visible_to_recruiter))
 
 			const hashtagsArray = newNews.hashtags
 				.split(',')
 				.map(tag => tag.trim())
 				.filter(tag => tag.length > 0)
-			formData.append('hashtags', JSON.stringify(hashtagsArray))
+			hashtagsArray.forEach(tag => {
+				formData.append('hashtags[]', tag)
+			})
 
 			if (newNews.image) {
 				formData.append('image', newNews.image)
@@ -288,7 +267,7 @@ export const NewsForAdmin = () => {
 			formData.append('title', newNews.title)
 			formData.append('description', newNews.description)
 			formData.append('source_link', newNews.source_link)
-			formData.append('visible_to_recruiter', newNews.visible_to_recruiter)
+			formData.append('visible_to_recruiter', String(newNews.visible_to_recruiter))
 
 			const hashtagsArray = newNews.hashtags
 				? newNews.hashtags
@@ -655,7 +634,7 @@ export const NewsForAdmin = () => {
 												fontSize: 'clamp(14px, 2.5vw, 18px)',
 												display: 'flex',
 												flexDirection: 'column',
-												justifyContent: 'left',
+												justifyContent: 'flex-start',
 											}}
 										>
 											{news.visible_to_recruiter && (
@@ -680,7 +659,7 @@ export const NewsForAdmin = () => {
 										style={{
 											display: 'flex',
 											alignItems: 'center',
-											justifyContent: 'right',
+											justifyContent: 'flex-end',
 											gap: 'clamp(6px, 1vw, 8px)',
 											flexWrap: 'wrap',
 										}}
@@ -725,7 +704,7 @@ export const NewsForAdmin = () => {
 										<IconButton
 											onClick={e => {
 												e.stopPropagation()
-												handleDeleteNews(news.id)
+												setDeleteConfirm({ open: true, newsId: news.id })
 											}}
 											disabled={deleteLoading === news.id}
 											style={{
@@ -817,10 +796,10 @@ export const NewsForAdmin = () => {
 									{newNews.image ? newNews.image.name : t('upload_picture')}
 								</Button>
 							</label>
-							{validationErrors.image && <Box sx={{ color: '#d32f2f', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>Image is required</Box>}
+							{validationErrors.image && <Box sx={{ color: '#d32f2f', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>{t('imageRequired')}</Box>}
 						</Box>
-						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required error={validationErrors.title} helperText={validationErrors.title ? 'Title is required' : ''} />
-						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required error={validationErrors.description} helperText={validationErrors.description ? 'Description is required' : ''} />
+						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required error={validationErrors.title} helperText={validationErrors.title ? t('titleRequired') : ''} />
+						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required error={validationErrors.description} helperText={validationErrors.description ? t('descriptionRequired') : ''} />
 						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} />
 						<TextField
 							label={t('sourseLink')}
@@ -830,7 +809,7 @@ export const NewsForAdmin = () => {
 							placeholder='https://example.com'
 							// optional: link may be empty
 						/>
-						<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />
+						<FormControlLabel control={<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />} label={t('visibleToRecruiter')} />
 					</Box>
 				</DialogContent>
 				<DialogActions>
@@ -844,7 +823,7 @@ export const NewsForAdmin = () => {
 							})
 						}}
 					>
-						{t('cencel')}
+						{t('cancel')}
 					</Button>
 					<Button onClick={handleCreateNews} variant='contained' disabled={createLoading}>
 						{createLoading ? <CircularProgress size={20} color='inherit' /> : t('create')}
@@ -902,9 +881,9 @@ export const NewsForAdmin = () => {
 						)}
 						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required />
 						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required />
-						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} required />
+						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} />
 						<TextField label={t('sourseLink')} value={newNews.source_link} onChange={e => handleInputChange('source_link', e.target.value)} fullWidth placeholder='https://example.com' />
-						<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />
+						<FormControlLabel control={<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />} label={t('visibleToRecruiter')} />
 					</Box>
 				</DialogContent>
 				<DialogActions>
@@ -926,6 +905,22 @@ export const NewsForAdmin = () => {
 					</Button>
 					<Button onClick={handleUpdateNews} variant='contained' disabled={editLoading || !newNews.title || !newNews.description}>
 						{editLoading ? <CircularProgress size={20} color='inherit' /> : t('updateNews')}
+					</Button>
+				</DialogActions>
+			</Dialog>
+
+			{/* Delete Confirmation Dialog */}
+			<Dialog open={deleteConfirm.open} onClose={() => setDeleteConfirm({ open: false, newsId: null })} PaperProps={{ sx: { borderRadius: 2 } }}>
+				<DialogTitle sx={{ color: '#d32f2f' }}>{t('confirm_delete')}</DialogTitle>
+				<DialogContent>
+					<Box sx={{ pt: 1 }}>{t('confirmDeleteNews')}</Box>
+				</DialogContent>
+				<DialogActions sx={{ p: 3, gap: 1 }}>
+					<Button onClick={() => setDeleteConfirm({ open: false, newsId: null })} variant='outlined' sx={{ borderRadius: 2 }}>
+						{t('cancel')}
+					</Button>
+					<Button onClick={() => handleDeleteNews(deleteConfirm.newsId)} variant='contained' color='error' disabled={deleteLoading === deleteConfirm.newsId} sx={{ borderRadius: 2 }}>
+						{t('delete')}
 					</Button>
 				</DialogActions>
 			</Dialog>

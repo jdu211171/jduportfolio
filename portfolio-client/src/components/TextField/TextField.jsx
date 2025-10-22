@@ -1,5 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { TextField as MuiTextField } from '@mui/material'
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 import styles from './TextField.module.css'
 
 const TextField = ({
@@ -17,7 +20,10 @@ const TextField = ({
 	isChanged = false,
 	maxLength, // optional: limit input length
 	showCounter = false, // optional: show character counter
+	imageVersion, // optional: cache-busting version string
 }) => {
+	const { language } = useLanguage()
+	const t = key => translations[language][key] || key
 	const handleChange = e => {
 		updateEditData(keyName, e.target.value)
 	}
@@ -47,7 +53,7 @@ const TextField = ({
 						fontWeight: 'bold',
 					}}
 				>
-					変更あり
+					{t('changed') || 'Changed'}
 				</div>
 			)}
 			<div className={styles.title}>
@@ -57,7 +63,7 @@ const TextField = ({
 			<div style={{ display: 'flex', gap: 15 }}>
 				{imageUrl ? (
 					<img
-						src={`${imageUrl}${imageUrl.includes('?') ? '&' : '?'}v=${Date.now()}`}
+						src={imageVersion ? `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(imageVersion)}` : imageUrl}
 						alt={imageUrl}
 						style={{
 							borderRadius: 12,
@@ -71,7 +77,7 @@ const TextField = ({
 				) : (
 					''
 				)}
-				<div className={styles.data}>{editMode ? <MuiTextField value={(parentKey ? editData[parentKey]?.[keyName] : editData[keyName]) || ''} onChange={handleChange} variant='outlined' sx={{ width: '100%' }} multiline inputProps={maxLength ? { maxLength } : undefined} helperText={showCounter && maxLength ? `${((parentKey ? editData[parentKey]?.[keyName] : editData[keyName]) || '').length}/${maxLength}` : undefined} /> : <div>{data ? data : '未入力'}</div>}</div>
+				<div className={styles.data}>{editMode ? <MuiTextField value={(parentKey ? editData[parentKey]?.[keyName] : editData[keyName]) || ''} onChange={handleChange} variant='outlined' sx={{ width: '100%' }} multiline inputProps={maxLength ? { maxLength } : undefined} helperText={showCounter && maxLength ? `${((parentKey ? editData[parentKey]?.[keyName] : editData[keyName]) || '').length}/${maxLength}` : undefined} /> : <div className={styles.displayValue}>{data ? data : t('notEntered') || 'Not entered'}</div>}</div>
 			</div>
 			{details ? (
 				<div style={{ display: 'flex', gap: 8 }}>
@@ -89,3 +95,21 @@ const TextField = ({
 }
 
 export default TextField
+
+TextField.propTypes = {
+	title: PropTypes.string.isRequired,
+	data: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+	editData: PropTypes.object,
+	editMode: PropTypes.bool,
+	updateEditData: PropTypes.func,
+	keyName: PropTypes.string,
+	parentKey: PropTypes.string,
+	icon: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
+	iconColor: PropTypes.string,
+	imageUrl: PropTypes.string,
+	details: PropTypes.array,
+	isChanged: PropTypes.bool,
+	maxLength: PropTypes.number,
+	showCounter: PropTypes.bool,
+	imageVersion: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+}
