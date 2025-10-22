@@ -1,10 +1,12 @@
 Copilot Commit Message Rules
 
 Purpose
+
 - Generate clear, consistent, and review‑ready commit messages that follow best practices and Conventional Commits.
 - Do not include emojis, decorative characters, or branch names anywhere in the message.
 
 Message Format
+
 ```
 <type>[optional scope][!]: <short imperative summary>
 
@@ -14,6 +16,7 @@ Message Format
 ```
 
 Strict Rules
+
 - No emojis or decorative symbols.
 - Do not include the branch name anywhere.
 - Use the imperative mood in the subject (e.g., "add", "fix", "update").
@@ -25,6 +28,7 @@ Strict Rules
 - Reference issues/PRs in footers using standard keywords.
 
 Allowed Types
+
 - feat: a new feature
 - fix: a bug fix
 - perf: a performance improvement
@@ -38,19 +42,23 @@ Allowed Types
 - revert: revert a previous commit
 
 Scopes (optional)
+
 - Use a concise scope in parentheses to indicate the affected area when helpful.
 - Examples: client, server, api, auth, ui, styles, infra, deploy, ci, i18n.
 
 Breaking Changes
+
 - Indicate with an exclamation mark after the type/scope, and add a
   BREAKING CHANGE footer describing the impact and required actions.
 
 Footers
+
 - Closes #123, Fixes #456, Refs #789
 - Co-authored-by: Name <email>
 - BREAKING CHANGE: description
 
 Good Examples
+
 ```
 feat(client): add language persistence to navbar
 
@@ -82,12 +90,14 @@ Closes #152
 ```
 
 Prohibited Content
+
 - Branch names (do not include in subject or body).
 - Emojis or decorative symbols.
 - "WIP", vague phrases, or filler text.
 - Stack traces, logs, or large diffs pasted into the message.
 
 Authoring Checklist
+
 - Subject uses "type(scope): summary" and imperative mood.
 - Subject ≤ 72 chars, no trailing period.
 - Body explains what changed and why; wrapped at ~72 chars.

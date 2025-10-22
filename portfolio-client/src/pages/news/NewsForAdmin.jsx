@@ -1,7 +1,7 @@
 import SearchIcon from '@mui/icons-material/Search'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Snackbar, TextField } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Skeleton, Snackbar, Switch, TextField } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
 import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
@@ -38,12 +38,18 @@ export const NewsForAdmin = () => {
 	const [removeImage, setRemoveImage] = useState(false)
 	const [toastOpen, setToastOpen] = useState(false)
 	const [toastMessage, setToastMessage] = useState('')
+	const [validationErrors, setValidationErrors] = useState({
+		title: false,
+		description: false,
+		image: false,
+	})
 	const [newNews, setNewNews] = useState({
 		title: '',
 		description: '',
 		hashtags: '',
 		image: null,
 		source_link: '',
+		visible_to_recruiter: false,
 	})
 
 	const fetchNews = async (searchQuery = '') => {
@@ -58,6 +64,8 @@ export const NewsForAdmin = () => {
 
 			const response = await axios.get('/api/news', { params })
 			const data = response.data
+			console.log(data)
+
 			setNewsData(Array.isArray(data) ? data : data.news || [])
 		} catch (err) {
 			setError(err.response?.data?.message || err.message)
@@ -156,6 +164,21 @@ export const NewsForAdmin = () => {
 	}
 	// Create new news
 	const handleCreateNews = async () => {
+		// Validate required fields
+		const errors = {
+			title: !newNews.title.trim(),
+			description: !newNews.description.trim(),
+			image: !newNews.image,
+		}
+
+		setValidationErrors(errors)
+
+		// Check if any validation errors exist
+		if (errors.title || errors.description || errors.image) {
+			setError('Please fill in all required fields (Title, Description, and Image)')
+			return
+		}
+
 		setCreateLoading(true)
 		setError(null)
 
@@ -165,6 +188,7 @@ export const NewsForAdmin = () => {
 			formData.append('title', newNews.title)
 			formData.append('description', newNews.description)
 			formData.append('source_link', newNews.source_link)
+			formData.append('visible_to_recruiter', newNews.visible_to_recruiter)
 
 			const hashtagsArray = newNews.hashtags
 				.split(',')
@@ -192,6 +216,12 @@ export const NewsForAdmin = () => {
 				hashtags: '',
 				image: null,
 				source_link: '',
+				visible_to_recruiter: false,
+			})
+			setValidationErrors({
+				title: false,
+				description: false,
+				image: false,
 			})
 			setCreateDialogOpen(false)
 		} catch (err) {
@@ -207,6 +237,13 @@ export const NewsForAdmin = () => {
 			...prev,
 			[field]: value,
 		}))
+		// Clear validation error when user starts typing
+		if (validationErrors[field]) {
+			setValidationErrors(prev => ({
+				...prev,
+				[field]: false,
+			}))
+		}
 	}
 
 	const handleFileChange = event => {
@@ -215,6 +252,13 @@ export const NewsForAdmin = () => {
 			...prev,
 			image: file,
 		}))
+		// Clear validation error when user selects an image
+		if (validationErrors.image && file) {
+			setValidationErrors(prev => ({
+				...prev,
+				image: false,
+			}))
+		}
 	}
 
 	const handleEditNews = news => {
@@ -225,6 +269,7 @@ export const NewsForAdmin = () => {
 			hashtags: news.hashtags && Array.isArray(news.hashtags) ? news.hashtags.join(', ') : news.hashtags || '',
 			image: null,
 			source_link: news.source_link || '',
+			visible_to_recruiter: news.visible_to_recruiter || false,
 		})
 		setRemoveImage(false)
 		setEditDialogOpen(true)
@@ -243,6 +288,7 @@ export const NewsForAdmin = () => {
 			formData.append('title', newNews.title)
 			formData.append('description', newNews.description)
 			formData.append('source_link', newNews.source_link)
+			formData.append('visible_to_recruiter', newNews.visible_to_recruiter)
 
 			const hashtagsArray = newNews.hashtags
 				? newNews.hashtags
@@ -282,6 +328,7 @@ export const NewsForAdmin = () => {
 				hashtags: '',
 				image: null,
 				source_link: '',
+				visible_to_recruiter: false,
 			})
 			setEditingNews(null)
 			setRemoveImage(false)
@@ -477,7 +524,11 @@ export const NewsForAdmin = () => {
 									{viewCount}
 								</span>
 								{/* News Image */}
-								<div>
+								<div
+									style={{
+										width: '100%',
+									}}
+								>
 									<div
 										style={{
 											width: '100%',
@@ -529,10 +580,8 @@ export const NewsForAdmin = () => {
 												marginBottom: '12px',
 												lineHeight: '1.4',
 												overflow: 'hidden',
-												textOverflow: 'ellipsis',
-												display: '-webkit-box',
-												WebkitLineClamp: 2,
 												WebkitBoxOrient: 'vertical',
+												whiteSpace: '',
 											}}
 										>
 											{news.title}
@@ -604,8 +653,24 @@ export const NewsForAdmin = () => {
 												color: 'black',
 												fontWeight: '500',
 												fontSize: 'clamp(14px, 2.5vw, 18px)',
+												display: 'flex',
+												flexDirection: 'column',
+												justifyContent: 'left',
 											}}
 										>
+											{news.visible_to_recruiter && (
+												<Chip
+													label='Recruiter'
+													size='small'
+													style={{
+														backgroundColor: '#E8F5E9',
+														color: '#2E7D32',
+														fontWeight: 600,
+														fontSize: '12px',
+														borderRadius: '8px',
+													}}
+												/>
+											)}
 											{news.type}
 										</div>
 										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>{formatDate(news.createdAt)}</div>
@@ -615,7 +680,7 @@ export const NewsForAdmin = () => {
 										style={{
 											display: 'flex',
 											alignItems: 'center',
-											justifyContent: 'center',
+											justifyContent: 'right',
 											gap: 'clamp(6px, 1vw, 8px)',
 											flexWrap: 'wrap',
 										}}
@@ -714,7 +779,19 @@ export const NewsForAdmin = () => {
 			</div>
 
 			{/* Create News Dialog */}
-			<Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} maxWidth='md' fullWidth>
+			<Dialog
+				open={createDialogOpen}
+				onClose={() => {
+					setCreateDialogOpen(false)
+					setValidationErrors({
+						title: false,
+						description: false,
+						image: false,
+					})
+				}}
+				maxWidth='md'
+				fullWidth
+			>
 				<DialogTitle>{t('CreateNews')}</DialogTitle>
 				<DialogContent>
 					<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
@@ -730,15 +807,21 @@ export const NewsForAdmin = () => {
 										justifyContent: 'flex-start',
 										textTransform: 'none',
 										paddingY: 1.5,
+										borderColor: validationErrors.image ? '#d32f2f' : undefined,
+										color: validationErrors.image ? '#d32f2f' : undefined,
+										'&:hover': {
+											borderColor: validationErrors.image ? '#d32f2f' : undefined,
+										},
 									}}
 								>
 									{newNews.image ? newNews.image.name : t('upload_picture')}
 								</Button>
 							</label>
+							{validationErrors.image && <Box sx={{ color: '#d32f2f', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>Image is required</Box>}
 						</Box>
-						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required />
-						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required />
-						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} required />
+						<TextField label={t('title')} value={newNews.title} onChange={e => handleInputChange('title', e.target.value)} fullWidth required error={validationErrors.title} helperText={validationErrors.title ? 'Title is required' : ''} />
+						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required error={validationErrors.description} helperText={validationErrors.description ? 'Description is required' : ''} />
+						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} />
 						<TextField
 							label={t('sourseLink')}
 							value={newNews.source_link}
@@ -747,11 +830,23 @@ export const NewsForAdmin = () => {
 							placeholder='https://example.com'
 							// optional: link may be empty
 						/>
+						<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => setCreateDialogOpen(false)}>{t('cencel')}</Button>
-					<Button onClick={handleCreateNews} variant='contained' disabled={createLoading || !newNews.title || !newNews.description}>
+					<Button
+						onClick={() => {
+							setCreateDialogOpen(false)
+							setValidationErrors({
+								title: false,
+								description: false,
+								image: false,
+							})
+						}}
+					>
+						{t('cencel')}
+					</Button>
+					<Button onClick={handleCreateNews} variant='contained' disabled={createLoading}>
 						{createLoading ? <CircularProgress size={20} color='inherit' /> : t('create')}
 					</Button>
 				</DialogActions>
@@ -769,6 +864,7 @@ export const NewsForAdmin = () => {
 						hashtags: '',
 						image: null,
 						source_link: '',
+						visible_to_recruiter: false,
 					})
 					setRemoveImage(false)
 				}}
@@ -808,6 +904,7 @@ export const NewsForAdmin = () => {
 						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required />
 						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} required />
 						<TextField label={t('sourseLink')} value={newNews.source_link} onChange={e => handleInputChange('source_link', e.target.value)} fullWidth placeholder='https://example.com' />
+						<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />
 					</Box>
 				</DialogContent>
 				<DialogActions>
@@ -821,6 +918,7 @@ export const NewsForAdmin = () => {
 								hashtags: '',
 								image: null,
 								source_link: '',
+								visible_to_recruiter: false,
 							})
 						}}
 					>

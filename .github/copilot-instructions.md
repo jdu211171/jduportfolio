@@ -9,6 +9,7 @@ Error Handling: After making modifications, check for TypeScript errors by runni
 Output Format: If modifications are applied, output the complete code (not just a diff) so I can easily copy and paste it.
 
 TODO Management: For complex, long-running tasks that may span multiple sessions or exceed context limits:
+
 1. **Create TODO Lists**: When working on large features or refactoring tasks, add a TODO comment block at the top of relevant files with a clear list of remaining tasks. Use the format:
    ```
    /*

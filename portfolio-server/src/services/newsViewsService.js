@@ -1,6 +1,15 @@
 const { News, NewsViews } = require('../models')
 const { Op } = require('sequelize')
 
+const buildApprovedNewsFilter = userRole => {
+	const role = typeof userRole === 'string' ? userRole.toLowerCase() : ''
+	const where = { status: 'approved' }
+	if (role === 'recruiter') {
+		where.visible_to_recruiter = true
+	}
+	return where
+}
+
 class NewsViewsService {
 	static async getUnreadNewsCount(userId, userRole) {
 		try {
@@ -14,9 +23,9 @@ class NewsViewsService {
 				throw new Error('Models not available')
 			}
 
-			// Get all approved news
+			// Get all approved news visible to this user
 			const allNews = await News.findAll({
-				where: { status: 'approved' },
+				where: buildApprovedNewsFilter(userRole),
 				attributes: ['id'],
 			})
 
@@ -93,7 +102,7 @@ class NewsViewsService {
 					{
 						model: News,
 						as: 'news',
-						where: { status: 'approved' },
+						where: buildApprovedNewsFilter(userRole),
 					},
 				],
 				order: [['viewed_at', 'DESC']],
@@ -115,11 +124,11 @@ class NewsViewsService {
 			})
 
 			// Build where clause for news
-			let newsWhere = { status: 'approved' }
+			const newsWhere = buildApprovedNewsFilter(userRole)
 
 			if (filters.search) {
 				newsWhere.title = {
-					[require('sequelize').Op.iLike]: `%${filters.search}%`,
+					[Op.iLike]: `%${filters.search}%`,
 				}
 			}
 
@@ -204,7 +213,7 @@ class NewsViewsService {
 		try {
 			// Get all approved news ids
 			const news = await News.findAll({
-				where: { status: 'approved' },
+				where: buildApprovedNewsFilter(userRole),
 				attributes: ['id'],
 			})
 			const newsIds = news.map(n => n.id)
