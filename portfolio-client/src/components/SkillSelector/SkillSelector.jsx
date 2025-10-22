@@ -316,7 +316,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 										color: '#999',
 									}}
 								>
-									{t('notEntered')}
+									{editMode ? t('noSkillsAdded') : t('noSkillsAvailable')}
 								</td>
 							</tr>
 						)}
