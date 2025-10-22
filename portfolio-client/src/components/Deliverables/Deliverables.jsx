@@ -463,11 +463,11 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName, 
 			{deliverables.length === 0 && (
 				<Box sx={{ textAlign: 'center', py: 8 }}>
 					<Typography variant='h6' color='text.secondary' gutterBottom>
-						{t('noDeliverables') || 'No deliverables yet'}
+						{t('notEntered')}
 					</Typography>
 					{editMode && (
 						<Button variant='outlined' startIcon={<AddIcon />} onClick={() => setCreateDialogOpen(true)} sx={{ mt: 2 }}>
-							{t('addFirstDeliverable') || 'Add your first deliverable'}
+							{t('createDeliverable') || 'Create Deliverable'}
 						</Button>
 					)}
 				</Box>

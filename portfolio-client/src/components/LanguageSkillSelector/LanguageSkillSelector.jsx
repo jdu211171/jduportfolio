@@ -2,11 +2,12 @@ import AddIcon from '@mui/icons-material/Add'
 import { Autocomplete, Box, Chip, IconButton, TextField } from '@mui/material'
 import axios from '../../utils/axiosUtils'
 import PropTypes from 'prop-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import styles from './LanguageSkillSelector.module.css'
 
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
+import { useAlert } from '../../contexts/AlertContext'
 
 const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData, keyName, parentKey = 'draft', icon, isChanged = false }) => {
 	const [selectedSkill, setSelectedSkill] = useState(null)
@@ -14,14 +15,26 @@ const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData
 	const [availableSkills, setAvailableSkills] = useState([])
 	const [inputValue, setInputValue] = useState('')
 	const [loadingSkills, setLoadingSkills] = useState(false)
+	const debounceRef = useRef(null)
 
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+	const showAlert = useAlert()
 
 	// Fetch available skills from API
 	useEffect(() => {
 		fetchSkillsFromAPI()
 	}, [])
+
+	// Debounced search
+	useEffect(() => {
+		if (debounceRef.current) clearTimeout(debounceRef.current)
+		debounceRef.current = setTimeout(() => {
+			if (inputValue) fetchSkillsFromAPI(inputValue)
+			else fetchSkillsFromAPI('')
+		}, 350)
+		return () => debounceRef.current && clearTimeout(debounceRef.current)
+	}, [inputValue])
 
 	const fetchSkillsFromAPI = async (search = '') => {
 		try {
@@ -74,7 +87,9 @@ const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData
 		const isDuplicate = currentSkillsData.some(skill => skill.name?.toLowerCase() === skillName.toLowerCase())
 
 		if (isDuplicate) {
-			alert(`Skill "${skillName}" already exists!`)
+			if (typeof showAlert === 'function') {
+				showAlert(t('skillExists'), 'warning')
+			}
 			return
 		}
 
@@ -139,7 +154,7 @@ const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData
 						fontWeight: 'bold',
 					}}
 				>
-					変更あり
+					{t('changed')}
 				</div>
 			)}
 
@@ -160,13 +175,6 @@ const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData
 						inputValue={inputValue}
 						onInputChange={(event, newInputValue) => {
 							setInputValue(newInputValue || '')
-							// Search skills when user types
-							if (newInputValue && newInputValue.length > 0) {
-								fetchSkillsFromAPI(newInputValue)
-							} else {
-								// When cleared, reload full list
-								fetchSkillsFromAPI('')
-							}
 						}}
 						onOpen={() => {
 							if (!inputValue) {
@@ -238,7 +246,7 @@ const LanguageSkillSelector = ({ title, data, editData, editMode, updateEditData
 							color: '#999',
 						}}
 					>
-						{editMode ? t('noLanguageSkillsEdit') : t('noLanguageSkills')}
+						{t('notEntered')}
 					</div>
 				)}
 			</div>

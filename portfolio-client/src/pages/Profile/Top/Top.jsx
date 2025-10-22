@@ -30,6 +30,7 @@ import translations from '../../../locales/translations'
 import QA from '../../../pages/Profile/QA/QA'
 import axios from '../../../utils/axiosUtils'
 import styles from './Top.module.css'
+import PropTypes from 'prop-types'
 
 const Top = () => {
 	let id
@@ -121,6 +122,31 @@ const Top = () => {
 	const navigate = useNavigate()
 
 	const t = key => translations[language][key] || key
+	// Minimal local persistence for draft edits (avoid data loss on refresh)
+	const saveToStorageIfChanged = data => {
+		try {
+			const key = `profile_edit_${id}_${role}`
+			localStorage.setItem(key, JSON.stringify(data))
+		} catch (e) {
+			// ignore localStorage quota or JSON errors
+		}
+	}
+
+	// Load persisted edit data
+	const loadFromStorage = () => {
+		try {
+			const key = `profile_edit_${id}_${role}`
+			const raw = localStorage.getItem(key)
+			return raw ? JSON.parse(raw) : null
+		} catch (e) {
+			return null
+		}
+	}
+
+	// Immediate save shim (persist locally for now)
+	const immediateSave = data => {
+		saveToStorageIfChanged(data)
+	}
 
 	// Helper function to safely parse JLPT and JDU certification (JSON or plain) with null handling
 	const getJLPTData = jlptString => {
@@ -223,6 +249,20 @@ const Top = () => {
 	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 	const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
 	const [pendingLanguageChange, setPendingLanguageChange] = useState(null)
+	// Expand/collapse for long texts in view mode
+	const [expandHobbies, setExpandHobbies] = useState(false)
+	const [expandSpecial, setExpandSpecial] = useState(false)
+
+	// Handle language switch confirmation/cancel
+	const cancelLanguageChange = () => {
+		setPendingLanguageChange(null)
+	}
+	const confirmLanguageChange = () => {
+		if (pendingLanguageChange) {
+			changeLanguage(pendingLanguageChange)
+			setPendingLanguageChange(null)
+		}
+	}
 
 	// React Hook Form setup
 	const {
@@ -897,7 +937,9 @@ const Top = () => {
 							}
 							updatedDeliverables[index].imageLink = deliverableFileResponse.data.Location
 						}
-					} catch (imageUploadError) {}
+					} catch (imageUploadError) {
+						console.error('Error uploading image for deliverable:', imageUploadError)
+					}
 				}
 			}
 
@@ -1125,9 +1167,9 @@ const Top = () => {
 			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>
-					<TextField title={t('selfIntroduction')} data={student.draft.self_introduction} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='self_introduction' parentKey='draft' icon={BadgeOutlinedIcon} imageUrl={student.photo} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('self_introduction')} />
+					<TextField title={t('selfIntroduction')} data={student.draft.self_introduction} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='self_introduction' parentKey='draft' icon={BadgeOutlinedIcon} imageUrl={student.photo} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('self_introduction')} maxLength={1000} showCounter />
 					{/* New Design for Hobbies and Special Skills */}
-					<div style={{ display: 'flex', gap: 25, marginTop: 25 }}>
+					<div style={{ display: 'flex', gap: 25, marginTop: 25, alignItems: 'flex-start', flexWrap: 'wrap' }}>
 						{/* Hobbies Section */}
 						<div
 							style={{
@@ -1295,7 +1337,7 @@ const Top = () => {
 								</>
 							) : (
 								<>
-									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>{editData.draft.hobbies_description || student.draft.hobbies || '未入力'}</div>
+									<div style={{ marginBottom: 15, lineHeight: 1.6, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{editData.draft.hobbies_description || student.draft.hobbies || t('notEntered')}</div>
 									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
 										{parseTagsFromString(student.draft.hobbies || '').map((hobby, index) => (
 											<Chip
@@ -1480,7 +1522,7 @@ const Top = () => {
 								</>
 							) : (
 								<>
-									<div style={{ marginBottom: 15, lineHeight: 1.6 }}>{editData.draft.special_skills_description || student.draft.other_information || '未入力'}</div>
+									<div style={{ marginBottom: 15, lineHeight: 1.6, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{editData.draft.special_skills_description || student.draft.other_information || t('notEntered')}</div>
 									<div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
 										{parseTagsFromString(student.draft.other_information || '').map((skill, index) => (
 											<Chip
@@ -1498,10 +1540,16 @@ const Top = () => {
 							)}
 						</div>
 					</div>
-					<div style={{ display: 'flex', gap: 25 }}>
-						<TextField title={t('origin')} data={student.draft.address || student.address} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='address' parentKey='draft' icon={LocationOnOutlinedIcon} />
-						<TextField title={t('major')} data={student.draft.major || '未入力'} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='major' parentKey='draft' icon={SchoolOutlinedIcon} />
-						<TextField title={t('jobType')} data={student.draft.job_type || '未入力'} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='job_type' parentKey='draft' icon={BusinessCenterOutlinedIcon} />
+					<div style={{ display: 'flex', gap: 25, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+						<div style={{ flex: 1, minWidth: 280 }}>
+							<TextField title={t('origin')} data={student.draft.address || student.address} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='address' parentKey='draft' icon={LocationOnOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('address')} />
+						</div>
+						<div style={{ flex: 1, minWidth: 280 }}>
+							<TextField title={t('major')} data={student.draft.major} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='major' parentKey='draft' icon={SchoolOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('major')} />
+						</div>
+						<div style={{ flex: 1, minWidth: 280 }}>
+							<TextField title={t('jobType')} data={student.draft.job_type} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='job_type' parentKey='draft' icon={BusinessCenterOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('job_type')} />
+						</div>
 					</div>
 				</Box>
 			)}
@@ -1513,7 +1561,7 @@ const Top = () => {
 							title={t('itSkills')}
 							headers={{
 								上級: t('threeYearsOrMore'),
-								中級: t('threeYearsOrMore'),
+								中級: t('lessThanThreeYears'),
 								初級: t('oneToOneAndHalfYears'),
 							}}
 							data={student.draft}
@@ -1532,7 +1580,7 @@ const Top = () => {
 								backgroundColor: '#ffffff',
 								borderRadius: '12px',
 								boxShadow: '0 2px 12px rgba(0, 0, 0, 0.05)',
-								maxHeight: 346,
+								// maxHeight removed to avoid forcing equal heights
 							}}
 						>
 							<div
@@ -1876,3 +1924,7 @@ function HistoryComments({ targetStudentId }) {
 }
 
 export default Top
+
+HistoryComments.propTypes = {
+	targetStudentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+}

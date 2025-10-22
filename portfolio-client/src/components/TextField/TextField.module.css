@@ -33,11 +33,13 @@
 }
 
 .displayValue {
-	color: #666;
+	color: #000;
 	font-size: 14px;
 	line-height: 1.6;
 	min-height: 20px;
 	padding: 12px 0;
+	white-space: pre-wrap; /* preserve newlines and tabs */
+	overflow-wrap: anywhere; /* avoid overflow on long words */
 }
 
 .detail {
