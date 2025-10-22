@@ -1561,7 +1561,7 @@ const Top = () => {
 							title={t('itSkills')}
 							headers={{
 								上級: t('threeYearsOrMore'),
-								中級: t('lessThanThreeYears') || 'Less than three years',
+								中級: t('lessThanThreeYears'),
 								初級: t('oneToOneAndHalfYears'),
 							}}
 							data={student.draft}
