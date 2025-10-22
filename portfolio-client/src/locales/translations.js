@@ -70,7 +70,7 @@ const translations = {
 		imageRequired: 'Image is required',
 		descriptionRequired: 'Description is required',
 		fillRequiredFields: 'Please fill in all required fields (Title, Description, and Image)',
-		cencel: 'Cencel',
+		cancel: 'Cancel',
 		searchByHashtag: 'Search by hashtag, company name, or news title...',
 		checkOut: 'Check out the latest announcements and offers from companies',
 		newsHighlights: 'News highlights',
