@@ -140,8 +140,9 @@ class DraftController {
 				const staffName = staffMember ? `${staffMember.first_name} ${staffMember.last_name}` : 'JDU Staff'
 				const studentName = student ? `${student.first_name} ${student.last_name}` : draft.student_id
 
+				const academicAffairsEmails = ['academic-affairs@jdu.uz', 'masato.s@jdu.uz', 'yoko.w@jdu.uz']
 				const mailData = {
-					to: 'academic-affairs@jdu.uz',
+					to: academicAffairsEmails.join(', '),
 					subject: `学生のプロフィール更新が承認されました (学生ID: ${draft.student_id})`,
 					text: `${studentName} (ID: ${draft.student_id}) さんのプロフィール更新が、${staffName} によって承認されました。詳細はポートフォリオシステムでご確認ください。`,
 					html: `
