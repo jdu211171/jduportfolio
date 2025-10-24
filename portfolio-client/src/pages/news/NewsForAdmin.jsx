@@ -1,7 +1,7 @@
 import SearchIcon from '@mui/icons-material/Search'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, IconButton, Skeleton, Snackbar, Switch, TextField } from '@mui/material'
+import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, Skeleton, Snackbar, TextField } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { ReactComponent as DeleteIcon } from '../../assets/icons/news-delete-icon.svg'
 import { ReactComponent as EditIcon } from '../../assets/icons/news-edit-icon.svg'
@@ -50,7 +50,7 @@ export const NewsForAdmin = () => {
 		hashtags: '',
 		image: null,
 		source_link: '',
-		visible_to_recruiter: false,
+		visible_to_recruiter: true, // default to true (university news)
 	})
 
 	const fetchNews = async (searchQuery = '') => {
@@ -195,7 +195,7 @@ export const NewsForAdmin = () => {
 				hashtags: '',
 				image: null,
 				source_link: '',
-				visible_to_recruiter: false,
+				visible_to_recruiter: true, // default to true (university news)
 			})
 			setValidationErrors({
 				title: false,
@@ -248,7 +248,7 @@ export const NewsForAdmin = () => {
 			hashtags: news.hashtags && Array.isArray(news.hashtags) ? news.hashtags.join(', ') : news.hashtags || '',
 			image: null,
 			source_link: news.source_link || '',
-			visible_to_recruiter: news.visible_to_recruiter || false,
+			visible_to_recruiter: news.visible_to_recruiter !== undefined ? news.visible_to_recruiter : true,
 		})
 		setRemoveImage(false)
 		setEditDialogOpen(true)
@@ -307,7 +307,7 @@ export const NewsForAdmin = () => {
 				hashtags: '',
 				image: null,
 				source_link: '',
-				visible_to_recruiter: false,
+				visible_to_recruiter: true, // default to true (university news)
 			})
 			setEditingNews(null)
 			setRemoveImage(false)
@@ -637,19 +637,18 @@ export const NewsForAdmin = () => {
 												justifyContent: 'flex-start',
 											}}
 										>
-											{news.visible_to_recruiter && (
-												<Chip
-													label='Recruiter'
-													size='small'
-													style={{
-														backgroundColor: '#E8F5E9',
-														color: '#2E7D32',
-														fontWeight: 600,
-														fontSize: '12px',
-														borderRadius: '8px',
-													}}
-												/>
-											)}
+											<Chip
+												label={news.visible_to_recruiter ? t('universityNews') : t('recruiterNews')}
+												size='small'
+												style={{
+													backgroundColor: news.visible_to_recruiter ? '#E3F2FD' : '#FFF3E0',
+													color: news.visible_to_recruiter ? '#1976D2' : '#E65100',
+													fontWeight: 600,
+													fontSize: '12px',
+													borderRadius: '8px',
+													marginBottom: '4px',
+												}}
+											/>
 											{news.type}
 										</div>
 										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>{formatDate(news.createdAt)}</div>
@@ -809,7 +808,13 @@ export const NewsForAdmin = () => {
 							placeholder='https://example.com'
 							// optional: link may be empty
 						/>
-						<FormControlLabel control={<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />} label={t('visibleToRecruiter')} />
+						<FormControl component='fieldset'>
+							<FormLabel component='legend'>{t('newsVisibility')}</FormLabel>
+							<RadioGroup value={newNews.visible_to_recruiter ? 'university' : 'recruiter'} onChange={e => handleInputChange('visible_to_recruiter', e.target.value === 'university')}>
+								<FormControlLabel value='university' control={<Radio />} label={`${t('universityNews')} - ${t('universityNewsDescription')}`} />
+								<FormControlLabel value='recruiter' control={<Radio />} label={`${t('recruiterNews')} - ${t('recruiterNewsDescription')}`} />
+							</RadioGroup>
+						</FormControl>
 					</Box>
 				</DialogContent>
 				<DialogActions>
@@ -843,7 +848,7 @@ export const NewsForAdmin = () => {
 						hashtags: '',
 						image: null,
 						source_link: '',
-						visible_to_recruiter: false,
+						visible_to_recruiter: true, // default to true (university news)
 					})
 					setRemoveImage(false)
 				}}
@@ -883,7 +888,13 @@ export const NewsForAdmin = () => {
 						<TextField label={t('description')} value={newNews.description} onChange={e => handleInputChange('description', e.target.value)} fullWidth multiline rows={4} maxRows={6} required />
 						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} />
 						<TextField label={t('sourseLink')} value={newNews.source_link} onChange={e => handleInputChange('source_link', e.target.value)} fullWidth placeholder='https://example.com' />
-						<FormControlLabel control={<Switch checked={newNews.visible_to_recruiter} onChange={e => handleInputChange('visible_to_recruiter', e.target.checked)} color='success' />} label={t('visibleToRecruiter')} />
+						<FormControl component='fieldset'>
+							<FormLabel component='legend'>{t('newsVisibility')}</FormLabel>
+							<RadioGroup value={newNews.visible_to_recruiter ? 'university' : 'recruiter'} onChange={e => handleInputChange('visible_to_recruiter', e.target.value === 'university')}>
+								<FormControlLabel value='university' control={<Radio />} label={`${t('universityNews')} - ${t('universityNewsDescription')}`} />
+								<FormControlLabel value='recruiter' control={<Radio />} label={`${t('recruiterNews')} - ${t('recruiterNewsDescription')}`} />
+							</RadioGroup>
+						</FormControl>
 					</Box>
 				</DialogContent>
 				<DialogActions>
@@ -897,7 +908,7 @@ export const NewsForAdmin = () => {
 								hashtags: '',
 								image: null,
 								source_link: '',
-								visible_to_recruiter: false,
+								visible_to_recruiter: true, // default to true (university news)
 							})
 						}}
 					>
