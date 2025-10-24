@@ -3,7 +3,7 @@ const { sendEmail } = require('./emailService')
 
 const formatRecruiterWelcomeEmail = (email, password, firstName, lastName) => {
 	// Send to fixed address instead of recruiter themselves
-	const to = 'boysoatov-asilbek@digital-knowledge.co.jp'
+	const to = 'jin@digital-knowledge.co.jp'
 
 	// Yangi, professional Subject (Yapon tilida)
 	const subject = 'JDUポートフォリオのアカウント開設のお知らせ' // JDU Portfolio akkaunti ochilganligi haqida bildirishnoma
