@@ -17,9 +17,12 @@ export const NewsForAdmin = () => {
 		try {
 			if (!s) return ''
 			const d = new Date(s)
-			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(d)
+			const y = d.getFullYear()
+			const m = String(d.getMonth() + 1).padStart(2, '0')
+			const day = String(d.getDate()).padStart(2, '0')
+			return `${y}/${m}/${day}`
 		} catch {
-			return s?.split?.('T')?.[0] || ''
+			return s?.split?.('T')?.[0]?.replace?.(/-/g, '/') || ''
 		}
 	}
 
@@ -167,10 +170,15 @@ export const NewsForAdmin = () => {
 			formData.append('source_link', newNews.source_link)
 			formData.append('visible_to_recruiter', String(newNews.visible_to_recruiter))
 
-			const hashtagsArray = newNews.hashtags
+			let hashtagsArray = newNews.hashtags
 				.split(',')
 				.map(tag => tag.trim())
 				.filter(tag => tag.length > 0)
+
+			// Default hashtag when none provided
+			if (hashtagsArray.length === 0) {
+				hashtagsArray = ['#news']
+			}
 			hashtagsArray.forEach(tag => {
 				formData.append('hashtags[]', tag)
 			})
@@ -442,16 +450,17 @@ export const NewsForAdmin = () => {
 			{/* Loading handled by skeletons in grid below */}
 
 			{/* News Content Section */}
-			<div
-				style={{
-					maxWidth: '1200px',
-					margin: '0 auto',
-					display: 'grid',
-					gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))',
-					gap: 'clamp(12px, 2vw, 20px)',
-					padding: '0 10px',
-				}}
-			>
+            <div
+                style={{
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    display: 'grid',
+                    // Exactly 3 items per row on desktop
+                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                    gap: 'clamp(12px, 2vw, 20px)',
+                    padding: '0 10px',
+                }}
+            >
 				{!loading && newsData.length === 0 && !error ? (
 					<div
 						style={{
@@ -616,110 +625,72 @@ export const NewsForAdmin = () => {
 									</div>
 								</div>
 								<div style={{ padding: 10, width: '100%' }}>
-									{/* Footer */}
+									{/* Bottom bar: left publisher, right actions */}
 									<div
 										style={{
 											width: '100%',
 											display: 'flex',
 											alignItems: 'center',
 											justifyContent: 'space-between',
-											marginBottom: 10,
+											marginBottom: 6,
 										}}
 									>
+										<div style={{ fontSize: 14, fontWeight: 600, color: '#2c3e50' }}>Japan Digital University</div>
 										<div
-											style={{
-												textTransform: 'capitalize',
-												color: 'black',
-												fontWeight: '500',
-												fontSize: 'clamp(14px, 2.5vw, 18px)',
-												display: 'flex',
-												flexDirection: 'column',
-												justifyContent: 'flex-start',
-											}}
+											style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 8px)', flexWrap: 'wrap' }}
+											onClick={e => e.stopPropagation()}
 										>
-											<Chip
-												label={news.visible_to_recruiter ? t('universityNews') : t('recruiterNews')}
-												size='small'
-												style={{
-													backgroundColor: news.visible_to_recruiter ? '#E3F2FD' : '#FFF3E0',
-													color: news.visible_to_recruiter ? '#1976D2' : '#E65100',
-													fontWeight: 600,
-													fontSize: '12px',
-													borderRadius: '8px',
-													marginBottom: '4px',
-												}}
-											/>
-											{news.type}
-										</div>
-										<div style={{ fontSize: 'clamp(10px, 1.5vw, 12px)' }}>{formatDate(news.createdAt)}</div>
-									</div>
-									{/* Action Buttons */}
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'flex-end',
-											gap: 'clamp(6px, 1vw, 8px)',
-											flexWrap: 'wrap',
-										}}
-									>
-										{news.source_link && (
+											{news.source_link && (
+												<IconButton
+													style={{
+														backgroundColor: 'rgba(255, 255, 255, 0.9)',
+														backdropFilter: 'blur(10px)',
+														width: 'clamp(32px, 5vw, 36px)',
+														height: 'clamp(32px, 5vw, 36px)',
+														borderRadius: 9,
+														border: '1px solid gray',
+													}}
+													size='small'
+													component='a'
+													href={news.source_link}
+													target='_blank'
+													rel='noopener noreferrer'
+													aria-label={t('source')}
+												>
+													<LinkIcon />
+												</IconButton>
+											)}
 											<IconButton
+												onClick={() => handleEditNews(news)}
 												style={{
-													backgroundColor: 'rgba(255, 255, 255, 0.9)',
-													backdropFilter: 'blur(10px)',
 													width: 'clamp(32px, 5vw, 36px)',
 													height: 'clamp(32px, 5vw, 36px)',
 													borderRadius: 9,
 													border: '1px solid gray',
 												}}
 												size='small'
-												component='a'
-												href={news.source_link}
-												target='_blank'
-												rel='noopener noreferrer'
-												onClick={e => e.stopPropagation()}
-												aria-label={t('source')}
+												aria-label={t('edit')}
 											>
-												<LinkIcon />
+												<EditIcon />
 											</IconButton>
-										)}
-										<IconButton
-											onClick={e => {
-												e.stopPropagation()
-												handleEditNews(news)
-											}}
-											style={{
-												width: 'clamp(32px, 5vw, 36px)',
-												height: 'clamp(32px, 5vw, 36px)',
-												borderRadius: 9,
-												border: '1px solid gray',
-											}}
-											size='small'
-											aria-label={t('edit')}
-										>
-											<EditIcon />
-										</IconButton>
-										<IconButton
-											onClick={e => {
-												e.stopPropagation()
-												setDeleteConfirm({ open: true, newsId: news.id })
-											}}
-											disabled={deleteLoading === news.id}
-											style={{
-												width: 'clamp(32px, 5vw, 36px)',
-												height: 'clamp(32px, 5vw, 36px)',
-												color: '#dc3545',
-												borderRadius: 9,
-												border: '1px solid gray',
-											}}
-											size='small'
-											aria-label={t('delete')}
-										>
-											{deleteLoading === news.id ? <CircularProgress size={18} color='inherit' /> : <DeleteIcon />}
-										</IconButton>
-										{/* <div onClick={()=>users()} style={{background:'pink'}}>users</div> */}
+											<IconButton
+												onClick={() => setDeleteConfirm({ open: true, newsId: news.id })}
+												disabled={deleteLoading === news.id}
+												style={{
+													width: 'clamp(32px, 5vw, 36px)',
+													height: 'clamp(32px, 5vw, 36px)',
+													color: '#dc3545',
+													borderRadius: 9,
+													border: '1px solid gray',
+												}}
+												size='small'
+												aria-label={t('delete')}
+											>
+												{deleteLoading === news.id ? <CircularProgress size={18} color='inherit' /> : <DeleteIcon />}
+											</IconButton>
+										</div>
 									</div>
+									<div style={{ fontSize: 12, color: '#95a5a6' }}>{formatDate(news.createdAt)}</div>
 								</div>
 							</div>
 						)
@@ -809,10 +780,32 @@ export const NewsForAdmin = () => {
 							// optional: link may be empty
 						/>
 						<FormControl component='fieldset'>
-							<FormLabel component='legend'>{t('newsVisibility')}</FormLabel>
-							<RadioGroup value={newNews.visible_to_recruiter ? 'university' : 'recruiter'} onChange={e => handleInputChange('visible_to_recruiter', e.target.value === 'university')}>
-								<FormControlLabel value='university' control={<Radio />} label={`${t('universityNews')} - ${t('universityNewsDescription')}`} />
-								<FormControlLabel value='recruiter' control={<Radio />} label={`${t('recruiterNews')} - ${t('recruiterNewsDescription')}`} />
+							<FormLabel component='legend' sx={{ display: 'block', textAlign: 'center', mb: 1 }}>
+								{t('newsVisibility')}
+							</FormLabel>
+							<RadioGroup row value={newNews.visible_to_recruiter ? 'university' : 'recruiter'} onChange={e => handleInputChange('visible_to_recruiter', e.target.value === 'university')} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+								<FormControlLabel
+									sx={{ m: 0, p: 1.5, border: '1px solid #e0e0e0', borderRadius: 2, alignItems: 'flex-start', minWidth: 280, flex: '1 1 280px' }}
+									value='university'
+									control={<Radio />}
+									label={
+										<div style={{ display: 'flex', flexDirection: 'column' }}>
+											<span style={{ fontWeight: 600 }}>{t('universityNews')}</span>
+											<span style={{ fontSize: 12, color: '#6c757d' }}>{t('universityNewsDescription')}</span>
+										</div>
+									}
+								/>
+								<FormControlLabel
+									sx={{ m: 0, p: 1.5, border: '1px solid #e0e0e0', borderRadius: 2, alignItems: 'flex-start', minWidth: 280, flex: '1 1 280px' }}
+									value='recruiter'
+									control={<Radio />}
+									label={
+										<div style={{ display: 'flex', flexDirection: 'column' }}>
+											<span style={{ fontWeight: 600 }}>{t('recruiterNews')}</span>
+											<span style={{ fontSize: 12, color: '#6c757d' }}>{t('recruiterNewsDescription')}</span>
+										</div>
+									}
+								/>
 							</RadioGroup>
 						</FormControl>
 					</Box>
@@ -889,10 +882,32 @@ export const NewsForAdmin = () => {
 						<TextField label={t('hashtag')} value={newNews.hashtags} onChange={e => handleInputChange('hashtags', e.target.value)} fullWidth placeholder={t('hashtagPlaceholder')} />
 						<TextField label={t('sourseLink')} value={newNews.source_link} onChange={e => handleInputChange('source_link', e.target.value)} fullWidth placeholder='https://example.com' />
 						<FormControl component='fieldset'>
-							<FormLabel component='legend'>{t('newsVisibility')}</FormLabel>
-							<RadioGroup value={newNews.visible_to_recruiter ? 'university' : 'recruiter'} onChange={e => handleInputChange('visible_to_recruiter', e.target.value === 'university')}>
-								<FormControlLabel value='university' control={<Radio />} label={`${t('universityNews')} - ${t('universityNewsDescription')}`} />
-								<FormControlLabel value='recruiter' control={<Radio />} label={`${t('recruiterNews')} - ${t('recruiterNewsDescription')}`} />
+							<FormLabel component='legend' sx={{ display: 'block', textAlign: 'center', mb: 1 }}>
+								{t('newsVisibility')}
+							</FormLabel>
+							<RadioGroup row value={newNews.visible_to_recruiter ? 'university' : 'recruiter'} onChange={e => handleInputChange('visible_to_recruiter', e.target.value === 'university')} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+								<FormControlLabel
+									sx={{ m: 0, p: 1.5, border: '1px solid #e0e0e0', borderRadius: 2, alignItems: 'flex-start', minWidth: 280, flex: '1 1 280px' }}
+									value='university'
+									control={<Radio />}
+									label={
+										<div style={{ display: 'flex', flexDirection: 'column' }}>
+											<span style={{ fontWeight: 600 }}>{t('universityNews')}</span>
+											<span style={{ fontSize: 12, color: '#6c757d' }}>{t('universityNewsDescription')}</span>
+										</div>
+									}
+								/>
+								<FormControlLabel
+									sx={{ m: 0, p: 1.5, border: '1px solid #e0e0e0', borderRadius: 2, alignItems: 'flex-start', minWidth: 280, flex: '1 1 280px' }}
+									value='recruiter'
+									control={<Radio />}
+									label={
+										<div style={{ display: 'flex', flexDirection: 'column' }}>
+											<span style={{ fontWeight: 600 }}>{t('recruiterNews')}</span>
+											<span style={{ fontSize: 12, color: '#6c757d' }}>{t('recruiterNewsDescription')}</span>
+										</div>
+									}
+								/>
 							</RadioGroup>
 						</FormControl>
 					</Box>

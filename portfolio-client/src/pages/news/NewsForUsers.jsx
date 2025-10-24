@@ -84,9 +84,12 @@ export const NewsForUsers = () => {
 		try {
 			if (!s) return ''
 			const d = new Date(s)
-			return new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(d)
+			const y = d.getFullYear()
+			const m = String(d.getMonth() + 1).padStart(2, '0')
+			const day = String(d.getDate()).padStart(2, '0')
+			return `${y}/${m}/${day}`
 		} catch {
-			return s?.split?.('T')?.[0] || ''
+			return s?.split?.('T')?.[0]?.replace?.(/-/g, '/') || ''
 		}
 	}
 
@@ -151,13 +154,13 @@ export const NewsForUsers = () => {
 
 	// Open detail via navigate inline
 
-	// Initialize from URL params
+	// Initialize from URL params (and react to changes)
 	useEffect(() => {
 		const qp = Object.fromEntries(searchParams.entries())
-		if (qp.q) setSearchTerm(qp.q)
-		if (qp.tag) setSelectedTag(qp.tag)
-		if (qp.sort && (qp.sort === 'newest' || qp.sort === 'oldest')) setSortBy(qp.sort)
-	}, [])
+		if (typeof qp.q === 'string') setSearchTerm(qp.q)
+		if (typeof qp.tag === 'string') setSelectedTag(qp.tag)
+		if (qp.sort === 'newest' || qp.sort === 'oldest') setSortBy(qp.sort)
+	}, [searchParams])
 
 	// Sync to URL params
 	useEffect(() => {
@@ -165,8 +168,18 @@ export const NewsForUsers = () => {
 		if (searchTerm) qp.q = searchTerm
 		if (selectedTag) qp.tag = selectedTag
 		if (sortBy && sortBy !== 'newest') qp.sort = sortBy
-		setSearchParams(qp, { replace: true })
-	}, [searchTerm, selectedTag, sortBy])
+		// Only update when params actually differ to avoid loops
+		const current = Object.fromEntries(searchParams.entries())
+		const keys = new Set([...Object.keys(qp), ...Object.keys(current)])
+		let differs = false
+		for (const k of keys) {
+			if ((qp[k] || '') !== (current[k] || '')) {
+				differs = true
+				break
+			}
+		}
+		if (differs) setSearchParams(qp, { replace: true })
+	}, [searchTerm, selectedTag, sortBy, searchParams, setSearchParams])
 
 	// Infinite scroll (IntersectionObserver)
 	useEffect(() => {
@@ -187,12 +200,16 @@ export const NewsForUsers = () => {
 		return () => observer.disconnect()
 	}, [filteredSorted.length, visibleCount])
 
+    // Header labels (avoid duplicate subtitle)
+    const headerTitle = t('newsHighlights') || 'Latest News'
+    const headerSub = t('checkOut')
+
 	return (
 		<div className={styles.page}>
 			{/* Header */}
 			<div className={styles.header}>
-				<h1 className={styles.headerTitle}>{t('newsHighlights') || 'Latest News'}</h1>
-				<p className={styles.headerSub}>{t('checkOut')}</p>
+				<h1 className={styles.headerTitle}>{headerTitle}</h1>
+				{headerSub && headerSub !== headerTitle && <p className={styles.headerSub}>{headerSub}</p>}
 			</div>
 
 			{/* Error */}
@@ -266,8 +283,8 @@ export const NewsForUsers = () => {
 				</div>
 			)}
 
-			{/* News Grid or Skeletons */}
-			<div className={styles.grid}>
+            {/* News Grid — 3 per row */}
+            <div className={styles.grid}>
 				{loading ? (
 					Array.from({ length: 6 }).map((_, idx) => (
 						<div key={`s-${idx}`} className={styles.card}>
@@ -292,8 +309,8 @@ export const NewsForUsers = () => {
 						const itemKey = news.id ?? `i-${index}`
 						const domain = news.source_link ? getDomain(news.source_link) : null
 						const isMarking = markingIds.has(news.id)
-						return (
-							<div key={itemKey} className={`${styles.card} ${!news.isViewed ? styles.cardUnread : ''}`} onClick={() => navigate(`/news/${news.id}`)} role='article'>
+                        return (
+                            <div key={itemKey} className={`${styles.card} ${!news.isViewed ? styles.cardUnread : ''}`} onClick={() => navigate(`/news/${news.id}`)} role='article'>
 								{!news.isViewed && <span className={styles.unreadDot} />}
 								{/* Image Section */}
 								<div className={styles.image}>{news.image_url ? <img className={styles.img} src={news.image_url} alt={news.title} loading='lazy' decoding='async' /> : <div className={styles.noImage}>{t('noImageAvailable')}</div>}</div>
@@ -313,8 +330,8 @@ export const NewsForUsers = () => {
 									)}
 									<div className={styles.footer}>
 										<div className={styles.meta}>
-											<span className={styles.date}>{formatDate(news.createdAt)}</span>
-											<span className={styles.type}>{news.type}</span>
+											<div className={styles.publisher}>Japan Digital University</div>
+											<div className={styles.date}>{formatDate(news.createdAt)}</div>
 										</div>
 										<div className={styles.actions} onClick={e => e.stopPropagation()}>
 											<Button variant='contained' disabled={news.isViewed || isMarking} onClick={() => markAsRead(news.id)}>
