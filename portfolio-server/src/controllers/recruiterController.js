@@ -143,7 +143,10 @@ class RecruiterController {
 
 	static async getById(req, res, next) {
 		try {
-			const recruiter = await RecruiterService.getRecruiterById(req.params.id)
+			const authenticatedUserId = req.user?.id
+			const authenticatedUserType = req.user?.userType
+			const isSelf = authenticatedUserType === 'Recruiter' && String(authenticatedUserId) === String(req.params.id)
+			const recruiter = await RecruiterService.getRecruiterById(req.params.id, false, isSelf)
 			res.status(200).json(recruiter)
 		} catch (error) {
 			next(error)
@@ -157,7 +160,10 @@ class RecruiterController {
 			const { currentPassword, password, ...updateData } = req.body
 
 			if (password) {
-				const recruiter = await RecruiterService.getRecruiterById(id, true)
+				const authenticatedUserId = req.user?.id
+				const authenticatedUserType = req.user?.userType
+				const isSelf = authenticatedUserType === 'Recruiter' && String(authenticatedUserId) === String(id)
+				const recruiter = await RecruiterService.getRecruiterById(id, true, isSelf)
 				if (!recruiter || !(await bcrypt.compare(currentPassword, recruiter.password))) {
 					return res.status(400).json({ error: '現在のパスワードを入力してください' })
 				}
