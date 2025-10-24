@@ -39,7 +39,14 @@ class RecruiterController {
 					}
 					const newRecruiter = await RecruiterService.createRecruiter(data)
 					if (newRecruiter) {
-						await sendRecruiterWelcomeEmail(newRecruiter.email, password, newRecruiter.first_name, newRecruiter.last_name)
+						console.log(`[WEBHOOK] New recruiter created: ${newRecruiter.email}, attempting to send welcome email...`)
+						try {
+							await sendRecruiterWelcomeEmail(newRecruiter.email, password, newRecruiter.first_name, newRecruiter.last_name)
+							console.log(`[WEBHOOK] Welcome email sent successfully for recruiter: ${newRecruiter.email}`)
+						} catch (emailError) {
+							console.error(`[WEBHOOK] Failed to send welcome email for recruiter ${newRecruiter.email}:`, emailError)
+							console.error('[WEBHOOK] Email error stack:', emailError.stack)
+						}
 					}
 					return res.status(201).json(newRecruiter)
 				}

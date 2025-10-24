@@ -33,14 +33,21 @@ const sendEmail = async mailData => {
 		html: mailData.html,
 	}
 
+	console.log(`[SES] Attempting to send email via AWS SES:`)
+	console.log(`[SES] From: ${mailOptions.from}`)
+	console.log(`[SES] To: ${mailOptions.to}`)
+	console.log(`[SES] Subject: ${mailOptions.subject}`)
+	console.log(`[SES] Region: ${process.env.AWS_SES_REGION}`)
+
 	try {
 		const info = await transporter.sendMail(mailOptions)
-		console.log(`Email muvaffaqiyatli jo'natildi: ${mailData.to}`)
+		console.log(`[SES] Email successfully sent to: ${mailData.to}`)
+		console.log(`[SES] MessageId: ${info.messageId}`)
 		return { success: true, to: mailData.to, messageId: info.messageId }
 	} catch (error) {
-		console.error(`Email jo'natishda xatolik (${mailData.to}):`, error)
-		// Xatolikni to'liqroq log qilish
-		console.error(error.stack)
+		console.error(`[SES] Failed to send email to ${mailData.to}:`, error.message)
+		console.error(`[SES] Error code: ${error.code}`)
+		console.error(`[SES] Error stack:`, error.stack)
 		return { success: false, to: mailData.to, error: error.message }
 	}
 }
