@@ -85,15 +85,16 @@ class RecruiterService {
 	}
 
 	// Service method to retrieve a recruiter by ID
-	static async getRecruiterById(recruiterId, password = false) {
+	static async getRecruiterById(recruiterId, password = false, isSelf = false) {
 		try {
 			let excluded = ['createdAt', 'updatedAt', 'isPartner']
 			if (!password) {
 				excluded.push('password')
 			}
 			// For public GET by ID (password=false), exclude partner recruiters
+			// BUT allow self-access regardless of isPartner status
 			const where = { id: recruiterId }
-			if (!password) where.isPartner = false
+			if (!password && !isSelf) where.isPartner = false
 
 			const recruiter = await Recruiter.findOne({
 				where,
