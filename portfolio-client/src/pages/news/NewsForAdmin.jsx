@@ -450,17 +450,17 @@ export const NewsForAdmin = () => {
 			{/* Loading handled by skeletons in grid below */}
 
 			{/* News Content Section */}
-            <div
-                style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    display: 'grid',
-                    // Exactly 3 items per row on desktop
-                    gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                    gap: 'clamp(12px, 2vw, 20px)',
-                    padding: '0 10px',
-                }}
-            >
+			<div
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					display: 'grid',
+					// Exactly 3 items per row on desktop
+					gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+					gap: 'clamp(12px, 2vw, 20px)',
+					padding: '0 10px',
+				}}
+			>
 				{!loading && newsData.length === 0 && !error ? (
 					<div
 						style={{
@@ -636,10 +636,7 @@ export const NewsForAdmin = () => {
 										}}
 									>
 										<div style={{ fontSize: 14, fontWeight: 600, color: '#2c3e50' }}>Japan Digital University</div>
-										<div
-											style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 8px)', flexWrap: 'wrap' }}
-											onClick={e => e.stopPropagation()}
-										>
+										<div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 8px)', flexWrap: 'wrap' }} onClick={e => e.stopPropagation()}>
 											{news.source_link && (
 												<IconButton
 													style={{

@@ -200,9 +200,9 @@ export const NewsForUsers = () => {
 		return () => observer.disconnect()
 	}, [filteredSorted.length, visibleCount])
 
-    // Header labels (avoid duplicate subtitle)
-    const headerTitle = t('newsHighlights') || 'Latest News'
-    const headerSub = t('checkOut')
+	// Header labels (avoid duplicate subtitle)
+	const headerTitle = t('newsHighlights') || 'Latest News'
+	const headerSub = t('checkOut')
 
 	return (
 		<div className={styles.page}>
@@ -283,8 +283,8 @@ export const NewsForUsers = () => {
 				</div>
 			)}
 
-            {/* News Grid — 3 per row */}
-            <div className={styles.grid}>
+			{/* News Grid — 3 per row */}
+			<div className={styles.grid}>
 				{loading ? (
 					Array.from({ length: 6 }).map((_, idx) => (
 						<div key={`s-${idx}`} className={styles.card}>
@@ -309,8 +309,8 @@ export const NewsForUsers = () => {
 						const itemKey = news.id ?? `i-${index}`
 						const domain = news.source_link ? getDomain(news.source_link) : null
 						const isMarking = markingIds.has(news.id)
-                        return (
-                            <div key={itemKey} className={`${styles.card} ${!news.isViewed ? styles.cardUnread : ''}`} onClick={() => navigate(`/news/${news.id}`)} role='article'>
+						return (
+							<div key={itemKey} className={`${styles.card} ${!news.isViewed ? styles.cardUnread : ''}`} onClick={() => navigate(`/news/${news.id}`)} role='article'>
 								{!news.isViewed && <span className={styles.unreadDot} />}
 								{/* Image Section */}
 								<div className={styles.image}>{news.image_url ? <img className={styles.img} src={news.image_url} alt={news.title} loading='lazy' decoding='async' /> : <div className={styles.noImage}>{t('noImageAvailable')}</div>}</div>

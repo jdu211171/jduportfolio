@@ -96,24 +96,24 @@ const formatRecruiterWelcomeEmail = (email, password, firstName, lastName) => {
 const sendRecruiterWelcomeEmail = async (email, password, firstName, lastName) => {
 	console.log(`[EMAIL] Preparing welcome email for recruiter: ${email}`)
 	console.log(`[EMAIL] Target recipient (fixed): boysoatov-asilbek@digital-knowledge.co.jp`)
-	
+
 	const mailData = formatRecruiterWelcomeEmail(email, password, firstName, lastName)
-	
+
 	console.log(`[EMAIL] Mail data prepared:`, {
 		to: mailData.to,
 		subject: mailData.subject,
-		from: process.env.EMAIL_FROM
+		from: process.env.EMAIL_FROM,
 	})
-	
+
 	const result = await sendEmail(mailData)
-	
+
 	if (result.success) {
 		console.log(`[EMAIL] Successfully sent welcome email. MessageId: ${result.messageId}`)
 	} else {
 		console.error(`[EMAIL] Failed to send welcome email:`, result.error)
 		throw new Error(`Email sending failed: ${result.error}`)
 	}
-	
+
 	return result
 }
 
