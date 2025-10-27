@@ -6,15 +6,18 @@
 ## Root Cause Analysis
 
 ### What Was Wrong:
+
 1. **No error handling** - Email failures were silently ignored
 2. **No logging** - No visibility into email sending process
 3. **Missing visibility** - Webhook returned success even when email failed
 
 ### What We Fixed:
+
 ✅ Added comprehensive logging at 3 levels:
-   - `[WEBHOOK]` - Controller level logs
-   - `[EMAIL]` - Email preparation logs  
-   - `[SES]` - AWS SES transmission logs
+
+- `[WEBHOOK]` - Controller level logs
+- `[EMAIL]` - Email preparation logs
+- `[SES]` - AWS SES transmission logs
 
 ✅ Added try-catch blocks to capture email errors
 
@@ -23,17 +26,22 @@
 ## Current Status: ✅ FIXED AND WORKING
 
 ### **Root Cause Found:**
+
 The production `.env` file had a **duplicate `EMAIL_FROM`** entry:
+
 - ❌ `EMAIL_FROM=noreply@manabi.uz` (not verified in AWS SES)
 - ❌ `EMAIL_FROM=portfolio_admin@jdu.uz` (not verified, was being used)
 
 Node.js uses the **last occurrence**, so `portfolio_admin@jdu.uz` was being used, which caused:
+
 ```
 Email address is not verified. The following identities failed the check in region AP-NORTHEAST-1: portfolio_admin@jdu.uz
 ```
 
 ### **Solution Applied:**
+
 Changed `EMAIL_FROM` to use the **verified domain** `jdu-kd.uz`:
+
 ```
 EMAIL_FROM=noreply@jdu-kd.uz
 ```
@@ -41,6 +49,7 @@ EMAIL_FROM=noreply@jdu-kd.uz
 ## Production Status: ✅ WORKING
 
 ### Test Results:
+
 ```
 [WEBHOOK] New recruiter created: test1761286371@example.com, attempting to send welcome email...
 [EMAIL] Preparing welcome email for recruiter: test1761286371@example.com
@@ -57,6 +66,7 @@ EMAIL_FROM=noreply@jdu-kd.uz
 ```
 
 ### AWS SES Configuration:
+
 - **Status:** Production Mode ✅
 - **Max 24h Send:** 50,000 emails
 - **Send Rate:** 14 emails/second
@@ -65,6 +75,7 @@ EMAIL_FROM=noreply@jdu-kd.uz
 - **Recipient:** jin@digital-knowledge.co.jp (fixed)
 
 ### Production Test Results:
+
 ```
 [WEBHOOK] New recruiter created: test1761286743@example.com, attempting to send welcome email...
 [EMAIL] Preparing welcome email for recruiter: test1761286743@example.com
@@ -85,28 +96,34 @@ EMAIL_FROM=noreply@jdu-kd.uz
 Even though AWS SES shows "Email successfully sent", emails may not reach the inbox due to:
 
 ### 1. Spam/Junk Folder
+
 - Check spam/junk folders in boysoatov-asilbek@digital-knowledge.co.jp
 - The sender domain `manabi.uz` must have proper SPF/DKIM/DMARC records
 
 ### 2. Email Filtering
+
 - Corporate email servers (digital-knowledge.co.jp) may have strict filtering
 - Japanese email providers can be particularly strict with automated emails
 
 ### 3. Domain Reputation
+
 - First-time senders may be flagged
 - Need to warm up the sending domain gradually
 
 ### 4. Email Content
+
 - Japanese subject/body might trigger filters if not properly encoded
 
 ## Recommendations
 
 ### Immediate Actions:
+
 1. ✅ Check spam folder at boysoatov-asilbek@digital-knowledge.co.jp
 2. ✅ Verify SPF/DKIM records for manabi.uz domain
 3. ✅ Add AWS SES domain to email whitelist at digital-knowledge.co.jp
 
 ### How to Check SPF/DKIM:
+
 ```bash
 # Check SPF record
 dig manabi.uz TXT | grep spf
@@ -116,6 +133,7 @@ dig default._domainkey.manabi.uz TXT
 ```
 
 ### Alternative Solutions:
+
 1. Use a different sender domain that's already trusted
 2. Set up SNS notifications for bounces/complaints in AWS SES
 3. Add email to AWS SES suppression list override if needed
@@ -123,10 +141,12 @@ dig default._domainkey.manabi.uz TXT
 ## Files Modified
 
 1. **portfolio-server/src/controllers/recruiterController.js**
+
    - Added try-catch around email sending
    - Added detailed logging at webhook level
 
 2. **portfolio-server/src/utils/emailToRecruiter.js**
+
    - Added logging for email preparation
    - Added error throwing on failure
    - Returns result object with success status
@@ -139,6 +159,7 @@ dig default._domainkey.manabi.uz TXT
 ## Testing
 
 ### To Test Manually:
+
 ```bash
 curl -X POST http://localhost:4000/api/webhook/recruiter \
   -H "Content-Type: application/json" \
@@ -157,6 +178,7 @@ curl -X POST http://localhost:4000/api/webhook/recruiter \
 ```
 
 ### Monitor Logs:
+
 ```bash
 tail -f /home/user/Development/jduportfolio/server.log | grep -E "\[WEBHOOK\]|\[EMAIL\]|\[SES\]"
 ```
