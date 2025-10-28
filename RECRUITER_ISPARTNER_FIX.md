@@ -13,6 +13,7 @@ if (!password) where.isPartner = false
 ```
 
 This meant:
+
 1. Login worked fine (uses different authentication flow)
 2. But viewing profile/settings failed because:
    - GET `/api/recruiters/:id` called `getRecruiterById(id, false)`
@@ -27,6 +28,7 @@ The `isPartner` field is meant to be hidden from public view for privacy/busines
 ## Solution
 
 Modified the code to differentiate between:
+
 - **Public access** (viewing others' profiles) - continues to hide `isPartner=true` recruiters
 - **Self access** (viewing own profile/settings) - allows access regardless of `isPartner` status
 
@@ -53,7 +55,7 @@ Updated `getById` and `update` methods to pass authentication context:
 static async getById(req, res, next) {
     const authenticatedUserId = req.user?.id
     const authenticatedUserType = req.user?.userType
-    const isSelf = authenticatedUserType === 'Recruiter' && 
+    const isSelf = authenticatedUserType === 'Recruiter' &&
                    String(authenticatedUserId) === String(req.params.id)
     const recruiter = await RecruiterService.getRecruiterById(req.params.id, false, isSelf)
     // ...
@@ -61,7 +63,7 @@ static async getById(req, res, next) {
 
 static async update(req, res, next) {
     // Similar logic for password updates
-    const isSelf = authenticatedUserType === 'Recruiter' && 
+    const isSelf = authenticatedUserType === 'Recruiter' &&
                    String(authenticatedUserId) === String(id)
     const recruiter = await RecruiterService.getRecruiterById(id, true, isSelf)
     // ...
