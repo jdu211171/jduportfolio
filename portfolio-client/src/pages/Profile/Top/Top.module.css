@@ -36,18 +36,10 @@
 }
 
 .gridBox {
-	/* Masonry-style with CSS multi-columns */
-	column-count: 2;
-	column-gap: 20px;
-}
-
-/* Each item should avoid breaking across columns and have spacing */
-.gridBox > * {
-	break-inside: avoid;
-	-webkit-column-break-inside: avoid;
-	page-break-inside: avoid;
-	display: block;
-	margin-bottom: 20px;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+	align-items: start;
 }
 
 .buttonsContainer {
@@ -122,7 +114,11 @@
 
 @media (max-width: 768px) {
 	.gridBox {
-		column-count: 1;
-		column-gap: 0;
+		display: block; /* disable grid on small screens to avoid layout issues */
+	}
+
+	/* Add vertical spacing between stacked cards */
+	.gridBox > * + * {
+		margin-top: 16px;
 	}
 }

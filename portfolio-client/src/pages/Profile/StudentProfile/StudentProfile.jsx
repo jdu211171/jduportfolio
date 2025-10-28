@@ -189,56 +189,51 @@ const StudentProfile = ({ userId = 0 }) => {
 				)}
 			</Box>
 			<Box className={styles.container}>
-				<Box className={styles.avatarContainer} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+				<Box className={styles.avatarContainer}>
 					<Avatar
 						src={student.photo}
 						alt={student.first_name}
 						sx={{
-							width: { xs: 96, sm: 112, md: 128 },
-							height: { xs: 96, sm: 112, md: 128 },
+							width: { xs: 80, sm: 96, md: 120 },
+							height: { xs: 80, sm: 96, md: 120 },
 						}}
 					/>
 				</Box>
 				<Box className={styles.infoContainer}>
 					<Box className={styles.nameEmailContainer}>
-						<Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+						<Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
 							{/* name and lastname */}
-							<Box sx={{ fontSize: 20, fontWeight: 500, textAlign: { xs: 'center', sm: 'left' } }}>
+							<div style={{ fontSize: 20, fontWeight: 500 }}>
 								{student.first_name} {student.last_name}
-							</Box>
+							</div>
 							{/* furigana */}
 							{(student.first_name_furigana || student.last_name_furigana) && (
-								<Box sx={{ fontSize: 14, color: '#666', textAlign: { xs: 'center', sm: 'left' } }}>
+								<div style={{ fontSize: 14, color: '#666' }}>
 									{student.last_name_furigana || ''} {student.first_name_furigana || ''}
-								</Box>
+								</div>
 							)}
 							{/* student id and birthday */}
-							<Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-								<Box sx={{ display: 'flex' }}>
+							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>学籍番号:</div>
 									<div>{student.student_id || 'N/A'}</div>
-								</Box>
-								<Box sx={{ display: 'flex' }}>
+								</div>
+								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>年齢:</div>
 									<div>{student.date_of_birth ? calculateAge(student.date_of_birth) : '0'}</div>
-								</Box>
-								<Box sx={{ display: 'flex' }}>
+								</div>
+								<div style={{ display: 'flex' }}>
 									<div style={{ color: '#787878' }}>JDU卒業予定年月:</div>
 									<div>{student.expected_graduation_year || '未設定'}</div>
-								</Box>
-							</Box>
+								</div>
+							</div>
 							{/* partner university info */}
-							<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' }, gap: 0.5 }}>
-								<Box sx={{ display: 'flex', gap: 1, alignItems: 'center', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-									<Box sx={{ color: '#787878' }}>在籍提携大学:</Box>
-									<Box sx={{ whiteSpace: 'pre-wrap' }}>{student.partner_university || '未設定'}</Box>
-								</Box>
-								{(student.faculty || student.department) && (
-									<Box className={styles.uniDetail} sx={{ whiteSpace: 'pre-wrap', textAlign: { xs: 'center', sm: 'left' } }}>
-										{[student.faculty, student.department].filter(Boolean).join('  ')}
-									</Box>
-								)}
-							</Box>
+							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+								<div style={{ display: 'flex' }}>
+									<div style={{ color: '#787878' }}>在籍提携大学:</div>
+									<div>{student.partner_university && student.faculty && student.department ? [student.partner_university, student.faculty, student.department].filter(Boolean).join(' ') : student.partner_university || '未設定'}</div>
+								</div>
+							</div>
 						</Box>
 						{['Admin', 'Staff', 'Student'].includes(role) && (
 							<Box>
