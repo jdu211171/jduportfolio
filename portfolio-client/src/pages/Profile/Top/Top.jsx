@@ -1167,11 +1167,12 @@ const Top = () => {
 			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>
-					<TextField title={t('selfIntroduction')} data={student.draft.self_introduction} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='self_introduction' parentKey='draft' icon={BadgeOutlinedIcon} imageUrl={student.photo} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('self_introduction')} maxLength={1000} showCounter />
+					<TextField title={t('selfIntroduction')} data={student.draft.self_introduction} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='self_introduction' parentKey='draft' icon={BadgeOutlinedIcon} imageUrl={student.photo} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('self_introduction')} maxLength={1000} showCounter stackOnSmall />
 					{/* New Design for Hobbies and Special Skills */}
-					<div style={{ display: 'flex', gap: 25, marginTop: 25, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+					<div className={styles.twoCol} style={{ marginTop: 25, alignItems: 'flex-start' }}>
 						{/* Hobbies Section */}
 						<div
+							className={styles.hobbiesSpaced}
 							style={{
 								flex: 1,
 								backgroundColor: role === 'Staff' && (currentDraft?.changed_fields?.includes('hobbies') || currentDraft?.changed_fields?.includes('hobbies_description')) ? '#fff3cd' : '#ffffff',
@@ -1357,6 +1358,7 @@ const Top = () => {
 
 						{/* Special Skills Section */}
 						<div
+							className={styles.tokuchoSpaced}
 							style={{
 								flex: 1,
 								backgroundColor: role === 'Staff' && (currentDraft?.changed_fields?.includes('special_skills') || currentDraft?.changed_fields?.includes('special_skills_description')) ? '#fff3cd' : '#ffffff',
@@ -1540,7 +1542,7 @@ const Top = () => {
 							)}
 						</div>
 					</div>
-					<div style={{ display: 'flex', gap: 25, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+					<div className={styles.twoCol} style={{ alignItems: 'flex-start' }}>
 						<div style={{ flex: 1, minWidth: 280 }}>
 							<TextField title={t('origin')} data={student.draft.address || student.address} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='address' parentKey='draft' icon={LocationOnOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('address')} />
 						</div>

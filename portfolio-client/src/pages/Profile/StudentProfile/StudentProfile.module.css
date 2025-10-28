@@ -31,6 +31,17 @@
 	flex-wrap: wrap;
 }
 
+/* Inline info row (ID, Age, Graduation) */
+.inlineInfoRow {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.infoPair {
+	display: flex;
+}
+
 .email {
 	color: #787878;
 	text-decoration: none;
@@ -58,6 +69,36 @@
 	flex-wrap: wrap;
 	flex-direction: column;
 	align-items: end;
+}
+
+/* University group desktop + mobile variants */
+.desktopUniversityGroup {
+	display: block;
+}
+
+.mobileUniversityGroup {
+	display: none;
+}
+
+.uniLabel {
+	color: #787878;
+}
+
+.uniLabelSpacer {
+	/* empty cell to align second line under value */
+}
+
+.uniValueLine {
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+
+.mobileOnly {
+	display: none;
+}
+
+.desktopOnly {
+	display: block;
 }
 
 .navbar {
@@ -106,5 +147,56 @@
 	.topControlButtons {
 		display: block;
 		align-items: center;
+	}
+}
+
+/* Mobile-first refinements for <= 640px */
+@media (max-width: 640px) {
+	.container {
+		align-items: center;
+	}
+	.avatarContainer {
+		justify-content: center;
+	}
+	.infoContainer {
+		margin-left: 0;
+		align-items: center;
+		text-align: center;
+	}
+	.nameEmailContainer {
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+	}
+	.inlineInfoRow {
+		justify-content: center;
+	}
+	.email {
+		justify-content: center;
+		font-size: 13px;
+		overflow-wrap: anywhere;
+		word-break: break-all;
+	}
+	.statusChipContainer {
+		align-items: center;
+	}
+	/* University section: switch to 2-row left-aligned block */
+	.desktopUniversityGroup {
+		display: none;
+	}
+	.mobileUniversityGroup {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: 8px;
+		row-gap: 2px;
+		width: 100%;
+		max-width: 480px;
+		text-align: left;
+	}
+	.mobileOnly {
+		display: block;
+	}
+	.desktopOnly {
+		display: none;
 	}
 }

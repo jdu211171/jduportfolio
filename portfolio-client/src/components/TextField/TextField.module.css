@@ -32,6 +32,22 @@
 	width: 100%;
 }
 
+.row {
+	display: flex;
+	gap: 15px;
+	align-items: flex-start;
+}
+
+/* When stacking is enabled, stack on small screens */
+@media (max-width: 640px) {
+	.stackSmall .row {
+		flex-direction: column;
+	}
+	.stackSmall .image {
+		margin-bottom: 8px;
+	}
+}
+
 .displayValue {
 	color: #000;
 	font-size: 14px;

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Card, CardContent, CardMedia, Typography, Grid, Chip, Menu, MenuItem, CircularProgress, Tooltip, ImageList, ImageListItem } from '@mui/material'
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Launch as LaunchIcon, Close as CloseIcon, PhotoCamera as PhotoCameraIcon, MoreVert as MoreVertIcon, ZoomIn as ZoomInIcon, NavigateBefore as NavigateBeforeIcon, NavigateNext as NavigateNextIcon, Code as CodeIcon } from '@mui/icons-material'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -8,7 +8,7 @@ import axios from '../../utils/axiosUtils'
 import PropTypes from 'prop-types'
 import styles from './Deliverables.module.css'
 
-const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName, updateEditMode, onImageUpload, resetPreviews, isChanged = false }) => {
+const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName = false }) => {
 	const { language } = useLanguage()
 	const showAlert = useAlert()
 	const t = key => translations[language][key] || key
@@ -459,17 +459,12 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName, 
 				})}
 			</Grid>
 
-			{/* Empty State */}
+			{/* Empty State (no extra button under 未入力) */}
 			{deliverables.length === 0 && (
 				<Box sx={{ textAlign: 'center', py: 8 }}>
 					<Typography variant='h6' color='text.secondary' gutterBottom>
 						{t('notEntered')}
 					</Typography>
-					{editMode && (
-						<Button variant='outlined' startIcon={<AddIcon />} onClick={() => setCreateDialogOpen(true)} sx={{ mt: 2 }}>
-							{t('createDeliverable') || 'Create Deliverable'}
-						</Button>
-					)}
 				</Box>
 			)}
 

@@ -30,15 +30,24 @@
 	border-radius: 10px;
 	background-color: #ffffff;
 }
+
 .TabsContainer button {
 	margin: auto 10px !important;
 }
 
 .gridBox {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 20px;
-	align-items: start;
+	/* Masonry-style with CSS multi-columns */
+	column-count: 2;
+	column-gap: 20px;
+}
+
+/* Each item should avoid breaking across columns and have spacing */
+.gridBox > * {
+	break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+	page-break-inside: avoid;
+	display: block;
+	margin-bottom: 20px;
 }
 
 .buttonsContainer {
@@ -47,6 +56,44 @@
 	top: -32px;
 	gap: 8px;
 }
+
+/* Two-column container that stacks on small screens */
+.twoCol {
+	display: flex;
+	gap: 25px;
+	flex-wrap: wrap;
+}
+
+/* Add bottom spacing for boxed sections (e.g., Hobbies, Special Skills) */
+.hobbiesSpaced,
+.tokuchoSpaced {
+	margin-bottom: 12px;
+}
+
+/* Mobile: only tokucho keeps margin, hobbies collapsed */
+@media (max-width: 640px) {
+	.hobbiesSpaced {
+		margin-bottom: 0;
+	}
+}
+
+/* Reduce gaps earlier for tablets/large phones */
+@media (max-width: 768px) {
+	.twoCol {
+		gap: 12px;
+	}
+}
+
+@media (max-width: 640px) {
+	.twoCol {
+		flex-direction: column;
+	}
+
+	.twoCol > div {
+		width: 100%;
+	}
+}
+
 /* /////////////////////////// MEDIA ///////////////////////////////////// */
 @media only screen and (max-width: 941px) {
 	.TabsContainer {
@@ -55,6 +102,7 @@
 		gap: 10px;
 	}
 }
+
 @media only screen and (max-width: 768px) {
 	.TabsContainer {
 		flex-direction: column;
@@ -71,8 +119,10 @@
 		gap: 8px;
 	}
 }
+
 @media (max-width: 768px) {
 	.gridBox {
-		grid-template-columns: 1fr;
+		column-count: 1;
+		column-gap: 0;
 	}
 }

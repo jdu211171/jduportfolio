@@ -21,6 +21,7 @@ const TextField = ({
 	maxLength, // optional: limit input length
 	showCounter = false, // optional: show character counter
 	imageVersion, // optional: cache-busting version string
+	stackOnSmall = false, // optional: stack image above text on small screens
 }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
@@ -30,7 +31,7 @@ const TextField = ({
 
 	return (
 		<div
-			className={styles.container}
+			className={`${styles.container} ${stackOnSmall ? styles.stackSmall : ''}`}
 			style={{
 				backgroundColor: isChanged ? '#fff3cd' : '#ffffff',
 				border: isChanged ? '2px solid #ffc107' : '1px solid #f0f0f0',
@@ -60,16 +61,17 @@ const TextField = ({
 				{Icon && <Icon sx={{ color: iconColor }} />}
 				{title}
 			</div>
-			<div style={{ display: 'flex', gap: 15 }}>
+			<div className={styles.row}>
 				{imageUrl ? (
 					<img
 						src={imageVersion ? `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}v=${encodeURIComponent(imageVersion)}` : imageUrl}
 						alt={imageUrl}
+						className={styles.image}
 						style={{
 							borderRadius: 12,
 							imageRendering: 'high-quality',
-							width: 200,
-							height: 200,
+							width: 'clamp(96px, 25vw, 200px)',
+							height: 'clamp(96px, 25vw, 200px)',
 							objectFit: 'cover',
 							objectPosition: 'center',
 						}}
@@ -112,4 +114,5 @@ TextField.propTypes = {
 	maxLength: PropTypes.number,
 	showCounter: PropTypes.bool,
 	imageVersion: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+	stackOnSmall: PropTypes.bool,
 }

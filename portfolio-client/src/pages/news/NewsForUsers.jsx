@@ -251,7 +251,7 @@ export const NewsForUsers = () => {
 					<MenuItem value='newest'>{t('newest')}</MenuItem>
 					<MenuItem value='oldest'>{t('oldest')}</MenuItem>
 				</Select>
-				<Button variant='outlined' onClick={() => setReadAllOpen(true)} disabled={unreadCount === 0 || readAllLoading}>
+				<Button variant='outlined' className={styles.markAllBtn} onClick={() => setReadAllOpen(true)} disabled={unreadCount === 0 || readAllLoading}>
 					{readAllLoading ? t('loading') : t('mark_all_read')}
 				</Button>
 			</div>

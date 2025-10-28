@@ -58,7 +58,7 @@ const Skills = () => {
 	}
 
 	return (
-		<Box sx={{ padding: '20px' }}>
+		<Box sx={{ p: 2, overflowX: 'hidden' }}>
 			{/* Special Skills */}
 			<Box sx={{ marginBottom: '40px' }}>
 				<SkillSelector title={t('specialSkills')} data={student.draft.special_skills} editData={editData.draft.special_skills} editMode={editMode.special_skills} updateEditData={updateEditData} keyName='special_skills' updateEditMode={updateEditMode} placeholder={t('specialSkills')} />

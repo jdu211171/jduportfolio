@@ -12,9 +12,19 @@
 }
 
 .addSkillForm {
-	border-bottom: 1px solid #f0f0f0;
 	padding-bottom: 16px;
 	margin-bottom: 16px;
+}
+
+/* Prevent children overflow in flex */
+.addSkillForm > * {
+	min-width: 0;
+}
+
+@media (max-width: 640px) {
+	.addSkillForm {
+		gap: 8px;
+	}
 }
 
 .data {
