@@ -125,14 +125,24 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 	}
 
 	const skillsToDisplay = getCurrentSkillsData()
+	// Stable level order regardless of insertion
+	const DEFAULT_LEVEL_ORDER = ['上級', '中級', '初級']
+	const levelOrder = headers ? Object.keys(headers) : DEFAULT_LEVEL_ORDER
+
 	// Decide which keys to render: when showing empty rows as "未提出",
-	// prefer headers ordering; otherwise render only non-empty entries
-	const keysToRender =
-		showEmptyAsNotSubmitted && headers
-			? Object.keys(headers)
-			: Object.entries(skillsToDisplay)
-					.filter(([, arr]) => Array.isArray(arr) && arr.length > 0)
-					.map(([k]) => k)
+	// prefer headers ordering; otherwise render only non-empty entries and sort by levelOrder
+	const keysToRender = (() => {
+		if (showEmptyAsNotSubmitted && headers) return levelOrder
+		const keys = Object.entries(skillsToDisplay)
+			.filter(([, arr]) => Array.isArray(arr) && arr.length > 0)
+			.map(([k]) => k)
+		// sort by defined order; unknown keys go last preserving their order
+		return keys.sort((a, b) => {
+			const ia = levelOrder.indexOf(a)
+			const ib = levelOrder.indexOf(b)
+			return (ia === -1 ? Number.MAX_SAFE_INTEGER : ia) - (ib === -1 ? Number.MAX_SAFE_INTEGER : ib)
+		})
+	})()
 
 	return (
 		<div
@@ -317,7 +327,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 										color: '#999',
 									}}
 								>
-									{editMode ? t('noSkillsAdded') : t('noSkillsAvailable')}
+									{t('notEntered')}
 								</td>
 							</tr>
 						)}
