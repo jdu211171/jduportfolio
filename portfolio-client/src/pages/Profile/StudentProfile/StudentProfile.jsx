@@ -213,26 +213,40 @@ const StudentProfile = ({ userId = 0 }) => {
 								</div>
 							)}
 							{/* student id and birthday */}
-							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-								<div style={{ display: 'flex' }}>
+							<div className={styles.inlineInfoRow}>
+								<div className={styles.infoPair}>
 									<div style={{ color: '#787878' }}>学籍番号:</div>
-									<div>{student.student_id || 'N/A'}</div>
+									<div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{student.student_id || 'N/A'}</div>
 								</div>
-								<div style={{ display: 'flex' }}>
+								<div className={styles.infoPair}>
 									<div style={{ color: '#787878' }}>年齢:</div>
-									<div>{student.date_of_birth ? calculateAge(student.date_of_birth) : '0'}</div>
+									<div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{student.date_of_birth ? calculateAge(student.date_of_birth) : '0'}</div>
 								</div>
-								<div style={{ display: 'flex' }}>
+								<div className={styles.infoPair}>
 									<div style={{ color: '#787878' }}>JDU卒業予定年月:</div>
-									<div>{student.expected_graduation_year || '未設定'}</div>
+									<div style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{student.expected_graduation_year || '未設定'}</div>
 								</div>
 							</div>
-							{/* partner university info */}
-							<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-								<div style={{ display: 'flex' }}>
-									<div style={{ color: '#787878' }}>在籍提携大学:</div>
-									<div>{student.partner_university && student.faculty && student.department ? [student.partner_university, student.faculty, student.department].filter(Boolean).join(' ') : student.partner_university || '未設定'}</div>
+							{/* partner university info - desktop */}
+							<div className={styles.desktopUniversityGroup}>
+								<div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+									<div style={{ display: 'flex' }}>
+										<div style={{ color: '#787878' }}>在籍提携大学:</div>
+										<div>{student.partner_university && student.faculty && student.department ? [student.partner_university, student.faculty, student.department].filter(Boolean).join(' ') : student.partner_university || '未設定'}</div>
+									</div>
 								</div>
+							</div>
+
+							{/* partner university info - mobile */}
+							<div className={`${styles.mobileUniversityGroup} ${styles.mobileOnly}`}>
+								<div className={styles.uniLabel}>在籍提携大学:</div>
+								<div className={styles.uniValueLine}>{student.partner_university || '未設定'}</div>
+								{(student.faculty || student.department) && (
+									<>
+										<div className={styles.uniLabelSpacer}></div>
+										<div className={styles.uniValueLine}>{[student.faculty, student.department].filter(Boolean).join(' ')}</div>
+									</>
+								)}
 							</div>
 						</Box>
 						{['Admin', 'Staff', 'Student'].includes(role) && (
