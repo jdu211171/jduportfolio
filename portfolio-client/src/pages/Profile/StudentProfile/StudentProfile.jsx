@@ -11,16 +11,21 @@ import styles from './StudentProfile.module.css'
 
 const StudentProfile = ({ userId = 0 }) => {
 	const { studentId } = useParams()
-	const { language } = useContext(UserContext)
+	const { language, activeUser, role: contextRole, isInitializing } = useContext(UserContext)
 	const t = translations[language] || translations.en
-	const role = sessionStorage.getItem('role')
+	const role = contextRole || sessionStorage.getItem('role')
 
 	// Helper function to get student_id from login user data
 	const getStudentIdFromLoginUser = () => {
+		// Try context first (already synced)
+		if (activeUser?.studentId) {
+			return activeUser.studentId
+		}
+		// Fallback to sessionStorage
 		try {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
 			return loginUserData?.studentId
-		} catch (e) {
+		} catch {
 			return null
 		}
 	}
@@ -47,6 +52,11 @@ const StudentProfile = ({ userId = 0 }) => {
 	const [error, setError] = useState(null)
 
 	useEffect(() => {
+		// Wait for context initialization before attempting to fetch
+		if (isInitializing) {
+			return
+		}
+
 		const fetchStudent = async () => {
 			if (!id) {
 				setError('No valid student ID found')
@@ -71,7 +81,7 @@ const StudentProfile = ({ userId = 0 }) => {
 		}
 
 		fetchStudent()
-	}, [id, studentId, userId, role])
+	}, [id, studentId, userId, role, isInitializing])
 
 	const handleBackClick = () => {
 		const isRootPath = location.pathname.endsWith('/top')
