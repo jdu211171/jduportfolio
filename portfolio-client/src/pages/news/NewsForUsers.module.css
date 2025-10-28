@@ -62,6 +62,7 @@
 	display: flex;
 	gap: 12px;
 	align-items: center;
+	flex-wrap: wrap;
 }
 
 .search {
@@ -72,6 +73,35 @@
 .select {
 	min-width: 160px;
 	background: #fff;
+}
+
+/* Toolbar mobile layout: search full width; sort + mark-all split row */
+@media (max-width: 640px) {
+	.toolbar {
+		align-items: stretch;
+	}
+	.search {
+		flex-basis: 100%;
+	}
+	.select {
+		flex: 1 1 calc(50% - 6px);
+		min-width: 0;
+	}
+	.markAllBtn {
+		flex: 1 1 calc(50% - 6px);
+		min-width: 0;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+}
+
+/* Very narrow screens: stack actions vertically */
+@media (max-width: 380px) {
+	.select,
+	.markAllBtn {
+		flex-basis: 100%;
+	}
 }
 
 .filters {
@@ -304,4 +334,30 @@
 	overflow: hidden;
 	aspect-ratio: 16 / 9;
 	border-radius: 12px;
+}
+
+/* Mobile full-bleed detail media */
+@media (max-width: 640px) {
+	.detailImage {
+		/* match container padding: 16px */
+		margin-left: -16px;
+		margin-right: -16px;
+		width: calc(100% + 32px);
+		border-radius: 0;
+	}
+}
+
+/* Make any media inside descriptions scale nicely */
+.descText img,
+.descText video {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+.descText iframe {
+	width: 100%;
+	/* maintain 16:9 iframes responsively */
+	aspect-ratio: 16 / 9;
+	border: 0;
 }

@@ -5,6 +5,7 @@
 	border: 1px solid #f0f0f0;
 	margin-bottom: 16px;
 	transition: all 0.2s ease-in-out;
+	overflow-x: hidden;
 }
 
 .container:hover {
@@ -41,7 +42,32 @@
 	padding: 16px;
 	background-color: #f8f9fa;
 	border-radius: 8px;
-	border: 1px solid #e9ecef;
+}
+
+/* Prevent flex children from causing overflow */
+.addSkillForm > * {
+	min-width: 0;
+}
+
+/* Mobile-friendly layout */
+@media (max-width: 640px) {
+	.addSkillForm {
+		gap: 8px;
+	}
+
+	.data td:first-child {
+		width: 96px;
+		font-size: 13px;
+	}
+
+	/* Let table layout shrink to viewport */
+	.data table {
+		table-layout: fixed;
+	}
+
+	.data td:last-child {
+		word-break: break-word;
+	}
 }
 
 .data {
@@ -78,7 +104,6 @@
 	min-width: 38px;
 	vertical-align: top;
 	padding: 12px 8px;
-	border-bottom: 1px solid #f0f0f0;
 }
 
 .data td:first-child {

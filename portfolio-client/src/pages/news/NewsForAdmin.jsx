@@ -520,7 +520,7 @@ export const NewsForAdmin = () => {
 									<div
 										style={{
 											width: '100%',
-											height: 'clamp(150px, 25vw, 200px)',
+											aspectRatio: '16 / 9',
 											backgroundColor: '#f8f9fa',
 											borderRadius: '12px 12px 0 0',
 											overflow: 'hidden',
@@ -703,7 +703,7 @@ export const NewsForAdmin = () => {
 								border: '1px solid #e1e8ed',
 							}}
 						>
-							<div style={{ width: '100%', height: 'clamp(150px, 25vw, 200px)' }}>
+							<div style={{ width: '100%', aspectRatio: '16 / 9' }}>
 								<Skeleton variant='rectangular' width='100%' height='100%' />
 							</div>
 							<div style={{ padding: '12px' }}>
@@ -862,8 +862,10 @@ export const NewsForAdmin = () => {
 									src={editingNews.image_url}
 									alt={editingNews.title}
 									style={{
-										width: 160,
-										height: 90,
+										width: '100%',
+										maxWidth: 560,
+										aspectRatio: '16 / 9',
+										height: 'auto',
 										objectFit: 'cover',
 										borderRadius: 8,
 										border: '1px solid #e0e0e0',

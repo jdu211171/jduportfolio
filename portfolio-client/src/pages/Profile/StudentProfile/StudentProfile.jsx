@@ -190,7 +190,14 @@ const StudentProfile = ({ userId = 0 }) => {
 			</Box>
 			<Box className={styles.container}>
 				<Box className={styles.avatarContainer}>
-					<Avatar src={student.photo} alt={student.first_name} sx={{ width: 120, height: 120 }} />
+					<Avatar
+						src={student.photo}
+						alt={student.first_name}
+						sx={{
+							width: { xs: 80, sm: 96, md: 120 },
+							height: { xs: 80, sm: 96, md: 120 },
+						}}
+					/>
 				</Box>
 				<Box className={styles.infoContainer}>
 					<Box className={styles.nameEmailContainer}>

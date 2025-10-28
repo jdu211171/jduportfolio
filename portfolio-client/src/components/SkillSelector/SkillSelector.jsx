@@ -178,7 +178,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 			)}
 
 			{editMode && (
-				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2} className={styles.addSkillForm}>
+				<Box display='flex' alignItems='center' mb={2} mt={2} gap={2} className={styles.addSkillForm} sx={{ flexWrap: 'wrap', justifyContent: { xs: 'center', sm: 'flex-start' }, width: '100%' }}>
 					{showAutocomplete ? (
 						<Autocomplete
 							options={getSkillsForAutocomplete()}
@@ -198,7 +198,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 								}
 							}}
 							loading={loadingSkills}
-							sx={{ width: 200 }}
+							sx={{ width: { xs: '100%', sm: 220 }, minWidth: 0 }}
 							renderInput={params => <TextField {...params} label={t('selectSkill')} variant='outlined' size='small' />}
 						/>
 					) : (
@@ -216,11 +216,11 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 							label={t('skill')}
 							variant='outlined'
 							size='small'
-							sx={{ width: 200 }}
+							sx={{ width: { xs: '100%', sm: 220 }, minWidth: 0 }}
 						/>
 					)}
 
-					<FormControl variant='outlined' size='small' sx={{ width: 150 }}>
+					<FormControl variant='outlined' size='small' sx={{ width: { xs: '100%', sm: 160 }, minWidth: 0 }}>
 						<InputLabel>{t('level')}</InputLabel>
 						<Select
 							value={selectedLevel}
@@ -246,6 +246,7 @@ const SkillSelector = ({ title, data, editData, editMode, headers, updateEditDat
 							color: 'white',
 							'&:hover': { backgroundColor: '#4520A6' },
 							'&:disabled': { backgroundColor: '#cccccc', color: '#666666' },
+							height: { xs: 36, sm: 40 },
 						}}
 					>
 						<AddIcon />
