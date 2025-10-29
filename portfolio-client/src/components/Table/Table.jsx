@@ -1,25 +1,19 @@
-import { useEffect, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { useCallback, useEffect, useState } from 'react'
 import axios from '../../utils/axiosUtils'
 
+import { Box, Button, Grid, IconButton, LinearProgress, Menu, MenuItem, Modal, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material'
 import { atom, useAtom } from 'jotai'
 import UserAvatar from './Avatar/UserAvatar'
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, LinearProgress, Menu, MenuItem, IconButton, Grid, Typography, Switch, Modal, Button } from '@mui/material'
 
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import PendingIcon from '@mui/icons-material/Pending'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-
-// Icons import
 import AwardIcon from '../../assets/icons/award-line.svg'
+import DeleteIcon from '../../assets/icons/delete-bin-3-line.svg'
 import GraduationCapIcon from '../../assets/icons/graduation-cap-line.svg'
 import SchoolIcon from '../../assets/icons/school-line.svg'
-import DeleteIcon from '../../assets/icons/delete-bin-3-line.svg'
-
-import { stableSort, getComparator } from './TableUtils'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import ChangedFieldsModal from '../ChangedFieldsModal/ChangedFieldsModal'
@@ -404,6 +398,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					order: 1000,
 					marginLeft: '16px',
 				},
+				whiteSpace: 'nowrap',
 			}}
 		/>
 	)

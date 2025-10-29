@@ -94,7 +94,15 @@ const Recruiter = () => {
 
 	return (
 		<div>
-			<Box sx={{ width: '100%', height: '100px' }}>
+			<Box
+				sx={{
+					width: '100%',
+					height: '100px',
+					'@media (max-width:600px)': {
+						marginBottom: '50px',
+					},
+				}}
+			>
 				<Filter fields={filterProps} filterState={filterState} onFilterChange={handleFilterChange} />
 			</Box>
 			<Table tableProps={tableProps} />
