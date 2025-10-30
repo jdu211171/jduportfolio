@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { Box } from '@mui/material'
 
-import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
+import Table from '../../components/Table/Table'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 
@@ -29,7 +29,7 @@ const Recruiter = () => {
 						disablePadding: false,
 						label: t('company_name'),
 						type: 'company_summary',
-						minWidth: '480px',
+						minWidth: 'auto',
 						onClickAction: navigateToCompanyProfile,
 					},
 				]

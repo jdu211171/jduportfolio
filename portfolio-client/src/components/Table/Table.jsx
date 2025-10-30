@@ -4,6 +4,8 @@ import axios from '../../utils/axiosUtils'
 
 import CancelIcon from '@mui/icons-material/Cancel'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import PendingIcon from '@mui/icons-material/Pending'
 import { Box, Button, Grid, IconButton, LinearProgress, Menu, MenuItem, Modal, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material'
@@ -17,7 +19,6 @@ import translations from '../../locales/translations'
 import ChangedFieldsModal from '../ChangedFieldsModal/ChangedFieldsModal'
 import UserAvatar from './Avatar/UserAvatar'
 import { getComparator, stableSort } from './TableUtils'
-
 // localStorage dan qiymat o'qish yoki default qiymat
 const getInitialRowsPerPage = () => {
 	try {
@@ -200,7 +201,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					<Box
 						sx={{
 							width: '100%',
-							maxWidth: '380px',
 							minHeight: '160px',
 							borderRadius: '12px',
 							border: '1px solid #f0f0f0',
@@ -428,7 +428,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 						sx={{
 							minHeight: visibleRows.length > 0 ? 'auto' : '300px',
 							maxHeight: {
-								xs: 'calc(100vh - 320px)', // Mobile
+								xs: 'auto', // Mobile
 								sm: 'calc(100vh - 300px)', // Tablet
 								md: 'calc(100vh - 280px)', // Desktop
 							},
@@ -454,7 +454,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					>
 						<Table
 							sx={{
-								minWidth: 750,
 								backgroundColor: '#ffffff',
 							}}
 							size='medium'
@@ -499,7 +498,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													sx={{
 														display: 'flex',
 														alignItems: 'center',
-														justifyContent: 'center',
+														justifyContent: { sm: 'start', md: 'center' },
 														gap: '4px',
 													}}
 												>
