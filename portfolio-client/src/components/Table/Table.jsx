@@ -376,8 +376,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 				'& .MuiToolbar-root': {
 					display: 'flex',
 					alignItems: 'center',
-					padding: '8px 16px',
-					gap: '16px',
+					padding: { xs: 0, sm: 0, md: '8px 16px' }, // kichiklarda 0, kattalarda odatiy
+					gap: { xs: 0, sm: 0, md: '16px' },
 				},
 				// Chap taraf container
 				'& .MuiTablePagination-selectLabel, & .MuiTablePagination-select': {
@@ -396,7 +396,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 				'& .MuiTablePagination-actions': {
 					flex: '0 0 auto', // Fixed size, o'ng tarafda
 					order: 1000,
-					marginLeft: '16px',
+					marginLeft: { xs: 0, sm: 0, md: '8px' },
+				},
+				//ong tomondigi strelkala
+				'& .MuiButtonBase-root': {
+					paddingInline: { xs: 0, sm: 0, md: '8px' },
 				},
 				whiteSpace: 'nowrap',
 			}}
