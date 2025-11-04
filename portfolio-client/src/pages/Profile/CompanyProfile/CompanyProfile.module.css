@@ -300,7 +300,8 @@
 	background-color: inherit;
 	font-size: 14px;
 	/* Ensure value text is 14px */
-	padding-right: 12px; /* space on the right so content doesn't stick to edge */
+	padding-right: 12px;
+	/* space on the right so content doesn't stick to edge */
 }
 
 /* Column layout for sections that must stack label above content */
@@ -394,7 +395,8 @@
 	/* background-color: #fff; */
 	color: #000;
 	line-height: 1.6;
-	padding: 5px 12px; /* horizontal padding for nicer right edge */
+	padding: 5px 12px;
+	/* horizontal padding for nicer right edge */
 }
 
 .displayTextContent {

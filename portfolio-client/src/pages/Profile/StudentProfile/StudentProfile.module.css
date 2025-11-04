@@ -82,6 +82,8 @@
 
 .uniLabel {
 	color: #787878;
+	display: flex;
+	justify-content: center;
 }
 
 .uniLabelSpacer {
@@ -89,8 +91,17 @@
 }
 
 .uniValueLine {
+	color: #000;
 	word-break: break-word;
 	overflow-wrap: anywhere;
+}
+
+.uniValueLineDep {
+	color: #000;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+	font-size: 14px;
+	text-align: center;
 }
 
 .mobileOnly {
@@ -155,35 +166,43 @@
 	.container {
 		align-items: center;
 	}
+
 	.avatarContainer {
 		justify-content: center;
 	}
+
 	.infoContainer {
 		margin-left: 0;
 		align-items: center;
 		text-align: center;
 	}
+
 	.nameEmailContainer {
 		flex-direction: column;
 		align-items: center;
 		gap: 8px;
 	}
+
 	.inlineInfoRow {
 		justify-content: center;
 	}
+
 	.email {
 		justify-content: center;
 		font-size: 13px;
 		overflow-wrap: anywhere;
 		word-break: break-all;
 	}
+
 	.statusChipContainer {
 		align-items: center;
 	}
+
 	/* University section: switch to 2-row left-aligned block */
 	.desktopUniversityGroup {
 		display: none;
 	}
+
 	.mobileUniversityGroup {
 		display: grid;
 		grid-template-columns: auto 1fr;
@@ -193,9 +212,11 @@
 		max-width: 480px;
 		text-align: left;
 	}
+
 	.mobileOnly {
 		display: block;
 	}
+
 	.desktopOnly {
 		display: none;
 	}

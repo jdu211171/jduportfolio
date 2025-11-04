@@ -249,12 +249,14 @@ const StudentProfile = ({ userId = 0 }) => {
 
 							{/* partner university info - mobile */}
 							<div className={`${styles.mobileUniversityGroup} ${styles.mobileOnly}`}>
-								<div className={styles.uniLabel}>在籍提携大学:</div>
-								<div className={styles.uniValueLine}>{student.partner_university || '未設定'}</div>
+								<div className={styles.uniLabel}>
+									在籍提携大学:
+									<div className={styles.uniValueLine}>{student.partner_university || '未設定'}</div>
+								</div>
 								{(student.faculty || student.department) && (
 									<>
 										<div className={styles.uniLabelSpacer}></div>
-										<div className={styles.uniValueLine}>{[student.faculty, student.department].filter(Boolean).join(' ')}</div>
+										<div className={styles.uniValueLineDep}>{[student.faculty, student.department].filter(Boolean).join(' ')}</div>
 									</>
 								)}
 							</div>
