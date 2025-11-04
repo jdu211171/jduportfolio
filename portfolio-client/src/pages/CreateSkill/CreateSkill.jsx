@@ -210,9 +210,13 @@ export const CreateSkill = () => {
 						alignItems: 'center',
 						justifyContent: 'center',
 						display: 'flex',
+						// Responsive font size for small devices
+						fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.125rem' },
+						lineHeight: 1.2,
+						textAlign: 'center',
 					}}
 				>
-					<CodeIcon sx={{ fontSize: '3rem', mr: 2, color: '#5627DC' }} />
+					<CodeIcon sx={{ fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }, mr: 2, color: '#5627DC' }} />
 					{t('it_skills_manager')}
 				</Typography>
 			</Box>

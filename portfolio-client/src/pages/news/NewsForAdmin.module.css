@@ -1,0 +1,19 @@
+/* Responsive grid for Admin news cards */
+.grid {
+	/* Default: 3 columns on desktop */
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1024px) {
+	.grid {
+		/* 2 columns on tablets */
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 640px) {
+	.grid {
+		/* 1 column on small devices */
+		grid-template-columns: 1fr;
+	}
+}
