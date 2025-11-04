@@ -9,6 +9,7 @@ import { ReactComponent as LinkIcon } from '../../assets/icons/news-link-icon.sv
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
+import styles from './NewsForAdmin.module.css'
 export const NewsForAdmin = () => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
@@ -451,12 +452,11 @@ export const NewsForAdmin = () => {
 
 			{/* News Content Section */}
 			<div
+				className={styles.grid}
 				style={{
 					maxWidth: '1200px',
 					margin: '0 auto',
 					display: 'grid',
-					// Exactly 3 items per row on desktop
-					gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
 					gap: 'clamp(12px, 2vw, 20px)',
 					padding: '0 10px',
 				}}

@@ -69,7 +69,7 @@ const Staff = () => {
 
 	return (
 		<div>
-			<Box sx={{ width: '100%', height: '100px' }}>
+			<Box sx={{ width: '100%', mb: 2 }}>
 				<Filter fields={filterProps} filterState={filterState} onFilterChange={handleFilterChange} />
 			</Box>
 			<Table tableProps={tableProps} />
