@@ -24,9 +24,18 @@
 	border-radius: 100%;
 	padding: 5px;
 	background-color: #d3e0fb;
-	display: flex;
+	display: inline-flex;
 	justify-content: center;
 	align-items: center;
+	/* Prevent vertical stretching when question wraps */
+	width: 36px;
+	height: 36px;
+	flex: 0 0 36px;
+	align-self: flex-start;
+}
+
+.qPart svg {
+	font-size: 20px;
 }
 
 /* ------------------- Responsive (≤ 640px) ------------------- */
@@ -34,6 +43,17 @@
 	.answer {
 		padding-left: 40px !important;
 		max-height: 40vh;
+	}
+
+	.qPart {
+		width: 28px;
+		height: 28px;
+		flex: 0 0 28px;
+		padding: 4px;
+	}
+
+	.qPart svg {
+		font-size: 18px;
 	}
 }
 
