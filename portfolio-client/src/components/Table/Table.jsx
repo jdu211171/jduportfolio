@@ -1,29 +1,24 @@
-import { useEffect, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
+import { useCallback, useEffect, useState } from 'react'
 import axios from '../../utils/axiosUtils'
 
-import { atom, useAtom } from 'jotai'
-import UserAvatar from './Avatar/UserAvatar'
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, LinearProgress, Menu, MenuItem, IconButton, Grid, Typography, Switch, Modal, Button } from '@mui/material'
-
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CancelIcon from '@mui/icons-material/Cancel'
-import PendingIcon from '@mui/icons-material/Pending'
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-
-// Icons import
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import PendingIcon from '@mui/icons-material/Pending'
+import { Box, Button, Grid, IconButton, LinearProgress, Menu, MenuItem, Modal, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from '@mui/material'
+import { atom, useAtom } from 'jotai'
 import AwardIcon from '../../assets/icons/award-line.svg'
+import DeleteIcon from '../../assets/icons/delete-bin-3-line.svg'
 import GraduationCapIcon from '../../assets/icons/graduation-cap-line.svg'
 import SchoolIcon from '../../assets/icons/school-line.svg'
-import DeleteIcon from '../../assets/icons/delete-bin-3-line.svg'
-
-import { stableSort, getComparator } from './TableUtils'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import ChangedFieldsModal from '../ChangedFieldsModal/ChangedFieldsModal'
-
+import UserAvatar from './Avatar/UserAvatar'
+import { getComparator, stableSort } from './TableUtils'
 // localStorage dan qiymat o'qish yoki default qiymat
 const getInitialRowsPerPage = () => {
 	try {
@@ -206,7 +201,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					<Box
 						sx={{
 							width: '100%',
-							maxWidth: '380px',
 							minHeight: '160px',
 							borderRadius: '12px',
 							border: '1px solid #f0f0f0',
@@ -382,8 +376,8 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 				'& .MuiToolbar-root': {
 					display: 'flex',
 					alignItems: 'center',
-					padding: '8px 16px',
-					gap: '16px',
+					padding: { xs: 0, sm: 0, md: '8px 16px' }, // kichiklarda 0, kattalarda odatiy
+					gap: { xs: 0, sm: 0, md: '16px' },
 				},
 				// Chap taraf container
 				'& .MuiTablePagination-selectLabel, & .MuiTablePagination-select': {
@@ -402,8 +396,13 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 				'& .MuiTablePagination-actions': {
 					flex: '0 0 auto', // Fixed size, o'ng tarafda
 					order: 1000,
-					marginLeft: '16px',
+					marginLeft: { xs: 0, sm: 0, md: '8px' },
 				},
+				//ong tomondigi strelkala
+				'& .MuiButtonBase-root': {
+					paddingInline: { xs: 0, sm: 0, md: '8px' },
+				},
+				whiteSpace: 'nowrap',
 			}}
 		/>
 	)
@@ -433,7 +432,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 						sx={{
 							minHeight: visibleRows.length > 0 ? 'auto' : '300px',
 							maxHeight: {
-								xs: 'calc(100vh - 320px)', // Mobile
+								xs: 'auto', // Mobile
 								sm: 'calc(100vh - 300px)', // Tablet
 								md: 'calc(100vh - 280px)', // Desktop
 							},
@@ -459,7 +458,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 					>
 						<Table
 							sx={{
-								minWidth: 750,
 								backgroundColor: '#ffffff',
 							}}
 							size='medium'
@@ -504,7 +502,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 													sx={{
 														display: 'flex',
 														alignItems: 'center',
-														justifyContent: 'center',
+														justifyContent: { sm: 'start', md: 'center' },
 														gap: '4px',
 													}}
 												>
