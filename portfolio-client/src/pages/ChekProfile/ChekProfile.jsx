@@ -363,7 +363,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-			<Box sx={{ width: '100%', height: '100px' }}>
+			<Box sx={{ width: '100%', mb: 2 }}>
 				<Filter fields={filterProps} filterState={filterState} onFilterChange={handleFilterChange} disableStudentIdSearch={true} persistKey='drafts-filter-v1' />
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
