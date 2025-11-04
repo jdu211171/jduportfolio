@@ -226,7 +226,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	return (
 		<div key={language}>
-			<Box sx={{ width: '100%', height: '100px' }}>
+			<Box sx={{ width: '100%', mb: 2 }}>
 				<Filter fields={filterFields} filterState={filterState} onFilterChange={handleFilterChange} viewMode={viewMode} onViewModeChange={handleViewModeChange} persistKey='students-filter-v1' />
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} viewMode={viewMode} />
