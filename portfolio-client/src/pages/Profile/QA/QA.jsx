@@ -932,14 +932,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 			{/* For other cases, use portal if saveButton exists and not from Top page */}
 			{id && !isFromTopPage && portalContent && document.getElementById('saveButton') && ReactDOM.createPortal(portalContent, document.getElementById('saveButton'))}
 
-			<div
-				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					gap: 36,
-				}}
-			>
+			<div className={styles.categoriesRow}>
 				{qaQuestions.map((item, ind) => (
 					<div
 						key={ind}

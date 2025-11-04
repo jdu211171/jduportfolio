@@ -28,3 +28,17 @@
 	justify-content: center;
 	align-items: center;
 }
+
+/* ------------------- Responsive (≤ 640px) ------------------- */
+@media (max-width: 640px) {
+	.answer {
+		padding-left: 40px !important;
+		max-height: 40vh;
+	}
+}
+
+@media (max-width: 360px) {
+	.answer {
+		padding-left: 28px !important;
+	}
+}

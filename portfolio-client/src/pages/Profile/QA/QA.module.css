@@ -47,6 +47,14 @@
 	gap: 8px;
 }
 
+/* Category icon grid wrapper */
+.categoriesRow {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 24px;
+}
+
 .qaBox {
 	transition: box-shadow 0.3s ease;
 	background-color: #ffffff;
@@ -76,4 +84,74 @@
 .qaBox:hover .iconBox {
 	transform: rotate(5deg);
 	transition: transform 0.3s ease;
+}
+
+/* ------------------- Responsive (≤ 640px) ------------------- */
+@media (max-width: 640px) {
+	.buttonsContainer {
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 6px;
+		top: 0;
+	}
+
+	.categoriesRow {
+		position: relative;
+		gap: 12px;
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		scroll-snap-type: x mandatory;
+		padding: 6px 16px;
+		scroll-padding: 0 16px;
+		/* fade edges via mask (with WebKit prefix) */
+		-webkit-mask-image: linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+		mask-image: linear-gradient(to right, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+	}
+
+	/* fallback edge fade overlays */
+	.categoriesRow::before,
+	.categoriesRow::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 16px;
+		pointer-events: none;
+	}
+	.categoriesRow::before {
+		left: 0;
+		background: linear-gradient(to right, #fff 0%, rgba(255, 255, 255, 0) 100%);
+	}
+	.categoriesRow::after {
+		right: 0;
+		background: linear-gradient(to left, #fff 0%, rgba(255, 255, 255, 0) 100%);
+	}
+
+	.qaBox {
+		width: 120px;
+		height: 112px;
+		border-radius: 14px;
+		flex: 0 0 auto;
+		scroll-snap-align: center;
+	}
+
+	.iconBox {
+		width: 48px;
+		height: 48px;
+		border-radius: 10px;
+	}
+
+	/* Optional: subtle, thin horizontal scrollbar */
+	.categoriesRow::-webkit-scrollbar {
+		height: 6px;
+	}
+	.categoriesRow::-webkit-scrollbar-thumb {
+		background: #d0d5dd;
+		border-radius: 6px;
+	}
+	.categoriesRow::-webkit-scrollbar-track {
+		background: transparent;
+	}
 }

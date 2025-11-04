@@ -1,5 +1,5 @@
 .container {
-	margin: 15px auto;
+	/* margin: 15px auto; */
 	display: flex;
 	flex-direction: column;
 	gap: 15px;
@@ -43,6 +43,7 @@
 	.stackSmall .row {
 		flex-direction: column;
 	}
+
 	.stackSmall .image {
 		margin-bottom: 8px;
 	}
@@ -54,8 +55,10 @@
 	line-height: 1.6;
 	min-height: 20px;
 	padding: 12px 0;
-	white-space: pre-wrap; /* preserve newlines and tabs */
-	overflow-wrap: anywhere; /* avoid overflow on long words */
+	white-space: pre-wrap;
+	/* preserve newlines and tabs */
+	overflow-wrap: anywhere;
+	/* avoid overflow on long words */
 }
 
 .detail {
