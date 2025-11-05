@@ -40,13 +40,20 @@
 
 .dropdown {
 	position: absolute;
-	right: -0.75rem;
+	right: 0;
+	/* anchor to the right edge of container */
+	left: auto;
 	top: 3rem;
 	z-index: 2000;
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 	background-color: white;
 	border-radius: 0.313rem;
 	width: 24rem;
+	max-width: calc(100vw - 24px);
+	/* keep within viewport on small screens */
+	box-sizing: border-box;
+	overflow: visible;
+	/* keep arrow visible even if it overflows top */
 }
 
 .dropdownArrow {
@@ -58,6 +65,7 @@
 	border-left: 0.5rem solid transparent;
 	border-right: 0.5rem solid transparent;
 	border-bottom: 0.5rem solid #5627dc !important;
+	/* match header color */
 	z-index: 2001;
 }
 
@@ -156,6 +164,8 @@
 	background-color: rgba(0, 0, 0, 0.5);
 	backdrop-filter: blur(4px);
 	z-index: 3000;
+	/* Add padding to prevent edge clipping on small screens */
+	padding: 16px;
 }
 
 .modalContent {
@@ -166,6 +176,11 @@
 	border-radius: 0.5rem;
 	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 	z-index: 3001;
+	/* Ensure content fits on small devices */
+	max-height: calc(100vh - 32px);
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch;
 }
 
 .modalHeader {
@@ -370,17 +385,22 @@
 /* Media queries */
 @media (max-width: 700px) {
 	.dropdown {
-		right: -18rem;
+		right: 0;
+		/* keep attached to the right edge */
+		left: auto;
 		width: 20rem;
+		max-width: calc(100vw - 24px);
 	}
 
 	.dropdownArrow {
-		right: 18.563rem;
+		right: 12px;
+		/* keep arrow inside viewport under the icon */
 	}
 
 	.modalContent {
 		width: 90%;
 		max-width: 400px;
+		max-height: calc(100vh - 32px);
 	}
 
 	.headerZone,
@@ -398,5 +418,12 @@
 @media (min-width: 1024px) {
 	.modalContent {
 		width: 700px;
+	}
+}
+
+/* Use dynamic viewport units when supported (iOS Safari safe for toolbars) */
+@supports (height: 100dvh) {
+	.modalContent {
+		max-height: calc(100dvh - 32px);
 	}
 }

@@ -13,7 +13,20 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName =
 	const showAlert = useAlert()
 	const t = key => translations[language][key] || key
 	const fileInputRef = useRef(null)
-	console.log(data)
+
+	// Safely convert possible JSON string into an array
+	const toArray = value => {
+		try {
+			if (Array.isArray(value)) return value
+			if (typeof value === 'string') {
+				const parsed = JSON.parse(value)
+				return Array.isArray(parsed) ? parsed : []
+			}
+			return []
+		} catch {
+			return []
+		}
+	}
 
 	// Helpers
 	const hasNonEmpty = v => typeof v === 'string' && v.trim().length > 0
@@ -48,12 +61,10 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName =
 
 	// Initialize deliverables from data
 	useEffect(() => {
-		if (editMode && editData && editData[keyName]) {
-			setDeliverables(editData[keyName] || [])
-		} else if (data && Array.isArray(data)) {
-			setDeliverables(data)
+		if (editMode && editData && Object.prototype.hasOwnProperty.call(editData, keyName)) {
+			setDeliverables(toArray(editData[keyName]))
 		} else {
-			setDeliverables([])
+			setDeliverables(toArray(data))
 		}
 	}, [data, editData, editMode, keyName])
 
@@ -867,7 +878,7 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName =
 }
 
 Deliverables.propTypes = {
-	data: PropTypes.array,
+	data: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
 	editData: PropTypes.object,
 	editMode: PropTypes.bool,
 	updateEditData: PropTypes.func,

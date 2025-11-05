@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from '../../utils/axiosUtils'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
 import { Container, Typography, Box, Button, TextField, Card, CardContent, Chip, Grid, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Alert, Snackbar, InputAdornment, CircularProgress, Paper } from '@mui/material'
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Search as SearchIcon, Palette as PaletteIcon, Code as CodeIcon } from '@mui/icons-material'
 import './CreateSkill.css'
@@ -49,8 +47,6 @@ export const CreateSkill = () => {
 			setLoading(true)
 			// const response = await axios.get(`/api/itskills${search ? `?search=${search}` : ''}`)
 			const response = await axios.get(`/api/itskills/`)
-			console.log(response)
-
 			setSkills(response.data)
 			setFilteredSkills(response.data)
 		} catch (error) {
@@ -66,8 +62,6 @@ export const CreateSkill = () => {
 		try {
 			setLoading(true)
 			const response = await axios.get(`/api/skills/`)
-			console.log(response)
-
 			setLanguageSkills(response.data)
 			setFilteredLanguageSkills(response.data)
 		} catch (error) {
