@@ -115,5 +115,5 @@ Kintone DBとの統合 – 学生データの管理と検索がスムーズ
 EC2 の状態を確認するには（ローカルから）:
 
 ```
-ssh -i "/Users/muhammadnurislomtukhtamishhoji-zoda/Jduportfolio.pem" ec2-user@ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com
+ssh -i "/path-to-the/file.pem" ec2-user@ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com
 ```
