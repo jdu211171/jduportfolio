@@ -1062,7 +1062,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 							{/* Staff approval controls */}
 							{role === 'Staff' && (
 								<>
-									<TextField title='コメント' data={comment} editData={comment} editMode={true} updateEditData={updateComment} keyName='comments' maxLength={500} showCounter={true} />
+									<TextField title='コメント' data={comment?.comments || ''} editData={comment} editMode={true} updateEditData={updateComment} keyName='comments' maxLength={500} showCounter={true} />
 
 									<Box
 										sx={{
@@ -1114,7 +1114,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 							{/* Staff can reject after approval */}
 							{role === 'Staff' && (
 								<>
-									<TextField title='差し戻しコメント' data={comment} editData={comment} editMode={true} updateEditData={updateComment} keyName='comments' maxLength={500} showCounter={true} />
+									<TextField title='差し戻しコメント' data={comment?.comments || ''} editData={comment} editMode={true} updateEditData={updateComment} keyName='comments' maxLength={500} showCounter={true} />
 									<Box
 										sx={{
 											display: 'flex',

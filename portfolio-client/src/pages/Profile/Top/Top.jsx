@@ -1003,8 +1003,6 @@ const Top = () => {
 	const fetchLanguageSkills = async () => {
 		try {
 			const response = await axios.get(`/api/skills/`)
-			console.log(response.data)
-
 			setFilteredLanguageSkills(response.data)
 		} catch (error) {
 			console.error('Error fetching language skills:', error)

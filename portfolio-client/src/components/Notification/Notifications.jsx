@@ -108,7 +108,11 @@ export default function Notifications() {
 			}
 		}
 		document.addEventListener('mousedown', handleClickOutside)
-		return () => document.removeEventListener('mousedown', handleClickOutside)
+		document.addEventListener('touchstart', handleClickOutside, { passive: true })
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
+			document.removeEventListener('touchstart', handleClickOutside)
+		}
 	}, [modalIsVisible])
 
 	const del = async id => {
