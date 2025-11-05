@@ -229,7 +229,7 @@ jobs:
 
           echo "=> Restart PM2 service"
           pm2 delete "$SERVICE_NAME" 2>/dev/null || true
-          pm2 start ecosystem.config.js --env production --update-env
+          pm2 start portfolio-server/ecosystem.config.js --env production --update-env
           pm2 save || true
           pm2 status "$SERVICE_NAME"
           EOF
