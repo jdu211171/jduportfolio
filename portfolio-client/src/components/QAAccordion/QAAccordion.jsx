@@ -68,7 +68,7 @@ const QAAccordion = ({
 					<div className={styles.qPart}>
 						<HelpOutlineIcon sx={{ color: '#2563eb' }} />
 					</div>
-					<Typography sx={{ pl: '10px', fontSize: 18 }}>{question}</Typography>
+					<Typography sx={{ pl: '10px', fontSize: 18, userSelect: 'text', cursor: 'text' }}>{question}</Typography>
 				</StyledAccordionSummary>
 				{!notExpand && (
 					<AccordionDetails className={styles.answer}>
