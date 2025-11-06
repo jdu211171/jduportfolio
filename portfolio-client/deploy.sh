@@ -21,7 +21,6 @@ validate_env_vars() {
     [[ -z "$EC2_USER" ]] && echo_error "EC2_USER is not set"
     [[ -z "$EC2_HOST" ]] && echo_error "EC2_HOST is not set"
     [[ -z "$EC2_PATH" ]] && echo_error "EC2_PATH is not set"
-    [[ -z "$PM2_SERVICE_NAME" ]] && echo_error "PM2_SERVICE_NAME is not set"
     
     # Check if key file exists and has correct permissions
     if [[ ! -f "$EC2_KEY" ]]; then
@@ -159,12 +158,7 @@ DEPLOY_COMMANDS="cd $EC2_PATH && \
   echo 'Directory contents after unzip:' && ls -la && \
   if [ ! -d 'dist' ]; then echo 'ERROR: dist directory not created after unzip'; exit 1; fi && \
   echo 'Verifying dist directory contents:' && ls -la dist && \
-  echo 'Stopping PM2 service...' && \
-  pm2 stop $PM2_SERVICE_NAME || echo 'Warning: PM2 service was not running' && \
-  echo 'Starting PM2 service...' && \
-  pm2 start $PM2_SERVICE_NAME --update-env || { echo 'ERROR: Failed to start PM2 service'; exit 1; } && \
-  echo 'Verifying service is running...' && \
-  pm2 status $PM2_SERVICE_NAME | grep -q 'online' || { echo 'ERROR: PM2 service is not running'; exit 1; }"
+  echo 'Frontend deployment complete - static files ready to be served by nginx'"
 
 if ! ssh -i "$EC2_KEY" "$EC2_USER@$EC2_HOST" "$DEPLOY_COMMANDS"; then
     echo_error "Deployment on EC2 failed"
@@ -185,7 +179,7 @@ fi
 echo_status "Checking deployment status"
 if ! ssh -i "$EC2_KEY" "$EC2_USER@$EC2_HOST" "cd $EC2_PATH && \
     [ -d dist ] && echo 'dist directory exists' && \
-    pm2 status $PM2_SERVICE_NAME | grep -q 'online' && echo 'PM2 service is running'"; then
+    echo 'Frontend static files deployed successfully'"; then
     echo_error "Deployment status check failed"
 fi
 echo_success "Deployment status verified"

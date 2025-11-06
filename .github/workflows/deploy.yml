@@ -79,7 +79,6 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           FRONTEND_EC2_PATH: ${{ secrets.FRONTEND_EC2_PATH }}
-          PM2_FRONTEND_SERVICE: ${{ secrets.PM2_FRONTEND_SERVICE }}
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_APP_API_BASE_URL: ${{ secrets.VITE_APP_API_BASE_URL }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
@@ -91,7 +90,6 @@ jobs:
           EC2_USER="${EC2_USER:-ec2-user}"
           EC2_HOST="${EC2_HOST:-ec2-13-231-145-159.ap-northeast-1.compute.amazonaws.com}"
           EC2_PATH="${FRONTEND_EC2_PATH:-/home/ec2-user/jduportfolio/portfolio-client}"
-          PM2_SERVICE_NAME="${PM2_FRONTEND_SERVICE:-portfolio-client}"
           VITE_API_URL="${VITE_API_URL:-http://localhost:4000}"
           VITE_APP_API_BASE_URL="${VITE_APP_API_BASE_URL:-http://localhost:4000/api}"
           FRONTEND_URL="${FRONTEND_URL:-http://localhost:5173}"
