@@ -130,6 +130,9 @@ Thumbs.db
 /portfolio-server/uploads/
 /portfolio-server/logs/
 
+# Codex CLI
+.codex/
+
 # Client-specific (portfolio-client)
 /portfolio-client/.expo
 /portfolio-client/dist
