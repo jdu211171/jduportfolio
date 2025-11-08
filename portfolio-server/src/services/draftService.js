@@ -208,12 +208,14 @@ class DraftService {
 						as: 'draft',
 						required: true,
 						where: {
+							version_type: 'pending',
 							status: { [Op.ne]: 'draft' },
 							updated_at: {
 								[Op.eq]: sequelize.literal(`
                               (SELECT MAX("updated_at") 
                               FROM "Drafts" AS d
                               WHERE d.student_id = "Student".student_id
+                              AND d.version_type = 'pending'
                               AND d.status != 'draft' ${combinedStatusFilter})
                           `),
 							},
@@ -233,9 +235,15 @@ class DraftService {
 	/**
 	 * Creates a new draft or updates an existing one (upsert).
 	 * This is the primary method for student edits.
+	 * Always targets the 'draft' version_type.
 	 */
 	static async upsertDraft(studentId, newProfileData) {
-		let draft = await Draft.findOne({ where: { student_id: studentId } })
+		let draft = await Draft.findOne({
+			where: {
+				student_id: studentId,
+				version_type: 'draft',
+			},
+		})
 
 		if (draft) {
 			const oldProfileData = draft.profile_data || {}
@@ -254,6 +262,7 @@ class DraftService {
 			const changedKeys = Object.keys(newProfileData) // All fields are considered new
 			draft = await Draft.create({
 				student_id: studentId,
+				version_type: 'draft',
 				profile_data: newProfileData,
 				changed_fields: changedKeys,
 				status: 'draft',
@@ -263,7 +272,7 @@ class DraftService {
 	}
 	/**
 	 * Submits a draft for review.
-	 * Enforces the rule that a draft cannot be submitted if already in 'submitted' state.
+	 * Clones the Draft version to Pending version.
 	 */
 	static async submitForReview(draftId) {
 		const draft = await Draft.findByPk(draftId)
@@ -271,7 +280,20 @@ class DraftService {
 			throw new Error('Qoralama topilmadi.')
 		}
 
-		if (draft.status === 'submitted') {
+		if (draft.version_type !== 'draft') {
+			throw new Error('Faqat draft versiyasini yuborish mumkin.')
+		}
+
+		// Check if there's already a pending version under review
+		const existingPending = await Draft.findOne({
+			where: {
+				student_id: draft.student_id,
+				version_type: 'pending',
+				status: 'submitted',
+			},
+		})
+
+		if (existingPending) {
 			throw new Error('Sizda allaqachon tekshiruvga yuborilgan faol qoralama mavjud. Yangisini yuborish uchun avvalgisining natijasini kuting.')
 		}
 
@@ -331,22 +353,52 @@ class DraftService {
 			throw e
 		}
 
-		draft.status = 'submitted'
-		draft.submit_count += 1
-		draft.comments = null
+		// Create or update pending version
+		let pendingDraft = await Draft.findOne({
+			where: {
+				student_id: draft.student_id,
+				version_type: 'pending',
+			},
+		})
+
+		if (pendingDraft) {
+			// Update existing pending draft
+			pendingDraft.profile_data = draft.profile_data
+			pendingDraft.changed_fields = draft.changed_fields
+			pendingDraft.status = 'submitted'
+			pendingDraft.submit_count += 1
+			pendingDraft.comments = null
+			pendingDraft.reviewed_by = null
+			await pendingDraft.save()
+		} else {
+			// Create new pending draft
+			pendingDraft = await Draft.create({
+				student_id: draft.student_id,
+				version_type: 'pending',
+				profile_data: draft.profile_data,
+				changed_fields: draft.changed_fields,
+				status: 'submitted',
+				submit_count: 1,
+			})
+		}
 
 		await Student.update({ visibility: false }, { where: { student_id: draft.student_id } })
-		await draft.save()
-		return draft
+		return pendingDraft
 	}
 	/**
-	 * Updates the status of a draft by a staff member.
+	 * Updates the status of a pending draft by a staff member.
+	 * On approval, promotes Pending → Live and creates a fresh Draft from Live.
 	 * Clears the changed_fields array upon review completion.
 	 */
 	static async updateStatusByStaff(draftId, status, comments, reviewedBy) {
 		const draft = await Draft.findByPk(draftId)
 		if (!draft) {
 			throw new Error('Qoralama topilmadi.')
+		}
+
+		// Staff should only update pending versions
+		if (draft.version_type !== 'pending') {
+			throw new Error('Staff can only review pending versions.')
 		}
 
 		draft.status = status
@@ -359,6 +411,42 @@ class DraftService {
 		}
 
 		await draft.save()
+
+		// On approval, promote pending to live and refresh draft
+		if (status.toLowerCase() === 'approved') {
+			// Update live profile (Student table)
+			await Student.update(draft.profile_data, {
+				where: { student_id: draft.student_id },
+			})
+
+			// Create or update draft version with the new live data
+			let draftVersion = await Draft.findOne({
+				where: {
+					student_id: draft.student_id,
+					version_type: 'draft',
+				},
+			})
+
+			if (draftVersion) {
+				// Update existing draft with live data
+				draftVersion.profile_data = draft.profile_data
+				draftVersion.status = 'draft'
+				draftVersion.changed_fields = []
+				draftVersion.comments = null
+				draftVersion.reviewed_by = null
+				await draftVersion.save()
+			} else {
+				// Create new draft seeded from live
+				await Draft.create({
+					student_id: draft.student_id,
+					version_type: 'draft',
+					profile_data: draft.profile_data,
+					status: 'draft',
+					changed_fields: [],
+				})
+			}
+		}
+
 		return draft
 	}
 
@@ -367,7 +455,7 @@ class DraftService {
 	}
 
 	static async getStudentWithDraft(studentId) {
-		return Student.findOne({
+		const student = await Student.findOne({
 			where: { student_id: studentId },
 			attributes: {
 				exclude: ['password', 'createdAt', 'updatedAt'],
@@ -375,11 +463,27 @@ class DraftService {
 			include: [
 				{
 					model: Draft,
-					as: 'draft',
+					as: 'drafts',
 					required: false,
 				},
 			],
 		})
+
+		if (!student) {
+			return null
+		}
+
+		// Separate drafts by version_type for easier frontend consumption
+		const studentData = student.toJSON()
+		const draftVersion = studentData.drafts?.find(d => d.version_type === 'draft') || null
+		const pendingVersion = studentData.drafts?.find(d => d.version_type === 'pending') || null
+
+		return {
+			...studentData,
+			draft: draftVersion,
+			pendingDraft: pendingVersion,
+			drafts: undefined, // Remove the raw drafts array
+		}
 	}
 
 	static async delete(id) {

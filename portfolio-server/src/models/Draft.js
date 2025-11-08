@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
 					key: 'student_id',
 				},
 			},
+			version_type: {
+				type: DataTypes.ENUM('draft', 'pending'),
+				allowNull: false,
+				defaultValue: 'draft',
+			},
 			profile_data: {
 				type: DataTypes.JSONB,
 				allowNull: false,
@@ -83,6 +88,12 @@ module.exports = (sequelize, DataTypes) => {
 			timestamps: true,
 			createdAt: 'created_at',
 			updatedAt: 'updated_at',
+			indexes: [
+				{
+					unique: true,
+					fields: ['student_id', 'version_type'],
+				},
+			],
 		}
 	)
 

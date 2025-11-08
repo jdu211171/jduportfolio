@@ -9,10 +9,26 @@ module.exports = (sequelize, DataTypes) => {
 				foreignKey: 'studentId',
 				as: 'bookmarks',
 			})
+			Student.hasMany(models.Draft, {
+				foreignKey: 'student_id',
+				sourceKey: 'student_id',
+				as: 'drafts',
+			})
 			Student.hasOne(models.Draft, {
 				foreignKey: 'student_id',
 				sourceKey: 'student_id',
 				as: 'draft',
+				scope: {
+					version_type: 'draft',
+				},
+			})
+			Student.hasOne(models.Draft, {
+				foreignKey: 'student_id',
+				sourceKey: 'student_id',
+				as: 'pendingDraft',
+				scope: {
+					version_type: 'pending',
+				},
 			})
 			Student.hasMany(models.QA, { foreignKey: 'studentId', as: 'qas' })
 		}

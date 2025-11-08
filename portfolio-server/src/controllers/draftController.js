@@ -42,6 +42,11 @@ class DraftController {
 				return res.status(404).json({ error: 'Qoralama topilmadi.' })
 			}
 
+			// Ensure it's a draft version being submitted
+			if (draftForCheck.version_type !== 'draft') {
+				return res.status(400).json({ error: 'Faqat draft versiyasini yuborish mumkin.' })
+			}
+
 			const student = await Student.findOne({ where: { id: req.user.id } })
 			if (!student || student.student_id !== draftForCheck.student_id) {
 				return res.status(403).json({
@@ -49,17 +54,17 @@ class DraftController {
 				})
 			}
 
-			const draft = await DraftService.submitForReview(id)
+			const pendingDraft = await DraftService.submitForReview(id)
 
 			// Xodimlarga bildirishnoma yuborish
-			const studentID = draft.student_id || 'Unknown'
+			const studentID = pendingDraft.student_id || 'Unknown'
 			const message = `学生${studentID}からプロフィール情報が送信されました`
 			const notificationPayload = {
 				user_role: 'staff',
 				type: 'draft_submitted',
 				message: message,
 				status: 'unread',
-				related_id: draft.id,
+				related_id: pendingDraft.id,
 			}
 
 			if (staff_id) {
@@ -82,7 +87,7 @@ class DraftController {
 
 			return res.status(200).json({
 				message: 'Qoralama muvaffaqiyatli tekshiruvga yuborildi.',
-				draft,
+				draft: pendingDraft,
 			})
 		} catch (error) {
 			return res.status(400).json({ error: error.message })
@@ -291,32 +296,33 @@ class DraftController {
 				return res.status(400).json({ error: 'student_id yuborilishi shart' })
 			}
 
-			let studentWithDraft = await DraftService.getStudentWithDraft(student_id)
+			let studentWithDrafts = await DraftService.getStudentWithDraft(student_id)
 
-			if (!studentWithDraft) {
+			if (!studentWithDrafts) {
 				return res.status(404).json({ message: 'Talaba topilmadi' })
 			}
 
-			if (!studentWithDraft.draft) {
-				const studentProfile = studentWithDraft.toJSON()
+			// If no draft version exists, create a default one from live data
+			if (!studentWithDrafts.draft) {
+				const studentProfile = studentWithDrafts
 				const draftKeys = ['self_introduction', 'hobbies', 'skills', 'it_skills', 'gallery', 'deliverables', 'other_information']
 				const defaultDraftData = draftKeys.reduce((acc, key) => {
 					acc[key] = studentProfile[key] || null
 					return acc
 				}, {})
 
-				studentProfile.draft = {
+				studentWithDrafts.draft = {
 					id: null,
 					student_id: studentProfile.student_id,
+					version_type: 'draft',
 					profile_data: defaultDraftData,
 					status: 'draft',
 					submit_count: 0,
 					changed_fields: [],
 				}
-				return res.status(200).json(studentProfile)
 			}
 
-			return res.status(200).json(studentWithDraft)
+			return res.status(200).json(studentWithDrafts)
 		} catch (error) {
 			console.error('getDraftByStudentId xatoligi:', error)
 			return res.status(500).json({ error: 'Internal Server Error' })
