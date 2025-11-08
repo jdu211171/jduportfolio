@@ -225,9 +225,12 @@ const Top = () => {
 		id = studentId
 	}
 	const [student, setStudent] = useState(null)
+	const [liveData, setLiveData] = useState(null) // Live profile data from Students table
 	const [editData, setEditData] = useAtom(editDataAtom)
 	const [editMode, setEditMode] = useAtom(editModeAtom)
+	const [viewingLive, setViewingLive] = useState(false) // Toggle between Live and Draft view
 	const [currentDraft, setCurrentDraft] = useState({})
+	const [currentPending, setCurrentPending] = useState(null) // Pending draft for staff review
 	const [updateQA, SetUpdateQA] = useAtom(updateQAAtom)
 	const [newImages, setNewImages] = useAtom(newImagesAtom)
 	const [deletedUrls, setDeletedUrls] = useAtom(deletedUrlsAtom)
@@ -506,17 +509,29 @@ const Top = () => {
 			if (response.data) {
 				const studentData = { ...response.data }
 				const draftData = studentData.draft
+				const pendingData = studentData.pendingDraft
 				delete studentData.draft
+				delete studentData.pendingDraft
 
+				// Store Live data (from Students table)
+				const liveProfileData = {
+					...studentData,
+					draft: mapData(studentData).draft, // Parse live data for display
+				}
+				setLiveData(liveProfileData)
+
+				// Handle Draft version
 				if (draftData) {
 					setCurrentDraft(draftData)
 					setHasDraft(true)
-
-					if (draftData.status === 'checking' || draftData.status === 'approved') {
-						// Status is checking or approved
-					}
 				}
 
+				// Handle Pending version (for staff review)
+				if (pendingData) {
+					setCurrentPending(pendingData)
+				}
+
+				// Set default view data (Draft for editing, Live for viewing)
 				const mappedData = {
 					...studentData,
 					draft: draftData ? draftData.profile_data : {},
@@ -555,7 +570,10 @@ const Top = () => {
 			// Always parse JSON fields first using mapData
 			const parsedStudentData = mapData(studentData)
 
-			// Admin uchun draft ma'lumotlarini to'g'ri o'rnatish
+			// Store Live data
+			setLiveData(parsedStudentData)
+
+			// Staff/Admin view: use pending draft for review if available
 			if (studentData.draft && studentData.draft.profile_data) {
 				setCurrentDraft(studentData.draft)
 				setHasDraft(true)
@@ -761,6 +779,23 @@ const Top = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editData, editMode, role, student])
+
+	// Handle Live/Draft view switching for students
+	useEffect(() => {
+		if (role === 'Student' && !editMode && liveData) {
+			if (viewingLive) {
+				// Switch to Live view
+				setStudent(liveData)
+			} else {
+				// Switch to Draft view
+				const mappedData = {
+					...liveData,
+					draft: currentDraft?.profile_data || {},
+				}
+				setStudent(mappedData)
+			}
+		}
+	}, [viewingLive, role, editMode, liveData, currentDraft])
 
 	// Clear navigation flags on unmount
 	useEffect(() => {
@@ -1074,6 +1109,55 @@ const Top = () => {
 			{/* ✅ Portal container mavjudligini tekshirish */}
 			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : role === 'Student' ? portalContent : null}
 
+			{/* Live/Draft Toggle for Students */}
+			{role === 'Student' && !editMode && liveData && (
+				<Box
+					sx={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						backgroundColor: '#f5f5f5',
+						borderRadius: '8px',
+						padding: '8px',
+						margin: '16px',
+						gap: '8px',
+					}}
+				>
+					<Button
+						onClick={() => setViewingLive(true)}
+						variant={viewingLive ? 'contained' : 'outlined'}
+						size='small'
+						sx={{
+							minWidth: '120px',
+							backgroundColor: viewingLive ? '#5627DB' : 'transparent',
+							color: viewingLive ? '#fff' : '#5627DB',
+							borderColor: '#5627DB',
+							'&:hover': {
+								backgroundColor: viewingLive ? '#4520A6' : 'rgba(86, 39, 219, 0.1)',
+							},
+						}}
+					>
+						{t('liveProfile') || '公開版'}
+					</Button>
+					<Button
+						onClick={() => setViewingLive(false)}
+						variant={!viewingLive ? 'contained' : 'outlined'}
+						size='small'
+						sx={{
+							minWidth: '120px',
+							backgroundColor: !viewingLive ? '#5627DB' : 'transparent',
+							color: !viewingLive ? '#fff' : '#5627DB',
+							borderColor: '#5627DB',
+							'&:hover': {
+								backgroundColor: !viewingLive ? '#4520A6' : 'rgba(86, 39, 219, 0.1)',
+							},
+						}}
+					>
+						{t('draftProfile') || '編集版'}
+					</Button>
+				</Box>
+			)}
+
 			<div
 				style={{
 					borderTop: '1px solid #e1e1e1',
@@ -1106,8 +1190,8 @@ const Top = () => {
 				))}
 			</div>
 
-			{/* Staff Comment Display Section for Students */}
-			{role === 'Student' && subTabIndex === 0 && currentDraft && currentDraft.comments && (currentDraft.status === 'resubmission_required' || currentDraft.status === 'disapproved') && (
+			{/* Staff Comment Display Section for Students - show feedback from pending draft */}
+			{role === 'Student' && subTabIndex === 0 && currentPending && currentPending.comments && (currentPending.status === 'resubmission_required' || currentPending.status === 'disapproved') && (
 				<Box
 					sx={{
 						my: 2,
@@ -1139,7 +1223,7 @@ const Top = () => {
 								color: '#424242',
 							}}
 						>
-							{currentDraft.comments}
+							{currentPending.comments}
 						</pre>
 					</Box>
 					<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>プロフィールを修正して再度提出してください。</Box>
