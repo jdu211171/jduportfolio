@@ -540,15 +540,14 @@ class StudentService {
 					{
 						model: Draft,
 						as: 'draft',
-						attributes: [
-							'id',
-							'status',
-							'submit_count',
-							'created_at',
-							'updated_at',
-							'profile_data', // Include profile_data to get draft information
-						],
+						attributes: ['id', 'status', 'submit_count', 'created_at', 'updated_at', 'profile_data', 'version_type'],
 						required: false, // LEFT JOIN so students without drafts are still included
+					},
+					{
+						model: Draft,
+						as: 'pendingDraft',
+						attributes: ['id', 'status', 'submit_count', 'created_at', 'updated_at', 'profile_data', 'version_type', 'comments', 'reviewed_by'],
+						required: false, // LEFT JOIN so students without pending drafts are still included
 					},
 				],
 			})
@@ -560,35 +559,27 @@ class StudentService {
 			// Convert to JSON
 			const studentJson = student.toJSON()
 
-			// Determine if draft data should be merged
+			// Determine which draft data should be merged based on role and status
 			let shouldMergeDraft = false
+			let draftToMerge = null
 
-			if (studentJson.draft && studentJson.draft.profile_data) {
-				// Check if draft should be visible based on status and requester
-				if (studentJson.draft.status === 'draft') {
-					// Draft status: only visible to the student themselves
-					// This includes when an approved profile is edited but not yet submitted
-					// Debug: Check if this is the student viewing their own profile
-					console.log('Draft visibility check:', {
-						requesterRole,
-						requesterId,
-						studentDbId: student.id,
-						isMatch: requesterId === student.id,
-					})
-
-					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
-						shouldMergeDraft = true
-					}
-					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
-					// Non-draft statuses: visible to authorized users
+			// For Staff/Admin viewing: use pending draft if available and submitted for review
+			if ((requesterRole === 'Staff' || requesterRole === 'Admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
+				if (['submitted', 'checking', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
 					shouldMergeDraft = true
+					draftToMerge = studentJson.pendingDraft
+					// Keep both draft and pendingDraft in response for staff
 				}
+			}
+			// For Student viewing their own profile: use draft version
+			else if (requesterRole === 'Student' && requesterId && student.id === requesterId && studentJson.draft && studentJson.draft.profile_data) {
+				shouldMergeDraft = true
+				draftToMerge = studentJson.draft
 			}
 
 			// Merge draft data if conditions are met
-			if (shouldMergeDraft) {
-				const draftData = studentJson.draft.profile_data
+			if (shouldMergeDraft && draftToMerge) {
+				const draftData = draftToMerge.profile_data
 
 				// Merge draft fields into the main student object
 				const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']

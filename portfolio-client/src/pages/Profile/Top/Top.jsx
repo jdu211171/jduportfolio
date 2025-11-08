@@ -574,14 +574,25 @@ const Top = () => {
 			setLiveData(parsedStudentData)
 
 			// Staff/Admin view: use pending draft for review if available
-			if (studentData.draft && studentData.draft.profile_data) {
-				setCurrentDraft(studentData.draft)
+			const draftData = studentData.draft
+			const pendingData = studentData.pendingDraft
+
+			// Set current pending for staff comment display
+			if (pendingData) {
+				setCurrentPending(pendingData)
+			}
+
+			// For staff review, prioritize pending draft
+			const reviewDraft = pendingData || draftData
+
+			if (reviewDraft && reviewDraft.profile_data) {
+				setCurrentDraft(reviewDraft)
 				setHasDraft(true)
 
-				// Merge parsed base data with draft data
+				// Merge parsed base data with review draft data
 				const mappedData = {
 					...parsedStudentData,
-					draft: studentData.draft.profile_data || {},
+					draft: reviewDraft.profile_data || {},
 				}
 
 				setStudent(mappedData)
@@ -592,7 +603,7 @@ const Top = () => {
 				// Clear any stale localStorage data that might exist
 				clearStorage()
 			} else {
-				// Agar draft yo'q bo'lsa, parsed mapping
+				// If no draft exists, use parsed data
 				setStudent(parsedStudentData)
 				setEditData(parsedStudentData)
 				// Update the original data reference for change detection
