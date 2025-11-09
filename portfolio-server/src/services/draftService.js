@@ -205,10 +205,9 @@ class DraftService {
 				include: [
 					{
 						model: Draft,
-						as: 'draft',
+						as: 'pendingDraft',
 						required: true,
 						where: {
-							version_type: 'pending',
 							status: { [Op.ne]: 'draft' },
 							updated_at: {
 								[Op.eq]: sequelize.literal(`
@@ -224,7 +223,15 @@ class DraftService {
 				],
 			})
 
-			return students
+			// Map pendingDraft to draft for backward compatibility with frontend
+			return students.map(student => {
+				const studentJson = student.toJSON()
+				return {
+					...studentJson,
+					draft: studentJson.pendingDraft,
+					pendingDraft: undefined,
+				}
+			})
 		} catch (error) {
 			console.error('DraftService.getAll error:', error)
 			console.error('Error message:', error.message)
