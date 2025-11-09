@@ -7,24 +7,43 @@ const StaffService = require('../services/staffService')
 class DraftController {
 	/**
 	 * Talaba uchun draft yaratadi yoki yangilaydi (Upsert)
+	 * Staff/Admin uchun pending draft'ni yangilaydi
 	 */
 	static async upsertDraft(req, res) {
 		try {
-			// Middleware'da tekshirilgan foydalanuvchini olamiz
-			const student = await Student.findOne({ where: { id: req.user.id } })
-			if (!student) {
-				return res.status(403).json({ error: "Faqat talabalar profilni o'zgartirishi mumkin." })
-			}
+			const userRole = req.user.userType
+			const { profile_data, student_id } = req.body
 
-			const { profile_data } = req.body
 			if (!profile_data) {
 				return res.status(400).json({ error: 'profile_data yuborilishi shart.' })
 			}
 
-			const { draft, created } = await DraftService.upsertDraft(student.student_id, profile_data)
+			// For students: edit their own draft version
+			if (userRole === 'Student') {
+				const student = await Student.findOne({ where: { id: req.user.id } })
+				if (!student) {
+					return res.status(403).json({ error: "Faqat talabalar profilni o'zgartirishi mumkin." })
+				}
 
-			const message = created ? 'Qoralama muvaffaqiyatli yaratildi' : 'Qoralama muvaffaqiyatli yangilandi'
-			return res.status(created ? 201 : 200).json({ message, draft })
+				const { draft, created } = await DraftService.upsertDraft(student.student_id, profile_data)
+
+				const message = created ? 'Qoralama muvaffaqiyatli yaratildi' : 'Qoralama muvaffaqiyatli yangilandi'
+				return res.status(created ? 201 : 200).json({ message, draft })
+			}
+
+			// For staff/admin: edit the pending draft of a student
+			if (userRole === 'Staff' || userRole === 'Admin') {
+				if (!student_id) {
+					return res.status(400).json({ error: 'student_id is required for staff edits.' })
+				}
+
+				const { draft, created } = await DraftService.upsertPendingDraft(student_id, profile_data)
+
+				const message = created ? 'Pending draft created successfully' : 'Pending draft updated successfully'
+				return res.status(created ? 201 : 200).json({ message, draft })
+			}
+
+			return res.status(403).json({ error: 'Unauthorized' })
 		} catch (error) {
 			return res.status(400).json({ error: error.message })
 		}

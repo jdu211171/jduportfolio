@@ -277,6 +277,42 @@ class DraftService {
 			return { draft, created: true }
 		}
 	}
+
+	/**
+	 * Creates or updates a pending draft (for staff edits).
+	 * This is used when staff members edit a student's pending draft.
+	 * Always targets the 'pending' version_type.
+	 */
+	static async upsertPendingDraft(studentId, newProfileData) {
+		let pendingDraft = await Draft.findOne({
+			where: {
+				student_id: studentId,
+				version_type: 'pending',
+			},
+		})
+
+		if (pendingDraft) {
+			const oldProfileData = pendingDraft.profile_data || {}
+			const changedKeys = getChangedKeys(newProfileData, oldProfileData)
+			pendingDraft.profile_data = newProfileData
+			pendingDraft.changed_fields = _.union(pendingDraft.changed_fields || [], changedKeys)
+
+			await pendingDraft.save()
+			return { draft: pendingDraft, created: false }
+		} else {
+			// If pending draft does not exist, create a new one
+			const changedKeys = Object.keys(newProfileData) // All fields are considered new
+			pendingDraft = await Draft.create({
+				student_id: studentId,
+				version_type: 'pending',
+				profile_data: newProfileData,
+				changed_fields: changedKeys,
+				status: 'submitted', // Default status for new pending drafts
+			})
+			return { draft: pendingDraft, created: true }
+		}
+	}
+
 	/**
 	 * Submits a draft for review.
 	 * Clones the Draft version to Pending version.
