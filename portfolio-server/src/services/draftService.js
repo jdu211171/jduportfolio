@@ -298,6 +298,13 @@ class DraftService {
 		})
 		const isAlreadyPublic = student && student.visibility === true
 
+		// Check if there's a fresh student submission pending review
+		// If status is 'submitted' or 'checking', it means student submitted recently
+		const hasFreshStudentSubmission = pendingDraft && ['submitted', 'checking'].includes(pendingDraft.status)
+
+		// Only auto-approve if profile is public AND there's NO fresh student submission
+		const shouldAutoApprove = isAlreadyPublic && !hasFreshStudentSubmission
+
 		if (pendingDraft) {
 			const oldProfileData = pendingDraft.profile_data || {}
 			const changedKeys = getChangedKeys(newProfileData, oldProfileData)
@@ -306,8 +313,8 @@ class DraftService {
 
 			await pendingDraft.save()
 
-			// If profile is already public, auto-update live (no approval needed for corrections)
-			if (isAlreadyPublic) {
+			// If profile is public and no fresh student submission, auto-update live
+			if (shouldAutoApprove) {
 				await Student.update(newProfileData, {
 					where: { student_id: studentId },
 				})
@@ -326,8 +333,8 @@ class DraftService {
 				submit_count: 1,
 			})
 
-			// If profile is already public, auto-update live
-			if (isAlreadyPublic) {
+			// Auto-approve only if no fresh submission exists
+			if (shouldAutoApprove) {
 				await Student.update(newProfileData, {
 					where: { student_id: studentId },
 				})
