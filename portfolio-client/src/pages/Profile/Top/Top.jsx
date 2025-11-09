@@ -1097,7 +1097,7 @@ const Top = () => {
 						{t('editProfile')}
 					</Button>
 
-					{hasDraft && currentDraft && (
+					{role === 'Student' && hasDraft && currentDraft && (
 						<Button onClick={toggleConfirmMode} variant='contained' color='success' size='small' sx={{ ml: 1 }}>
 							{t('submitAgree')}
 						</Button>
@@ -1118,7 +1118,7 @@ const Top = () => {
 	return (
 		<Box mb={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : role === 'Student' ? portalContent : null}
+			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : (role === 'Student' || role === 'Staff' || role === 'Admin') ? portalContent : null}
 
 			{/* Live/Draft Toggle for Students */}
 			{role === 'Student' && !editMode && liveData && (
