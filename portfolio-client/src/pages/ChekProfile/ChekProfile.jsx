@@ -179,8 +179,9 @@ const Student = ({ OnlyBookmarked = false }) => {
 			if (visibility) {
 				const draftsResponse = await axios.get(`/api/draft/student/${studentId}`)
 
-				if (draftsResponse.data && draftsResponse.data.draft && draftsResponse.data.draft.status === 'approved') {
-					const profileData = draftsResponse.data.draft.profile_data || {}
+				// Check pendingDraft status instead of draft, as approvals happen on pending versions
+				if (draftsResponse.data && draftsResponse.data.pendingDraft && draftsResponse.data.pendingDraft.status === 'approved') {
+					const profileData = draftsResponse.data.pendingDraft.profile_data || {}
 
 					// Use studentId (student_id) for API calls
 					const res = await axios.put(`/api/students/${studentId}`, {

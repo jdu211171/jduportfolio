@@ -233,15 +233,16 @@ class StudentController {
 
 			let updatePayload = { ...studentData }
 
-			// visibility true bo'lsa, draft borligini va u 'approved' statusida ekanligini tekshirish
+			// visibility true bo'lsa, pendingDraft borligini va u 'approved' statusida ekanligini tekshirish
 			if (studentData.visibility === true) {
 				const studentWithDraft = await DraftService.getStudentWithDraft(student.student_id)
 
-				const studentDraft = studentWithDraft?.draft
-				console.log('Draft data for student:', studentDraft)
+				// Check pendingDraft instead of draft, as approvals happen on pending versions
+				const pendingDraft = studentWithDraft?.pendingDraft
+				console.log('Pending draft data for student:', pendingDraft)
 
-				// Check if student is approved by staff (draft status should be 'approved')
-				if (!studentDraft || studentDraft.status !== 'approved') {
+				// Check if student is approved by staff (pendingDraft status should be 'approved')
+				if (!pendingDraft || pendingDraft.status !== 'approved') {
 					// Return warning response instead of error
 					return res.status(200).json({
 						warning: true,
@@ -250,16 +251,16 @@ class StudentController {
 					})
 				}
 
-				if (studentDraft && studentDraft.status === 'approved') {
-					// Draftdan profile_data ni olish va uni yangilash payload'ga qo'shish
-					const profileData = studentDraft.profile_data || {}
+				if (pendingDraft && pendingDraft.status === 'approved') {
+					// Pending draftdan profile_data ni olish va uni yangilash payload'ga qo'shish
+					const profileData = pendingDraft.profile_data || {}
 					updatePayload = {
-						...profileData, // Draftdan kelgan profil ma'lumotlari
+						...profileData, // Pending draftdan kelgan profil ma'lumotlari
 						visibility: true, // Tasdiqlanganidan keyin faollashtiramiz
 					}
-					console.log('Using draft profile data:', updatePayload)
+					console.log('Using pending draft profile data:', updatePayload)
 				} else {
-					// Agar draft yo'q yoki approved emas bo'lsa, faqat visibility'ni yangilash
+					// Agar pending draft yo'q yoki approved emas bo'lsa, faqat visibility'ni yangilash
 					updatePayload = { visibility: true }
 					console.log('Using visibility only:', updatePayload)
 				}
