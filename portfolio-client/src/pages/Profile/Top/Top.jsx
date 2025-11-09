@@ -529,6 +529,25 @@ const Top = () => {
 				// Handle Pending version (for staff review)
 				if (pendingData) {
 					setCurrentPending(pendingData)
+
+					// Auto-update to 'checking' status and bind reviewer when staff views submitted draft
+					if (role === 'Staff' && pendingData.status === 'submitted') {
+						const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+						if (staffId) {
+							try {
+								await axios.put(`/api/draft/status/${pendingData.id}`, {
+									status: 'checking',
+									reviewed_by: staffId,
+								})
+								// Update local state
+								pendingData.status = 'checking'
+								pendingData.reviewed_by = staffId
+								setCurrentPending({ ...pendingData })
+							} catch (error) {
+								console.error('Failed to auto-update draft status:', error)
+							}
+						}
+					}
 				}
 
 				// Set default view data (Draft for editing, Live for viewing)
@@ -582,7 +601,18 @@ const Top = () => {
 				setCurrentPending(pendingData)
 			}
 
-			// For staff review, prioritize pending draft
+			// Recruiters should ONLY see live data, not drafts
+			if (role === 'Recruiter') {
+				setStudent(parsedStudentData)
+				setEditData(parsedStudentData)
+				updateOriginalData(parsedStudentData)
+				clearStorage()
+				setHasDraft(false)
+				SetUpdateQA(!updateQA)
+				return
+			}
+
+			// For staff/admin review, prioritize pending draft
 			const reviewDraft = pendingData || draftData
 
 			if (reviewDraft && reviewDraft.profile_data) {
@@ -737,22 +767,6 @@ const Top = () => {
 			return updatedEditData
 		})
 		SetUpdateQA(!updateQA)
-	}
-
-	const updateDraftStatus = async draftId => {
-		const res = await axios.put(`/api/draft/status/${draftId}`, {
-			status: 'checking',
-			reviewed_by: userId,
-		})
-		if (res.status === 200) {
-			showAlert(t('setToChecking'), 'success')
-			// Update the currentDraft state to reflect the new status
-			setCurrentDraft(prevDraft => ({
-				...prevDraft,
-				status: 'checking',
-				reviewed_by: userId,
-			}))
-		}
 	}
 
 	// Callback function to update currentDraft from child components
@@ -1124,8 +1138,8 @@ const Top = () => {
 	}
 	return (
 		<Box mb={2}>
-			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : role === 'Student' || role === 'Staff' || role === 'Admin' ? portalContent : null}
+			{/* Portal edit buttons for both Students and Staff */}
+			{portalContainer && (role === 'Student' || role === 'Staff' || role === 'Admin') && createPortal(portalContent, portalContainer)}
 
 			{/* Live/Draft Toggle for Students */}
 			{role === 'Student' && !editMode && liveData && (
@@ -1134,7 +1148,6 @@ const Top = () => {
 						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
-						backgroundColor: '#f5f5f5',
 						borderRadius: '8px',
 						padding: '8px',
 						margin: '16px',
@@ -1251,19 +1264,6 @@ const Top = () => {
 			{/* Past staff comment history block (Student sees own, Staff sees target student's) */}
 			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && <HistoryComments targetStudentId={role === 'Student' ? null : studentId} />}
 
-			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id && currentDraft.status === 'submitted' ? (
-				<Box
-					sx={{
-						my: 2,
-						display: 'flex',
-						justifyContent: 'center',
-					}}
-				>
-					<Button onClick={() => updateDraftStatus(currentDraft.id)} variant='contained' color='warning' size='small' sx={{ width: '80%', height: '36px', fontSize: '18px' }}>
-						{t('start_checking')}
-					</Button>
-				</Box>
-			) : null}
 			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>

@@ -297,12 +297,13 @@ class DraftService {
 			pendingDraft.profile_data = newProfileData
 			pendingDraft.changed_fields = _.union(pendingDraft.changed_fields || [], changedKeys)
 
-			// If the current status is terminal or review-complete, reset to 'submitted'
-			if (['approved', 'disapproved', 'resubmission_required'].includes(pendingDraft.status)) {
-				pendingDraft.status = 'submitted'
-			}
-
 			await pendingDraft.save()
+
+			// Auto-approve staff edits and update live profile immediately
+			await Student.update(newProfileData, {
+				where: { student_id: studentId },
+			})
+
 			return { draft: pendingDraft, created: false }
 		} else {
 			// If pending draft does not exist, create a new one
@@ -312,9 +313,15 @@ class DraftService {
 				version_type: 'pending',
 				profile_data: newProfileData,
 				changed_fields: changedKeys,
-				status: 'submitted', // Default status for new pending drafts
+				status: 'checking', // Staff is already reviewing
 				submit_count: 1,
 			})
+
+			// Auto-approve and update live profile immediately
+			await Student.update(newProfileData, {
+				where: { student_id: studentId },
+			})
+
 			return { draft: pendingDraft, created: true }
 		}
 	}
@@ -431,7 +438,7 @@ class DraftService {
 			})
 		}
 
-		await Student.update({ visibility: false }, { where: { student_id: draft.student_id } })
+		// Don't change visibility on submit - let profile remain as is
 		return pendingDraft
 	}
 	/**
