@@ -291,6 +291,13 @@ class DraftService {
 			},
 		})
 
+		// Check if student profile is already public (has been approved before)
+		const student = await Student.findOne({
+			where: { student_id: studentId },
+			attributes: ['visibility'],
+		})
+		const isAlreadyPublic = student && student.visibility === true
+
 		if (pendingDraft) {
 			const oldProfileData = pendingDraft.profile_data || {}
 			const changedKeys = getChangedKeys(newProfileData, oldProfileData)
@@ -299,10 +306,12 @@ class DraftService {
 
 			await pendingDraft.save()
 
-			// Auto-approve staff edits and update live profile immediately
-			await Student.update(newProfileData, {
-				where: { student_id: studentId },
-			})
+			// If profile is already public, auto-update live (no approval needed for corrections)
+			if (isAlreadyPublic) {
+				await Student.update(newProfileData, {
+					where: { student_id: studentId },
+				})
+			}
 
 			return { draft: pendingDraft, created: false }
 		} else {
@@ -317,10 +326,12 @@ class DraftService {
 				submit_count: 1,
 			})
 
-			// Auto-approve and update live profile immediately
-			await Student.update(newProfileData, {
-				where: { student_id: studentId },
-			})
+			// If profile is already public, auto-update live
+			if (isAlreadyPublic) {
+				await Student.update(newProfileData, {
+					where: { student_id: studentId },
+				})
+			}
 
 			return { draft: pendingDraft, created: true }
 		}
