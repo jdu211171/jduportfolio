@@ -279,8 +279,8 @@ class DraftService {
 	}
 
 	/**
-	 * Creates or updates a pending draft (for staff edits).
-	 * This is used when staff members edit a student's pending draft.
+	 * Creates or updates a pending draft when staff members edit a student's profile under review.
+	 * This is used when staff/admin edit a student's pending draft.
 	 * Always targets the 'pending' version_type.
 	 */
 	static async upsertPendingDraft(studentId, newProfileData) {
@@ -297,6 +297,11 @@ class DraftService {
 			pendingDraft.profile_data = newProfileData
 			pendingDraft.changed_fields = _.union(pendingDraft.changed_fields || [], changedKeys)
 
+			// If the current status is terminal or review-complete, reset to 'submitted'
+			if (['approved', 'disapproved', 'resubmission_required'].includes(pendingDraft.status)) {
+				pendingDraft.status = 'submitted'
+			}
+
 			await pendingDraft.save()
 			return { draft: pendingDraft, created: false }
 		} else {
@@ -308,6 +313,7 @@ class DraftService {
 				profile_data: newProfileData,
 				changed_fields: changedKeys,
 				status: 'submitted', // Default status for new pending drafts
+				submit_count: 1,
 			})
 			return { draft: pendingDraft, created: true }
 		}

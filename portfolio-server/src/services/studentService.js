@@ -484,7 +484,7 @@ class StudentService {
 
 			// For Staff/Admin viewing: use pending draft if available and submitted for review
 			if ((requesterRole === 'Staff' || requesterRole === 'Admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
-				if (['submitted', 'checking', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
+				if (['submitted', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
 					shouldMergeDraft = true
 					draftToMerge = studentJson.pendingDraft
 					// Keep both draft and pendingDraft in response for staff
@@ -556,7 +556,7 @@ class StudentService {
 
 			// For Staff/Admin viewing: use pending draft if available and submitted for review
 			if ((requesterRole === 'Staff' || requesterRole === 'Admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
-				if (['submitted', 'checking', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
+				if (['submitted', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
 					shouldMergeDraft = true
 					draftToMerge = studentJson.pendingDraft
 					// Keep both draft and pendingDraft in response for staff
