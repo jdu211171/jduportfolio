@@ -461,39 +461,14 @@ class DraftService {
 
 		await draft.save()
 
-		// On approval, promote pending to live and refresh draft
+		// On approval, promote pending to live
 		if (status.toLowerCase() === 'approved') {
 			// Update live profile (Student table)
 			await Student.update(draft.profile_data, {
 				where: { student_id: draft.student_id },
 			})
 
-			// Create or update draft version with the new live data
-			let draftVersion = await Draft.findOne({
-				where: {
-					student_id: draft.student_id,
-					version_type: 'draft',
-				},
-			})
-
-			if (draftVersion) {
-				// Update existing draft with live data
-				draftVersion.profile_data = draft.profile_data
-				draftVersion.status = 'draft'
-				draftVersion.changed_fields = []
-				draftVersion.comments = null
-				draftVersion.reviewed_by = null
-				await draftVersion.save()
-			} else {
-				// Create new draft seeded from live
-				await Draft.create({
-					student_id: draft.student_id,
-					version_type: 'draft',
-					profile_data: draft.profile_data,
-					status: 'draft',
-					changed_fields: [],
-				})
-			}
+			// Do NOT touch the draft version - let students continue editing independently
 		}
 
 		return draft

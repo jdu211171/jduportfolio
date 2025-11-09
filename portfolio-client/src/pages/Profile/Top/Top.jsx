@@ -1005,7 +1005,8 @@ const Top = () => {
 			// Always use PUT for upsert approach (backend uses PUT method)
 			const res = await axios.put(`/api/draft`, draftData)
 
-			setCurrentDraft(res.data.draft || res.data)
+			const savedDraft = res.data.draft || res.data
+			setCurrentDraft(savedDraft)
 			setHasDraft(true)
 
 			// Update student data with new deliverables
@@ -1016,6 +1017,12 @@ const Top = () => {
 					deliverables: updatedDeliverables,
 				},
 			}
+
+			// For staff editing pending, also update currentPending
+			if (role === 'Staff' || role === 'Admin') {
+				setCurrentPending(savedDraft)
+			}
+
 			setStudent(updatedStudent)
 			setEditData(updatedStudent)
 
@@ -1118,7 +1125,7 @@ const Top = () => {
 	return (
 		<Box mb={2}>
 			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : (role === 'Student' || role === 'Staff' || role === 'Admin') ? portalContent : null}
+			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : role === 'Student' || role === 'Staff' || role === 'Admin' ? portalContent : null}
 
 			{/* Live/Draft Toggle for Students */}
 			{role === 'Student' && !editMode && liveData && (
