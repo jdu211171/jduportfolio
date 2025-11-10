@@ -22,6 +22,10 @@ module.exports = sequelize => {
 				scope: { moderatorType: 'Staff' },
 				as: 'moderatorStaff',
 			})
+			Staff.hasMany(models.Draft, {
+				foreignKey: 'reviewed_by',
+				as: 'reviewedDrafts',
+			})
 		}
 	}
 

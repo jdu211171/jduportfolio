@@ -866,7 +866,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 	// Don't render buttons if component is used from Top page
 	const portalContent = !isFromTopPage ? (
 		<Box className={styles.buttonsContainer}>
-			{(role == 'Student' || role == 'Admin') && (
+			{(role == 'Student' || role == 'Admin' || role == 'Staff') && (
 				<>
 					{editMode ? (
 						<>
@@ -883,7 +883,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 									</Button>
 								</>
 							)}
-							{!isHonban && (
+							{!isHonban && (role == 'Student' || role == 'Staff') && (
 								<Button onClick={() => handleDraftUpsert(true)} variant='contained' color='primary' size='small'>
 									{t('updateDraft')}
 								</Button>
@@ -912,6 +912,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 							<Button onClick={toggleEditMode} variant='contained' color='primary' size='small'>
 								{role == 'Student' ? t('editProfile') : ''}
 								{role == 'Admin' ? t('q_edit') : ''}
+								{role == 'Staff' ? t('editProfile') : ''}
 							</Button>
 						</>
 					)}
@@ -981,7 +982,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 					<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
 						<SortableContext items={Object.keys(getCategoryData(subTabIndex))} strategy={verticalListSortingStrategy}>
 							{Object.entries(getCategoryData(subTabIndex)).map(([key, { question }]) => (
-								<SortableQATextField key={key} id={key} data={studentQA} editData={editData} category={labels[subTabIndex]} question={question} keyName={key} aEdit={role == 'Admin'} qEdit={role == 'Student'} updateEditData={handleUpdate} DeleteQA={showDeleteConfirmation} isReorderMode={isReorderMode && role === 'Admin'} />
+								<SortableQATextField key={key} id={key} data={studentQA} editData={editData} category={labels[subTabIndex]} question={question} keyName={key} aEdit={role == 'Admin'} qEdit={role == 'Student' || role == 'Staff'} updateEditData={handleUpdate} DeleteQA={showDeleteConfirmation} isReorderMode={isReorderMode && role === 'Admin'} />
 							))}
 						</SortableContext>
 					</DndContext>

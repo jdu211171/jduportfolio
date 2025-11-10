@@ -166,6 +166,7 @@ fix(server): validate companyVideoUrl as JSON
 3. Create a Pull Request on GitHub
 
 4. Fill out the PR template with:
+
    - Clear description of changes
    - Link to related issues
    - Screenshots for UI changes

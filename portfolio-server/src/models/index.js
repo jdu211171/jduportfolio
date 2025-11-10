@@ -111,10 +111,26 @@ db.Recruiter.hasMany(db.Bookmark, {
 	as: 'bookmarks',
 })
 db.Student.hasMany(db.Bookmark, { foreignKey: 'studentId', as: 'bookmarks' })
+db.Student.hasMany(db.Draft, {
+	foreignKey: 'student_id',
+	sourceKey: 'student_id',
+	as: 'drafts',
+})
 db.Student.hasOne(db.Draft, {
-	foreignKey: 'student_id', // Tells Sequelize Drafts should refer to Student.student_id
-	sourceKey: 'student_id', // Explicitly set source key on Student table
+	foreignKey: 'student_id',
+	sourceKey: 'student_id',
 	as: 'draft',
+	scope: {
+		version_type: 'draft',
+	},
+})
+db.Student.hasOne(db.Draft, {
+	foreignKey: 'student_id',
+	sourceKey: 'student_id',
+	as: 'pendingDraft',
+	scope: {
+		version_type: 'pending',
+	},
 })
 
 db.Bookmark.belongsTo(db.Recruiter, {
@@ -126,6 +142,14 @@ db.Draft.belongsTo(db.Student, {
 	foreignKey: 'student_id', // This tells Drafts how to reference Student
 	targetKey: 'student_id', // Ensures it joins using Student.student_id, not Student.id
 	as: 'student',
+})
+db.Draft.belongsTo(db.Staff, {
+	foreignKey: 'reviewed_by',
+	as: 'reviewer',
+})
+db.Staff.hasMany(db.Draft, {
+	foreignKey: 'reviewed_by',
+	as: 'reviewedDrafts',
 })
 
 module.exports = {

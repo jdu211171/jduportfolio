@@ -16,6 +16,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const t = key => translations[language][key] || key
 	const [filterState, setFilterState] = useState({
 		search: '',
+		reviewerId: null, // Track active reviewer filter
 	})
 	const [warningModal, setWarningModal] = useState({
 		open: false,
@@ -104,22 +105,10 @@ const Student = ({ OnlyBookmarked = false }) => {
 			minWidth: '160px',
 		},
 		{
-			key: 'draft_status',
-			label: t('confirmationStatus'),
-			type: 'checkbox',
-			options: [
-				t('submitted'),
-				t('checking'),
-				//t("resubmission_required"),
-				t('approved'),
-			],
-			minWidth: '160px',
-		},
-		{
 			key: 'approval_status',
 			label: t('approvalStatus'),
 			type: 'checkbox',
-			options: [t('not_approved_yet'), t('approved'), t('disapproved')],
+			options: [t('approval_status_unconfirmed'), t('approval_status_in_review'), t('approval_status_returned'), t('approval_status_approved')],
 			minWidth: '160px',
 		},
 		{
@@ -133,6 +122,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const handleFilterChange = newFilterState => {
 		setFilterState(newFilterState)
+	}
+
+	const handleReviewerClick = reviewerId => {
+		// Toggle filter: if same reviewer clicked, deactivate filter; otherwise activate
+		setFilterState(prev => ({
+			...prev,
+			reviewerId: prev.reviewerId === reviewerId ? null : reviewerId,
+		}))
 	}
 
 	const navigate = useNavigate()
@@ -179,8 +176,9 @@ const Student = ({ OnlyBookmarked = false }) => {
 			if (visibility) {
 				const draftsResponse = await axios.get(`/api/draft/student/${studentId}`)
 
-				if (draftsResponse.data && draftsResponse.data.draft && draftsResponse.data.draft.status === 'approved') {
-					const profileData = draftsResponse.data.draft.profile_data || {}
+				// Check pendingDraft status instead of draft, as approvals happen on pending versions
+				if (draftsResponse.data && draftsResponse.data.pendingDraft && draftsResponse.data.pendingDraft.status === 'approved') {
+					const profileData = draftsResponse.data.pendingDraft.profile_data || {}
 
 					// Use studentId (student_id) for API calls
 					const res = await axios.put(`/api/students/${studentId}`, {
@@ -307,27 +305,24 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'status_icon',
 			numeric: false,
 			disablePadding: false,
-			label: '確認状況',
-			minWidth: '100px',
-			statusMap: {
-				submitted: { icon: 'pending', color: '#ff9800', text: '未確認' },
-				checking: { icon: 'pending', color: '#ff9800', text: '確認中' },
-				resubmission_required: {
-					icon: 'approved',
-					color: '#4caf50',
-					text: '確認済',
-				},
-				approved: { icon: 'approved', color: '#4caf50', text: '承認済' },
-			},
-		},
-		{
-			id: 'confirmation_status',
-			keyIdentifier: 'approval_status',
-			type: 'confirmation_status',
-			numeric: false,
-			disablePadding: false,
 			label: '承認状況',
 			minWidth: '100px',
+			statusMap: {
+				submitted: { icon: 'pending', color: '#ff9800', text: t('approval_status_unconfirmed') },
+				checking: { icon: 'pending', color: '#2196f3', text: t('approval_status_in_review') },
+				resubmission_required: {
+					icon: 'rejected',
+					color: '#f44336',
+					text: t('approval_status_returned'),
+				},
+				disapproved: {
+					icon: 'rejected',
+					color: '#f44336',
+					text: t('approval_status_returned'),
+				},
+				approved: { icon: 'approved', color: '#4caf50', text: t('approval_status_approved') },
+			},
+			onReviewerClick: handleReviewerClick,
 		},
 		{
 			id: 'visibility',
@@ -338,7 +333,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: '公開状況',
 			minWidth: '100px',
 			onToggle: (row, visibility) => setProfileVisibility(row.student_id, visibility),
-			disabled: role === 'Staff', // Disable for staff users
+			disabled: role !== 'Admin', // Only admins can toggle visibility
 		},
 		{
 			id: 'email',

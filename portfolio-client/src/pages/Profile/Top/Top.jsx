@@ -225,9 +225,12 @@ const Top = () => {
 		id = studentId
 	}
 	const [student, setStudent] = useState(null)
+	const [liveData, setLiveData] = useState(null) // Live profile data from Students table
 	const [editData, setEditData] = useAtom(editDataAtom)
 	const [editMode, setEditMode] = useAtom(editModeAtom)
+	const [viewingLive, setViewingLive] = useState(false) // Toggle between Live and Draft view
 	const [currentDraft, setCurrentDraft] = useState({})
+	const [currentPending, setCurrentPending] = useState(null) // Pending draft for staff review
 	const [updateQA, SetUpdateQA] = useAtom(updateQAAtom)
 	const [newImages, setNewImages] = useAtom(newImagesAtom)
 	const [deletedUrls, setDeletedUrls] = useAtom(deletedUrlsAtom)
@@ -404,7 +407,7 @@ const Top = () => {
 			setIsLoading(true)
 			try {
 				if (statedata) {
-					handleStateData()
+					await handleStateData()
 				} else {
 					if (role === 'Student') {
 						await fetchDraftData()
@@ -463,9 +466,29 @@ const Top = () => {
 		loadData()
 	}, [id, role, statedata])
 
-	const handleStateData = () => {
+	const handleStateData = async () => {
 		if (statedata.draft) {
 			setDraft(statedata.draft)
+
+			// Auto-update to 'checking' status when staff views submitted draft
+			if (role === 'Staff' && statedata.draft.status === 'submitted') {
+				const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+				if (staffId) {
+					try {
+						await axios.put(`/api/draft/status/${statedata.draft.id}`, {
+							status: 'checking',
+							reviewed_by: staffId,
+						})
+						// Update local state
+						statedata.draft.status = 'checking'
+						statedata.draft.reviewed_by = staffId
+						setDraft({ ...statedata.draft })
+					} catch (error) {
+						console.error('Failed to auto-update draft status:', error)
+					}
+				}
+			}
+
 			if (statedata.draft.status === 'checking' || statedata.draft.status === 'approved') {
 				// Status is checking or approved
 			} else {
@@ -506,17 +529,48 @@ const Top = () => {
 			if (response.data) {
 				const studentData = { ...response.data }
 				const draftData = studentData.draft
+				const pendingData = studentData.pendingDraft
 				delete studentData.draft
+				delete studentData.pendingDraft
 
+				// Store Live data (from Students table)
+				const liveProfileData = {
+					...studentData,
+					draft: mapData(studentData).draft, // Parse live data for display
+				}
+				setLiveData(liveProfileData)
+
+				// Handle Draft version
 				if (draftData) {
 					setCurrentDraft(draftData)
 					setHasDraft(true)
+				}
 
-					if (draftData.status === 'checking' || draftData.status === 'approved') {
-						// Status is checking or approved
+				// Handle Pending version (for staff review)
+				if (pendingData) {
+					setCurrentPending(pendingData)
+
+					// Auto-update to 'checking' status and bind reviewer when staff views submitted draft
+					if (role === 'Staff' && pendingData.status === 'submitted') {
+						const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+						if (staffId) {
+							try {
+								await axios.put(`/api/draft/status/${pendingData.id}`, {
+									status: 'checking',
+									reviewed_by: staffId,
+								})
+								// Update local state
+								pendingData.status = 'checking'
+								pendingData.reviewed_by = staffId
+								setCurrentPending({ ...pendingData })
+							} catch (error) {
+								console.error('Failed to auto-update draft status:', error)
+							}
+						}
 					}
 				}
 
+				// Set default view data (Draft for editing, Live for viewing)
 				const mappedData = {
 					...studentData,
 					draft: draftData ? draftData.profile_data : {},
@@ -555,15 +609,40 @@ const Top = () => {
 			// Always parse JSON fields first using mapData
 			const parsedStudentData = mapData(studentData)
 
-			// Admin uchun draft ma'lumotlarini to'g'ri o'rnatish
-			if (studentData.draft && studentData.draft.profile_data) {
-				setCurrentDraft(studentData.draft)
+			// Store Live data
+			setLiveData(parsedStudentData)
+
+			// Staff/Admin view: use pending draft for review if available
+			const draftData = studentData.draft
+			const pendingData = studentData.pendingDraft
+
+			// Set current pending for staff comment display
+			if (pendingData) {
+				setCurrentPending(pendingData)
+			}
+
+			// Recruiters should ONLY see live data, not drafts
+			if (role === 'Recruiter') {
+				setStudent(parsedStudentData)
+				setEditData(parsedStudentData)
+				updateOriginalData(parsedStudentData)
+				clearStorage()
+				setHasDraft(false)
+				SetUpdateQA(!updateQA)
+				return
+			}
+
+			// For staff/admin review, prioritize pending draft
+			const reviewDraft = pendingData || draftData
+
+			if (reviewDraft && reviewDraft.profile_data) {
+				setCurrentDraft(reviewDraft)
 				setHasDraft(true)
 
-				// Merge parsed base data with draft data
+				// Merge parsed base data with review draft data
 				const mappedData = {
 					...parsedStudentData,
-					draft: studentData.draft.profile_data || {},
+					draft: reviewDraft.profile_data || {},
 				}
 
 				setStudent(mappedData)
@@ -574,7 +653,7 @@ const Top = () => {
 				// Clear any stale localStorage data that might exist
 				clearStorage()
 			} else {
-				// Agar draft yo'q bo'lsa, parsed mapping
+				// If no draft exists, use parsed data
 				setStudent(parsedStudentData)
 				setEditData(parsedStudentData)
 				// Update the original data reference for change detection
@@ -710,22 +789,6 @@ const Top = () => {
 		SetUpdateQA(!updateQA)
 	}
 
-	const updateDraftStatus = async draftId => {
-		const res = await axios.put(`/api/draft/status/${draftId}`, {
-			status: 'checking',
-			reviewed_by: userId,
-		})
-		if (res.status === 200) {
-			showAlert(t('setToChecking'), 'success')
-			// Update the currentDraft state to reflect the new status
-			setCurrentDraft(prevDraft => ({
-				...prevDraft,
-				status: 'checking',
-				reviewed_by: userId,
-			}))
-		}
-	}
-
 	// Callback function to update currentDraft from child components
 	const updateCurrentDraft = newStatus => {
 		setCurrentDraft(prevDraft => ({
@@ -761,6 +824,23 @@ const Top = () => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [editData, editMode, role, student])
+
+	// Handle Live/Draft view switching for students
+	useEffect(() => {
+		if (role === 'Student' && !editMode && liveData) {
+			if (viewingLive) {
+				// Switch to Live view
+				setStudent(liveData)
+			} else {
+				// Switch to Draft view
+				const mappedData = {
+					...liveData,
+					draft: currentDraft?.profile_data || {},
+				}
+				setStudent(mappedData)
+			}
+		}
+	}, [viewingLive, role, editMode, liveData, currentDraft])
 
 	// Clear navigation flags on unmount
 	useEffect(() => {
@@ -959,7 +1039,8 @@ const Top = () => {
 			// Always use PUT for upsert approach (backend uses PUT method)
 			const res = await axios.put(`/api/draft`, draftData)
 
-			setCurrentDraft(res.data.draft || res.data)
+			const savedDraft = res.data.draft || res.data
+			setCurrentDraft(savedDraft)
 			setHasDraft(true)
 
 			// Update student data with new deliverables
@@ -970,6 +1051,12 @@ const Top = () => {
 					deliverables: updatedDeliverables,
 				},
 			}
+
+			// For staff editing pending, also update currentPending
+			if (role === 'Staff' || role === 'Admin') {
+				setCurrentPending(savedDraft)
+			}
+
 			setStudent(updatedStudent)
 			setEditData(updatedStudent)
 
@@ -1030,28 +1117,30 @@ const Top = () => {
 				</>
 			) : (
 				<>
-					<Button
-						onClick={() => {
-							// Clear any stale localStorage before entering edit mode
-							clearStorage()
-							setEditMode(true)
-							// Clear any old save status when entering edit mode
-							if (role === 'Student' || role === 'Recruiter') {
-								setSaveStatus({
-									isSaving: false,
-									lastSaved: null,
-									hasUnsavedChanges: false,
-								})
-							}
-						}}
-						variant='contained'
-						color='primary'
-						size='small'
-					>
-						{t('editProfile')}
-					</Button>
+					{!(role === 'Student' && viewingLive) && (
+						<Button
+							onClick={() => {
+								// Clear any stale localStorage before entering edit mode
+								clearStorage()
+								setEditMode(true)
+								// Clear any old save status when entering edit mode
+								if (role === 'Student' || role === 'Recruiter') {
+									setSaveStatus({
+										isSaving: false,
+										lastSaved: null,
+										hasUnsavedChanges: false,
+									})
+								}
+							}}
+							variant='contained'
+							color='primary'
+							size='small'
+						>
+							{t('editProfile')}
+						</Button>
+					)}
 
-					{hasDraft && currentDraft && (
+					{role === 'Student' && hasDraft && currentDraft && !viewingLive && (
 						<Button onClick={toggleConfirmMode} variant='contained' color='success' size='small' sx={{ ml: 1 }}>
 							{t('submitAgree')}
 						</Button>
@@ -1071,8 +1160,56 @@ const Top = () => {
 	}
 	return (
 		<Box mb={2}>
-			{/* ✅ Portal container mavjudligini tekshirish */}
-			{portalContainer && role === 'Student' ? createPortal(portalContent, portalContainer) : role === 'Student' ? portalContent : null}
+			{/* Portal edit buttons for both Students and Staff */}
+			{portalContainer && (role === 'Student' || role === 'Staff' || role === 'Admin') && createPortal(portalContent, portalContainer)}
+
+			{/* Live/Draft Toggle for Students */}
+			{role === 'Student' && !editMode && liveData && (
+				<Box
+					sx={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						borderRadius: '8px',
+						padding: '8px',
+						margin: '16px',
+						gap: '8px',
+					}}
+				>
+					<Button
+						onClick={() => setViewingLive(true)}
+						variant={viewingLive ? 'contained' : 'outlined'}
+						size='small'
+						sx={{
+							minWidth: '120px',
+							backgroundColor: viewingLive ? '#5627DB' : 'transparent',
+							color: viewingLive ? '#fff' : '#5627DB',
+							borderColor: '#5627DB',
+							'&:hover': {
+								backgroundColor: viewingLive ? '#4520A6' : 'rgba(86, 39, 219, 0.1)',
+							},
+						}}
+					>
+						{t('liveProfile') || '公開版'}
+					</Button>
+					<Button
+						onClick={() => setViewingLive(false)}
+						variant={!viewingLive ? 'contained' : 'outlined'}
+						size='small'
+						sx={{
+							minWidth: '120px',
+							backgroundColor: !viewingLive ? '#5627DB' : 'transparent',
+							color: !viewingLive ? '#fff' : '#5627DB',
+							borderColor: '#5627DB',
+							'&:hover': {
+								backgroundColor: !viewingLive ? '#4520A6' : 'rgba(86, 39, 219, 0.1)',
+							},
+						}}
+					>
+						{t('draftProfile') || '編集版'}
+					</Button>
+				</Box>
+			)}
 
 			<div
 				style={{
@@ -1106,8 +1243,8 @@ const Top = () => {
 				))}
 			</div>
 
-			{/* Staff Comment Display Section for Students */}
-			{role === 'Student' && subTabIndex === 0 && currentDraft && currentDraft.comments && (currentDraft.status === 'resubmission_required' || currentDraft.status === 'disapproved') && (
+			{/* Staff Comment Display Section for Students - show feedback from pending draft */}
+			{role === 'Student' && subTabIndex === 0 && currentPending && currentPending.comments && (currentPending.status === 'resubmission_required' || currentPending.status === 'disapproved') && (
 				<Box
 					sx={{
 						my: 2,
@@ -1139,7 +1276,7 @@ const Top = () => {
 								color: '#424242',
 							}}
 						>
-							{currentDraft.comments}
+							{currentPending.comments}
 						</pre>
 					</Box>
 					<Box sx={{ mt: 1, fontSize: '0.9em', color: '#666' }}>プロフィールを修正して再度提出してください。</Box>
@@ -1149,19 +1286,6 @@ const Top = () => {
 			{/* Past staff comment history block (Student sees own, Staff sees target student's) */}
 			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && <HistoryComments targetStudentId={role === 'Student' ? null : studentId} />}
 
-			{role === 'Staff' && !isLoading && currentDraft && currentDraft.id && currentDraft.status === 'submitted' ? (
-				<Box
-					sx={{
-						my: 2,
-						display: 'flex',
-						justifyContent: 'center',
-					}}
-				>
-					<Button onClick={() => updateDraftStatus(currentDraft.id)} variant='contained' color='warning' size='small' sx={{ width: '80%', height: '36px', fontSize: '18px' }}>
-						{t('start_checking')}
-					</Button>
-				</Box>
-			) : null}
 			{/* self introduction */}
 			{subTabIndex === 0 && (
 				<Box my={2}>
@@ -1720,7 +1844,7 @@ const Top = () => {
 			{/* deliverables */}
 			{subTabIndex === 2 && (
 				<Box my={2}>
-					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} />
+					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} studentId={student.student_id || id} />
 				</Box>
 			)}
 			{/* Credits section is temporarily disabled */}

@@ -8,11 +8,12 @@ import axios from '../../utils/axiosUtils'
 import PropTypes from 'prop-types'
 import styles from './Deliverables.module.css'
 
-const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName = false }) => {
+const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName = false, studentId = null }) => {
 	const { language } = useLanguage()
 	const showAlert = useAlert()
 	const t = key => translations[language][key] || key
 	const fileInputRef = useRef(null)
+	const role = sessionStorage.getItem('role')
 
 	// Safely convert possible JSON string into an array
 	const toArray = value => {
@@ -172,6 +173,11 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName =
 			formDataToSend.append('codeLink', formData.codeLink)
 			formDataToSend.append('role', formData.role)
 
+			// Add student_id if Staff/Admin editing
+			if ((role === 'Staff' || role === 'Admin') && studentId) {
+				formDataToSend.append('student_id', studentId)
+			}
+
 			selectedFiles.forEach(file => {
 				formDataToSend.append('files', file)
 			})
@@ -217,6 +223,11 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName =
 			formDataToSend.append('codeLink', formData.codeLink)
 			formDataToSend.append('role', formData.role)
 
+			// Add student_id if Staff/Admin editing
+			if ((role === 'Staff' || role === 'Admin') && studentId) {
+				formDataToSend.append('student_id', studentId)
+			}
+
 			if (selectedFiles.length > 0) {
 				selectedFiles.forEach(file => {
 					formDataToSend.append('files', file)
@@ -261,7 +272,13 @@ const Deliverables = ({ data = [], editData, editMode, updateEditData, keyName =
 
 		setLoading(true)
 		try {
-			const response = await axios.delete(`/api/deliverables/${deliverableId}`)
+			// For Staff/Admin, we need to pass student_id in the request body
+			const config = {}
+			if ((role === 'Staff' || role === 'Admin') && studentId) {
+				config.data = { student_id: studentId }
+			}
+
+			const response = await axios.delete(`/api/deliverables/${deliverableId}`, config)
 
 			// Update local state
 			const updatedDeliverables = response.data.profile_data?.deliverables || []
@@ -887,6 +904,7 @@ Deliverables.propTypes = {
 	onImageUpload: PropTypes.func,
 	resetPreviews: PropTypes.bool,
 	isChanged: PropTypes.bool,
+	studentId: PropTypes.string,
 }
 
 export default Deliverables

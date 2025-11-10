@@ -1,4 +1,6 @@
-const { Draft, Student, sequelize } = require('../models')
+const models = require('../models')
+const { Draft, Student, sequelize } = models
+const { Staff } = models
 const SettingsService = require('./settingService')
 const QAService = require('./qaService')
 const _ = require('lodash') // Used for deep object comparison
@@ -38,14 +40,29 @@ class DraftService {
 			const statusMapping = {
 				未確認: 'submitted',
 				確認中: 'checking',
+				差し戻し: 'resubmission_required',
 				要修正: 'resubmission_required',
 				確認済: 'approved',
 			}
 
 			// New mapping for approval_status filter
 			const approvalStatusMapping = {
-				未承認: ['draft', 'submitted', 'checking'],
+				未確認: ['submitted'],
+				確認中: ['checking'],
 				承認済: ['approved'],
+				Unconfirmed: ['submitted'],
+				'In review': ['checking'],
+				Returned: ['resubmission_required', 'disapproved'],
+				Approved: ['approved'],
+				Tasdiqlanmagan: ['submitted'],
+				Tekshirilmoqda: ['checking'],
+				Qaytarilgan: ['resubmission_required', 'disapproved'],
+				Tasdiqlangan: ['approved'],
+				'Не подтверждено': ['submitted'],
+				'На проверке': ['checking'],
+				Возвращено: ['resubmission_required', 'disapproved'],
+				Одобрено: ['approved'],
+				未承認: ['draft', 'submitted', 'checking'],
 				差し戻し: ['resubmission_required', 'disapproved'],
 			}
 
@@ -107,6 +124,13 @@ class DraftService {
 				approvalStatusFilter = draftStatuses.length ? `AND d.status IN (${draftStatuses.map(s => `'${s}'`).join(', ')})` : ''
 
 				delete filter.approval_status // Remove to avoid double handling
+			}
+
+			// Process reviewerId filter
+			let reviewerFilter = ''
+			if (filter.reviewerId) {
+				reviewerFilter = `AND d.reviewed_by = ${parseInt(filter.reviewerId)}`
+				delete filter.reviewerId // Remove to avoid double handling
 			}
 
 			Object.keys(filter).forEach(key => {
@@ -183,7 +207,7 @@ class DraftService {
 
 			query[Op.and].push(querySearch, queryOther, { active: true })
 
-			// Combine status filters (combine draft_status and approval_status)
+			// Combine status filters and reviewer filter
 			let combinedStatusFilter = ''
 			if (statusFilter && approvalStatusFilter) {
 				// If both filters are specified, use OR logic between them
@@ -194,8 +218,11 @@ class DraftService {
 				combinedStatusFilter = statusFilter || approvalStatusFilter
 			}
 
+			// Add reviewer filter if present
+			const allFilters = [combinedStatusFilter, reviewerFilter].filter(Boolean).join(' ')
+
 			console.log('Final query object:', JSON.stringify(query, null, 2))
-			console.log('Combined status filter:', combinedStatusFilter)
+			console.log('Combined filters:', allFilters)
 
 			const students = await Student.findAll({
 				where: query,
@@ -205,7 +232,7 @@ class DraftService {
 				include: [
 					{
 						model: Draft,
-						as: 'draft',
+						as: 'pendingDraft',
 						required: true,
 						where: {
 							status: { [Op.ne]: 'draft' },
@@ -214,15 +241,32 @@ class DraftService {
                               (SELECT MAX("updated_at") 
                               FROM "Drafts" AS d
                               WHERE d.student_id = "Student".student_id
-                              AND d.status != 'draft' ${combinedStatusFilter})
+                              AND d.version_type = 'pending'
+                              AND d.status != 'draft' ${allFilters})
                           `),
 							},
 						},
+						include: [
+							{
+								model: Staff,
+								as: 'reviewer',
+								attributes: ['id', 'first_name', 'last_name', 'email'],
+								required: false, // Left join - not all drafts have reviewers
+							},
+						],
 					},
 				],
 			})
 
-			return students
+			// Map pendingDraft to draft for backward compatibility with frontend
+			return students.map(student => {
+				const studentJson = student.toJSON()
+				return {
+					...studentJson,
+					draft: studentJson.pendingDraft,
+					pendingDraft: undefined,
+				}
+			})
 		} catch (error) {
 			console.error('DraftService.getAll error:', error)
 			console.error('Error message:', error.message)
@@ -233,9 +277,15 @@ class DraftService {
 	/**
 	 * Creates a new draft or updates an existing one (upsert).
 	 * This is the primary method for student edits.
+	 * Always targets the 'draft' version_type.
 	 */
 	static async upsertDraft(studentId, newProfileData) {
-		let draft = await Draft.findOne({ where: { student_id: studentId } })
+		let draft = await Draft.findOne({
+			where: {
+				student_id: studentId,
+				version_type: 'draft',
+			},
+		})
 
 		if (draft) {
 			const oldProfileData = draft.profile_data || {}
@@ -254,6 +304,7 @@ class DraftService {
 			const changedKeys = Object.keys(newProfileData) // All fields are considered new
 			draft = await Draft.create({
 				student_id: studentId,
+				version_type: 'draft',
 				profile_data: newProfileData,
 				changed_fields: changedKeys,
 				status: 'draft',
@@ -261,9 +312,76 @@ class DraftService {
 			return { draft, created: true }
 		}
 	}
+
+	/**
+	 * Creates or updates a pending draft when staff members edit a student's profile under review.
+	 * This is used when staff/admin edit a student's pending draft.
+	 * Always targets the 'pending' version_type.
+	 */
+	static async upsertPendingDraft(studentId, newProfileData) {
+		let pendingDraft = await Draft.findOne({
+			where: {
+				student_id: studentId,
+				version_type: 'pending',
+			},
+		})
+
+		// Check if student profile is already public (has been approved before)
+		const student = await Student.findOne({
+			where: { student_id: studentId },
+			attributes: ['visibility'],
+		})
+		const isAlreadyPublic = student && student.visibility === true
+
+		// Check if there's a fresh student submission pending review
+		// If status is 'submitted' or 'checking', it means student submitted recently
+		const hasFreshStudentSubmission = pendingDraft && ['submitted', 'checking'].includes(pendingDraft.status)
+
+		// Only auto-approve if profile is public AND there's NO fresh student submission
+		const shouldAutoApprove = isAlreadyPublic && !hasFreshStudentSubmission
+
+		if (pendingDraft) {
+			const oldProfileData = pendingDraft.profile_data || {}
+			const changedKeys = getChangedKeys(newProfileData, oldProfileData)
+			pendingDraft.profile_data = newProfileData
+			pendingDraft.changed_fields = _.union(pendingDraft.changed_fields || [], changedKeys)
+
+			await pendingDraft.save()
+
+			// If profile is public and no fresh student submission, auto-update live
+			if (shouldAutoApprove) {
+				await Student.update(newProfileData, {
+					where: { student_id: studentId },
+				})
+			}
+
+			return { draft: pendingDraft, created: false }
+		} else {
+			// If pending draft does not exist, create a new one
+			const changedKeys = Object.keys(newProfileData) // All fields are considered new
+			pendingDraft = await Draft.create({
+				student_id: studentId,
+				version_type: 'pending',
+				profile_data: newProfileData,
+				changed_fields: changedKeys,
+				status: 'checking', // Staff is already reviewing
+				submit_count: 1,
+			})
+
+			// Auto-approve only if no fresh submission exists
+			if (shouldAutoApprove) {
+				await Student.update(newProfileData, {
+					where: { student_id: studentId },
+				})
+			}
+
+			return { draft: pendingDraft, created: true }
+		}
+	}
+
 	/**
 	 * Submits a draft for review.
-	 * Enforces the rule that a draft cannot be submitted if already in 'submitted' state.
+	 * Clones the Draft version to Pending version.
 	 */
 	static async submitForReview(draftId) {
 		const draft = await Draft.findByPk(draftId)
@@ -271,7 +389,20 @@ class DraftService {
 			throw new Error('Qoralama topilmadi.')
 		}
 
-		if (draft.status === 'submitted') {
+		if (draft.version_type !== 'draft') {
+			throw new Error('Faqat draft versiyasini yuborish mumkin.')
+		}
+
+		// Check if there's already a pending version under review
+		const existingPending = await Draft.findOne({
+			where: {
+				student_id: draft.student_id,
+				version_type: 'pending',
+				status: 'submitted',
+			},
+		})
+
+		if (existingPending) {
 			throw new Error('Sizda allaqachon tekshiruvga yuborilgan faol qoralama mavjud. Yangisini yuborish uchun avvalgisining natijasini kuting.')
 		}
 
@@ -331,22 +462,52 @@ class DraftService {
 			throw e
 		}
 
-		draft.status = 'submitted'
-		draft.submit_count += 1
-		draft.comments = null
+		// Create or update pending version
+		let pendingDraft = await Draft.findOne({
+			where: {
+				student_id: draft.student_id,
+				version_type: 'pending',
+			},
+		})
 
-		await Student.update({ visibility: false }, { where: { student_id: draft.student_id } })
-		await draft.save()
-		return draft
+		if (pendingDraft) {
+			// Update existing pending draft
+			pendingDraft.profile_data = draft.profile_data
+			pendingDraft.changed_fields = draft.changed_fields
+			pendingDraft.status = 'submitted'
+			pendingDraft.submit_count += 1
+			pendingDraft.comments = null
+			pendingDraft.reviewed_by = null
+			await pendingDraft.save()
+		} else {
+			// Create new pending draft
+			pendingDraft = await Draft.create({
+				student_id: draft.student_id,
+				version_type: 'pending',
+				profile_data: draft.profile_data,
+				changed_fields: draft.changed_fields,
+				status: 'submitted',
+				submit_count: 1,
+			})
+		}
+
+		// Don't change visibility on submit - let profile remain as is
+		return pendingDraft
 	}
 	/**
-	 * Updates the status of a draft by a staff member.
+	 * Updates the status of a pending draft by a staff member.
+	 * On approval, promotes Pending → Live and creates a fresh Draft from Live.
 	 * Clears the changed_fields array upon review completion.
 	 */
 	static async updateStatusByStaff(draftId, status, comments, reviewedBy) {
 		const draft = await Draft.findByPk(draftId)
 		if (!draft) {
 			throw new Error('Qoralama topilmadi.')
+		}
+
+		// Staff should only update pending versions
+		if (draft.version_type !== 'pending') {
+			throw new Error('Staff can only review pending versions.')
 		}
 
 		draft.status = status
@@ -359,6 +520,17 @@ class DraftService {
 		}
 
 		await draft.save()
+
+		// On approval, promote pending to live
+		if (status.toLowerCase() === 'approved') {
+			// Update live profile (Student table)
+			await Student.update(draft.profile_data, {
+				where: { student_id: draft.student_id },
+			})
+
+			// Do NOT touch the draft version - let students continue editing independently
+		}
+
 		return draft
 	}
 
@@ -367,7 +539,7 @@ class DraftService {
 	}
 
 	static async getStudentWithDraft(studentId) {
-		return Student.findOne({
+		const student = await Student.findOne({
 			where: { student_id: studentId },
 			attributes: {
 				exclude: ['password', 'createdAt', 'updatedAt'],
@@ -375,11 +547,27 @@ class DraftService {
 			include: [
 				{
 					model: Draft,
-					as: 'draft',
+					as: 'drafts',
 					required: false,
 				},
 			],
 		})
+
+		if (!student) {
+			return null
+		}
+
+		// Separate drafts by version_type for easier frontend consumption
+		const studentData = student.toJSON()
+		const draftVersion = studentData.drafts?.find(d => d.version_type === 'draft') || null
+		const pendingVersion = studentData.drafts?.find(d => d.version_type === 'pending') || null
+
+		return {
+			...studentData,
+			draft: draftVersion,
+			pendingDraft: pendingVersion,
+			drafts: undefined, // Remove the raw drafts array
+		}
 	}
 
 	static async delete(id) {
