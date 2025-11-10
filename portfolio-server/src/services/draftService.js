@@ -38,14 +38,29 @@ class DraftService {
 			const statusMapping = {
 				未確認: 'submitted',
 				確認中: 'checking',
+				差し戻し: 'resubmission_required',
 				要修正: 'resubmission_required',
 				確認済: 'approved',
 			}
 
 			// New mapping for approval_status filter
 			const approvalStatusMapping = {
-				未承認: ['draft', 'submitted', 'checking'],
+				未確認: ['submitted'],
+				確認中: ['checking'],
 				承認済: ['approved'],
+				Unconfirmed: ['submitted'],
+				'In review': ['checking'],
+				Returned: ['resubmission_required', 'disapproved'],
+				Approved: ['approved'],
+				Tasdiqlanmagan: ['submitted'],
+				Tekshirilmoqda: ['checking'],
+				Qaytarilgan: ['resubmission_required', 'disapproved'],
+				Tasdiqlangan: ['approved'],
+				'Не подтверждено': ['submitted'],
+				'На проверке': ['checking'],
+				Возвращено: ['resubmission_required', 'disapproved'],
+				Одобрено: ['approved'],
+				未承認: ['draft', 'submitted', 'checking'],
 				差し戻し: ['resubmission_required', 'disapproved'],
 			}
 

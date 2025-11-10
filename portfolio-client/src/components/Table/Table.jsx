@@ -572,8 +572,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	return '90px'
 																case '承認状況':
 																	return '135px'
-																case '確認状況':
-																	return '135px'
 																case '公開状況':
 																	return '120px'
 																default:
@@ -748,103 +746,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																	>
 																		{changedFields.length}件の変更
 																	</Button>
-																)
-															})()}
-														</div>
-													) : header.type === 'confirmation_status' ? (
-														<div
-															style={{
-																display: 'flex',
-																alignItems: 'center',
-																justifyContent: 'center',
-																gap: '6px',
-																padding: '4px 8px',
-																borderRadius: '8px',
-															}}
-														>
-															{(() => {
-																// Checking logic based on draft status and visibility
-																const draftStatus = row.draft?.status
-																let color, icon, text
-
-																if (row.visibility === true) {
-																	// Agar visibility true bo'lsa - public/tasdiqlangan
-																	color = '#4caf50'
-																	icon = 'approved'
-																	text = '承認済'
-																} else if (draftStatus === 'submitted' || draftStatus === 'checking') {
-																	// Draft yuborilgan yoki tekshirilmoqda - checking holati
-																	color = '#ff9800'
-																	icon = 'pending'
-																	text = '未確認'
-																} else if (draftStatus === 'disapproved' || draftStatus === 'resubmission_required') {
-																	// Draft rad etilgan
-																	color = '#f44336'
-																	icon = 'rejected'
-																	text = '差し戻し'
-																} else {
-																	// Default holat (draft yo'q yoki boshqa holatlar)
-																	// visibility false bo'lsa va draft holati aniq emas bo'lsa
-																	color = '#ff9800'
-																	icon = 'pending'
-																	text = '未確認'
-																}
-
-																return (
-																	<div
-																		style={{
-																			display: 'flex',
-																			alignItems: 'center',
-																			gap: '8px',
-																		}}
-																	>
-																		<div
-																			style={{
-																				display: 'flex',
-																				alignItems: 'center',
-																				gap: '4px',
-																				backgroundColor: `${color}15`,
-																				padding: '4px 8px',
-																				borderRadius: '12px',
-																				position: 'relative',
-																			}}
-																			title={row.draft?.comments ? `コメント: ${row.draft.comments}` : ''}
-																		>
-																			{icon === 'approved' && (
-																				<CheckCircleIcon
-																					sx={{
-																						color: color,
-																						fontSize: '16px',
-																					}}
-																				/>
-																			)}
-																			{icon === 'rejected' && (
-																				<CancelIcon
-																					sx={{
-																						color: color,
-																						fontSize: '16px',
-																					}}
-																				/>
-																			)}
-																			{icon === 'pending' && (
-																				<PendingIcon
-																					sx={{
-																						color: color,
-																						fontSize: '16px',
-																					}}
-																				/>
-																			)}
-																			<span
-																				style={{
-																					color: color,
-																					fontSize: '12px',
-																					fontWeight: '500',
-																				}}
-																			>
-																				{text}
-																			</span>
-																		</div>
-																	</div>
 																)
 															})()}
 														</div>
