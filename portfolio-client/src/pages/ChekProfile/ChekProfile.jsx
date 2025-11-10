@@ -104,22 +104,10 @@ const Student = ({ OnlyBookmarked = false }) => {
 			minWidth: '160px',
 		},
 		{
-			key: 'draft_status',
-			label: t('confirmationStatus'),
-			type: 'checkbox',
-			options: [
-				t('submitted'),
-				t('checking'),
-				//t("resubmission_required"),
-				t('approved'),
-			],
-			minWidth: '160px',
-		},
-		{
 			key: 'approval_status',
 			label: t('approvalStatus'),
 			type: 'checkbox',
-			options: [t('not_approved_yet'), t('approved'), t('disapproved')],
+			options: [t('approval_status_unconfirmed'), t('approval_status_in_review'), t('approval_status_returned'), t('approval_status_approved')],
 			minWidth: '160px',
 		},
 		{
@@ -307,27 +295,23 @@ const Student = ({ OnlyBookmarked = false }) => {
 			type: 'status_icon',
 			numeric: false,
 			disablePadding: false,
-			label: '確認状況',
-			minWidth: '100px',
-			statusMap: {
-				submitted: { icon: 'pending', color: '#ff9800', text: '未確認' },
-				checking: { icon: 'pending', color: '#ff9800', text: '確認中' },
-				resubmission_required: {
-					icon: 'approved',
-					color: '#4caf50',
-					text: '確認済',
-				},
-				approved: { icon: 'approved', color: '#4caf50', text: '承認済' },
-			},
-		},
-		{
-			id: 'confirmation_status',
-			keyIdentifier: 'approval_status',
-			type: 'confirmation_status',
-			numeric: false,
-			disablePadding: false,
 			label: '承認状況',
 			minWidth: '100px',
+			statusMap: {
+				submitted: { icon: 'pending', color: '#ff9800', text: t('approval_status_unconfirmed') },
+				checking: { icon: 'pending', color: '#2196f3', text: t('approval_status_in_review') },
+				resubmission_required: {
+					icon: 'rejected',
+					color: '#f44336',
+					text: t('approval_status_returned'),
+				},
+				disapproved: {
+					icon: 'rejected',
+					color: '#f44336',
+					text: t('approval_status_returned'),
+				},
+				approved: { icon: 'approved', color: '#4caf50', text: t('approval_status_approved') },
+			},
 		},
 		{
 			id: 'visibility',
@@ -338,7 +322,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 			label: '公開状況',
 			minWidth: '100px',
 			onToggle: (row, visibility) => setProfileVisibility(row.student_id, visibility),
-			disabled: role === 'Staff', // Disable for staff users
+			disabled: role !== 'Admin', // Only admins can toggle visibility
 		},
 		{
 			id: 'email',
