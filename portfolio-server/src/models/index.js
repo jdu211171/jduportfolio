@@ -143,6 +143,14 @@ db.Draft.belongsTo(db.Student, {
 	targetKey: 'student_id', // Ensures it joins using Student.student_id, not Student.id
 	as: 'student',
 })
+db.Draft.belongsTo(db.Staff, {
+	foreignKey: 'reviewed_by',
+	as: 'reviewer',
+})
+db.Staff.hasMany(db.Draft, {
+	foreignKey: 'reviewed_by',
+	as: 'reviewedDrafts',
+})
 
 module.exports = {
 	sequelize,

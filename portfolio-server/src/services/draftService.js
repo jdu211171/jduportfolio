@@ -1,4 +1,6 @@
-const { Draft, Student, sequelize } = require('../models')
+const models = require('../models')
+const { Draft, Student, sequelize } = models
+const { Staff } = models
 const SettingsService = require('./settingService')
 const QAService = require('./qaService')
 const _ = require('lodash') // Used for deep object comparison
@@ -124,6 +126,13 @@ class DraftService {
 				delete filter.approval_status // Remove to avoid double handling
 			}
 
+			// Process reviewerId filter
+			let reviewerFilter = ''
+			if (filter.reviewerId) {
+				reviewerFilter = `AND d.reviewed_by = ${parseInt(filter.reviewerId)}`
+				delete filter.reviewerId // Remove to avoid double handling
+			}
+
 			Object.keys(filter).forEach(key => {
 				if (filter[key] && key !== 'draft_status') {
 					if (key === 'search') {
@@ -198,7 +207,7 @@ class DraftService {
 
 			query[Op.and].push(querySearch, queryOther, { active: true })
 
-			// Combine status filters (combine draft_status and approval_status)
+			// Combine status filters and reviewer filter
 			let combinedStatusFilter = ''
 			if (statusFilter && approvalStatusFilter) {
 				// If both filters are specified, use OR logic between them
@@ -209,8 +218,11 @@ class DraftService {
 				combinedStatusFilter = statusFilter || approvalStatusFilter
 			}
 
+			// Add reviewer filter if present
+			const allFilters = [combinedStatusFilter, reviewerFilter].filter(Boolean).join(' ')
+
 			console.log('Final query object:', JSON.stringify(query, null, 2))
-			console.log('Combined status filter:', combinedStatusFilter)
+			console.log('Combined filters:', allFilters)
 
 			const students = await Student.findAll({
 				where: query,
@@ -230,10 +242,18 @@ class DraftService {
                               FROM "Drafts" AS d
                               WHERE d.student_id = "Student".student_id
                               AND d.version_type = 'pending'
-                              AND d.status != 'draft' ${combinedStatusFilter})
+                              AND d.status != 'draft' ${allFilters})
                           `),
 							},
 						},
+						include: [
+							{
+								model: Staff,
+								as: 'reviewer',
+								attributes: ['id', 'first_name', 'last_name', 'email'],
+								required: false, // Left join - not all drafts have reviewers
+							},
+						],
 					},
 				],
 			})

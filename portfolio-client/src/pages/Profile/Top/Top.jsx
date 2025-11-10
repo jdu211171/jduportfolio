@@ -407,7 +407,7 @@ const Top = () => {
 			setIsLoading(true)
 			try {
 				if (statedata) {
-					handleStateData()
+					await handleStateData()
 				} else {
 					if (role === 'Student') {
 						await fetchDraftData()
@@ -466,9 +466,29 @@ const Top = () => {
 		loadData()
 	}, [id, role, statedata])
 
-	const handleStateData = () => {
+	const handleStateData = async () => {
 		if (statedata.draft) {
 			setDraft(statedata.draft)
+
+			// Auto-update to 'checking' status when staff views submitted draft
+			if (role === 'Staff' && statedata.draft.status === 'submitted') {
+				const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+				if (staffId) {
+					try {
+						await axios.put(`/api/draft/status/${statedata.draft.id}`, {
+							status: 'checking',
+							reviewed_by: staffId,
+						})
+						// Update local state
+						statedata.draft.status = 'checking'
+						statedata.draft.reviewed_by = staffId
+						setDraft({ ...statedata.draft })
+					} catch (error) {
+						console.error('Failed to auto-update draft status:', error)
+					}
+				}
+			}
+
 			if (statedata.draft.status === 'checking' || statedata.draft.status === 'approved') {
 				// Status is checking or approved
 			} else {
@@ -1097,28 +1117,30 @@ const Top = () => {
 				</>
 			) : (
 				<>
-					<Button
-						onClick={() => {
-							// Clear any stale localStorage before entering edit mode
-							clearStorage()
-							setEditMode(true)
-							// Clear any old save status when entering edit mode
-							if (role === 'Student' || role === 'Recruiter') {
-								setSaveStatus({
-									isSaving: false,
-									lastSaved: null,
-									hasUnsavedChanges: false,
-								})
-							}
-						}}
-						variant='contained'
-						color='primary'
-						size='small'
-					>
-						{t('editProfile')}
-					</Button>
+					{!(role === 'Student' && viewingLive) && (
+						<Button
+							onClick={() => {
+								// Clear any stale localStorage before entering edit mode
+								clearStorage()
+								setEditMode(true)
+								// Clear any old save status when entering edit mode
+								if (role === 'Student' || role === 'Recruiter') {
+									setSaveStatus({
+										isSaving: false,
+										lastSaved: null,
+										hasUnsavedChanges: false,
+									})
+								}
+							}}
+							variant='contained'
+							color='primary'
+							size='small'
+						>
+							{t('editProfile')}
+						</Button>
+					)}
 
-					{role === 'Student' && hasDraft && currentDraft && (
+					{role === 'Student' && hasDraft && currentDraft && !viewingLive && (
 						<Button onClick={toggleConfirmMode} variant='contained' color='success' size='small' sx={{ ml: 1 }}>
 							{t('submitAgree')}
 						</Button>

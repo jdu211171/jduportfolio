@@ -16,6 +16,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	const t = key => translations[language][key] || key
 	const [filterState, setFilterState] = useState({
 		search: '',
+		reviewerId: null, // Track active reviewer filter
 	})
 	const [warningModal, setWarningModal] = useState({
 		open: false,
@@ -121,6 +122,14 @@ const Student = ({ OnlyBookmarked = false }) => {
 
 	const handleFilterChange = newFilterState => {
 		setFilterState(newFilterState)
+	}
+
+	const handleReviewerClick = reviewerId => {
+		// Toggle filter: if same reviewer clicked, deactivate filter; otherwise activate
+		setFilterState(prev => ({
+			...prev,
+			reviewerId: prev.reviewerId === reviewerId ? null : reviewerId,
+		}))
 	}
 
 	const navigate = useNavigate()
@@ -313,6 +322,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 				},
 				approved: { icon: 'approved', color: '#4caf50', text: t('approval_status_approved') },
 			},
+			onReviewerClick: handleReviewerClick,
 		},
 		{
 			id: 'visibility',

@@ -657,50 +657,86 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 																if (!statusConfig) return 'N/A'
 
+																const reviewer = row[header.id]?.reviewer
+																const showReviewer = status === 'checking' && reviewer
+
 																return (
 																	<div
 																		style={{
 																			display: 'flex',
+																			flexDirection: 'column',
 																			alignItems: 'center',
 																			gap: '4px',
-																			backgroundColor: `${statusConfig.color}15`,
-																			padding: '4px 8px',
-																			borderRadius: '12px',
 																		}}
 																	>
-																		{statusConfig.icon === 'approved' && (
-																			<CheckCircleIcon
-																				sx={{
-																					color: statusConfig.color,
-																					fontSize: '16px',
-																				}}
-																			/>
-																		)}
-																		{statusConfig.icon === 'rejected' && (
-																			<CancelIcon
-																				sx={{
-																					color: statusConfig.color,
-																					fontSize: '16px',
-																				}}
-																			/>
-																		)}
-																		{statusConfig.icon === 'pending' && (
-																			<PendingIcon
-																				sx={{
-																					color: statusConfig.color,
-																					fontSize: '16px',
-																				}}
-																			/>
-																		)}
-																		<span
+																		<div
 																			style={{
-																				color: statusConfig.color,
-																				fontSize: '12px',
-																				fontWeight: '500',
+																				display: 'flex',
+																				alignItems: 'center',
+																				gap: '4px',
+																				backgroundColor: `${statusConfig.color}15`,
+																				padding: '4px 8px',
+																				borderRadius: '12px',
 																			}}
 																		>
-																			{statusConfig.text}
-																		</span>
+																			{statusConfig.icon === 'approved' && (
+																				<CheckCircleIcon
+																					sx={{
+																						color: statusConfig.color,
+																						fontSize: '16px',
+																					}}
+																				/>
+																			)}
+																			{statusConfig.icon === 'rejected' && (
+																				<CancelIcon
+																					sx={{
+																						color: statusConfig.color,
+																						fontSize: '16px',
+																					}}
+																				/>
+																			)}
+																			{statusConfig.icon === 'pending' && (
+																				<PendingIcon
+																					sx={{
+																						color: statusConfig.color,
+																						fontSize: '16px',
+																					}}
+																				/>
+																			)}
+																			<span
+																				style={{
+																					color: statusConfig.color,
+																					fontSize: '12px',
+																					fontWeight: '500',
+																				}}
+																			>
+																				{statusConfig.text}
+																			</span>
+																		</div>
+																		{showReviewer && (
+																			<kbd
+																				style={{
+																					fontSize: '9px',
+																					padding: '1px 4px',
+																					backgroundColor: '#f5f5f5',
+																					border: 'none',
+																					borderRadius: '3px',
+																					color: '#666',
+																					fontFamily: 'monospace',
+																					cursor: 'pointer',
+																					userSelect: 'none',
+																				}}
+																				onClick={e => {
+																					e.stopPropagation()
+																					if (header.onReviewerClick) {
+																						header.onReviewerClick(reviewer.id)
+																					}
+																				}}
+																				title={`${reviewer.first_name} ${reviewer.last_name} (${reviewer.email})`}
+																			>
+																				{reviewer.first_name} {reviewer.last_name}
+																			</kbd>
+																		)}
 																	</div>
 																)
 															})()}
