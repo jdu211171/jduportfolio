@@ -288,6 +288,7 @@ class StudentController {
 				if (becamePublic) {
 					const { Recruiter } = require('../models')
 					const NotificationService = require('../services/notificationService')
+					const { buildNotificationUrl } = require('../utils/notificationUrlBuilder')
 					const recruiters = await Recruiter.findAll({ attributes: ['id'] })
 					if (Array.isArray(recruiters) && recruiters.length > 0) {
 						const sid = updatedStudent.student_id || id
@@ -296,6 +297,12 @@ class StudentController {
 						const msgUZ = `Talaba (ID: ${sid}) profili ommaga ochildi.`
 						const msgRU = `Профиль студента (ID: ${sid}) стал публичным.`
 						const message = `【JA】${msgJA}\n【EN】${msgEN}\n【UZ】${msgUZ}\n【RU】${msgRU}`
+						const targetUrl = buildNotificationUrl({
+							type: 'etc',
+							userRole: 'recruiter',
+							studentId: sid,
+							relatedId: updatedStudent.id,
+						})
 						await Promise.all(
 							recruiters.map(r =>
 								NotificationService.create({
@@ -305,6 +312,7 @@ class StudentController {
 									status: 'unread',
 									message,
 									related_id: updatedStudent.id,
+									target_url: targetUrl,
 								})
 							)
 						)

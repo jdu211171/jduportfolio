@@ -4,6 +4,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined'
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import translations from '../../locales/translations.js'
 import axios from '../../utils/axiosUtils.js'
@@ -45,6 +46,7 @@ function extractCommentBody(commentSection) {
 export default function Notifications() {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+	const navigate = useNavigate()
 
 	const [isVisible, setIsVisible] = useState(false)
 	const [modalIsVisible, setModalIsVisible] = useState(false)
@@ -151,6 +153,16 @@ export default function Notifications() {
 	}
 
 	const handleClick = item => {
+		// If notification has a target URL, navigate immediately
+		if (item.target_url) {
+			if (item.status === 'unread') markAsRead(item.id)
+			setIsVisible(false)
+			setModalIsVisible(false)
+			navigate(item.target_url)
+			return
+		}
+
+		// Otherwise, show the modal as before
 		const userRoles = {
 			student: userData.students[item.user_id],
 			staff: userData.staff[item.user_id],
