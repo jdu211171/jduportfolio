@@ -621,11 +621,24 @@ const Top = () => {
 				setCurrentPending(pendingData)
 			}
 
-			// Recruiters should ONLY see live data, not drafts
+			// Recruiters should see pending draft (submitted profile) if available, else live data
 			if (role === 'Recruiter') {
-				setStudent(parsedStudentData)
-				setEditData(parsedStudentData)
-				updateOriginalData(parsedStudentData)
+				if (pendingData && pendingData.profile_data) {
+					// Recruiter views the submitted/approved pending draft
+					const mappedData = {
+						...parsedStudentData,
+						draft: pendingData.profile_data || {},
+					}
+					setCurrentDraft(pendingData)
+					setStudent(mappedData)
+					setEditData(mappedData)
+					updateOriginalData(mappedData)
+				} else {
+					// No pending draft, show live data
+					setStudent(parsedStudentData)
+					setEditData(parsedStudentData)
+					updateOriginalData(parsedStudentData)
+				}
 				clearStorage()
 				setHasDraft(false)
 				SetUpdateQA(!updateQA)
