@@ -495,6 +495,13 @@ class StudentService {
 				shouldMergeDraft = true
 				draftToMerge = studentJson.draft
 			}
+			// For Recruiter viewing: use pending draft if approved (published profile)
+			else if (requesterRole === 'Recruiter' && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
+				if (studentJson.pendingDraft.status === 'approved') {
+					shouldMergeDraft = true
+					draftToMerge = studentJson.pendingDraft
+				}
+			}
 
 			// Merge draft data if conditions are met
 			if (shouldMergeDraft && draftToMerge) {
