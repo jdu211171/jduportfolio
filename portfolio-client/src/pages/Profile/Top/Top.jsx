@@ -1822,7 +1822,7 @@ const Top = () => {
 			{/* deliverables */}
 			{subTabIndex === 2 && (
 				<Box my={2}>
-					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} />
+					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} studentId={student.student_id || id} />
 				</Box>
 			)}
 			{/* Credits section is temporarily disabled */}
