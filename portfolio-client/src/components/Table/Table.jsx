@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import axios from '../../utils/axiosUtils'
 
 import CancelIcon from '@mui/icons-material/Cancel'
@@ -38,12 +39,15 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 
 	const role = sessionStorage.getItem('role')
 
-	const [order, setOrder] = useState('asc')
-	const [orderBy, setOrderBy] = useState('')
-	const [sortBy, setSortBy] = useState('')
-	const [sortOrder, setSortOrder] = useState('')
+	const [searchParams, setSearchParams] = useSearchParams()
+
+	// Initialize state from URL params or defaults
+	const [order, setOrder] = useState(searchParams.get('order') || 'asc')
+	const [orderBy, setOrderBy] = useState(searchParams.get('orderBy') || '')
+	const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || '')
+	const [sortOrder, setSortOrder] = useState(searchParams.get('sortOrder') || '')
 	const [selected, setSelected] = useState([])
-	const [page, setPage] = useState(0)
+	const [page, setPage] = useState(parseInt(searchParams.get('page') || '0', 10))
 	const [rowsPerPage, setRowsPerPage] = useAtom(rowsPerPageAtom)
 	const [rows, setRows] = useState([])
 	const [loading, setLoading] = useState(false)
@@ -64,6 +68,18 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 			// Silently fail if localStorage is not available
 		}
 	}, [rowsPerPage])
+
+	// Sync state to URL params
+	useEffect(() => {
+		const params = {}
+		if (page > 0) params.page = page.toString()
+		if (sortBy) params.sortBy = sortBy
+		if (sortOrder) params.sortOrder = sortOrder
+		if (orderBy) params.orderBy = orderBy
+		if (order && order !== 'asc') params.order = order
+
+		setSearchParams(params, { replace: true })
+	}, [page, sortBy, sortOrder, orderBy, order, setSearchParams])
 
 	// Sort handler function
 	const handleSort = header => {
