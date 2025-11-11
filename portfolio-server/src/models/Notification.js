@@ -55,6 +55,10 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.BIGINT,
 				allowNull: true,
 			},
+			target_url: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
 			createdAt: {
 				type: DataTypes.DATE,
 				allowNull: false,

@@ -619,6 +619,25 @@ const Top = () => {
 			// Set current pending for staff comment display
 			if (pendingData) {
 				setCurrentPending(pendingData)
+
+				// Auto-update to 'checking' status and bind reviewer when staff views submitted draft
+				if (role === 'Staff' && pendingData.status === 'submitted') {
+					const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+					if (staffId) {
+						try {
+							await axios.put(`/api/draft/status/${pendingData.id}`, {
+								status: 'checking',
+								reviewed_by: staffId,
+							})
+							// Update local state
+							pendingData.status = 'checking'
+							pendingData.reviewed_by = staffId
+							setCurrentPending({ ...pendingData })
+						} catch (error) {
+							console.error('Failed to auto-update draft status:', error)
+						}
+					}
+				}
 			}
 
 			// Recruiters should see pending draft (submitted profile) if available, else live data

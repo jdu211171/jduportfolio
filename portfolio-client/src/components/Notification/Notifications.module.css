@@ -146,6 +146,24 @@
 	margin-left: 5px;
 }
 
+.expandButton {
+	background: none;
+	border: none;
+	color: #5627dc;
+	cursor: pointer;
+	padding: 4px 8px;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s ease;
+}
+
+.expandButton:hover {
+	transform: scale(1.2);
+	color: #4720b5;
+}
+
 .noNotifications {
 	display: flex;
 	justify-content: center;

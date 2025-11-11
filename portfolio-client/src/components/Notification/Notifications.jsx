@@ -4,6 +4,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined'
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import translations from '../../locales/translations.js'
 import axios from '../../utils/axiosUtils.js'
@@ -45,6 +46,7 @@ function extractCommentBody(commentSection) {
 export default function Notifications() {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
+	const navigate = useNavigate()
 
 	const [isVisible, setIsVisible] = useState(false)
 	const [modalIsVisible, setModalIsVisible] = useState(false)
@@ -57,10 +59,23 @@ export default function Notifications() {
 	})
 	const [, setCurrentUser] = useState({})
 	const [unreadCount, setUnreadCount] = useState(0)
-	const [filter, setFilter] = useState('all')
+	const [filter, setFilter] = useState('read')
 	const [isLoading, setIsLoading] = useState(false)
+	const [expandedItems, setExpandedItems] = useState(new Set())
 	const modalRef = useRef(null)
 	const dropdownRef = useRef(null)
+
+	// Fetch unread count separately to ensure badge shows correct count regardless of active filter
+	const fetchUnreadCount = async () => {
+		try {
+			const unreadRes = await axios.get('/api/notification/user').catch(() => ({ data: [] }))
+			const unreadData = Array.isArray(unreadRes.data) ? unreadRes.data : []
+			setUnreadCount(unreadData.length)
+		} catch (error) {
+			console.error('Error fetching unread count:', error)
+			setUnreadCount(0)
+		}
+	}
 
 	const fetchData = async (statusFilter = 'all') => {
 		try {
@@ -85,7 +100,8 @@ export default function Notifications() {
 				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			}
 			setMessages(fetchedMessages)
-			setUnreadCount(Array.isArray(fetchedMessages) ? fetchedMessages.filter(msg => msg.status === 'unread').length : 0)
+			// Update unread count separately to maintain correct badge count
+			await fetchUnreadCount()
 		} catch (error) {
 			console.error('Xatolik yuz berdi:', error)
 			setMessages([])
@@ -95,7 +111,16 @@ export default function Notifications() {
 
 	useEffect(() => {
 		fetchData(filter)
+		// Clear expanded items when filter changes for consistent UX
+		setExpandedItems(new Set())
 	}, [filter])
+
+	useEffect(() => {
+		// Clear expanded items when dropdown closes for consistent UX
+		if (!isVisible) {
+			setExpandedItems(new Set())
+		}
+	}, [isVisible])
 
 	useEffect(() => {
 		const handleClickOutside = event => {
@@ -150,7 +175,30 @@ export default function Notifications() {
 		}
 	}
 
+	const toggleExpand = (e, itemId) => {
+		e.stopPropagation() // Prevent navigation when clicking expand
+		setExpandedItems(prev => {
+			const newSet = new Set(prev)
+			if (newSet.has(itemId)) {
+				newSet.delete(itemId)
+			} else {
+				newSet.add(itemId)
+			}
+			return newSet
+		})
+	}
+
 	const handleClick = item => {
+		// If notification has a target URL, navigate immediately
+		if (item.target_url) {
+			if (item.status === 'unread') markAsRead(item.id)
+			setIsVisible(false)
+			setModalIsVisible(false)
+			navigate(item.target_url)
+			return
+		}
+
+		// Otherwise, show the modal as before
 		const userRoles = {
 			student: userData.students[item.user_id],
 			staff: userData.staff[item.user_id],
@@ -205,15 +253,29 @@ export default function Notifications() {
 
 					<div className={styles.mainPage}>
 						{messages.length > 0 ? (
-							messages.map(item => (
-								<div key={item.id || item.createdAt} onClick={() => handleClick(item)} className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}>
-									<div className={styles.messageContainer}>
-										<div>{shortText(extractLocalizedMessage(item.message, language), 28)}</div>
-										<div>{shortText(item.createdAt, 10, true)}</div>
+							messages.map(item => {
+								const isExpanded = expandedItems.has(item.id)
+								const fullMessage = extractLocalizedMessage(item.message, language)
+								const truncatedMessage = shortText(fullMessage, 28)
+								const needsExpand = fullMessage.length > truncatedMessage.length
+
+								return (
+									<div key={item.id || item.createdAt} className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}>
+										<div className={styles.messageContainer} onClick={() => handleClick(item)} style={{ flex: 1 }}>
+											<div>{isExpanded ? fullMessage : truncatedMessage}</div>
+											<div>{shortText(item.createdAt, 10, true)}</div>
+										</div>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+											{needsExpand && (
+												<button onClick={e => toggleExpand(e, item.id)} className={styles.expandButton} title={isExpanded ? t('collapse') : t('expand')}>
+													{isExpanded ? '▲' : '▼'}
+												</button>
+											)}
+											{item.status === 'unread' && <div className={styles.newIndicator}>{t('new')}</div>}
+										</div>
 									</div>
-									{item.status === 'unread' && <div className={styles.newIndicator}>{t('new')}</div>}
-								</div>
-							))
+								)
+							})
 						) : (
 							<div className={styles.noNotifications}>{filter === 'all' ? t('no_notifications') : filter === 'unread' ? t('no_unread_notifications') : t('no_read_notifications')}</div>
 						)}

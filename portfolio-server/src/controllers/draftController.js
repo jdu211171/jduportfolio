@@ -3,6 +3,7 @@ const { sendEmail } = require('../utils/emailService')
 const DraftService = require('../services/draftService')
 const NotificationService = require('../services/notificationService')
 const StaffService = require('../services/staffService')
+const { buildNotificationUrl } = require('../utils/notificationUrlBuilder')
 
 class DraftController {
 	/**
@@ -78,12 +79,19 @@ class DraftController {
 			// Xodimlarga bildirishnoma yuborish
 			const studentID = pendingDraft.student_id || 'Unknown'
 			const message = `学生${studentID}からプロフィール情報が送信されました`
+			const targetUrl = buildNotificationUrl({
+				type: 'draft_submitted',
+				userRole: 'staff',
+				studentId: studentID,
+				relatedId: pendingDraft.id,
+			})
 			const notificationPayload = {
 				user_role: 'staff',
 				type: 'draft_submitted',
 				message: message,
 				status: 'unread',
 				related_id: pendingDraft.id,
+				target_url: targetUrl,
 			}
 
 			if (staff_id) {
@@ -149,6 +157,12 @@ class DraftController {
 
 				const admins = await Admin.findAll()
 				const adminMessage = `学生 (ID: ${student.student_id}) の情報は、スタッフ (ID: ${reviewed_by}) によって承認されました。`
+				const adminTargetUrl = buildNotificationUrl({
+					type: 'approved',
+					userRole: 'admin',
+					studentId: student.student_id,
+					relatedId: draft.id,
+				})
 				for (const admin of admins) {
 					await NotificationService.create({
 						message: adminMessage,
@@ -157,6 +171,7 @@ class DraftController {
 						user_role: 'admin',
 						type: 'approved',
 						related_id: draft.id,
+						target_url: adminTargetUrl,
 					})
 				}
 
@@ -223,6 +238,13 @@ class DraftController {
 				notificationMessage += `|||COMMENT_SEPARATOR|||📝 **スタッフからのコメント / Staff comment / Xodim izohi / Комментарий сотрудника:**\n${comments}`
 			}
 
+			const studentTargetUrl = buildNotificationUrl({
+				type: status.toLowerCase() === 'approved' ? 'approved' : 'etc',
+				userRole: 'student',
+				studentId: student.student_id,
+				relatedId: draft.id,
+			})
+
 			await NotificationService.create({
 				message: notificationMessage,
 				status: 'unread',
@@ -230,12 +252,19 @@ class DraftController {
 				user_role: 'student',
 				type: status.toLowerCase() === 'approved' ? 'approved' : 'etc',
 				related_id: draft.id,
+				target_url: studentTargetUrl,
 			})
 
 			// Adminlarga bildirishnoma yuborish
 			if (status.toLowerCase() === 'approved') {
 				const admins = await Admin.findAll()
 				const adminMessage = `学生 (ID: ${student.student_id}) の情報は、スタッフ (ID: ${reviewed_by}) によって承認されました。`
+				const adminTargetUrl2 = buildNotificationUrl({
+					type: 'approved',
+					userRole: 'admin',
+					studentId: student.student_id,
+					relatedId: draft.id,
+				})
 				for (const admin of admins) {
 					await NotificationService.create({
 						message: adminMessage,
@@ -244,6 +273,7 @@ class DraftController {
 						user_role: 'admin',
 						type: 'approved',
 						related_id: draft.id,
+						target_url: adminTargetUrl2,
 					})
 				}
 			}
