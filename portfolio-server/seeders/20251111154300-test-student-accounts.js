@@ -4,10 +4,15 @@ const bcrypt = require('bcrypt')
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		// Check if test students already exist
-		const existingStudents = await queryInterface.sequelize.query(`SELECT email FROM "Students" WHERE email LIKE 'student%@jdu.uz'`, { type: Sequelize.QueryTypes.SELECT })
+		// Check if test students already exist - use specific email list to avoid false positives
+		const testEmails = ['student@jdu.uz', 'student00@jdu.uz', 'student01@jdu.uz', 'student02@jdu.uz', 'student03@jdu.uz', 'student04@jdu.uz', 'student05@jdu.uz', 'student06@jdu.uz', 'student07@jdu.uz', 'student08@jdu.uz', 'student09@jdu.uz']
 
-		// If test students already exist, skip insertion
+		const existingStudents = await queryInterface.sequelize.query(`SELECT email FROM "Students" WHERE email = ANY(ARRAY[:emails]::varchar[])`, {
+			replacements: { emails: testEmails },
+			type: Sequelize.QueryTypes.SELECT,
+		})
+
+		// If any test students already exist, skip insertion
 		if (existingStudents.length > 0) {
 			console.log('Test student accounts already exist. Skipping insertion.')
 			return

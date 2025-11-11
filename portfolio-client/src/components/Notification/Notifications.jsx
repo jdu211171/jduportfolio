@@ -98,7 +98,16 @@ export default function Notifications() {
 
 	useEffect(() => {
 		fetchData(filter)
+		// Clear expanded items when filter changes for consistent UX
+		setExpandedItems(new Set())
 	}, [filter])
+
+	useEffect(() => {
+		// Clear expanded items when dropdown closes for consistent UX
+		if (!isVisible) {
+			setExpandedItems(new Set())
+		}
+	}, [isVisible])
 
 	useEffect(() => {
 		const handleClickOutside = event => {
