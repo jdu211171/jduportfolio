@@ -59,8 +59,9 @@ export default function Notifications() {
 	})
 	const [, setCurrentUser] = useState({})
 	const [unreadCount, setUnreadCount] = useState(0)
-	const [filter, setFilter] = useState('all')
+	const [filter, setFilter] = useState('read')
 	const [isLoading, setIsLoading] = useState(false)
+	const [expandedItems, setExpandedItems] = useState(new Set())
 	const modalRef = useRef(null)
 	const dropdownRef = useRef(null)
 
@@ -152,6 +153,19 @@ export default function Notifications() {
 		}
 	}
 
+	const toggleExpand = (e, itemId) => {
+		e.stopPropagation() // Prevent navigation when clicking expand
+		setExpandedItems(prev => {
+			const newSet = new Set(prev)
+			if (newSet.has(itemId)) {
+				newSet.delete(itemId)
+			} else {
+				newSet.add(itemId)
+			}
+			return newSet
+		})
+	}
+
 	const handleClick = item => {
 		// If notification has a target URL, navigate immediately
 		if (item.target_url) {
@@ -217,15 +231,29 @@ export default function Notifications() {
 
 					<div className={styles.mainPage}>
 						{messages.length > 0 ? (
-							messages.map(item => (
-								<div key={item.id || item.createdAt} onClick={() => handleClick(item)} className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}>
-									<div className={styles.messageContainer}>
-										<div>{shortText(extractLocalizedMessage(item.message, language), 28)}</div>
-										<div>{shortText(item.createdAt, 10, true)}</div>
+							messages.map(item => {
+								const isExpanded = expandedItems.has(item.id)
+								const fullMessage = extractLocalizedMessage(item.message, language)
+								const truncatedMessage = shortText(fullMessage, 28)
+								const needsExpand = fullMessage.length > truncatedMessage.length
+
+								return (
+									<div key={item.id || item.createdAt} className={`${styles.notificationItem} ${item.status === 'unread' ? styles.unread : ''} ${item.type === 'approved' ? styles.approved : ''}`}>
+										<div className={styles.messageContainer} onClick={() => handleClick(item)} style={{ flex: 1 }}>
+											<div>{isExpanded ? fullMessage : truncatedMessage}</div>
+											<div>{shortText(item.createdAt, 10, true)}</div>
+										</div>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+											{needsExpand && (
+												<button onClick={e => toggleExpand(e, item.id)} className={styles.expandButton} title={isExpanded ? t('collapse') : t('expand')}>
+													{isExpanded ? '▲' : '▼'}
+												</button>
+											)}
+											{item.status === 'unread' && <div className={styles.newIndicator}>{t('new')}</div>}
+										</div>
 									</div>
-									{item.status === 'unread' && <div className={styles.newIndicator}>{t('new')}</div>}
-								</div>
-							))
+								)
+							})
 						) : (
 							<div className={styles.noNotifications}>{filter === 'all' ? t('no_notifications') : filter === 'unread' ? t('no_unread_notifications') : t('no_read_notifications')}</div>
 						)}
