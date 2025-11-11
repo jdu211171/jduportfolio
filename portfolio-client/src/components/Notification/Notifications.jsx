@@ -65,6 +65,18 @@ export default function Notifications() {
 	const modalRef = useRef(null)
 	const dropdownRef = useRef(null)
 
+	// Fetch unread count separately to ensure badge shows correct count regardless of active filter
+	const fetchUnreadCount = async () => {
+		try {
+			const unreadRes = await axios.get('/api/notification/user').catch(() => ({ data: [] }))
+			const unreadData = Array.isArray(unreadRes.data) ? unreadRes.data : []
+			setUnreadCount(unreadData.length)
+		} catch (error) {
+			console.error('Error fetching unread count:', error)
+			setUnreadCount(0)
+		}
+	}
+
 	const fetchData = async (statusFilter = 'all') => {
 		try {
 			let fetchedMessages = []
@@ -88,7 +100,8 @@ export default function Notifications() {
 				fetchedMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 			}
 			setMessages(fetchedMessages)
-			setUnreadCount(Array.isArray(fetchedMessages) ? fetchedMessages.filter(msg => msg.status === 'unread').length : 0)
+			// Update unread count separately to maintain correct badge count
+			await fetchUnreadCount()
 		} catch (error) {
 			console.error('Xatolik yuz berdi:', error)
 			setMessages([])

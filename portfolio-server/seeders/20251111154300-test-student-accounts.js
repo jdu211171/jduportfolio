@@ -103,10 +103,12 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		// Remove test students
+		// Remove test students - use explicit email list to avoid deleting legitimate users
+		const testEmails = ['student@jdu.uz', 'student00@jdu.uz', 'student01@jdu.uz', 'student02@jdu.uz', 'student03@jdu.uz', 'student04@jdu.uz', 'student05@jdu.uz', 'student06@jdu.uz', 'student07@jdu.uz', 'student08@jdu.uz', 'student09@jdu.uz']
+
 		await queryInterface.bulkDelete('Students', {
 			email: {
-				[Sequelize.Op.like]: 'student%@jdu.uz',
+				[Sequelize.Op.in]: testEmails,
 			},
 		})
 		console.log('✅ Test student accounts removed')
