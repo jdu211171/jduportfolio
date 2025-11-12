@@ -16,6 +16,7 @@ TODO: Student Resubmission and Staff Workflow Fixes
 */
 
 import { useState, useEffect, useContext } from 'react'
+import Cookies from 'js-cookie'
 import ReactDOM from 'react-dom'
 import { useLocation, useParams } from 'react-router-dom'
 import styles from './QA.module.css'
@@ -151,14 +152,15 @@ const SortableQATextField = ({ id, data, editData, category, question, keyName, 
 }
 
 const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = false, updateQA = false, currentDraft, isHonban = false, handleDraftUpsert = () => {}, setTopEditMode = () => {}, updateCurrentDraft = () => {} }) => {
-	const role = sessionStorage.getItem('role')
+	// Prefer context role; fall back to cookie or sessionStorage for cold loads
+	const { language, activeUser, role: contextRole, isInitializing } = useContext(UserContext)
+	const role = contextRole || Cookies.get('userType') || sessionStorage.getItem('role') || null
 	const labels = ['学生成績', '専門知識', '個性', '実務経験', 'キャリア目標']
 	let id
 	const { studentId } = useParams()
 	const location = useLocation()
 	const { userId } = location.state || {}
 
-	const { language, activeUser } = useContext(UserContext)
 	const { language: langContext } = useLanguage()
 	const t = key => translations[langContext][key] || key
 
@@ -166,11 +168,10 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 	const getStudentIdFromLoginUser = () => {
 		try {
 			const loginUserData = JSON.parse(sessionStorage.getItem('loginUser'))
-			// Try different possible field names for student ID
-			// Backend always returns studentId (camelCase), so check it first
-			return loginUserData?.studentId || loginUserData?.student_id || loginUserData?.id
+			// Prefer context activeUser when available; then session-backed loginUser
+			return activeUser?.studentId || activeUser?.id || loginUserData?.studentId || loginUserData?.student_id || loginUserData?.id || null
 		} catch (e) {
-			return null
+			return activeUser?.studentId || activeUser?.id || null
 		}
 	}
 
@@ -336,6 +337,8 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 	}
 
 	useEffect(() => {
+		// Wait for user context to initialize; avoids missing role/id on cold loads
+		if (isInitializing) return
 		if (role && (id || role === 'Admin')) {
 			// Always fetch for students to get latest admin questions
 			if (role === 'Student') {
@@ -347,7 +350,7 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 				}
 			}
 		}
-	}, [role, id, isFromTopPage])
+	}, [isInitializing, role, id, isFromTopPage])
 
 	// Reset data loaded flag when updateQA changes
 	useEffect(() => {
@@ -846,6 +849,11 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 	}
 
 	// Debug logging to understand the state
+
+	// While user context is initializing, show loading to avoid flashing errors
+	if (isInitializing) {
+		return <div>Loading...</div>
+	}
 
 	// For Admin viewing QA management, we don't need an ID
 	if (role === 'Admin' && !studentId && !userId) {
