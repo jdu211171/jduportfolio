@@ -21,7 +21,7 @@ class NotificationController {
 			}
 
 			let user_id = id
-			let user_role = userType.toLowerCase()
+			const user_role = userType.toLowerCase()
 
 			if (user_role === 'student') {
 				const student = await getStudentById(id)

@@ -222,6 +222,7 @@ exports.downloadRecruiterFile = async (req, res) => {
 
 		// Properly encode filename for Unicode support (RFC 5987)
 		const encodedFilename = encodeURIComponent(fileRecord.original_filename)
+		// eslint-disable-next-line no-control-regex
 		const asciiFilename = fileRecord.original_filename.replace(/[^\x00-\x7F]/g, '_')
 
 		// Set Content-Disposition with both ASCII fallback and UTF-8 encoded name

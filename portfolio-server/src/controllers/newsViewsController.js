@@ -11,7 +11,7 @@ class NewsViewsController {
 			}
 
 			let userId = id
-			let userRole = userType.toLowerCase()
+			const userRole = userType.toLowerCase()
 
 			console.log('Original user:', { id, userType })
 
@@ -58,7 +58,7 @@ class NewsViewsController {
 			}
 
 			let userId = String(id)
-			let userRole = userType.toLowerCase()
+			const userRole = userType.toLowerCase()
 
 			// Map Student to business ID
 			if (userRole === 'student') {
@@ -96,7 +96,7 @@ class NewsViewsController {
 			}
 
 			let userId = String(id)
-			let userRole = userType.toLowerCase()
+			const userRole = userType.toLowerCase()
 
 			// Map Student to business ID
 			if (userRole === 'student') {
@@ -131,7 +131,7 @@ class NewsViewsController {
 			}
 
 			let userId = String(id)
-			let userRole = userType.toLowerCase()
+			const userRole = userType.toLowerCase()
 
 			// Map Student to business ID
 			if (userRole === 'student') {
@@ -174,7 +174,7 @@ class NewsViewsController {
 			}
 
 			let userId = String(id)
-			let userRole = userType.toLowerCase()
+			const userRole = userType.toLowerCase()
 
 			// Map Student to business ID
 			if (userRole === 'student') {

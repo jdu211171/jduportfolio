@@ -100,6 +100,9 @@ class StaffController {
 
 	static async deleteStaff(req, res) {
 		try {
+			const { id } = req.params
+			await StaffService.deleteStaff(id)
+			res.status(200).json({ message: 'Staff deleted successfully' })
 		} catch (error) {
 			res.status(404).json({ error: error.message })
 		}

@@ -12,12 +12,8 @@ const { sendBulkEmails } = require('../utils/emailService')
 class StudentService {
 	// Service method to create a new student
 	static async createStudent(studentData) {
-		try {
-			const newStudent = await Student.create(studentData)
-			return newStudent
-		} catch (error) {
-			throw error
-		}
+		const newStudent = await Student.create(studentData)
+		return newStudent
 	}
 
 	// static async getAllStudents(filter, recruiterId, onlyBookmarked, userType) {
@@ -252,9 +248,9 @@ class StudentService {
 				filter.semester = filter.semester.flatMap(term => semesterMapping[term] || [])
 			}
 
-			let query = {}
-			let querySearch = {}
-			let queryOther = { [Op.and]: [] }
+			const query = {}
+			const querySearch = {}
+			const queryOther = { [Op.and]: [] }
 
 			if (!filter || typeof filter !== 'object') {
 				filter = {}
@@ -378,7 +374,7 @@ class StudentService {
 			}
 
 			// 2. SARALASH MANTIG'I (YANGI QISM)
-			let order = []
+			const order = []
 			const { sortBy, sortOrder } = sortOptions
 			const validSortOrder = sortOrder && ['ASC', 'DESC'].includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC'
 
@@ -449,293 +445,265 @@ class StudentService {
 
 	// Service method to retrieve a student by ID
 	static async getStudentById(studentId, password = false, requesterId = null, requesterRole = null) {
-		try {
-			let excluded = ['createdAt', 'updatedAt']
-			if (!password) {
-				excluded.push('password')
-			}
-			const student = await Student.findByPk(studentId, {
-				attributes: { exclude: excluded },
-				include: [
-					{
-						model: Draft,
-						as: 'draft',
-						attributes: [
-							'id',
-							'status',
-							'submit_count',
-							'created_at',
-							'updated_at',
-							'profile_data', // Include profile_data to get draft information
-						],
-						required: false, // LEFT JOIN so students without drafts are still included
-					},
-				],
-			})
-			if (!student) {
-				throw new Error('Student not found')
-			}
+		const excluded = ['createdAt', 'updatedAt']
+		if (!password) {
+			excluded.push('password')
+		}
+		const student = await Student.findByPk(studentId, {
+			attributes: { exclude: excluded },
+			include: [
+				{
+					model: Draft,
+					as: 'draft',
+					attributes: [
+						'id',
+						'status',
+						'submit_count',
+						'created_at',
+						'updated_at',
+						'profile_data', // Include profile_data to get draft information
+					],
+					required: false, // LEFT JOIN so students without drafts are still included
+				},
+			],
+		})
+		if (!student) {
+			throw new Error('Student not found')
+		}
 
-			// Convert to JSON
-			const studentJson = student.toJSON()
+		// Convert to JSON
+		const studentJson = student.toJSON()
 
-			// Determine if draft data should be merged
-			let shouldMergeDraft = false
+		// Determine if draft data should be merged
+		let shouldMergeDraft = false
 
-			if (studentJson.draft && studentJson.draft.profile_data) {
-				// Check if draft should be visible based on status and requester
-				if (studentJson.draft.status === 'draft') {
-					// Draft status: only visible to the student themselves
-					// This includes when an approved profile is edited but not yet submitted
-					// Debug: Check if this is the student viewing their own profile
-					console.log('Draft visibility check:', {
-						requesterRole,
-						requesterId,
-						studentDbId: student.id,
-						isMatch: requesterId === student.id,
-					})
+		if (studentJson.draft && studentJson.draft.profile_data) {
+			// Check if draft should be visible based on status and requester
+			if (studentJson.draft.status === 'draft') {
+				// Draft status: only visible to the student themselves
+				// This includes when an approved profile is edited but not yet submitted
+				// Debug: Check if this is the student viewing their own profile
+				console.log('Draft visibility check:', {
+					requesterRole,
+					requesterId,
+					studentDbId: student.id,
+					isMatch: requesterId === student.id,
+				})
 
-					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
-						shouldMergeDraft = true
-					}
-					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
-					// Non-draft statuses: visible to authorized users
+				if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
 					shouldMergeDraft = true
 				}
+				// Other users (Staff, Admin, Recruiter) cannot see draft changes
+			} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
+				// Non-draft statuses: visible to authorized users
+				shouldMergeDraft = true
 			}
-
-			// Merge draft data if conditions are met
-			if (shouldMergeDraft) {
-				const draftData = studentJson.draft.profile_data
-
-				// Merge draft fields into the main student object
-				const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
-
-				fieldsToMerge.forEach(field => {
-					if (draftData[field] !== undefined) {
-						studentJson[field] = draftData[field]
-					}
-				})
-			}
-
-			return studentJson
-		} catch (error) {
-			throw error
 		}
+
+		// Merge draft data if conditions are met
+		if (shouldMergeDraft) {
+			const draftData = studentJson.draft.profile_data
+
+			// Merge draft fields into the main student object
+			const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
+
+			fieldsToMerge.forEach(field => {
+				if (draftData[field] !== undefined) {
+					studentJson[field] = draftData[field]
+				}
+			})
+		}
+
+		return studentJson
 	}
 
 	// Service method to retrieve a student by student_id
 	static async getStudentByStudentId(studentId, password = false, requesterId = null, requesterRole = null) {
-		try {
-			let excluded = ['createdAt', 'updatedAt']
-			if (!password) {
-				excluded.push('password')
-			}
+		const excluded = ['createdAt', 'updatedAt']
+		if (!password) {
+			excluded.push('password')
+		}
 
-			const student = await Student.findOne({
-				where: { student_id: studentId }, // Search by student_id instead of id
-				attributes: { exclude: excluded },
-				include: [
-					{
-						model: Draft,
-						as: 'draft',
-						attributes: [
-							'id',
-							'status',
-							'submit_count',
-							'created_at',
-							'updated_at',
-							'profile_data', // Include profile_data to get draft information
-						],
-						required: false, // LEFT JOIN so students without drafts are still included
-					},
-				],
-			})
+		const student = await Student.findOne({
+			where: { student_id: studentId }, // Search by student_id instead of id
+			attributes: { exclude: excluded },
+			include: [
+				{
+					model: Draft,
+					as: 'draft',
+					attributes: [
+						'id',
+						'status',
+						'submit_count',
+						'created_at',
+						'updated_at',
+						'profile_data', // Include profile_data to get draft information
+					],
+					required: false, // LEFT JOIN so students without drafts are still included
+				},
+			],
+		})
 
-			if (!student) {
-				throw new Error('Student not found')
-			}
+		if (!student) {
+			throw new Error('Student not found')
+		}
 
-			// Convert to JSON
-			const studentJson = student.toJSON()
+		// Convert to JSON
+		const studentJson = student.toJSON()
 
-			// Determine if draft data should be merged
-			let shouldMergeDraft = false
+		// Determine if draft data should be merged
+		let shouldMergeDraft = false
 
-			if (studentJson.draft && studentJson.draft.profile_data) {
-				// Check if draft should be visible based on status and requester
-				if (studentJson.draft.status === 'draft') {
-					// Draft status: only visible to the student themselves
-					// This includes when an approved profile is edited but not yet submitted
-					// Debug: Check if this is the student viewing their own profile
-					console.log('Draft visibility check:', {
-						requesterRole,
-						requesterId,
-						studentDbId: student.id,
-						isMatch: requesterId === student.id,
-					})
+		if (studentJson.draft && studentJson.draft.profile_data) {
+			// Check if draft should be visible based on status and requester
+			if (studentJson.draft.status === 'draft') {
+				// Draft status: only visible to the student themselves
+				// This includes when an approved profile is edited but not yet submitted
+				// Debug: Check if this is the student viewing their own profile
+				console.log('Draft visibility check:', {
+					requesterRole,
+					requesterId,
+					studentDbId: student.id,
+					isMatch: requesterId === student.id,
+				})
 
-					if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
-						shouldMergeDraft = true
-					}
-					// Other users (Staff, Admin, Recruiter) cannot see draft changes
-				} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
-					// Non-draft statuses: visible to authorized users
+				if (requesterRole === 'Student' && requesterId && student.id === requesterId) {
 					shouldMergeDraft = true
 				}
+				// Other users (Staff, Admin, Recruiter) cannot see draft changes
+			} else if (studentJson.draft.status === 'submitted' || studentJson.draft.status === 'approved' || studentJson.draft.status === 'disapproved' || studentJson.draft.status === 'resubmission_required') {
+				// Non-draft statuses: visible to authorized users
+				shouldMergeDraft = true
 			}
-
-			// Merge draft data if conditions are met
-			if (shouldMergeDraft) {
-				const draftData = studentJson.draft.profile_data
-
-				// Merge draft fields into the main student object
-				const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
-
-				fieldsToMerge.forEach(field => {
-					if (draftData[field] !== undefined) {
-						studentJson[field] = draftData[field]
-					}
-				})
-			}
-
-			return studentJson
-		} catch (error) {
-			throw error
 		}
+
+		// Merge draft data if conditions are met
+		if (shouldMergeDraft) {
+			const draftData = studentJson.draft.profile_data
+
+			// Merge draft fields into the main student object
+			const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
+
+			fieldsToMerge.forEach(field => {
+				if (draftData[field] !== undefined) {
+					studentJson[field] = draftData[field]
+				}
+			})
+		}
+
+		return studentJson
 	}
 
 	static async updateStudent(studentId, studentData) {
-		try {
-			console.log('StudentService.updateStudent called with:', {
-				studentId,
-				studentData,
-			})
+		console.log('StudentService.updateStudent called with:', {
+			studentId,
+			studentData,
+		})
 
-			// Always use student_id for lookup to be consistent with getStudentByStudentId
-			const student = await Student.findOne({
-				where: { student_id: studentId },
-			})
+		// Always use student_id for lookup to be consistent with getStudentByStudentId
+		const student = await Student.findOne({
+			where: { student_id: studentId },
+		})
 
-			if (!student) {
-				throw new Error('Student not found')
-			}
+		if (!student) {
+			throw new Error('Student not found')
+		}
 
-			console.log('Found student:', student.dataValues)
+		console.log('Found student:', student.dataValues)
 
-			// If we're setting visibility to true, ensure we have the latest approved draft
-			if (studentData.visibility === true) {
-				// Check if we already have draft data in the request
-				const hasDraftData = studentData.hasOwnProperty('self_introduction') || studentData.hasOwnProperty('hobbies') || studentData.hasOwnProperty('skills') || studentData.hasOwnProperty('it_skills')
+		// If we're setting visibility to true, ensure we have the latest approved draft
+		if (studentData.visibility === true) {
+			// Check if we already have draft data in the request
+			const hasDraftData = Object.prototype.hasOwnProperty.call(studentData, 'self_introduction') || Object.prototype.hasOwnProperty.call(studentData, 'hobbies') || Object.prototype.hasOwnProperty.call(studentData, 'skills') || Object.prototype.hasOwnProperty.call(studentData, 'it_skills')
 
-				console.log('Has draft data:', hasDraftData)
+			console.log('Has draft data:', hasDraftData)
 
-				// If no draft data provided, try to find the latest approved draft
-				if (!hasDraftData) {
-					const latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id)
+			// If no draft data provided, try to find the latest approved draft
+			if (!hasDraftData) {
+				const latestApprovedDraft = await DraftService.getLatestApprovedDraftByStudentId(student.student_id)
 
-					console.log('Latest approved draft:', latestApprovedDraft)
+				console.log('Latest approved draft:', latestApprovedDraft)
 
-					if (latestApprovedDraft) {
-						// console.log('Applying latest approved draft to student profile...')
+				if (latestApprovedDraft) {
+					// console.log('Applying latest approved draft to student profile...')
 
-						// Extract profile data from the draft
-						const profileData = latestApprovedDraft.profile_data || {}
+					// Extract profile data from the draft
+					const profileData = latestApprovedDraft.profile_data || {}
 
-						// Merge the profile data with the request data
-						studentData = {
-							...profileData,
-							...studentData,
-							visibility: true,
-						}
-
-						console.log('Merged student data with draft:', studentData)
+					// Merge the profile data with the request data
+					studentData = {
+						...profileData,
+						...studentData,
+						visibility: true,
 					}
+
+					console.log('Merged student data with draft:', studentData)
 				}
 			}
-
-			console.log('Final student data to update:', studentData)
-
-			// Update the student with the provided data
-			await student.update(studentData)
-
-			console.log('Student updated successfully, new data:', student.dataValues)
-
-			return student
-		} catch (error) {
-			console.error('Error updating student:', error)
-			throw error
 		}
+
+		console.log('Final student data to update:', studentData)
+
+		// Update the student with the provided data
+		await student.update(studentData)
+
+		console.log('Student updated successfully, new data:', student.dataValues)
+
+		return student
 	}
 
 	// Service method to update a student by kintone_id
 	static async updateStudentWithKintoneID(kintoneId, studentData) {
-		try {
-			// Find student by kintone_id and exclude certain fields from the response
-			const student = await Student.findOne({
-				where: { kintone_id: kintoneId },
-				attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-			})
+		// Find student by kintone_id and exclude certain fields from the response
+		const student = await Student.findOne({
+			where: { kintone_id: kintoneId },
+			attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+		})
 
-			// If student not found, throw an error
-			if (!student) {
-				throw new Error('Student not found')
-			}
-
-			// Update the student with the provided data
-			await student.update(studentData)
-
-			return student
-		} catch (error) {
-			console.error('Error updating student:', error)
-			throw error
+		// If student not found, throw an error
+		if (!student) {
+			throw new Error('Student not found')
 		}
+
+		// Update the student with the provided data
+		await student.update(studentData)
+
+		return student
 	}
 
 	// Service method to update a student by kintone_id
 	static async updateStudentWithStudentID(studentId, studentData) {
-		try {
-			// Find student by kintone_id and exclude certain fields from the response
-			const student = await Student.findOne({
-				where: { student_id: studentId },
-				attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
-			})
+		// Find student by kintone_id and exclude certain fields from the response
+		const student = await Student.findOne({
+			where: { student_id: studentId },
+			attributes: { exclude: ['password', 'createdAt', 'updatedAt'] },
+		})
 
-			// If student not found, throw an error
-			if (!student) {
-				throw new Error('Student not found')
-			}
-
-			// Update the student with the provided data
-			await student.update(studentData)
-
-			return student
-		} catch (error) {
-			console.error('Error updating student:', error)
-			throw error
+		// If student not found, throw an error
+		if (!student) {
+			throw new Error('Student not found')
 		}
+
+		// Update the student with the provided data
+		await student.update(studentData)
+
+		return student
 	}
 
 	// Service method to delete a student by kintone_id
 	static async deleteStudent(kintoneId) {
-		try {
-			// Find student by kintone_id
-			const student = await Student.findOne({
-				where: { kintone_id: kintoneId },
-			})
+		// Find student by kintone_id
+		const student = await Student.findOne({
+			where: { kintone_id: kintoneId },
+		})
 
-			// If student not found, throw an error
-			if (!student) {
-				throw new Error('Student not found')
-			}
-
-			// Delete the student
-			await student.destroy()
-		} catch (error) {
-			console.error('Error deleting student:', error)
-			throw error
+		// If student not found, throw an error
+		if (!student) {
+			throw new Error('Student not found')
 		}
+
+		// Delete the student
+		await student.destroy()
 	}
 
 	//         for (const data of studentData) {
@@ -896,138 +864,117 @@ class StudentService {
 	}
 
 	static async getStudentsWithPendingDrafts() {
-		try {
-			const students = await Student.findAll({
-				include: [
-					{
-						model: Draft,
-						as: 'drafts',
-						where: { status: 'pending' }, // status = "pending" filter
-					},
-				],
-			})
-			return students
-		} catch (error) {
-			throw error
-		}
+		const students = await Student.findAll({
+			include: [
+				{
+					model: Draft,
+					as: 'drafts',
+					where: { status: 'pending' }, // status = "pending" filter
+				},
+			],
+		})
+		return students
 	}
 
 	// Get student IDs for autocomplete
 	static async getStudentIds(search = '') {
-		try {
-			const { Op } = require('sequelize')
-			const whereClause = search
-				? {
-						[Op.or]: [
-							{ student_id: { [Op.iLike]: `%${search}%` } },
-							{
-								[Op.or]: [{ first_name: { [Op.iLike]: `%${search}%` } }, { last_name: { [Op.iLike]: `%${search}%` } }],
-							},
-						],
-						active: true,
-					}
-				: { active: true }
+		const { Op } = require('sequelize')
+		const whereClause = search
+			? {
+					[Op.or]: [
+						{ student_id: { [Op.iLike]: `%${search}%` } },
+						{
+							[Op.or]: [{ first_name: { [Op.iLike]: `%${search}%` } }, { last_name: { [Op.iLike]: `%${search}%` } }],
+						},
+					],
+					active: true,
+				}
+			: { active: true }
 
-			const students = await Student.findAll({
-				where: whereClause,
-				attributes: ['student_id', 'first_name', 'last_name'],
-				order: [['student_id', 'ASC']],
-				limit: 10, // Limit to 10 suggestions
-			})
+		const students = await Student.findAll({
+			where: whereClause,
+			attributes: ['student_id', 'first_name', 'last_name'],
+			order: [['student_id', 'ASC']],
+			limit: 10, // Limit to 10 suggestions
+		})
 
-			return students.map(student => ({
-				student_id: student.student_id,
-				name: `${student.first_name} ${student.last_name}`,
-				display: `${student.student_id} - ${student.first_name} ${student.last_name}`,
-			}))
-		} catch (error) {
-			throw error
-		}
+		return students.map(student => ({
+			student_id: student.student_id,
+			name: `${student.first_name} ${student.last_name}`,
+			display: `${student.student_id} - ${student.first_name} ${student.last_name}`,
+		}))
 	}
 
 	// Credit Details Methods
 	static async updateStudentCreditDetails(studentId) {
-		try {
-			// Fetch credit details from Kintone
-			const creditDetails = await kintoneCreditDetailsService.getCreditDetailsByStudentId(studentId)
+		// Fetch credit details from Kintone
+		const creditDetails = await kintoneCreditDetailsService.getCreditDetailsByStudentId(studentId)
 
-			// Update student record with credit details
-			const [updatedRowsCount] = await Student.update({ credit_details: creditDetails }, { where: { student_id: studentId } })
+		// Update student record with credit details
+		const [updatedRowsCount] = await Student.update({ credit_details: creditDetails }, { where: { student_id: studentId } })
 
-			if (updatedRowsCount === 0) {
-				throw new Error('Student not found or no update needed')
-			}
+		if (updatedRowsCount === 0) {
+			throw new Error('Student not found or no update needed')
+		}
 
-			// Calculate total credits and update if needed
-			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(creditDetails)
-			await Student.update({ total_credits: totalCredits }, { where: { student_id: studentId } })
+		// Calculate total credits and update if needed
+		const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(creditDetails)
+		await Student.update({ total_credits: totalCredits }, { where: { student_id: studentId } })
 
-			console.log(`✅ Updated credit details for student ${studentId}: ${creditDetails.length} records, ${totalCredits} total credits`)
+		console.log(`✅ Updated credit details for student ${studentId}: ${creditDetails.length} records, ${totalCredits} total credits`)
 
-			return {
-				studentId,
-				creditDetailsCount: creditDetails.length,
-				totalCredits,
-				creditDetails,
-			}
-		} catch (error) {
-			console.error(`❌ Error updating credit details for student ${studentId}:`, error.message)
-			throw error
+		return {
+			studentId,
+			creditDetailsCount: creditDetails.length,
+			totalCredits,
+			creditDetails,
 		}
 	}
 
 	static async getStudentWithCreditDetails(studentId) {
-		try {
-			const student = await this.getStudentByStudentId(studentId)
-			if (!student) {
-				throw new Error('Student not found')
-			}
+		const student = await this.getStudentByStudentId(studentId)
+		if (!student) {
+			throw new Error('Student not found')
+		}
 
-			// Always fetch fresh data from Kintone for real-time updates
-			console.log(`🔄 Fetching fresh credit details from Kintone for student ${studentId}`)
-			await this.updateStudentCreditDetails(studentId)
-			// Fetch updated student data
-			const updatedStudent = await this.getStudentByStudentId(studentId)
+		// Always fetch fresh data from Kintone for real-time updates
+		console.log(`🔄 Fetching fresh credit details from Kintone for student ${studentId}`)
+		await this.updateStudentCreditDetails(studentId)
+		// Fetch updated student data
+		const updatedStudent = await this.getStudentByStudentId(studentId)
 
-			// Calculate total credits from credit details (like Sanno University)
-			const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(updatedStudent.credit_details || [])
+		// Calculate total credits from credit details (like Sanno University)
+		const totalCredits = kintoneCreditDetailsService.calculateTotalCredits(updatedStudent.credit_details || [])
 
-			return {
-				...updatedStudent,
-				totalCredits,
-				creditDetails: updatedStudent.credit_details || [],
-			}
-		} catch (error) {
-			throw error
+		return {
+			...updatedStudent,
+			totalCredits,
+			creditDetails: updatedStudent.credit_details || [],
 		}
 	}
 
 	static async syncAllStudentCreditDetails() {
-		try {
-			const students = await Student.findAll({
-				attributes: ['student_id'],
-				where: { active: true },
-			})
+		const students = await Student.findAll({
+			attributes: ['student_id'],
+			where: { active: true },
+		})
 
-			const results = []
-			for (const student of students) {
-				try {
-					const result = await this.updateStudentCreditDetails(student.student_id)
-					results.push(result)
-				} catch (error) {
-					console.error(`Failed to sync credit details for ${student.student_id}:`, error.message)
-					results.push({
-						studentId: student.student_id,
-						error: error.message,
-					})
-				}
+		const results = []
+		for (const student of students) {
+			try {
+				const result = await this.updateStudentCreditDetails(student.student_id)
+				results.push(result)
+			} catch (error) {
+				console.error(`Failed to sync credit details for ${student.student_id}:`, error.message)
+				results.push({
+					studentId: student.student_id,
+					error: error.message,
+				})
 			}
-
-			console.log(`✅ Sync completed for ${students.length} students`)
-			return results
-		} catch (error) {
-			throw error
 		}
+
+		console.log(`✅ Sync completed for ${students.length} students`)
+		return results
 	}
 }
 

@@ -11,6 +11,7 @@ const generateUniqueFilename = originalFilename => {
 	// Sanitize filename to be filesystem-safe while preserving Unicode characters
 	// Replace problematic characters but keep Japanese, Korean, Chinese, etc.
 	const sanitizedName = nameWithoutExt
+		// eslint-disable-next-line no-control-regex
 		.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_') // Replace Windows forbidden chars
 		.replace(/\.+/g, '_') // Replace multiple dots
 		.trim() // Remove leading/trailing spaces

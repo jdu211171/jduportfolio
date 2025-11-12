@@ -8,7 +8,7 @@ class QAController {
 			if (typeof data !== 'object' || data === null) {
 				return res.status(400).json({ error: 'Invalid data format' })
 			}
-			let response = {}
+			const response = {}
 			for (const [category, questions] of Object.entries(data)) {
 				const qaData = {
 					category,
@@ -17,7 +17,7 @@ class QAController {
 				}
 
 				// Create QA entries for the current category
-				let a = await QAService.createQA(qaData)
+				const a = await QAService.createQA(qaData)
 				response[a.category] = a.qa_list
 			}
 			res.status(201).json(response)
@@ -53,7 +53,7 @@ class QAController {
 			const { data } = req.body
 			console.log('Update QA request data:', data)
 
-			let response = {}
+			const response = {}
 
 			// Fix: Use for...of loop with proper async/await handling
 			for (const [key, category] of Object.entries(data.idList)) {
@@ -103,11 +103,11 @@ class QAController {
 
 			const qaList = await QAService.findQAByStudentId(studentId)
 
-			let response = {}
-			let idList = {}
+			const response = {}
+			const idList = {}
 			qaList.forEach(data => {
 				response[data.category] = data.qa_list
-				let a = {}
+				const a = {}
 				a[data.id] = data.category
 				idList[data.id] = data.category
 			})

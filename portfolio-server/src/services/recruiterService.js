@@ -7,18 +7,14 @@ const generatePassword = require('generate-password')
 class RecruiterService {
 	// Service method to create a new recruiter
 	static async createRecruiter(recruiterData) {
-		try {
-			const newRecruiter = await Recruiter.create(recruiterData)
-			return newRecruiter
-		} catch (error) {
-			throw error // Throw the error for the controller to handle
-		}
+		const newRecruiter = await Recruiter.create(recruiterData)
+		return newRecruiter
 	}
 
 	// Service method to retrieve all recruiters
 	static async getAllRecruiters(filter) {
 		try {
-			let whereCondition = {}
+			const whereCondition = {}
 
 			// Ensure filter is a valid object
 			if (!filter || typeof filter !== 'object') {
@@ -86,39 +82,31 @@ class RecruiterService {
 
 	// Service method to retrieve a recruiter by ID
 	static async getRecruiterById(recruiterId, password = false, isSelf = false) {
-		try {
-			let excluded = ['createdAt', 'updatedAt', 'isPartner']
-			if (!password) {
-				excluded.push('password')
-			}
-			// For public GET by ID (password=false), exclude partner recruiters
-			// BUT allow self-access regardless of isPartner status
-			const where = { id: recruiterId }
-			if (!password && !isSelf) where.isPartner = false
-
-			const recruiter = await Recruiter.findOne({
-				where,
-				attributes: { exclude: excluded },
-			})
-			if (!recruiter) {
-				throw new Error('Recruiter not found')
-			}
-			return recruiter
-		} catch (error) {
-			throw error
+		const excluded = ['createdAt', 'updatedAt', 'isPartner']
+		if (!password) {
+			excluded.push('password')
 		}
+		// For public GET by ID (password=false), exclude partner recruiters
+		// BUT allow self-access regardless of isPartner status
+		const where = { id: recruiterId }
+		if (!password && !isSelf) where.isPartner = false
+
+		const recruiter = await Recruiter.findOne({
+			where,
+			attributes: { exclude: excluded },
+		})
+		if (!recruiter) {
+			throw new Error('Recruiter not found')
+		}
+		return recruiter
 	}
 
 	static async getRecruiterByIdWithPassword(recruiterId) {
-		try {
-			const recruiter = await Recruiter.findByPk(recruiterId)
-			if (!recruiter) {
-				throw new Error('Recruiter not found')
-			}
-			return recruiter
-		} catch (error) {
-			throw error
+		const recruiter = await Recruiter.findByPk(recruiterId)
+		if (!recruiter) {
+			throw new Error('Recruiter not found')
 		}
+		return recruiter
 	}
 
 	static async updateRecruiter(id, data) {
@@ -232,7 +220,7 @@ class RecruiterService {
 	}
 
 	static async updateRecruiterByKintoneId(kintoneId, data) {
-		const [affectedRows, updatedRecruiters] = await Recruiter.update(data, {
+		const [, updatedRecruiters] = await Recruiter.update(data, {
 			where: { kintone_id: kintoneId },
 			returning: true,
 		})

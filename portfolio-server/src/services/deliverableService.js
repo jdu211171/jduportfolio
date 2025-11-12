@@ -79,7 +79,7 @@ class DeliverableService {
 	 */
 	static async updateDeliverable(studentId, deliverableId, updateData, files) {
 		const draft = await _getOrCreateDraft(studentId)
-		let deliverables = draft.profile_data.deliverables || []
+		const deliverables = draft.profile_data.deliverables || []
 
 		const deliverableIndex = deliverables.findIndex(d => d.id == deliverableId)
 		if (deliverableIndex === -1) {
@@ -140,7 +140,9 @@ class DeliverableService {
 				if (toRemove.has(url)) {
 					try {
 						await deleteFile(url)
-					} catch (_) {}
+					} catch (_) {
+						// File deletion failed, continue
+					}
 				} else {
 					remaining.push(url)
 				}

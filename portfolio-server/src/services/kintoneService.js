@@ -247,7 +247,7 @@ class KintoneService {
 				offset += 100
 			}
 
-			let data = {
+			const data = {
 				records: allRecords,
 			}
 			return data

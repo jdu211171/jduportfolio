@@ -89,7 +89,7 @@ class AdminController {
 					return res.status(400).json({ error: '現在のパスワードを入力してください' })
 				}
 			}
-			let response = await AdminService.updateAdmin(req.params.id, {
+			const response = await AdminService.updateAdmin(req.params.id, {
 				...updateData,
 				password: password || undefined, // Обновляем пароль только если он предоставлен
 			})

@@ -12,6 +12,8 @@
 		"unseed": "npx sequelize-cli db:seed:undo:all --config src/config/config.js",
 		"format": "prettier --write . --ignore-unknown --ignore-path ../.prettierignore",
 		"format:check": "prettier --check . --ignore-unknown --ignore-path ../.prettierignore",
+		"lint": "eslint src/**/*.js",
+		"lint:fix": "eslint src/**/*.js --fix",
 		"clean": "rm -rf node_modules logs build",
 		"clean:logs": "rm -rf logs",
 		"clean:modules": "rm -rf node_modules",
@@ -51,6 +53,9 @@
 		"swagger-ui-express": "^5.0.1"
 	},
 	"devDependencies": {
+		"eslint": "^8.57.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-prettier": "^5.2.1",
 		"prettier": "3.3.3"
 	}
 }

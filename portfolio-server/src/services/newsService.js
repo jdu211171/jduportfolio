@@ -226,7 +226,7 @@ class NewsService {
 			let unreadCount = 0
 			if (user && user.id && user.userType) {
 				let userId = user.id
-				let userRole = user.userType.toLowerCase()
+				const userRole = user.userType.toLowerCase()
 
 				// Map Student to business ID to match NewsViews/Notifications
 				if (userRole === 'student') {

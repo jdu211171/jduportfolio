@@ -2,8 +2,6 @@ const { Draft, Student, sequelize } = require('../models')
 const SettingsService = require('./settingService')
 const QAService = require('./qaService')
 const _ = require('lodash') // Used for deep object comparison
-const { uploadFile, deleteFile } = require('../utils/storageService')
-const generateUniqueFilename = require('../utils/uniqueFilename')
 
 const { Op } = require('sequelize')
 
@@ -61,9 +59,9 @@ class DraftService {
 				filter.semester = filter.semester.flatMap(term => getSemesterNumbers(term))
 			}
 
-			let query = {}
-			let querySearch = {}
-			let queryOther = {}
+			const query = {}
+			const querySearch = {}
+			const queryOther = {}
 			queryOther[Op.and] = []
 
 			// Helper to build JSONB @> conditions for it_skills across levels
@@ -112,7 +110,7 @@ class DraftService {
 			Object.keys(filter).forEach(key => {
 				if (filter[key] && key !== 'draft_status') {
 					if (key === 'search') {
-						let searchConditions = searchableColumns.map(column => ({
+						const searchConditions = searchableColumns.map(column => ({
 							[column]: { [Op.iLike]: `%${filter[key]}%` },
 						}))
 
@@ -150,7 +148,7 @@ class DraftService {
 						// Match only the highest level within stored JSON string
 						queryOther[Op.and].push({
 							[Op.or]: filter[key].map(level => ({
-								[key]: { [Op.iLike]: `%\"highest\":\"${level}\"%` },
+								[key]: { [Op.iLike]: `%"highest":"${level}"%` },
 							})),
 						})
 					} else if (key === 'ielts') {
@@ -276,59 +274,55 @@ class DraftService {
 		}
 
 		// Server-side validation: ensure all required QA answers are filled
-		try {
-			const settingsRaw = await SettingsService.getSetting('studentQA')
-			if (settingsRaw) {
-				let settings
-				try {
-					settings = JSON.parse(settingsRaw)
-				} catch {
-					settings = null
+		const settingsRaw = await SettingsService.getSetting('studentQA')
+		if (settingsRaw) {
+			let settings
+			try {
+				settings = JSON.parse(settingsRaw)
+			} catch {
+				settings = null
+			}
+			if (settings && typeof settings === 'object') {
+				// Prefer answers from current draft.profile_data.qa if present
+				const profileQA = (draft.profile_data && draft.profile_data.qa) || null
+
+				let answersByCategory = {}
+				if (profileQA && typeof profileQA === 'object') {
+					answersByCategory = profileQA
+				} else {
+					// Fallback to persisted QA rows
+					const student = await Student.findOne({
+						where: { student_id: draft.student_id },
+					})
+					if (student) {
+						const qaRows = await QAService.findQAByStudentId(student.id)
+						for (const row of qaRows) {
+							answersByCategory[row.category] = row.qa_list || {}
+						}
+					}
 				}
-				if (settings && typeof settings === 'object') {
-					// Prefer answers from current draft.profile_data.qa if present
-					const profileQA = (draft.profile_data && draft.profile_data.qa) || null
 
-					let answersByCategory = {}
-					if (profileQA && typeof profileQA === 'object') {
-						answersByCategory = profileQA
-					} else {
-						// Fallback to persisted QA rows
-						const student = await Student.findOne({
-							where: { student_id: draft.student_id },
-						})
-						if (student) {
-							const qaRows = await QAService.findQAByStudentId(student.id)
-							for (const row of qaRows) {
-								answersByCategory[row.category] = row.qa_list || {}
+				const missing = []
+				for (const category of Object.keys(settings)) {
+					if (category === 'idList') continue
+					const questions = settings[category] || {}
+					const answers = answersByCategory[category] || {}
+					for (const key of Object.keys(questions)) {
+						const q = questions[key]
+						if (q && q.required === true) {
+							// Accept legacy answer shapes: object { answer } or plain string
+							const raw = answers[key]
+							const ans = raw && typeof raw === 'object' && raw !== null && 'answer' in raw ? raw.answer : raw
+							if (!ans || String(ans).trim() === '') {
+								missing.push({ category, key })
 							}
 						}
 					}
-
-					const missing = []
-					for (const category of Object.keys(settings)) {
-						if (category === 'idList') continue
-						const questions = settings[category] || {}
-						const answers = answersByCategory[category] || {}
-						for (const key of Object.keys(questions)) {
-							const q = questions[key]
-							if (q && q.required === true) {
-								// Accept legacy answer shapes: object { answer } or plain string
-								const raw = answers[key]
-								const ans = raw && typeof raw === 'object' && raw !== null && 'answer' in raw ? raw.answer : raw
-								if (!ans || String(ans).trim() === '') {
-									missing.push({ category, key })
-								}
-							}
-						}
-					}
-					if (missing.length > 0) {
-						throw new Error(`Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`)
-					}
+				}
+				if (missing.length > 0) {
+					throw new Error(`Majburiy savollarga javob to'liq emas. Iltimos, barcha '必須' savollarga javob bering. (Yetishmaydi: ${missing.length})`)
 				}
 			}
-		} catch (e) {
-			throw e
 		}
 
 		draft.status = 'submitted'

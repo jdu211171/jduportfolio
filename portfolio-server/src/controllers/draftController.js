@@ -291,7 +291,7 @@ class DraftController {
 				return res.status(400).json({ error: 'student_id yuborilishi shart' })
 			}
 
-			let studentWithDraft = await DraftService.getStudentWithDraft(student_id)
+			const studentWithDraft = await DraftService.getStudentWithDraft(student_id)
 
 			if (!studentWithDraft) {
 				return res.status(404).json({ message: 'Talaba topilmadi' })
