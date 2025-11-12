@@ -93,6 +93,15 @@ const qaQuestions = [
 	},
 ]
 
+const hasAnswerData = qaPayload => {
+	if (!qaPayload || typeof qaPayload !== 'object') return false
+	return Object.entries(qaPayload).some(([category, entries]) => {
+		if (category === 'idList') return false
+		if (!entries || typeof entries !== 'object') return false
+		return Object.values(entries).some(item => typeof item?.answer === 'string' && item.answer.trim() !== '')
+	})
+}
+
 // Sortable Item Component
 const SortableQATextField = ({ id, data, editData, category, question, keyName, aEdit, qEdit, updateEditData, DeleteQA, isReorderMode }) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
@@ -285,6 +294,13 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 				} catch (err) {}
 			}
 
+			if ((!answers || !hasAnswerData(answers)) && id) {
+				const draftFallback = await getQaFromDraft(id)
+				if (draftFallback) {
+					answers = draftFallback
+				}
+			}
+
 			let response
 			if (id && answers) {
 				// Student view with answers
@@ -333,6 +349,28 @@ const QA = ({ data = {}, handleQAUpdate, isFromTopPage = false, topEditMode = fa
 			setStudentQA({ idList: {} })
 			setEditData({ idList: {} })
 			setIsDataLoaded(true)
+		}
+	}
+
+	const getQaFromDraft = async studentIdToFetch => {
+		try {
+			const draftRes = await axios.get(`/api/draft/student/${studentIdToFetch}`)
+			const payload = draftRes?.data
+			if (!payload) return null
+
+			const candidates = []
+
+			if (role === 'Student') {
+				if (payload.draft?.profile_data?.qa) candidates.push(payload.draft.profile_data.qa)
+				if (payload.pendingDraft?.profile_data?.qa) candidates.push(payload.pendingDraft.profile_data.qa)
+			} else {
+				if (payload.pendingDraft?.profile_data?.qa) candidates.push(payload.pendingDraft.profile_data.qa)
+				if (payload.draft?.profile_data?.qa) candidates.push(payload.draft.profile_data.qa)
+			}
+
+			return candidates.find(hasAnswerData) || candidates.find(candidate => candidate && Object.keys(candidate).length > 0) || null
+		} catch (e) {
+			return null
 		}
 	}
 
