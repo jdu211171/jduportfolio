@@ -376,10 +376,10 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		</Grid>
 	)
 
-	// Reusable pagination component
+	// Reusable pagination component edited for both views
 	const PaginationControls = () => (
 		<TablePagination
-			rowsPerPageOptions={[5, 10, 25, 50, 150]}
+			rowsPerPageOptions={[5, 10, 25, 50, 100]}
 			component='div'
 			count={rows.length}
 			rowsPerPage={rowsPerPage}
