@@ -24,9 +24,9 @@ import { getComparator, stableSort } from './TableUtils'
 const getInitialRowsPerPage = () => {
 	try {
 		const saved = localStorage.getItem('tableRowsPerPage')
-		return saved ? parseInt(saved, 10) : 10
+		return saved ? parseInt(saved, 10) : 50
 	} catch (error) {
-		return 10
+		return 50
 	}
 }
 
@@ -46,12 +46,12 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 	const [orderBy, setOrderBy] = useState(searchParams.get('orderBy') || '')
 	const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || '')
 	const [sortOrder, setSortOrder] = useState(searchParams.get('sortOrder') || '')
-	const [selected, setSelected] = useState([])
+	const [selected, _setSelected] = useState([])
 	const [page, setPage] = useState(parseInt(searchParams.get('page') || '0', 10))
 	const [rowsPerPage, setRowsPerPage] = useAtom(rowsPerPageAtom)
 	const [rows, setRows] = useState([])
 	const [loading, setLoading] = useState(false)
-	const [refresher, setRefresher] = useState(0)
+	const [_refresher, setRefresher] = useState(0)
 	const [anchorEls, setAnchorEls] = useState({})
 	const [deleteModal, setDeleteModal] = useState({
 		open: false,
@@ -376,7 +376,7 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 		</Grid>
 	)
 
-	// Reusable pagination component
+	// Reusable pagination component edited for both views
 	const PaginationControls = () => (
 		<TablePagination
 			rowsPerPageOptions={[5, 10, 25, 50, 100]}
@@ -850,7 +850,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																					)
 																					return revertedRows
 																				})
-																			} else {
 																			}
 																		} catch (error) {
 																			// Revert to previous state on error
@@ -943,7 +942,6 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 																					)
 																					return revertedRows
 																				})
-																			} else {
 																			}
 																		} catch (error) {
 																			// Revert to previous state on error
