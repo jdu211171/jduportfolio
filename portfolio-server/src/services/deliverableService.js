@@ -15,12 +15,16 @@ const _getOrCreateDraft = async studentId => {
 	if (!studentId) {
 		throw { status: 400, message: 'Talaba ID raqami topilmadi.' }
 	}
-	let draft = await Draft.findOne({ where: { student_id: studentId } })
+	let draft = await Draft.findOne({
+		where: { student_id: studentId, version_type: 'draft' },
+	})
 	if (!draft) {
 		draft = await Draft.create({
 			student_id: studentId,
-			profile_data: {}, // Boshlang'ich bo'sh ma'lumot
+			version_type: 'draft',
+			profile_data: {},
 			status: 'draft',
+			changed_fields: [],
 		})
 	}
 	return draft
