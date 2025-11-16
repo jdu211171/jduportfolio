@@ -9,21 +9,22 @@ const generateUniqueFilename = require('../utils/uniqueFilename')
  * Talaba uchun mavjud draftni topadi yoki yangisini yaratadi.
  * Bu funksiya `upsertDraft`'dan farqli o'laroq, `profile_data`'ni o'zgartirmaydi.
  * @param {string} studentId - Talabaning ID raqami.
+ * @param {string} versionType - Draft version type ('draft' or 'pending'). Defaults to 'draft'.
  * @returns {Promise<Draft>} Topilgan yoki yaratilgan draft obyekti.
  */
-const _getOrCreateDraft = async studentId => {
+const _getOrCreateDraft = async (studentId, versionType = 'draft') => {
 	if (!studentId) {
 		throw { status: 400, message: 'Talaba ID raqami topilmadi.' }
 	}
 	let draft = await Draft.findOne({
-		where: { student_id: studentId, version_type: 'draft' },
+		where: { student_id: studentId, version_type: versionType },
 	})
 	if (!draft) {
 		draft = await Draft.create({
 			student_id: studentId,
-			version_type: 'draft',
+			version_type: versionType,
 			profile_data: {},
-			status: 'draft',
+			status: versionType === 'pending' ? 'pending' : 'draft',
 			changed_fields: [],
 		})
 	}
@@ -33,8 +34,12 @@ const _getOrCreateDraft = async studentId => {
 class DeliverableService {
 	/**
 	 * Draft'ga yangi ish namunasini (bir nechta rasm bilan) qo'shadi.
+	 * @param {string} studentId - Student ID
+	 * @param {object} deliverableData - Deliverable data
+	 * @param {Array} files - Uploaded files
+	 * @param {string} versionType - Draft version type ('draft' or 'pending')
 	 */
-	static async addDeliverable(studentId, deliverableData, files) {
+	static async addDeliverable(studentId, deliverableData, files, versionType = 'draft') {
 		if (!files || files.length === 0) {
 			throw {
 				status: 400,
@@ -80,9 +85,14 @@ class DeliverableService {
 
 	/**
 	 * Mavjud ish namunasini tahrirlaydi.
+	 * @param {string} studentId - Student ID
+	 * @param {string|number} deliverableId - Deliverable ID
+	 * @param {object} updateData - Update data
+	 * @param {Array} files - Uploaded files
+	 * @param {string} versionType - Draft version type ('draft' or 'pending')
 	 */
-	static async updateDeliverable(studentId, deliverableId, updateData, files) {
-		const draft = await _getOrCreateDraft(studentId)
+	static async updateDeliverable(studentId, deliverableId, updateData, files, versionType = 'draft') {
+		const draft = await _getOrCreateDraft(studentId, versionType)
 		let deliverables = draft.profile_data.deliverables || []
 
 		const deliverableIndex = deliverables.findIndex(d => d.id == deliverableId)
@@ -191,9 +201,12 @@ class DeliverableService {
 
 	/**
 	 * Ish namunasini o'chiradi.
+	 * @param {string} studentId - Student ID
+	 * @param {string|number} deliverableId - Deliverable ID
+	 * @param {string} versionType - Draft version type ('draft' or 'pending')
 	 */
-	static async removeDeliverable(studentId, deliverableId) {
-		const draft = await _getOrCreateDraft(studentId)
+	static async removeDeliverable(studentId, deliverableId, versionType = 'draft') {
+		const draft = await _getOrCreateDraft(studentId, versionType)
 		const deliverables = draft.profile_data.deliverables || []
 
 		const deliverableToRemove = deliverables.find(d => d.id == deliverableId)
