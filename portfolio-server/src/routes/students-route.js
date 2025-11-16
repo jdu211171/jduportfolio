@@ -99,6 +99,44 @@ router.get('/ids', StudentController.getStudentIds)
 
 /**
  * @swagger
+ * /api/students/{id}/for-cv:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get student data formatted for CV download
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student ID
+ *     responses:
+ *       200:
+ *         description: Student CV data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 fullName:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 education:
+ *                   type: array
+ *                 workExperience:
+ *                   type: array
+ *                 licenses:
+ *                   type: array
+ *                 skills:
+ *                   type: object
+ *       404:
+ *         description: Student not found
+ */
+router.get('/:id/for-cv', StudentController.getStudentForCV)
+
+/**
+ * @swagger
  * /api/students/{id}:
  *   get:
  *     tags: [Students]
