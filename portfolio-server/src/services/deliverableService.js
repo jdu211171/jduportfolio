@@ -24,7 +24,7 @@ const _getOrCreateDraft = async (studentId, versionType = 'draft') => {
 			student_id: studentId,
 			version_type: versionType,
 			profile_data: {},
-			status: versionType === 'pending' ? 'submitted' : 'draft',
+			status: versionType === 'pending' ? 'checking' : 'draft',
 			changed_fields: [],
 		})
 	}
