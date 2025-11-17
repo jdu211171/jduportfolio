@@ -31,6 +31,32 @@ const _getOrCreateDraft = async (studentId, versionType = 'draft') => {
 	return draft
 }
 
+/**
+ * Talaba uchun draftni topadi. Agar pending topilmasa, draft versiyasini qaytaradi.
+ * Bu staff/admin uchun update/delete operatsiyalarida ishlatiladi.
+ * @param {string} studentId - Talabaning ID raqami.
+ * @param {string} versionType - Draft version type ('draft' or 'pending'). Defaults to 'draft'.
+ * @returns {Promise<Draft>} Topilgan draft obyekti.
+ */
+const _getDraftWithFallback = async (studentId, versionType = 'draft') => {
+	if (!studentId) {
+		throw { status: 400, message: 'Talaba ID raqami topilmadi.' }
+	}
+	let draft = await Draft.findOne({
+		where: { student_id: studentId, version_type: versionType },
+	})
+	// If pending not found and versionType is pending, fall back to draft
+	if (!draft && versionType === 'pending') {
+		draft = await Draft.findOne({
+			where: { student_id: studentId, version_type: 'draft' },
+		})
+	}
+	if (!draft) {
+		throw { status: 404, message: 'Draft topilmadi.' }
+	}
+	return draft
+}
+
 class DeliverableService {
 	/**
 	 * Draft'ga yangi ish namunasini (bir nechta rasm bilan) qo'shadi.
@@ -92,7 +118,7 @@ class DeliverableService {
 	 * @param {string} versionType - Draft version type ('draft' or 'pending')
 	 */
 	static async updateDeliverable(studentId, deliverableId, updateData, files, versionType = 'draft') {
-		const draft = await _getOrCreateDraft(studentId, versionType)
+		const draft = await _getDraftWithFallback(studentId, versionType)
 		let deliverables = draft.profile_data.deliverables || []
 
 		const deliverableIndex = deliverables.findIndex(d => d.id == deliverableId)
@@ -193,7 +219,8 @@ class DeliverableService {
 
 		draft.set('profile_data.deliverables', deliverables)
 		draft.changed_fields = _.union(draft.changed_fields || [], ['deliverables'])
-		if (versionType === 'draft' && draft.status !== 'draft') draft.status = 'draft'
+		// Only reset status to draft if editing the actual draft version
+		if (draft.version_type === 'draft' && draft.status !== 'draft') draft.status = 'draft'
 
 		await draft.save()
 		return draft
@@ -206,7 +233,7 @@ class DeliverableService {
 	 * @param {string} versionType - Draft version type ('draft' or 'pending')
 	 */
 	static async removeDeliverable(studentId, deliverableId, versionType = 'draft') {
-		const draft = await _getOrCreateDraft(studentId, versionType)
+		const draft = await _getDraftWithFallback(studentId, versionType)
 		const deliverables = draft.profile_data.deliverables || []
 
 		const deliverableToRemove = deliverables.find(d => d.id == deliverableId)
@@ -222,7 +249,8 @@ class DeliverableService {
 
 		draft.set('profile_data.deliverables', updatedDeliverables)
 		draft.changed_fields = _.union(draft.changed_fields || [], ['deliverables'])
-		if (versionType === 'draft' && draft.status !== 'draft') draft.status = 'draft'
+		// Only reset status to draft if editing the actual draft version
+		if (draft.version_type === 'draft' && draft.status !== 'draft') draft.status = 'draft'
 
 		await draft.save()
 		return draft
