@@ -24,7 +24,7 @@ const _getOrCreateDraft = async (studentId, versionType = 'draft') => {
 			student_id: studentId,
 			version_type: versionType,
 			profile_data: {},
-			status: versionType === 'pending' ? 'pending' : 'draft',
+			status: versionType === 'pending' ? 'submitted' : 'draft',
 			changed_fields: [],
 		})
 	}
@@ -68,7 +68,7 @@ class DeliverableService {
 				.map(r => r.trim())
 				.filter(r => r)
 		}
-		const draft = await _getOrCreateDraft(studentId)
+		const draft = await _getOrCreateDraft(studentId, versionType)
 
 		const currentDeliverables = draft.profile_data.deliverables || []
 		const updatedDeliverables = [...currentDeliverables, newDeliverable]
@@ -77,7 +77,7 @@ class DeliverableService {
 		draft.set('profile_data.deliverables', updatedDeliverables)
 
 		draft.changed_fields = _.union(draft.changed_fields || [], ['deliverables'])
-		if (draft.status !== 'draft') draft.status = 'draft'
+		if (versionType === 'draft' && draft.status !== 'draft') draft.status = 'draft'
 
 		await draft.save()
 		return draft
@@ -193,7 +193,7 @@ class DeliverableService {
 
 		draft.set('profile_data.deliverables', deliverables)
 		draft.changed_fields = _.union(draft.changed_fields || [], ['deliverables'])
-		if (draft.status !== 'draft') draft.status = 'draft'
+		if (versionType === 'draft' && draft.status !== 'draft') draft.status = 'draft'
 
 		await draft.save()
 		return draft
@@ -222,7 +222,7 @@ class DeliverableService {
 
 		draft.set('profile_data.deliverables', updatedDeliverables)
 		draft.changed_fields = _.union(draft.changed_fields || [], ['deliverables'])
-		if (draft.status !== 'draft') draft.status = 'draft'
+		if (versionType === 'draft' && draft.status !== 'draft') draft.status = 'draft'
 
 		await draft.save()
 		return draft
