@@ -1237,6 +1237,171 @@ class StudentService {
 			throw error
 		}
 	}
+
+	// Add these methods to existing StudentService class
+
+	/**
+	 * Update student's education history
+	 */
+	static async updateEducation(studentId, educationData) {
+		try {
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
+
+			if (!student) {
+				const error = new Error('Student not found')
+				error.status = 404
+				throw error
+			}
+
+			// Update education field
+			await student.update({ cv_education: educationData })
+
+			console.log('✅ Education updated for student:', studentId)
+			return student.toJSON()
+		} catch (error) {
+			console.error('❌ Error updating education:', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Update student's work experience (Arubaito)
+	 */
+	static async updateWorkExperience(studentId, workData) {
+		try {
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
+
+			if (!student) {
+				const error = new Error('Student not found')
+				error.status = 404
+				throw error
+			}
+
+			await student.update({ cv_work_experience: workData })
+
+			console.log('✅ Work experience updated for student:', studentId)
+			return student.toJSON()
+		} catch (error) {
+			console.error('❌ Error updating work experience:', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Update student's licenses and certificates
+	 */
+	static async updateLicenses(studentId, licensesData) {
+		try {
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
+
+			if (!student) {
+				const error = new Error('Student not found')
+				error.status = 404
+				throw error
+			}
+
+			await student.update({ cv_licenses: licensesData })
+
+			console.log('✅ Licenses updated for student:', studentId)
+			return student.toJSON()
+		} catch (error) {
+			console.error('❌ Error updating licenses:', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Update student's projects
+	 */
+	static async updateProjects(studentId, projectsData) {
+		try {
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
+
+			if (!student) {
+				const error = new Error('Student not found')
+				error.status = 404
+				throw error
+			}
+
+			await student.update({ cv_projects: projectsData })
+
+			console.log('✅ Projects updated for student:', studentId)
+			return student.toJSON()
+		} catch (error) {
+			console.error('❌ Error updating projects:', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Update student's additional CV information
+	 */
+	static async updateAdditionalInfo(studentId, additionalInfo) {
+		try {
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
+
+			if (!student) {
+				const error = new Error('Student not found')
+				error.status = 404
+				throw error
+			}
+
+			await student.update({ cv_additional_info: additionalInfo })
+
+			console.log('✅ Additional info updated for student:', studentId)
+			return student.toJSON()
+		} catch (error) {
+			console.error('❌ Error updating additional info:', error)
+			throw error
+		}
+	}
+
+	/**
+	 * Update student's address information
+	 */
+	static async updateAddress(studentId, addressData) {
+		try {
+			const student = await Student.findOne({
+				where: { student_id: studentId },
+			})
+
+			if (!student) {
+				const error = new Error('Student not found')
+				error.status = 404
+				throw error
+			}
+
+			// Prepare update object (only update provided fields)
+			const updates = {}
+			if (addressData.address !== undefined) {
+				updates.address = addressData.address
+			}
+			if (addressData.address_furigana !== undefined) {
+				updates.address_furigana = addressData.address_furigana
+			}
+			if (addressData.postal_code !== undefined) {
+				updates.postal_code = addressData.postal_code
+			}
+
+			await student.update(updates)
+
+			console.log('✅ Address updated for student:', studentId)
+			return student.toJSON()
+		} catch (error) {
+			console.error('❌ Error updating address:', error)
+			throw error
+		}
+	}
 }
 
 module.exports = StudentService

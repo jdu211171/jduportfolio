@@ -2,6 +2,9 @@ const express = require('express')
 const StudentController = require('../controllers/studentController')
 const { validateStudentCreation, validateStudentUpdate } = require('../middlewares/student-validation')
 
+const authMiddleware = require('../middlewares/auth-middleware')
+const { validateEducation, validateWorkExperience, validateLicenses, validateProjects, validateAdditionalInfo, validateAddress } = require('../validators/studentValidator')
+const { checkOwnership } = require('../middlewares/ownershipMiddleware')
 const router = express.Router()
 
 /**
@@ -264,5 +267,51 @@ router.delete('/:id', StudentController.deleteStudent)
 
 // GET Pending status drafts
 // router.get('/pending-drafts', StudentController.getStudentsWithPendingDrafts);
+
+// ============================================
+// CV UPDATE ROUTES (Authentication Required)
+// ============================================
+
+/**
+ * @route   PATCH /api/students/:id/cv/education
+ * @desc    Update student education history
+ * @access  Private (Student or Admin)
+ */
+router.patch('/:id/cv/education', authMiddleware, checkOwnership, validateEducation, StudentController.updateEducation)
+
+/**
+ * @route   PATCH /api/students/:id/cv/work-experience
+ * @desc    Update student work experience (Arubaito)
+ * @access  Private (Student or Admin)
+ */
+router.patch('/:id/cv/work-experience', authMiddleware, checkOwnership, validateWorkExperience, StudentController.updateWorkExperience)
+
+/**
+ * @route   PATCH /api/students/:id/cv/licenses
+ * @desc    Update student licenses and certificates
+ * @access  Private (Student or Admin)
+ */
+router.patch('/:id/cv/licenses', authMiddleware, checkOwnership, validateLicenses, StudentController.updateLicenses)
+
+/**
+ * @route   PATCH /api/students/:id/cv/projects
+ * @desc    Update student projects
+ * @access  Private (Student or Admin)
+ */
+router.patch('/:id/cv/projects', authMiddleware, checkOwnership, validateProjects, StudentController.updateProjects)
+
+/**
+ * @route   PATCH /api/students/:id/cv/additional-info
+ * @desc    Update student additional CV information
+ * @access  Private (Student or Admin)
+ */
+router.patch('/:id/cv/additional-info', authMiddleware, checkOwnership, validateAdditionalInfo, StudentController.updateAdditionalInfo)
+
+/**
+ * @route   PATCH /api/students/:id/address
+ * @desc    Update student address information
+ * @access  Private (Student or Admin)
+ */
+router.patch('/:id/address', authMiddleware, checkOwnership, validateAddress, StudentController.updateAddress)
 
 module.exports = router

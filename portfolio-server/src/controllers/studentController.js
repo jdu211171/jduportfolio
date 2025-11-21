@@ -462,6 +462,221 @@ class StudentController {
 			}
 		}
 	}
+
+	// Add these methods to existing StudentController class
+
+	/**
+	 * Update student education
+	 * @route PATCH /api/students/:id/cv/education
+	 */
+	static async updateEducation(req, res, next) {
+		try {
+			const { id } = req.params
+			const { cv_education } = req.body
+
+			console.log('🔄 Updating education for student:', id)
+
+			const updated = await StudentService.updateEducation(id, cv_education)
+
+			// Remove sensitive data
+			delete updated.password
+
+			res.status(200).json({
+				success: true,
+				message: 'Education updated successfully',
+				data: {
+					student_id: updated.student_id,
+					cv_education: updated.cv_education,
+				},
+			})
+		} catch (error) {
+			if (error.status === 404) {
+				return res.status(404).json({
+					success: false,
+					error: 'Student not found',
+				})
+			}
+			console.error('Error in updateEducation controller:', error)
+			next(error)
+		}
+	}
+
+	/**
+	 * Update student work experience (Arubaito)
+	 * @route PATCH /api/students/:id/cv/work-experience
+	 */
+	static async updateWorkExperience(req, res, next) {
+		try {
+			const { id } = req.params
+			const { cv_work_experience } = req.body
+
+			console.log('🔄 Updating work experience for student:', id)
+
+			const updated = await StudentService.updateWorkExperience(id, cv_work_experience)
+
+			delete updated.password
+
+			res.status(200).json({
+				success: true,
+				message: 'Work experience updated successfully',
+				data: {
+					student_id: updated.student_id,
+					cv_work_experience: updated.cv_work_experience,
+				},
+			})
+		} catch (error) {
+			if (error.status === 404) {
+				return res.status(404).json({
+					success: false,
+					error: 'Student not found',
+				})
+			}
+			console.error('Error in updateWorkExperience controller:', error)
+			next(error)
+		}
+	}
+
+	/**
+	 * Update student licenses
+	 * @route PATCH /api/students/:id/cv/licenses
+	 */
+	static async updateLicenses(req, res, next) {
+		try {
+			const { id } = req.params
+			const { cv_licenses } = req.body
+
+			console.log('🔄 Updating licenses for student:', id)
+
+			const updated = await StudentService.updateLicenses(id, cv_licenses)
+
+			delete updated.password
+
+			res.status(200).json({
+				success: true,
+				message: 'Licenses updated successfully',
+				data: {
+					student_id: updated.student_id,
+					cv_licenses: updated.cv_licenses,
+				},
+			})
+		} catch (error) {
+			if (error.status === 404) {
+				return res.status(404).json({
+					success: false,
+					error: 'Student not found',
+				})
+			}
+			console.error('Error in updateLicenses controller:', error)
+			next(error)
+		}
+	}
+
+	/**
+	 * Update student projects
+	 * @route PATCH /api/students/:id/cv/projects
+	 */
+	static async updateProjects(req, res, next) {
+		try {
+			const { id } = req.params
+			const { cv_projects } = req.body
+
+			console.log('🔄 Updating projects for student:', id)
+
+			const updated = await StudentService.updateProjects(id, cv_projects)
+
+			delete updated.password
+
+			res.status(200).json({
+				success: true,
+				message: 'Projects updated successfully',
+				data: {
+					student_id: updated.student_id,
+					cv_projects: updated.cv_projects,
+				},
+			})
+		} catch (error) {
+			if (error.status === 404) {
+				return res.status(404).json({
+					success: false,
+					error: 'Student not found',
+				})
+			}
+			console.error('Error in updateProjects controller:', error)
+			next(error)
+		}
+	}
+
+	/**
+	 * Update student additional info
+	 * @route PATCH /api/students/:id/cv/additional-info
+	 */
+	static async updateAdditionalInfo(req, res, next) {
+		try {
+			const { id } = req.params
+			const { cv_additional_info } = req.body
+
+			console.log('🔄 Updating additional info for student:', id)
+
+			const updated = await StudentService.updateAdditionalInfo(id, cv_additional_info)
+
+			delete updated.password
+
+			res.status(200).json({
+				success: true,
+				message: 'Additional information updated successfully',
+				data: {
+					student_id: updated.student_id,
+					cv_additional_info: updated.cv_additional_info,
+				},
+			})
+		} catch (error) {
+			if (error.status === 404) {
+				return res.status(404).json({
+					success: false,
+					error: 'Student not found',
+				})
+			}
+			console.error('Error in updateAdditionalInfo controller:', error)
+			next(error)
+		}
+	}
+
+	/**
+	 * Update student address
+	 * @route PATCH /api/students/:id/address
+	 */
+	static async updateAddress(req, res, next) {
+		try {
+			const { id } = req.params
+			const addressData = req.body
+
+			console.log('🔄 Updating address for student:', id)
+
+			const updated = await StudentService.updateAddress(id, addressData)
+
+			delete updated.password
+
+			res.status(200).json({
+				success: true,
+				message: 'Address updated successfully',
+				data: {
+					student_id: updated.student_id,
+					address: updated.address,
+					address_furigana: updated.address_furigana,
+					postal_code: updated.postal_code,
+				},
+			})
+		} catch (error) {
+			if (error.status === 404) {
+				return res.status(404).json({
+					success: false,
+					error: 'Student not found',
+				})
+			}
+			console.error('Error in updateAddress controller:', error)
+			next(error)
+		}
+	}
 }
 
 module.exports = StudentController
