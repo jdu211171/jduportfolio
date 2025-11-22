@@ -1,9 +1,10 @@
 const express = require('express')
 const StudentController = require('../controllers/studentController')
-const { validateStudentCreation, validateStudentUpdate } = require('../middlewares/student-validation')
+// const { validateStudentCreation, validateStudentUpdate } = require('../middlewares/student-validation')
+const { validateStudentCreation, validateStudentUpdate } = require('../validators/studentValidators')
 
 const authMiddleware = require('../middlewares/auth-middleware')
-const { validateEducation, validateWorkExperience, validateLicenses, validateProjects, validateAdditionalInfo, validateAddress } = require('../validators/studentValidator')
+// const { validateEducation, validateWorkExperience, validateLicenses, validateProjects, validateAdditionalInfo, validateAddress } = require('../validators/studentValidator')
 const { checkOwnership } = require('../middlewares/ownershipMiddleware')
 const router = express.Router()
 
@@ -242,7 +243,62 @@ router.post('/:id/sync-credit-details', StudentController.syncStudentCreditDetai
  *         description: Bad request
  */
 // PUT /api/students/:id
-router.put('/:id', validateStudentUpdate, StudentController.updateStudent)
+// router.put('/:id', validateStudentUpdate, StudentController.updateStudent)
+
+/**
+ * @swagger
+ * /api/students/{id}:
+ *   patch:
+ *     tags: [Students]
+ *     summary: Update student information (including CV data)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Student ID
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               # Basic fields
+ *               first_name:
+ *                 type: string
+ *               last_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               # CV fields
+ *               cv_education:
+ *                 type: array
+ *               cv_work_experience:
+ *                 type: array
+ *               cv_licenses:
+ *                 type: array
+ *               cv_projects:
+ *                 type: array
+ *               cv_additional_info:
+ *                 type: object
+ *               address_furigana:
+ *                 type: string
+ *               postal_code:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Student updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - not owner or admin
+ *       404:
+ *         description: Student not found
+ */
+router.patch('/:id', authMiddleware, checkOwnership, validateStudentUpdate, StudentController.updateStudent)
 
 /**
  * @swagger
@@ -277,41 +333,41 @@ router.delete('/:id', StudentController.deleteStudent)
  * @desc    Update student education history
  * @access  Private (Student or Admin)
  */
-router.patch('/:id/cv/education', authMiddleware, checkOwnership, validateEducation, StudentController.updateEducation)
+// router.patch('/:id/cv/education', authMiddleware, checkOwnership, validateEducation, StudentController.updateEducation)
 
-/**
- * @route   PATCH /api/students/:id/cv/work-experience
- * @desc    Update student work experience (Arubaito)
- * @access  Private (Student or Admin)
- */
-router.patch('/:id/cv/work-experience', authMiddleware, checkOwnership, validateWorkExperience, StudentController.updateWorkExperience)
+// /**
+//  * @route   PATCH /api/students/:id/cv/work-experience
+//  * @desc    Update student work experience (Arubaito)
+//  * @access  Private (Student or Admin)
+//  */
+// router.patch('/:id/cv/work-experience', authMiddleware, checkOwnership, validateWorkExperience, StudentController.updateWorkExperience)
 
-/**
- * @route   PATCH /api/students/:id/cv/licenses
- * @desc    Update student licenses and certificates
- * @access  Private (Student or Admin)
- */
-router.patch('/:id/cv/licenses', authMiddleware, checkOwnership, validateLicenses, StudentController.updateLicenses)
+// /**
+//  * @route   PATCH /api/students/:id/cv/licenses
+//  * @desc    Update student licenses and certificates
+//  * @access  Private (Student or Admin)
+//  */
+// router.patch('/:id/cv/licenses', authMiddleware, checkOwnership, validateLicenses, StudentController.updateLicenses)
 
-/**
- * @route   PATCH /api/students/:id/cv/projects
- * @desc    Update student projects
- * @access  Private (Student or Admin)
- */
-router.patch('/:id/cv/projects', authMiddleware, checkOwnership, validateProjects, StudentController.updateProjects)
+// /**
+//  * @route   PATCH /api/students/:id/cv/projects
+//  * @desc    Update student projects
+//  * @access  Private (Student or Admin)
+//  */
+// router.patch('/:id/cv/projects', authMiddleware, checkOwnership, validateProjects, StudentController.updateProjects)
 
-/**
- * @route   PATCH /api/students/:id/cv/additional-info
- * @desc    Update student additional CV information
- * @access  Private (Student or Admin)
- */
-router.patch('/:id/cv/additional-info', authMiddleware, checkOwnership, validateAdditionalInfo, StudentController.updateAdditionalInfo)
+// /**
+//  * @route   PATCH /api/students/:id/cv/additional-info
+//  * @desc    Update student additional CV information
+//  * @access  Private (Student or Admin)
+//  */
+// router.patch('/:id/cv/additional-info', authMiddleware, checkOwnership, validateAdditionalInfo, StudentController.updateAdditionalInfo)
 
-/**
- * @route   PATCH /api/students/:id/address
- * @desc    Update student address information
- * @access  Private (Student or Admin)
- */
-router.patch('/:id/address', authMiddleware, checkOwnership, validateAddress, StudentController.updateAddress)
+// /**
+//  * @route   PATCH /api/students/:id/address
+//  * @desc    Update student address information
+//  * @access  Private (Student or Admin)
+//  */
+// router.patch('/:id/address', authMiddleware, checkOwnership, validateAddress, StudentController.updateAddress)
 
 module.exports = router
