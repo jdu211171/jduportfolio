@@ -589,6 +589,42 @@ class StudentService {
 				})
 			}
 
+			// ======= RENAME CV FIELDS (remove cv_ prefix) ==========
+			if (studentJson.cv_education) {
+				studentJson.education = studentJson.cv_education
+				delete studentJson.cv_education
+			}
+
+			if (studentJson.cv_work_experience) {
+				studentJson.workExperience = studentJson.cv_work_experience
+				delete studentJson.cv_work_experience
+			}
+
+			if (studentJson.cv_licenses) {
+				studentJson.licenses = studentJson.cv_licenses
+				delete studentJson.cv_licenses
+			}
+
+			// Remove cv_projects (frontend uses deliverables instead)
+			if (studentJson.cv_projects) {
+				delete studentJson.cv_projects
+			}
+
+			if (studentJson.cv_additional_info) {
+				studentJson.additionalInfo = studentJson.cv_additional_info
+				delete studentJson.cv_additional_info
+			}
+
+			if (studentJson.address_furigana) {
+				studentJson.addressFurigana = studentJson.address_furigana
+				delete studentJson.address_furigana
+			}
+
+			if (studentJson.postal_code) {
+				studentJson.postalCode = studentJson.postal_code
+				delete studentJson.postal_code
+			}
+
 			return studentJson
 		} catch (error) {
 			throw error
@@ -1178,7 +1214,8 @@ class StudentService {
 				isMarried: additionalInfo.isMarried || false,
 				spousalSupportObligation: additionalInfo.spousalSupportObligation || false,
 				hopes: additionalInfo.hopes || student.other_information || '',
-				projects: safeArray(student.cv_projects || student.deliverables),
+				// ==========  CHANGED: Use deliverables only  ==========
+				projects: safeArray(student.deliverables),
 				arubatio: safeArray(additionalInfo.arubatio),
 			}
 
