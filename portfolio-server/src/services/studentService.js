@@ -1028,35 +1028,19 @@ class StudentService {
 		try {
 			console.log('🔍 Fetching student for CV:', studentId)
 
-			// Option 1: raw: true ishlatamiz
 			const student = await Student.findOne({
 				where: { student_id: studentId },
-				raw: true, // Bu plainObject qaytaradi va model attributes'dan qochadi
+				raw: true,
 			})
 
 			if (!student) {
 				throw new Error('Student not found')
 			}
 
-			// Password'ni o'chiramiz
 			delete student.password
-
 			console.log('✅ Student found:', student.student_id)
 
 			// Safe helper functions
-			const getYearMonth = dateString => {
-				if (!dateString) return { year: null, month: null }
-				try {
-					const date = new Date(dateString)
-					return {
-						year: date.getFullYear(),
-						month: date.getMonth() + 1,
-					}
-				} catch (e) {
-					return { year: null, month: null }
-				}
-			}
-
 			const parseJSON = field => {
 				if (!field) return null
 				if (typeof field === 'object') return field
@@ -1074,7 +1058,6 @@ class StudentService {
 				return Array.isArray(value) ? value : []
 			}
 
-			// Calculate age manually (since raw:true doesn't give virtual fields)
 			const calculateAge = birthDate => {
 				if (!birthDate) return null
 				const today = new Date()
@@ -1087,51 +1070,16 @@ class StudentService {
 				return age
 			}
 
-			// Build education array
-			const education = []
-
-			if (student.enrollment_date) {
-				const { year, month } = getYearMonth(student.enrollment_date)
-				if (year) {
-					education.push({
-						year,
-						month,
-						institution: `Japan Digital University ${student.department || 'ITマネジメント学科'}`,
-						status: '入学',
-					})
-				}
-			}
-
-			if (student.partner_university_enrollment_date && student.partner_university) {
-				const { year, month } = getYearMonth(student.partner_university_enrollment_date)
-				if (year) {
-					education.push({
-						year,
-						month,
-						institution: `${student.partner_university} ${student.faculty || ''}`.trim(),
-						status: '入学',
-					})
-				}
-			}
-
-			if (student.graduation_year) {
-				const year = parseInt(student.graduation_year) || new Date().getFullYear() + 4
-				const month = student.graduation_season === '春' ? 3 : 9
-				education.push({
-					year,
-					month,
-					institution: student.partner_university || 'Japan Digital University ITマネジメント学科',
-					status: '卒業予定',
-				})
-			}
-
-			const cvEducation = safeArray(student.cv_education)
-			const allEducation = [...education, ...cvEducation].sort((a, b) => {
+			// FIXED: Use cv_education directly
+			const allEducation = safeArray(student.cv_education).sort((a, b) => {
 				if (a.year !== b.year) return (a.year || 0) - (b.year || 0)
 				return (a.month || 0) - (b.month || 0)
 			})
 
+			// Work Experience
 			const workExperience = safeArray(student.cv_work_experience)
+
+			// Licenses (cv_licenses + parsed certificates)
 			const licenses = [...safeArray(student.cv_licenses)]
 
 			const jlptData = parseJSON(student.jlpt)
@@ -1160,6 +1108,7 @@ class StudentService {
 				})
 			}
 
+			// IT Skills → Programming
 			const itSkills = student.it_skills || {}
 			const programmingSkills = []
 
@@ -1176,6 +1125,7 @@ class StudentService {
 				})
 			}
 
+			// Hobbies
 			let hobbiesArray = []
 			if (student.hobbies) {
 				if (typeof student.hobbies === 'string') {
@@ -1185,8 +1135,10 @@ class StudentService {
 				}
 			}
 
+			// Additional Info
 			const additionalInfo = student.cv_additional_info || {}
 
+			// Build CV Data
 			const cvData = {
 				fullNameFurigana: `${student.last_name_furigana || ''} ${student.first_name_furigana || ''}`.trim() || null,
 				fullName: `${student.last_name} ${student.first_name}`,
@@ -1204,7 +1156,7 @@ class StudentService {
 				additionalAddress: additionalInfo.additionalAddress || student.address || null,
 				additionalTel: student.parents_phone_number || null,
 				additionalEmail: additionalInfo.additionalEmail || student.email || null,
-				education: allEducation,
+				education: allEducation, // ← Fixed: no duplicates
 				workExperience: workExperience,
 				licenses: licenses,
 				skills: {
@@ -1212,7 +1164,7 @@ class StudentService {
 					languages: {
 						uzbek: additionalInfo.languageUzbek || 'Native',
 						english: student.language_skills || additionalInfo.languageEnglish || 'Intermediate',
-						japanese: jlptData?.highest ? `${jlptData.highest} Level` : 'Elementary',
+						japanese: jlptData?.highest ? `${jlptData.highest} Level` : additionalInfo.languageJapanese || 'Elementary',
 						russian: additionalInfo.languageRussian || 'Fluent',
 					},
 					tools: safeArray(additionalInfo.tools),
@@ -1225,7 +1177,7 @@ class StudentService {
 				numDependents: additionalInfo.numDependents || 0,
 				isMarried: additionalInfo.isMarried || false,
 				spousalSupportObligation: additionalInfo.spousalSupportObligation || false,
-				hopes: student.other_information || additionalInfo.hopes || '',
+				hopes: additionalInfo.hopes || student.other_information || '',
 				projects: safeArray(student.cv_projects || student.deliverables),
 				arubatio: safeArray(additionalInfo.arubatio),
 			}
