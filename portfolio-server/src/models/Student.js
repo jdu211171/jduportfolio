@@ -110,6 +110,8 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			self_introduction: { type: DataTypes.TEXT, allowNull: true },
 			hobbies: { type: DataTypes.STRING, allowNull: true },
+			major: { type: DataTypes.TEXT, allowNull: true },
+			job_type: { type: DataTypes.TEXT, allowNull: true },
 			gallery: { type: DataTypes.JSONB, allowNull: true, defaultValue: [] },
 			skills: { type: DataTypes.JSONB, allowNull: true },
 			it_skills: { type: DataTypes.JSONB, allowNull: true },

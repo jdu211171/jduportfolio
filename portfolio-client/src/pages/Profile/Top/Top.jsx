@@ -861,8 +861,11 @@ const Top = () => {
 	useEffect(() => {
 		if (role === 'Student' && !editMode && liveData) {
 			if (viewingLive) {
-				// Switch to Live view
-				setStudent(liveData)
+				// Switch to Live view - use live data in draft property for consistent access pattern
+				setStudent({
+					...liveData,
+					draft: liveData, // Point draft to live data so rendering code works
+				})
 			} else {
 				// Switch to Draft view
 				const mappedData = {
@@ -1698,7 +1701,7 @@ const Top = () => {
 					</div>
 					<div className={styles.twoCol} style={{ alignItems: 'flex-start' }}>
 						<div style={{ flex: 1, minWidth: 280 }}>
-							<TextField title={t('origin')} data={student.draft.address || student.address} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='address' parentKey='draft' icon={LocationOnOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('address')} />
+							<TextField title={t('origin')} data={student.draft.address} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='address' parentKey='draft' icon={LocationOnOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('address')} />
 						</div>
 						<div style={{ flex: 1, minWidth: 280 }}>
 							<TextField title={t('major')} data={student.draft.major} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='major' parentKey='draft' icon={SchoolOutlinedIcon} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('major')} />

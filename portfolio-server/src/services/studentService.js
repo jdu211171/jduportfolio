@@ -846,8 +846,11 @@ class StudentService {
 					it_contest: data.it_contest,
 				}
 
-				// Agar talaba yangi bo'lsa yoki aktiv bo'lmasa, parol yaratamiz va email ro'yxatiga qo'shamiz
-				if (!existingStudent || (data.semester > 0 && !existingStudent.active)) {
+				// Faqat yangi yoki inactive talabalar uchun parol yaratamiz
+				const isNewStudent = !existingStudent
+				const isReactivation = existingStudent && !existingStudent.active && data.semester > 0
+
+				if (isNewStudent || isReactivation) {
 					const password = generatePassword.generate({
 						length: 12,
 						numbers: true,
@@ -857,7 +860,7 @@ class StudentService {
 					formattedData.password = password // Parolni xeshlash model ichidagi hook'da bajariladi
 					formattedData.active = true
 
-					// >>> O'ZGARISH: Emailni darhol jo'natmaymiz! Faqat vazifani tayyorlab, ro'yxatga qo'shamiz. <<<
+					// Faqat yangi yaratilgan yoki qayta aktivlashtirilgan talabalar uchun email jo'natamiz
 					emailTasks.push(formatStudentWelcomeEmail(formattedData.email, password, formattedData.first_name, formattedData.last_name))
 				}
 
