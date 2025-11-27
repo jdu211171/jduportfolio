@@ -598,6 +598,11 @@ class DraftService {
 			delete studentData.postal_code
 		}
 
+		if (studentData.additionalInfo && studentData.additionalInfo.arubaito) {
+			studentData.arubaito = studentData.additionalInfo.arubaito
+			delete studentData.additionalInfo.arubaito
+		}
+
 		return {
 			...studentData,
 			draft: draftVersion,

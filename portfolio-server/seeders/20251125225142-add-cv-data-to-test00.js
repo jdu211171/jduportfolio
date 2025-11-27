@@ -118,7 +118,7 @@ module.exports = {
 					languageJapanese: 'N3 (Intermediate, 日常会話可能)',
 					tools: ['Git', 'Docker', 'VS Code', 'Postman', 'Figma', 'Jira', 'Slack', 'Notion'],
 					databases: ['PostgreSQL', 'MongoDB', 'MySQL', 'Redis', 'Firebase'],
-					arubatio: [
+					arubaito: [
 						{
 							company: 'セブンイレブン',
 							period: '2023年7月-8月',

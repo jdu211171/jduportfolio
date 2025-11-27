@@ -625,6 +625,11 @@ class StudentService {
 				delete studentJson.postal_code
 			}
 
+			if (studentJson.additionalInfo && studentJson.additionalInfo.arubaito) {
+				studentJson.arubaito = studentJson.additionalInfo.arubaito
+				delete studentJson.additionalInfo.arubaito
+			}
+
 			return studentJson
 		} catch (error) {
 			throw error
@@ -1173,7 +1178,6 @@ class StudentService {
 
 			// Additional Info
 			const additionalInfo = student.cv_additional_info || {}
-
 			// Build CV Data
 			const cvData = {
 				fullNameFurigana: `${student.last_name_furigana || ''} ${student.first_name_furigana || ''}`.trim() || null,
@@ -1216,7 +1220,7 @@ class StudentService {
 				hopes: additionalInfo.hopes || student.other_information || '',
 				// ==========  CHANGED: Use deliverables only  ==========
 				projects: safeArray(student.deliverables),
-				arubatio: safeArray(additionalInfo.arubatio),
+				arubaito: safeArray(additionalInfo.arubaito), // ← Changed arubaito
 			}
 
 			console.log('✅ CV data built successfully')
