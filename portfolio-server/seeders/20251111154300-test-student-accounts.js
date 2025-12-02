@@ -4,23 +4,13 @@ const bcrypt = require('bcrypt')
 
 module.exports = {
 	up: async (queryInterface, Sequelize) => {
-		// Check if test students already exist - use specific email list to avoid false positives
-		const testEmails = ['student@jdu.uz', 'student00@jdu.uz', 'student01@jdu.uz', 'student02@jdu.uz', 'student03@jdu.uz', 'student04@jdu.uz', 'student05@jdu.uz', 'student06@jdu.uz', 'student07@jdu.uz', 'student08@jdu.uz', 'student09@jdu.uz']
-
-		const existingStudents = await queryInterface.sequelize.query(`SELECT email FROM "Students" WHERE email IN (:emails)`, {
-			replacements: { emails: testEmails },
-			type: Sequelize.QueryTypes.SELECT,
-		})
-
-		// If any test students already exist, skip insertion
-		if (existingStudents.length > 0) {
-			console.log('Test student accounts already exist. Skipping insertion.')
-			return
-		}
-
 		// Hash the password once (all students will have the same password: "1234")
 		const salt = await bcrypt.genSalt(10)
 		const hashedPassword = await bcrypt.hash('1234', salt)
+
+		// Avval mavjud test studentlarni o'chiramiz (agar mavjud bo'lsa)
+		await queryInterface.sequelize.query(`DELETE FROM "Drafts" WHERE student_id LIKE 'TEST%'`)
+		await queryInterface.sequelize.query(`DELETE FROM "Students" WHERE student_id LIKE 'TEST%'`)
 
 		const testStudents = []
 
@@ -60,36 +50,111 @@ module.exports = {
 				specialized_education_credits: 15,
 				self_introduction: `I am Test Student ${studentNumber}. This is a test account for development and testing purposes.`,
 				hobbies: 'Reading, Coding, Gaming',
-				gallery: [],
-				skills: {
+				major: 'Computer Science',
+				job_type: 'IT Engineer',
+				gallery: JSON.stringify([]),
+				skills: JSON.stringify({
 					上級: [],
 					中級: [],
 					初級: [],
-				},
-				it_skills: {
+				}),
+				it_skills: JSON.stringify({
 					上級: [],
 					中級: [],
 					初級: [],
-				},
+				}),
 				other_information: 'Test account - do not modify',
-				other_skills: {},
+				other_skills: JSON.stringify({}),
 				language_skills: 'English (Basic), Japanese (N5)',
 				ielts: null,
 				jlpt: null,
-				toeic: null,
-				group: `Group ${(i % 3) + 1}`,
-				jdu_credits: 0,
-				deliverables: [],
-				graduation_year: '2025年',
+				jdu_japanese_certification: null,
+				japanese_speech_contest: null,
+				it_contest: null,
+				deliverables: JSON.stringify([]),
+				graduation_year: '2025',
 				graduation_season: '春',
-				employment_status: 'seeking',
-				desired_job_type: 'IT Engineer',
-				desired_industry: 'Information Technology',
-				desired_location: 'Tokyo',
-				job_hunting_status: 'active',
-				visibility: false, // Hidden by default
-				created_by: 'system',
-				is_public: false,
+				credit_details: JSON.stringify([]),
+				active: true,
+				visibility: false,
+				has_pending: false,
+				kintone_id: 99900 + i,
+				// Yangi CV fieldlar
+				education: JSON.stringify([
+					{
+						year: 2018,
+						month: 4,
+						status: '入学',
+						institution: 'タシケント第一高等学校',
+					},
+					{
+						year: 2021,
+						month: 3,
+						status: '卒業',
+						institution: 'タシケント第一高等学校',
+					},
+					{
+						year: 2021,
+						month: 9,
+						status: '入学',
+						institution: 'Japan Digital University',
+					},
+				]),
+				work_experience: JSON.stringify([
+					{
+						from: '2023-06-01',
+						to: '2023-08-31',
+						company: '株式会社テック',
+						role: 'インターン',
+						details: 'Webアプリケーション開発',
+					},
+				]),
+				licenses: JSON.stringify([
+					{
+						year: 2023,
+						month: 7,
+						certifacateName: 'JLPT N3',
+					},
+					{
+						year: 2023,
+						month: 12,
+						certifacateName: '普通自動車免許',
+					},
+				]),
+				additional_info: JSON.stringify({
+					hopes: 'フルスタックエンジニアとして日本のIT企業で働きたいです。特にWebアプリケーション開発に興味があり、バックエンドからフロントエンドまで幅広く携わりたいと考えています。チームで協力しながら、ユーザーに価値を提供できるサービスを開発することが目標です。また、将来的にはプロジェクトマネージャーとしてチームをリードする経験も積みたいと考えています。',
+					tools: ['Git', 'Docker', 'VS Code', 'Postman', 'Figma', 'Jira', 'Slack', 'Notion'],
+					indeks: '150-0001',
+					databases: ['PostgreSQL', 'MongoDB', 'MySQL', 'Redis', 'Firebase'],
+					isMarried: false,
+					commuteTime: 30,
+					languageUzbek: 'Native',
+					numDependents: 0,
+					transportation: '自転車通勤可能、公共交通機関利用',
+					additionalEmail: `test${studentNumber}. sub@jdu. uz`,
+					addressFurigana: 'トウキョウトシブヤクジングウマエ',
+					languageEnglish: 'Advanced (IELTS 6.5相当)',
+					languageRussian: 'Fluent (ビジネスレベル)',
+					additionalIndeks: '160-0023',
+					languageJapanese: 'N3 (Intermediate, 日常会話可能)',
+					additionalAddress: '東京都新宿区西新宿2-8-1',
+					spousalSupportObligation: false,
+					additionalAddressFurigana: 'トウキョウトシンジュククニシシンジュク',
+				}),
+				address_furigana: 'トウキョウトシブヤク',
+				postal_code: '150-0001',
+				arubaito: JSON.stringify([
+					{
+						company: 'セブンイレブン',
+						role: 'レジ・接客',
+						period: '2022年4月-2023年3月',
+					},
+					{
+						company: 'ファミリーマート',
+						role: '品出し・清掃',
+						period: '2023年4月-現在',
+					},
+				]),
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			})
@@ -103,14 +168,11 @@ module.exports = {
 	},
 
 	down: async (queryInterface, Sequelize) => {
-		// Remove test students - use explicit email list to avoid deleting legitimate users
-		const testEmails = ['student@jdu.uz', 'student00@jdu.uz', 'student01@jdu.uz', 'student02@jdu.uz', 'student03@jdu.uz', 'student04@jdu.uz', 'student05@jdu.uz', 'student06@jdu.uz', 'student07@jdu.uz', 'student08@jdu.uz', 'student09@jdu.uz']
+		// Avval Drafts jadvalidan o'chirish
+		await queryInterface.sequelize.query(`DELETE FROM "Drafts" WHERE student_id LIKE 'TEST%'`)
 
-		await queryInterface.bulkDelete('Students', {
-			email: {
-				[Sequelize.Op.in]: testEmails,
-			},
-		})
+		// Keyin studentlarni o'chirish
+		await queryInterface.sequelize.query(`DELETE FROM "Students" WHERE student_id LIKE 'TEST%'`)
 		console.log('✅ Test student accounts removed')
 	},
 }

@@ -148,6 +148,42 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			kintone_id: { type: DataTypes.INTEGER, allowNull: false },
 			// Virtual field for age calculation
+
+			// === NEW  FIELDLS ===
+			education: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: [],
+			},
+			work_experience: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: [],
+			},
+			licenses: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: [],
+			},
+			additional_info: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: {},
+			},
+			address_furigana: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			postal_code: {
+				type: DataTypes.STRING,
+				allowNull: true,
+			},
+			arubaito: {
+				type: DataTypes.JSONB,
+				allowNull: true,
+				defaultValue: [],
+			},
+
 			age: {
 				type: DataTypes.VIRTUAL,
 				get() {
