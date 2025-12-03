@@ -1,9 +1,10 @@
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined'
+import { Button } from '@mui/material'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import AppIcons from '../../assets/icons/apps-2-line.svg'
-import FilterIcon from '../../assets/icons/filter-2-line.svg'
 import AppIconList from '../../assets/icons/list-unordered.svg'
 import SearchIcon from '../../assets/icons/search-line.svg'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -11,9 +12,7 @@ import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 import style from './Filter.module.css'
 import { FilteredItems } from './FilteredItems'
-import { Button } from '@mui/material'
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined'
-const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false, showFilteredItems = false }) => {
+const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false, showFilteredItems = true }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 

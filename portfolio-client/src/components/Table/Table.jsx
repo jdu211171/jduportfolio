@@ -1133,12 +1133,11 @@ const EnhancedTable = ({ tableProps, updatedBookmark, viewMode = 'table' }) => {
 											align='center'
 											sx={{
 												borderBottom: 'none',
-												borderBottomLeftRadius: '9px',
-												borderBottomRightRadius: '9px',
-												backgroundColor: '#ffffff',
+												verticalAlign: 'middle', // 🔥 asosiy qism
+												height: '220px', // ixtiyoriy: bo‘sh joy berish
 											}}
 										>
-											{t('no_data_found') || 'No data found'}
+											{t('no_data_found')}
 										</TableCell>
 									</TableRow>
 								)}
