@@ -1,17 +1,19 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
-import { FixedSizeList as List } from 'react-window'
-import SearchIcon from '../../assets/icons/search-line.svg'
-import FilterIcon from '../../assets/icons/filter-2-line.svg'
-import AppIcons from '../../assets/icons/apps-2-line.svg'
-import AppIconList from '../../assets/icons/list-unordered.svg'
-import { useLanguage } from '../../contexts/LanguageContext'
-import translations from '../../locales/translations'
-import style from './Filter.module.css'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FixedSizeList as List } from 'react-window'
+import AppIcons from '../../assets/icons/apps-2-line.svg'
+import FilterIcon from '../../assets/icons/filter-2-line.svg'
+import AppIconList from '../../assets/icons/list-unordered.svg'
+import SearchIcon from '../../assets/icons/search-line.svg'
+import { useLanguage } from '../../contexts/LanguageContext'
+import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
-
-const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false }) => {
+import style from './Filter.module.css'
+import { FilteredItems } from './FilteredItems'
+import { Button } from '@mui/material'
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined'
+const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false, showFilteredItems = false }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
@@ -352,7 +354,12 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 			console.warn('Error clearing filter state from localStorage:', error)
 		}
 	}, [fields, persistKey])
-
+	const hasAnyValue = obj => {
+		return Object.values(obj).some(value => {
+			if (Array.isArray(value)) return value.length > 0
+			return value !== '' && value !== null && value !== undefined
+		})
+	}
 	const renderFilterField = useCallback(
 		field => {
 			const value = tempFilterState[field.key] || (field.type === 'checkbox' ? [] : '')
@@ -404,7 +411,6 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 							)}
 							{/* Search for long lists */}
 							{optionsArray.length > 10 && <input type='text' className={style.checkboxSearch} placeholder={t('search_items') || 'Search...'} value={searchTerm} onChange={onSearchChange} />}
-
 							{optionsArray.length > 10 && (
 								<div className={style.checkboxActions}>
 									<button type='button' onClick={selectAllFiltered}>
@@ -415,7 +421,6 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 									</button>
 								</div>
 							)}
-
 							{/* Selected chips */}
 							{Array.isArray(value) && value.length > 0 && (
 								<div className={style.selectedChipsRow}>
@@ -442,7 +447,6 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 									</div>
 								</div>
 							)}
-
 							{/* Virtualized list for very large sets */}
 							{filtered.length > 120 ? (
 								<div style={{ height: 320 }}>
@@ -573,11 +577,23 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 					<button type='button' onClick={handleViewModeToggle} className={`${style.viewModeButton} ${viewMode === 'grid' ? style.active : ''}`} aria-label={viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'}>
 						<img src={viewMode === 'grid' ? AppIconList : AppIcons} alt={viewMode === 'grid' ? 'Grid View' : 'List View'} />
 					</button>
-					<button type='button' onClick={handleFilterClick} className={style.filterButton} aria-label='Filter'>
-						<img src={FilterIcon} alt='Filter' />
-					</button>
+					<Button type='button' variant={hasAnyValue(localFilterState) ? 'contained' : 'outlined'} onClick={handleFilterClick}>
+						<FilterAltOutlinedIcon />
+					</Button>
 				</div>
 			</form>
+
+			{/* filtered Items Display */}
+			{showFilteredItems && (
+				<FilteredItems
+					tempFilterState={localFilterState}
+					setTempFilterState={setLocalFilterState}
+					onFilterChange={newState => {
+						userChangedFilter.current = true
+						onFilterChange(newState)
+					}}
+				/>
+			)}
 
 			{/* Filter Modal */}
 			{showFilterModal && (
