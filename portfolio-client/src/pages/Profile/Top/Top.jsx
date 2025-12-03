@@ -3,6 +3,7 @@ import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined'
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
 import CloseIcon from '@mui/icons-material/Close'
 import CodeIcon from '@mui/icons-material/Code'
+import DownloadIcon from '@mui/icons-material/Download'
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt'
 import ExtensionOutlinedIcon from '@mui/icons-material/ExtensionOutlined'
 import FavoriteBorderTwoToneIcon from '@mui/icons-material/FavoriteBorderTwoTone'
@@ -13,6 +14,7 @@ import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined'
 import { Alert, Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, LinearProgress, TextField as MuiTextField, Snackbar, Typography } from '@mui/material'
 import { useAtom } from 'jotai'
+import PropTypes from 'prop-types'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom' // ReactDOM.createPortal o'rniga
 import { useForm } from 'react-hook-form'
@@ -21,17 +23,17 @@ import { activeUniverAtom, deletedUrlsAtom, deliverableImagesAtom, editDataAtom,
 import Deliverables from '../../../components/Deliverables/Deliverables'
 import ProfileConfirmDialog from '../../../components/Dialogs/ProfileConfirmDialog'
 import LanguageSkillSelector from '../../../components/LanguageSkillSelector/LanguageSkillSelector'
-import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import OtherSkillsSelector from '../../../components/OtherSkillsSelector/OtherSkillsSelector'
+import SkillSelector from '../../../components/SkillSelector/SkillSelector'
 import TextField from '../../../components/TextField/TextField'
 import { useAlert } from '../../../contexts/AlertContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
+import { downloadCV } from '../../../lib/cv-download'
 import translations from '../../../locales/translations'
 import QA from '../../../pages/Profile/QA/QA'
 import axios from '../../../utils/axiosUtils'
+import WorkExperience from '../WorkExperience/WorkExperience'
 import styles from './Top.module.css'
-import PropTypes from 'prop-types'
-
 const Top = () => {
 	let id
 	const role = sessionStorage.getItem('role')
@@ -841,7 +843,6 @@ const Top = () => {
 			return updatedData
 		})
 	}
-
 	// Auto-save effect with change detection
 	useEffect(() => {
 		if (editMode && role === 'Student' && editData?.draft && student) {
@@ -1141,6 +1142,25 @@ const Top = () => {
 
 	const portalContent = (
 		<Box className={styles.buttonsContainer}>
+			{role === 'Student' && (
+				<Button
+					variant='contained'
+					size='small'
+					onClick={async () => {
+						try {
+							console.log(student)
+							downloadCV(student)
+						} catch (err) {
+							console.log(err)
+							// alert('Failed to fetch CV data. Check console for details.')
+						}
+					}}
+					sx={{ display: 'flex', gap: 1, whiteSpace: 'nowrap' }}
+				>
+					<DownloadIcon />
+					download CV
+				</Button>
+			)}
 			{editMode ? (
 				<>
 					<Button onClick={handleDraftUpsert} variant='contained' color='primary' size='small'>
@@ -1259,18 +1279,18 @@ const Top = () => {
 					borderEndStartRadius: 10,
 				}}
 			>
-				{['selfIntroduction', 'skill', 'deliverables', 'qa'].map((item, ind) => (
+				{['selfIntroduction', 'skill', 'deliverables', 'education', 'workExperience', 'qa'].map((item, ind) => (
 					<div
 						key={ind}
 						style={{
 							fontWeight: 500,
 							fontSize: 16,
-							color: subTabIndex === ind ? '#5627db' : '#4b4b4b',
-							borderBottom: subTabIndex === ind ? '2px solid #5627db' : '#4b4b4b',
+							color: subTabIndex === item ? '#5627db' : '#4b4b4b',
+							borderBottom: subTabIndex === item ? '2px solid #5627db' : '#4b4b4b',
 							cursor: 'pointer',
 						}}
 						onClick={() => {
-							setSubTabIndex(ind)
+							setSubTabIndex(item)
 						}}
 					>
 						{t(item)}
@@ -1322,7 +1342,7 @@ const Top = () => {
 			{(role === 'Student' || role === 'Staff') && subTabIndex === 0 && <HistoryComments targetStudentId={role === 'Student' ? null : studentId} />}
 
 			{/* self introduction */}
-			{subTabIndex === 0 && (
+			{subTabIndex === 'selfIntroduction' && (
 				<Box my={2}>
 					<TextField title={t('selfIntroduction')} data={student.draft.self_introduction} editData={editData} editMode={editMode} updateEditData={handleUpdateEditData} keyName='self_introduction' parentKey='draft' icon={BadgeOutlinedIcon} imageUrl={student.photo} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('self_introduction')} maxLength={1000} showCounter stackOnSmall />
 					{/* New Design for Hobbies and Special Skills */}
@@ -1713,7 +1733,7 @@ const Top = () => {
 				</Box>
 			)}
 			{/* skills */}
-			{subTabIndex === 1 && (
+			{subTabIndex === 'skill' && (
 				<Box my={2}>
 					<div className={styles.gridBox}>
 						<SkillSelector
@@ -1877,14 +1897,24 @@ const Top = () => {
 				</Box>
 			)}
 			{/* deliverables */}
-			{subTabIndex === 2 && (
+			{subTabIndex === 'deliverables' && (
 				<Box my={2}>
 					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} studentId={student.student_id || id} />
 				</Box>
 			)}
+			{subTabIndex === 'workExperience' && (
+				<Box
+					my={2}
+					onClick={() => {
+						console.log(editData)
+					}}
+				>
+					<WorkExperience workExperience={editData.work_experience} editMode={editMode} onUpdate={handleUpdateEditData} />
+				</Box>
+			)}
 			{/* Credits section is temporarily disabled */}
 			{/* QA */}
-			{subTabIndex === 3 && (
+			{subTabIndex === 'qa' && (
 				<Box my={2}>
 					{/* Debug */}
 					{/* {console.log('=== TOP.JSX QA DEBUG ===')}
