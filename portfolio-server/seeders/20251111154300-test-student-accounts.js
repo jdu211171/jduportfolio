@@ -71,7 +71,28 @@ module.exports = {
 				jdu_japanese_certification: null,
 				japanese_speech_contest: null,
 				it_contest: null,
-				deliverables: JSON.stringify([]),
+				deliverables: JSON.stringify([
+					{
+						id: Date.now(),
+						title: 'Portfolio Website',
+						description: 'Personal portfolio website built with React',
+						image_urls: [],
+						role: ['Frontend Developer'],
+						technologies: null, // ← default null
+						startDate: null, // ← default null
+						endDate: null, // ← default null
+					},
+					{
+						id: Date.now() + 1,
+						title: 'E-commerce App',
+						description: 'Mobile e-commerce application',
+						image_urls: [],
+						role: ['Full Stack Developer'],
+						technologies: null, // ← default null
+						startDate: null, // ← default null
+						endDate: null, // ← default null
+					},
+				]),
 				graduation_year: '2025',
 				graduation_season: '春',
 				credit_details: JSON.stringify([]),
@@ -132,6 +153,7 @@ module.exports = {
 					numDependents: 0,
 					transportation: '自転車通勤可能、公共交通機関利用',
 					additionalEmail: `test${studentNumber}. sub@jdu. uz`,
+					additionalPhone: '090-1234-5678', // ← NEW
 					addressFurigana: 'トウキョウトシブヤクジングウマエ',
 					languageEnglish: 'Advanced (IELTS 6.5相当)',
 					languageRussian: 'Fluent (ビジネスレベル)',
