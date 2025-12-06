@@ -7,11 +7,13 @@ This document describes the UX improvements made to the notification system base
 ## 1. Expand/Collapse Functionality
 
 ### Before
+
 - Long notification messages were truncated with "..."
 - No way to view the full message without clicking
 - Clicking always navigated or opened modal
 
 ### After
+
 - Small expand button (▼/▲) appears next to truncated messages
 - Clicking expand shows full message inline
 - Clicking the message still navigates as before
@@ -20,6 +22,7 @@ This document describes the UX improvements made to the notification system base
 ### Implementation Details
 
 **Visual Indicator**:
+
 - Only shows when message is truncated (length > 28 chars)
 - Uses ▼ (down arrow) when collapsed
 - Uses ▲ (up arrow) when expanded
@@ -27,28 +30,30 @@ This document describes the UX improvements made to the notification system base
 - Hover effect with scale animation
 
 **Behavior**:
+
 - `e.stopPropagation()` prevents navigation when clicking expand
 - State tracked in `expandedItems` Set
 - Works with all notification types
 - Preserves multilingual message support
 
 **Code Structure**:
+
 ```jsx
 // State
 const [expandedItems, setExpandedItems] = useState(new Set())
 
 // Toggle function
 const toggleExpand = (e, itemId) => {
-  e.stopPropagation()
-  setExpandedItems(prev => {
-    const newSet = new Set(prev)
-    if (newSet.has(itemId)) {
-      newSet.delete(itemId)
-    } else {
-      newSet.add(itemId)
-    }
-    return newSet
-  })
+	e.stopPropagation()
+	setExpandedItems(prev => {
+		const newSet = new Set(prev)
+		if (newSet.has(itemId)) {
+			newSet.delete(itemId)
+		} else {
+			newSet.add(itemId)
+		}
+		return newSet
+	})
 }
 
 // Render logic
@@ -58,20 +63,20 @@ const truncatedMessage = shortText(fullMessage, 28)
 const needsExpand = fullMessage.length > truncatedMessage.length
 
 // Only show expand button if needed
-{needsExpand && (
-  <button onClick={(e) => toggleExpand(e, item.id)}>
-    {isExpanded ? '▲' : '▼'}
-  </button>
-)}
+{
+	needsExpand && <button onClick={e => toggleExpand(e, item.id)}>{isExpanded ? '▲' : '▼'}</button>
+}
 ```
 
 ## 2. Default Tab Change
 
 ### Before
+
 - Modal opened with "すべて (All)" tab selected by default
 - Most users want to review past notifications
 
 ### After
+
 - Modal opens with "既読 (Read)" tab selected by default
 - Improves usability for common use case
 - Still easy to switch to "未読 (Unread)" or "すべて (All)"
@@ -79,6 +84,7 @@ const needsExpand = fullMessage.length > truncatedMessage.length
 ### Implementation Details
 
 **Code Change**:
+
 ```jsx
 // Before
 const [filter, setFilter] = useState('all')
@@ -88,6 +94,7 @@ const [filter, setFilter] = useState('read')
 ```
 
 **Impact**:
+
 - First-time users see read notifications by default
 - Matches user expectation of reviewing notification history
 - No breaking changes to existing functionality
@@ -95,41 +102,46 @@ const [filter, setFilter] = useState('read')
 ## 3. Translations Added
 
 ### English
+
 - `expand: 'Expand'`
 - `collapse: 'Collapse'`
 
 ### Japanese (日本語)
+
 - `expand: '展開'`
 - `collapse: '折りたたむ'`
 
 ### Uzbek (O'zbek)
+
 - `expand: 'Kengaytirish'`
 - `collapse: 'Yig'ish'`
 
 ### Russian (Русский)
+
 - `expand: 'Развернуть'`
 - `collapse: 'Свернуть'`
 
 ## CSS Styling
 
 ### Expand Button
+
 ```css
 .expandButton {
-  background: none;
-  border: none;
-  color: #5627dc;
-  cursor: pointer;
-  padding: 4px 8px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
+	background: none;
+	border: none;
+	color: #5627dc;
+	cursor: pointer;
+	padding: 4px 8px;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s ease;
 }
 
 .expandButton:hover {
-  transform: scale(1.2);
-  color: #4720b5;
+	transform: scale(1.2);
+	color: #4720b5;
 }
 ```
 
@@ -167,12 +179,14 @@ const [filter, setFilter] = useState('read')
 ## Files Changed
 
 1. `portfolio-client/src/components/Notification/Notifications.jsx`
+
    - Added `expandedItems` state
    - Added `toggleExpand` function
    - Updated notification item rendering
    - Changed default filter to 'read'
 
 2. `portfolio-client/src/components/Notification/Notifications.module.css`
+
    - Added `.expandButton` styles
    - Added hover effects
 
@@ -195,6 +209,7 @@ const [filter, setFilter] = useState('read')
 ## Screenshots
 
 ### Collapsed State
+
 ```
 ┌────────────────────────────────────────────┐
 │ Student 123 submitted prof...  [NEW] ▼    │
@@ -203,6 +218,7 @@ const [filter, setFilter] = useState('read')
 ```
 
 ### Expanded State
+
 ```
 ┌────────────────────────────────────────────┐
 │ Student 123 submitted profile information  │
@@ -213,6 +229,7 @@ const [filter, setFilter] = useState('read')
 ```
 
 ### Tab Selection
+
 ```
 ┌─────────────────────────────────────────────┐
 │  通知                    [Mark All Read]     │
