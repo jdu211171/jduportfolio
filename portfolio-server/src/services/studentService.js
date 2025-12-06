@@ -421,15 +421,49 @@ class StudentService {
 						attributes: ['id', 'status', 'profile_data'],
 						required: false,
 					},
+					{
+						model: Draft,
+						as: 'pendingDraft',
+						attributes: ['id', 'status', 'profile_data'],
+						required: false,
+					},
 				],
 				order: order, // <<<<<<<<<<<<<<<< SARALASH SHU YERDA QO'LLANILADI
 			})
 
-			// 4. DRAFT MA'LUMOTLARINI BIRLASHTIRISH (o'zgarishsiz qoladi)
+			// 4. DRAFT MA'LUMOTLARINI BIRLASHTIRISH
 			const studentsWithDraftData = students.map(student => {
 				const studentJson = student.toJSON()
-				if (studentJson.draft && studentJson.draft.profile_data && studentJson.draft.status !== 'draft') {
-					const draftData = studentJson.draft.profile_data
+
+				// Determine which draft to merge based on userType
+				let shouldMergeDraft = false
+				let draftToMerge = null
+
+				if (userType === 'Recruiter') {
+					// For recruiters: only show approved pending drafts
+					if (studentJson.pendingDraft && studentJson.pendingDraft.profile_data && studentJson.pendingDraft.status === 'approved') {
+						shouldMergeDraft = true
+						draftToMerge = studentJson.pendingDraft
+					}
+				} else if (userType === 'Staff' || userType === 'Admin') {
+					// For staff/admin: show pending draft if it's in review workflow
+					if (studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
+						if (['submitted', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
+							shouldMergeDraft = true
+							draftToMerge = studentJson.pendingDraft
+						}
+					}
+				} else {
+					// For other users (Student viewing their own, or Guest): use draft version
+					if (studentJson.draft && studentJson.draft.profile_data && studentJson.draft.status !== 'draft') {
+						shouldMergeDraft = true
+						draftToMerge = studentJson.draft
+					}
+				}
+
+				// Merge draft data if conditions are met
+				if (shouldMergeDraft && draftToMerge) {
+					const draftData = draftToMerge.profile_data
 					const fieldsToMerge = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'hobbies_description', 'special_skills_description', 'other_information', 'it_skills', 'skills']
 					fieldsToMerge.forEach(field => {
 						if (draftData[field] !== undefined) {
@@ -437,6 +471,7 @@ class StudentService {
 						}
 					})
 				}
+
 				return studentJson
 			})
 

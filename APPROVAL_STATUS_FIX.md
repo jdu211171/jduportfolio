@@ -7,11 +7,13 @@
 ### Observed Behavior
 
 **Working Path** (status updated correctly):
+
 - Navigate to `/checkprofile` (プロフィール確認 page)
 - Click on a student row in the table
 - Status automatically updates to 確認中
 
 **Broken Path** (status NOT updated):
+
 - Receive notification about draft submission
 - Click on notification link
 - Navigate to `/checkprofile/profile/{studentId}/top`
@@ -22,11 +24,13 @@
 The auto-update logic for changing status to "checking" existed in two places in `Top.jsx`:
 
 1. **`handleStateData()`** (lines 474-490)
+
    - Called when navigating WITH state data
    - Used when clicking from `/checkprofile` table
    - ✅ Had auto-update logic
 
 2. **`fetchDraftData()`** (lines 553-570)
+
    - Called for Student role without state data
    - ✅ Had auto-update logic
 
@@ -38,6 +42,7 @@ The auto-update logic for changing status to "checking" existed in two places in
 ### Code Path Comparison
 
 **Via /checkprofile table**:
+
 ```
 Click student row
   → navigate with state: { student: {...} }
@@ -47,6 +52,7 @@ Click student row
 ```
 
 **Via notification**:
+
 ```
 Click notification
   → navigate to URL /checkprofile/profile/{id}/top
@@ -66,29 +72,30 @@ Added the same auto-update logic to `fetchStudentData()` function to ensure cons
 **Location**: Lines 619-641 (after `setCurrentPending()`)
 
 **Added**:
+
 ```javascript
 // Set current pending for staff comment display
 if (pendingData) {
-    setCurrentPending(pendingData)
+	setCurrentPending(pendingData)
 
-    // Auto-update to 'checking' status and bind reviewer when staff views submitted draft
-    if (role === 'Staff' && pendingData.status === 'submitted') {
-        const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
-        if (staffId) {
-            try {
-                await axios.put(`/api/draft/status/${pendingData.id}`, {
-                    status: 'checking',
-                    reviewed_by: staffId,
-                })
-                // Update local state
-                pendingData.status = 'checking'
-                pendingData.reviewed_by = staffId
-                setCurrentPending({ ...pendingData })
-            } catch (error) {
-                console.error('Failed to auto-update draft status:', error)
-            }
-        }
-    }
+	// Auto-update to 'checking' status and bind reviewer when staff views submitted draft
+	if (role === 'Staff' && pendingData.status === 'submitted') {
+		const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+		if (staffId) {
+			try {
+				await axios.put(`/api/draft/status/${pendingData.id}`, {
+					status: 'checking',
+					reviewed_by: staffId,
+				})
+				// Update local state
+				pendingData.status = 'checking'
+				pendingData.reviewed_by = staffId
+				setCurrentPending({ ...pendingData })
+			} catch (error) {
+				console.error('Failed to auto-update draft status:', error)
+			}
+		}
+	}
 }
 ```
 
@@ -106,12 +113,14 @@ if (pendingData) {
 After this fix, both navigation paths now work consistently:
 
 ### Test Case 1: Via /checkprofile Table
+
 - ✅ Navigate to `/checkprofile`
 - ✅ Click student row
 - ✅ Status updates to 確認中
 - ✅ Reviewer is bound to staff member
 
 ### Test Case 2: Via Notification
+
 - ✅ Click notification link
 - ✅ Navigate to `/checkprofile/profile/{studentId}/top`
 - ✅ Status updates to 確認中 ← **NOW FIXED**
@@ -127,6 +136,7 @@ After this fix, both navigation paths now work consistently:
 ## Technical Details
 
 ### API Call
+
 ```javascript
 PUT /api/draft/status/:id
 Body: {
@@ -136,11 +146,13 @@ Body: {
 ```
 
 ### State Updates
+
 - `pendingData.status` → 'checking'
 - `pendingData.reviewed_by` → staffId
 - `currentPending` state refreshed with updated data
 
 ### Error Handling
+
 - Try/catch block prevents failures from breaking the UI
 - Error logged to console for debugging
 - User experience continues even if API call fails
@@ -177,11 +189,13 @@ Body: {
 ### Potential Improvements
 
 1. **Centralize Logic**: Extract auto-update logic to a shared function
+
    - Reduces code duplication
    - Easier to maintain
    - Single source of truth
 
 2. **Loading Indicator**: Show brief indicator when updating status
+
    - Better user feedback
    - Clear that action is happening
 
@@ -190,28 +204,30 @@ Body: {
    - Revert on error
 
 ### Example Centralized Function
+
 ```javascript
 const autoUpdateDraftStatus = async (draft, role) => {
-  if (role === 'Staff' && draft?.status === 'submitted') {
-    const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
-    if (staffId) {
-      try {
-        await axios.put(`/api/draft/status/${draft.id}`, {
-          status: 'checking',
-          reviewed_by: staffId,
-        })
-        return { ...draft, status: 'checking', reviewed_by: staffId }
-      } catch (error) {
-        console.error('Failed to auto-update draft status:', error)
-        return draft
-      }
-    }
-  }
-  return draft
+	if (role === 'Staff' && draft?.status === 'submitted') {
+		const staffId = JSON.parse(sessionStorage.getItem('loginUser'))?.id
+		if (staffId) {
+			try {
+				await axios.put(`/api/draft/status/${draft.id}`, {
+					status: 'checking',
+					reviewed_by: staffId,
+				})
+				return { ...draft, status: 'checking', reviewed_by: staffId }
+			} catch (error) {
+				console.error('Failed to auto-update draft status:', error)
+				return draft
+			}
+		}
+	}
+	return draft
 }
 ```
 
 Usage:
+
 ```javascript
 // In handleStateData()
 const updatedDraft = await autoUpdateDraftStatus(statedata.draft, role)
@@ -231,6 +247,7 @@ This refactoring is optional and can be done in a future iteration if desired.
 ## Conclusion
 
 The fix ensures that 承認状況 (approval status) is consistently updated to 確認中 (in review) when staff views a submitted draft, regardless of whether they navigate via:
+
 - The `/checkprofile` table
 - A notification link
 - Any other entry point
