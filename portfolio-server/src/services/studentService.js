@@ -241,6 +241,7 @@ class StudentService {
 
 	static async getAllStudents(filter, recruiterId, onlyBookmarked, userType, sortOptions = {}) {
 		try {
+			const normalizedUserType = (userType || '').toLowerCase()
 			// 1. FILTRLASH MANTIG'I (o'zgarishsiz qoladi)
 			const semesterMapping = {
 				'1年生': ['1', '2'],
@@ -370,7 +371,7 @@ class StudentService {
 			})
 
 			query[Op.and] = [querySearch, queryOther, { active: true }]
-			if (userType === 'Recruiter') {
+			if (normalizedUserType === 'recruiter') {
 				query[Op.and].push({ visibility: true })
 			}
 			if (onlyBookmarked === 'true' && recruiterId) {
@@ -554,6 +555,11 @@ class StudentService {
 				throw new Error('Student not found')
 			}
 
+			const normalizedRole = (requesterRole || '').toLowerCase()
+			if (normalizedRole === 'recruiter' && student.visibility !== true) {
+				throw new Error('Student not found')
+			}
+
 			// Convert to JSON
 			const studentJson = student.toJSON()
 
@@ -562,7 +568,7 @@ class StudentService {
 			let draftToMerge = null
 
 			// For Staff/Admin viewing: use pending draft if available and submitted for review
-			if ((requesterRole === 'Staff' || requesterRole === 'Admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
+			if ((normalizedRole === 'staff' || normalizedRole === 'admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
 				if (['submitted', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
 					shouldMergeDraft = true
 					draftToMerge = studentJson.pendingDraft
@@ -570,7 +576,7 @@ class StudentService {
 				}
 			}
 			// For Student viewing their own profile: use draft version
-			else if (requesterRole === 'Student' && requesterId && student.id === requesterId && studentJson.draft && studentJson.draft.profile_data) {
+			else if (normalizedRole === 'student' && requesterId && student.id === requesterId && studentJson.draft && studentJson.draft.profile_data) {
 				shouldMergeDraft = true
 				draftToMerge = studentJson.draft
 			}
@@ -905,9 +911,10 @@ class StudentService {
 	}
 
 	// Get student IDs for autocomplete
-	static async getStudentIds(search = '') {
+	static async getStudentIds(search = '', requesterRole = null) {
 		try {
 			const { Op } = require('sequelize')
+			const normalizedRole = (requesterRole || '').toLowerCase()
 			const whereClause = search
 				? {
 						[Op.or]: [
@@ -919,6 +926,11 @@ class StudentService {
 						active: true,
 					}
 				: { active: true }
+
+			// Recruiters should only see public (visible) student IDs
+			if (normalizedRole === 'recruiter') {
+				whereClause.visibility = true
+			}
 
 			const students = await Student.findAll({
 				where: whereClause,
