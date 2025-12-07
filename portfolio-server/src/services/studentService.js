@@ -372,6 +372,16 @@ class StudentService {
 			query[Op.and] = [querySearch, queryOther, { active: true }]
 			if (userType === 'Recruiter') {
 				query[Op.and].push({ visibility: true })
+				// Only show students with approved pending drafts
+				query[Op.and].push(
+					sequelize.literal(`EXISTS (
+						SELECT 1 
+						FROM "Drafts" 
+						WHERE "Drafts"."student_id" = "Student"."student_id" 
+						AND "Drafts"."version_type" = 'pending' 
+						AND "Drafts"."status" = 'approved'
+					)`)
+				)
 			}
 			if (onlyBookmarked === 'true' && recruiterId) {
 				query[Op.and].push(sequelize.literal(`EXISTS (SELECT 1 FROM "Bookmarks" AS "Bookmark" WHERE "Bookmark"."studentId" = "Student"."id" AND "Bookmark"."recruiterId" = ${sequelize.escape(recruiterId)})`))
