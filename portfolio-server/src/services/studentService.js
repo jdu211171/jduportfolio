@@ -441,7 +441,7 @@ class StudentService {
 				return studentJson
 			})
 
-			return normalizedUserType === 'recruiter' ? studentsWithDraftData.filter(s => s.visibility === true) : studentsWithDraftData
+			return studentsWithDraftData
 		} catch (error) {
 			console.error('Error in getAllStudents:', error.message, error.stack)
 			return []
