@@ -241,6 +241,7 @@ class StudentService {
 
 	static async getAllStudents(filter, recruiterId, onlyBookmarked, userType, sortOptions = {}) {
 		try {
+			const normalizedUserType = (userType || '').toLowerCase()
 			// 1. FILTRLASH MANTIG'I (o'zgarishsiz qoladi)
 			const semesterMapping = {
 				'1年生': ['1', '2'],
@@ -370,7 +371,7 @@ class StudentService {
 			})
 
 			query[Op.and] = [querySearch, queryOther, { active: true }]
-			if (userType === 'Recruiter') {
+			if (normalizedUserType === 'recruiter') {
 				query[Op.and].push({ visibility: true })
 			}
 			if (onlyBookmarked === 'true' && recruiterId) {
@@ -440,7 +441,7 @@ class StudentService {
 				return studentJson
 			})
 
-			return studentsWithDraftData
+			return normalizedUserType === 'recruiter' ? studentsWithDraftData.filter(s => s.visibility === true) : studentsWithDraftData
 		} catch (error) {
 			console.error('Error in getAllStudents:', error.message, error.stack)
 			return []
@@ -551,6 +552,11 @@ class StudentService {
 			})
 
 			if (!student) {
+				throw new Error('Student not found')
+			}
+
+			const normalizedRole = (requesterRole || '').toLowerCase()
+			if (normalizedRole === 'recruiter' && student.visibility !== true) {
 				throw new Error('Student not found')
 			}
 
@@ -905,9 +911,10 @@ class StudentService {
 	}
 
 	// Get student IDs for autocomplete
-	static async getStudentIds(search = '') {
+	static async getStudentIds(search = '', requesterRole = null) {
 		try {
 			const { Op } = require('sequelize')
+			const normalizedRole = (requesterRole || '').toLowerCase()
 			const whereClause = search
 				? {
 						[Op.or]: [
@@ -919,6 +926,11 @@ class StudentService {
 						active: true,
 					}
 				: { active: true }
+
+			// Recruiters should only see public (visible) student IDs
+			if (normalizedRole === 'recruiter') {
+				whereClause.visibility = true
+			}
 
 			const students = await Student.findAll({
 				where: whereClause,
