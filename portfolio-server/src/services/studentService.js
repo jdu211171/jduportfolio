@@ -568,7 +568,7 @@ class StudentService {
 			let draftToMerge = null
 
 			// For Staff/Admin viewing: use pending draft if available and submitted for review
-			if ((requesterRole === 'Staff' || requesterRole === 'Admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
+			if ((normalizedRole === 'staff' || normalizedRole === 'admin') && studentJson.pendingDraft && studentJson.pendingDraft.profile_data) {
 				if (['submitted', 'approved', 'disapproved', 'resubmission_required'].includes(studentJson.pendingDraft.status)) {
 					shouldMergeDraft = true
 					draftToMerge = studentJson.pendingDraft
@@ -576,7 +576,7 @@ class StudentService {
 				}
 			}
 			// For Student viewing their own profile: use draft version
-			else if (requesterRole === 'Student' && requesterId && student.id === requesterId && studentJson.draft && studentJson.draft.profile_data) {
+			else if (normalizedRole === 'student' && requesterId && student.id === requesterId && studentJson.draft && studentJson.draft.profile_data) {
 				shouldMergeDraft = true
 				draftToMerge = studentJson.draft
 			}
