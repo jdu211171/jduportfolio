@@ -1,18 +1,18 @@
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined'
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
+import WindowIcon from '@mui/icons-material/Window'
 import { Button } from '@mui/material'
 import { debounce } from 'lodash'
 import PropTypes from 'prop-types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList as List } from 'react-window'
-import AppIcons from '../../assets/icons/apps-2-line.svg'
-import AppIconList from '../../assets/icons/list-unordered.svg'
 import SearchIcon from '../../assets/icons/search-line.svg'
 import { useLanguage } from '../../contexts/LanguageContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
 import style from './Filter.module.css'
 import { FilteredItems } from './FilteredItems'
-const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false, showFilteredItems = true }) => {
+const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode = 'grid', onViewModeChange, persistKey = 'filter-state', disableStudentIdSearch = false, showFilteredItems = true, showCardFormatButton = true }) => {
 	const { language } = useLanguage()
 	const t = key => translations[language][key] || key
 
@@ -547,7 +547,7 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 							<input type='text' value={localFilterState.search || ''} onChange={handleInputChange} onKeyDown={handleInputKeyDown} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder={t('search_placeholder') || '名前、ID、大学で学生を検索します...'} className={style.modernSearchInput} aria-label={t('search_filters')} autoComplete='off' />
 						</div>
 
-						{showSuggestions && (
+						{/* {showSuggestions && (
 							<div className={style.suggestionsDropdown}>
 								{suggestions.length > 0 ? (
 									<ul className={style.suggestionsList}>
@@ -564,7 +564,7 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 									<div className={style.noOptions}>{t('start_typing') || 'Start typing to see suggestions'}</div>
 								)}
 							</div>
-						)}
+						)} */}
 					</div>
 				</div>
 
@@ -573,10 +573,12 @@ const Filter = ({ fields, filterState, onFilterChange, onGridViewClick, viewMode
 				</button>
 
 				<div className={style.iconButtonsGroup}>
-					<button type='button' onClick={handleViewModeToggle} className={`${style.viewModeButton} ${viewMode === 'grid' ? style.active : ''}`} aria-label={viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'}>
-						<img src={viewMode === 'grid' ? AppIconList : AppIcons} alt={viewMode === 'grid' ? 'Grid View' : 'List View'} />
-					</button>
-					<Button type='button' variant={hasAnyValue(localFilterState) ? 'contained' : 'outlined'} onClick={handleFilterClick}>
+					{showCardFormatButton && (
+						<Button type='button' onClick={handleViewModeToggle} variant={viewMode === 'grid' ? 'outlined' : 'contained'} aria-label={viewMode === 'grid' ? 'Switch to List View' : 'Switch to Grid View'} sx={{ minWidth: '45px', padding: '8px', height: '43px' }}>
+							{viewMode === 'grid' ? <FormatListBulletedIcon /> : <WindowIcon />}
+						</Button>
+					)}
+					<Button type='button' variant={hasAnyValue(localFilterState) ? 'contained' : 'outlined'} onClick={handleFilterClick} sx={{ minWidth: '45px', padding: '8px', height: '43px' }}>
 						<FilterAltOutlinedIcon />
 					</Button>
 				</div>
