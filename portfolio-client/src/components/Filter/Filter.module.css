@@ -164,42 +164,6 @@
 	align-items: center;
 }
 
-/* Filter Button */
-.filterButton {
-	background-color: white;
-	border: 1px solid #e5e7eb;
-	border-radius: 8px;
-	padding: 10px;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	width: 44px;
-	height: 44px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.filterButton:hover {
-	background-color: #f3f4f6;
-	border-color: #d1d5db;
-}
-
-.filterButton:focus {
-	outline: 2px solid #6b46c1;
-	outline-offset: 2px;
-}
-
-.filterButton img {
-	width: 20px;
-	height: 20px;
-	opacity: 0.6;
-	transition: opacity 0.2s ease;
-}
-
-.filterButton:hover img {
-	opacity: 0.8;
-}
-
 /* View Mode Button */
 .viewModeButton {
 	background-color: white;

@@ -1,14 +1,14 @@
-import { useState, useContext, useEffect } from 'react'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material'
-import Table from '../../components/Table/Table'
 import Filter from '../../components/Filter/Filter'
+import Table from '../../components/Table/Table'
 
-import axios from '../../utils/axiosUtils'
 import { useAlert } from '../../contexts/AlertContext'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
+import axios from '../../utils/axiosUtils'
 
 const Student = ({ OnlyBookmarked = false }) => {
 	const { language } = useLanguage()
@@ -359,7 +359,7 @@ const Student = ({ OnlyBookmarked = false }) => {
 	return (
 		<div key={language}>
 			<Box sx={{ width: '100%', mb: 2 }}>
-				<Filter fields={filterProps} filterState={filterState} onFilterChange={handleFilterChange} disableStudentIdSearch={true} persistKey='drafts-filter-v1' />
+				<Filter fields={filterProps} filterState={filterState} onFilterChange={handleFilterChange} disableStudentIdSearch={true} persistKey='drafts-filter-v1' showCardFormatButton={false} />
 			</Box>
 			<Table tableProps={tableProps} updatedBookmark={updatedBookmark} />
 

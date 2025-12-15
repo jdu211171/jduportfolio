@@ -2,13 +2,14 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import { Button } from '@mui/material'
 import Cookies from 'js-cookie'
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/logo.png'
 import universityImage from '../../assets/university.png'
-import { LanguageSelect } from '../../components/languageSelector/LanguageSelect'
 import LanguageSelectionModal from '../../components/LanguageSelectionModal/LanguageSelectionModal'
+import { LanguageSelect } from '../../components/languageSelector/LanguageSelect'
 import { UserContext } from '../../contexts/UserContext'
 import translations from '../../locales/translations'
 import axios from '../../utils/axiosUtils'
@@ -67,7 +68,7 @@ const Login = () => {
 				navigate('/')
 			}
 		} catch (err) {
-			setError(err.response?.data?.error || 'Login failed')
+			setError((err.response?.status === 400 && 'login_failed') || 'Login failed')
 		}
 	}
 
@@ -156,11 +157,11 @@ const Login = () => {
 				<div className={styles['header-container']}>
 					<img src={logo} alt='Logo' width={80} height={80} />
 					<div className={styles['text-container']}>
-						<h2 style={{ textWrap: 'wrap' }}>{loginMode ? t('welcome') : t('forgotPassword')}</h2>
+						<h2 style={{ textWrap: 'wrap', textAlign: 'center' }}>{loginMode ? t('welcome') : t('forgotPassword')}</h2>
 						{!loginMode && <p>{t('resetPassword2')}</p>}
 					</div>
 				</div>
-				{error && <p style={{ color: 'red' }}>{error}</p>}
+				{error && <p style={{ color: 'red' }}>{t(error) || 'Login failed!'}</p>}
 				{info && <p style={{ color: 'green' }}>{info}</p>}
 				{loginMode ? (
 					<form onSubmit={handleLogin}>
@@ -205,40 +206,43 @@ const Login = () => {
 								</button>
 							</div>
 						</div>
-						<button type='submit' className={`${styles['button-custom']} ${styles['submit-button']}`}>
-							{t('loginLabel')}
-						</button>
-						<button
-							type='button'
-							className={`${styles['button-google-custom']}`}
-							onClick={() => {
-								window.location.href = '/api/auth/google'
-							}}
-						>
-							<img src='/google-icon.webp' alt='google-icon' width={23} />
-							Googleでログイン
-						</button>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+							<Button type='submit' variant='contained' style={{ width: '100%' }} disabled={isSubmitting}>
+								{t('loginLabel')}
+							</Button>
+							<Button
+								variant='outlined'
+								type='button'
+								style={{ width: '100%', fontSize: '14px' }}
+								onClick={() => {
+									window.location.href = '/api/auth/google'
+								}}
+							>
+								<img src='/google-icon.webp' alt='google-icon' width={25} />
+								Googleでログイン
+							</Button>
+						</div>
 					</form>
 				) : (
 					// Forgot Password mode
 					<form onSubmit={handleForgotPassword}>
-						<div className={styles['login-label']}>
-							<label style={{ fontWeight: 700 }}>{t('mailAddress')}</label>
-							<LanguageSelect />
-						</div>
 						<div className={styles['input-group']}>
-							<label>{t('email')}</label>
+							<label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+								{t('email')}
+								<LanguageSelect />
+							</label>
 							<div className={styles['input-icon']}>
 								<input type='email' placeholder={t('enterYourLogin')} value={email} onChange={e => setEmail(e.target.value)} required />
 							</div>
 						</div>
-						<div className={styles['button-group']}>
-							<button type='submit' className={`${styles['button-custom']} ${styles['submit-button']}`} disabled={isSubmitting || isCoolingDown}>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+							<Button variant='contained' type='submit' disabled={isSubmitting || isCoolingDown} style={{ width: '100%' }}>
 								{isSubmitting ? t('loading') : t('send')}
-							</button>
-							<button
+							</Button>
+							<Button
 								type='button'
-								className={`${styles['button-custom']} ${styles['back-button']}`}
+								variant='outlined'
+								style={{ width: '100%' }}
 								onClick={() => {
 									setLoginMode(true)
 									setError('')
@@ -246,7 +250,7 @@ const Login = () => {
 								}}
 							>
 								{t('back')}
-							</button>
+							</Button>
 						</div>
 					</form>
 				)}

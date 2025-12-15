@@ -22,12 +22,6 @@
 	gap: 20px;
 }
 
-.left-header {
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-}
-
 .text-container {
 	display: flex;
 	flex-direction: column;
@@ -194,13 +188,4 @@
 	.login-image {
 		display: none;
 	}
-}
-
-.login-label {
-	display: flex;
-	font-size: x-large;
-	font-weight: bold;
-	flex-direction: row;
-	justify-content: center;
-	gap: 1rem;
 }
