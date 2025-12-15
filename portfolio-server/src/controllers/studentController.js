@@ -11,7 +11,8 @@ class StudentController {
 	static async getStudentIds(req, res, next) {
 		try {
 			const { search } = req.query
-			const studentIds = await StudentService.getStudentIds(search)
+			const requesterRole = req.user?.userType || null
+			const studentIds = await StudentService.getStudentIds(search, requesterRole)
 			res.status(200).json(studentIds)
 		} catch (error) {
 			next(error)
