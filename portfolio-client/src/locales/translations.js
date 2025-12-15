@@ -540,6 +540,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		newsDetails: 'News details',
 		confirmMarkAllRead: 'Mark all news as read?',
 		allNewsMarkedRead: 'All news marked as read.',
+		login_failed: 'Login failed. Please check your email and password.',
+		no_data_found: 'No data found.',
 	},
 	ja: {
 		tagline: '一行PR',
@@ -1091,6 +1093,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		sort_required_first: '必須を優先',
 		add_required: '必須追加',
 		add_optional: '任意追加',
+		login_failed: 'ログインに失敗しました。メールアドレスとパスワードを確認してください。',
+		no_data_found: 'データが見つかりませんでした',
 	},
 	uz: {
 		tagline: 'Bir jumlalik PR',
@@ -1626,6 +1630,8 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		newsDetails: 'Yangilik tafsilotlari',
 		confirmMarkAllRead: 'Barcha yangiliklarni o‘qilgan deb belgilaysizmi?',
 		allNewsMarkedRead: 'Barcha yangiliklar o‘qilgan deb belgilandi.',
+		login_failed: 'Kirishda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.',
+		no_data_found: "Hech qanday ma'lumot topilmadi",
 	},
 	ru: {
 		rank: 'Ранг',
@@ -2132,6 +2138,8 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		apply: 'Применить',
 		noSkills: 'Нет доступных навыков.',
 		pleaseAnswerRequired: 'Пожалуйста, ответьте на все обязательные вопросы',
+		login_failed: 'Ошибка входа. Пожалуйста, проверьте свои учетные данные и попробуйте снова.',
+		no_data_found: 'Ничего не найдено',
 	},
 }
 
