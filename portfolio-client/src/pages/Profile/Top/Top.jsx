@@ -742,7 +742,7 @@ const Top = () => {
 	}
 
 	const mapData = data => {
-		const draftKeys = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'other_information', 'it_skills', 'skills', 'address', 'jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest', 'qa']
+		const draftKeys = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'other_information', 'it_skills', 'skills', 'address', 'jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest', 'qa', 'education', 'work_experience', 'licenses', 'additional_info', 'arubaito', 'address_furigana', 'postal_code']
 		return {
 			...data,
 			draft: draftKeys.reduce((acc, key) => {
@@ -1909,7 +1909,7 @@ const Top = () => {
 						console.log(editData)
 					}}
 				>
-					<WorkExperience workExperience={editData.work_experience} editMode={editMode} onUpdate={handleUpdateEditData} />
+					<WorkExperience workExperience={editData.draft?.work_experience} editMode={editMode} onUpdate={handleUpdateEditData} />
 				</Box>
 			)}
 			{/* Credits section is temporarily disabled */}
