@@ -60,7 +60,7 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 		}
 		console.log(updated)
 
-		onUpdate('workExperience', updated)
+		onUpdate('work_experience', updated)
 		resetForm()
 	}
 
