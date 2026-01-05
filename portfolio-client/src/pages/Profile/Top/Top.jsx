@@ -32,6 +32,7 @@ import { downloadCV } from '../../../lib/cv-download'
 import translations from '../../../locales/translations'
 import QA from '../../../pages/Profile/QA/QA'
 import axios from '../../../utils/axiosUtils'
+import { Education } from '../Education/Education'
 import WorkExperience from '../WorkExperience/WorkExperience'
 import styles from './Top.module.css'
 const Top = () => {
@@ -742,7 +743,7 @@ const Top = () => {
 	}
 
 	const mapData = data => {
-		const draftKeys = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'other_information', 'it_skills', 'skills', 'address', 'jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest', 'qa', 'education', 'work_experience', 'licenses', 'additional_info', 'arubaito', 'address_furigana', 'postal_code']
+		const draftKeys = ['deliverables', 'gallery', 'self_introduction', 'hobbies', 'other_information', 'it_skills', 'skills', 'address', 'jlpt', 'jdu_japanese_certification', 'japanese_speech_contest', 'it_contest', 'qa', 'education']
 		return {
 			...data,
 			draft: draftKeys.reduce((acc, key) => {
@@ -1063,6 +1064,7 @@ const Top = () => {
 			await handleUpdateEditData('deliverables', updatedDeliverables)
 
 			const studentIdToUse = student.student_id || id
+			console.log('tahsimlab olinayotgan editData:', editData)
 
 			const draftData = {
 				student_id: studentIdToUse,
@@ -1073,7 +1075,10 @@ const Top = () => {
 			}
 
 			// Always use PUT for upsert approach (backend uses PUT method)
+			console.log('yuborilayotgan editdata:', draftData)
+
 			const res = await axios.put(`/api/draft`, draftData)
+			console.log(res.data)
 
 			const savedDraft = res.data.draft || res.data
 			setCurrentDraft(savedDraft)
@@ -1279,7 +1284,7 @@ const Top = () => {
 					borderEndStartRadius: 10,
 				}}
 			>
-				{['selfIntroduction', 'skill', 'deliverables', 'education', 'workExperience', 'qa'].map((item, ind) => (
+				{['selfIntroduction', 'skill', 'deliverables', 'education', 'work_experience', 'qa'].map((item, ind) => (
 					<div
 						key={ind}
 						style={{
@@ -1902,14 +1907,14 @@ const Top = () => {
 					<Deliverables data={student.draft.deliverables} editMode={editMode} editData={editData.draft} updateEditData={handleUpdateEditData} onImageUpload={handleImageUpload} keyName='deliverables' resetPreviews={resetDeliverablePreviews} isChanged={role === 'Staff' && currentDraft?.changed_fields?.includes('deliverables')} studentId={student.student_id || id} />
 				</Box>
 			)}
-			{subTabIndex === 'workExperience' && (
-				<Box
-					my={2}
-					onClick={() => {
-						console.log(editData)
-					}}
-				>
-					<WorkExperience workExperience={editData.draft?.work_experience} editMode={editMode} onUpdate={handleUpdateEditData} />
+			{subTabIndex === 'education' && (
+				<Box my={2}>
+					<Education education={viewingLive ? liveData?.education || [] : editMode ? editData.draft.education || [] : currentDraft.profile_data.education || []} editMode={editMode} onUpdate={handleUpdateEditData} t={t} />
+				</Box>
+			)}
+			{subTabIndex === 'work_experience' && (
+				<Box my={2}>
+					<WorkExperience workExperience={viewingLive ? liveData?.work_experience || [] : editMode ? editData.draft.work_experience || [] : currentDraft.profile_data.work_experience || []} editMode={editMode} onUpdate={handleUpdateEditData} t={t} editData={editData} />
 				</Box>
 			)}
 			{/* Credits section is temporarily disabled */}

@@ -542,6 +542,8 @@ Please make sure that your profile does not fall under any of the prohibited act
 		allNewsMarkedRead: 'All news marked as read.',
 		login_failed: 'Login failed. Please check your email and password.',
 		no_data_found: 'No data found.',
+
+		education: 'Education',
 	},
 	ja: {
 		tagline: '一行PR',
@@ -1095,6 +1097,7 @@ Please make sure that your profile does not fall under any of the prohibited act
 		add_optional: '任意追加',
 		login_failed: 'ログインに失敗しました。メールアドレスとパスワードを確認してください。',
 		no_data_found: 'データが見つかりませんでした',
+		education: '学歴',
 	},
 	uz: {
 		tagline: 'Bir jumlalik PR',
@@ -1632,6 +1635,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		allNewsMarkedRead: 'Barcha yangiliklar o‘qilgan deb belgilandi.',
 		login_failed: 'Kirishda xatolik yuz berdi. Iltimos, qayta urinib ko‘ring.',
 		no_data_found: "Hech qanday ma'lumot topilmadi",
+		education: "Ta'lim",
 	},
 	ru: {
 		rank: 'Ранг',
@@ -2140,6 +2144,7 @@ Iltimos, profilingiz mazmuni va boshqa maʼlumotlar quyidagi taqiqlangan harakat
 		pleaseAnswerRequired: 'Пожалуйста, ответьте на все обязательные вопросы',
 		login_failed: 'Ошибка входа. Пожалуйста, проверьте свои учетные данные и попробуйте снова.',
 		no_data_found: 'Ничего не найдено',
+		education: 'Образование',
 	},
 }
 

@@ -1,66 +1,69 @@
 import { Delete as DeleteIcon, Edit as EditIcon, MoreVert as MoreVertIcon } from '@mui/icons-material'
 import AddIcon from '@mui/icons-material/Add'
-import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined'
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined'
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Menu, MenuItem, TextField, Typography } from '@mui/material'
 import * as React from 'react'
 import { useState } from 'react'
-const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = key => key, editData = [] }) => {
+export const Education = ({ education = [], onUpdate, editMode, t = key => key }) => {
 	const [editingIndex, setEditingIndex] = useState(null)
 	const [showForm, setShowForm] = useState(false)
 	const [formData, setFormData] = useState({
-		company: '',
-		role: '',
-		details: '',
-		from: '',
-		to: '',
+		year: '',
+		month: '',
+		status: '',
+		institution: '',
 	})
 	const [anchorEl, setAnchorEl] = React.useState(null)
-	const open = Boolean(anchorEl)
-	const handleClick = event => {
+	const [currentMenuIndex, setCurrentMenuIndex] = React.useState(null)
+
+	const handleClick = (event, index) => {
 		setAnchorEl(event.currentTarget)
+		setCurrentMenuIndex(index)
 	}
+
 	const handleClose = () => {
 		setAnchorEl(null)
+		setCurrentMenuIndex(null)
 	}
+
 	const resetForm = () => {
 		setFormData({
-			company: '',
-			role: '',
-			details: '',
-			from: '',
-			to: '',
+			year: '',
+			month: '',
+			status: '',
+			institution: '',
 		})
 		setEditingIndex(null)
 		setShowForm(false)
 	}
 
 	const handleEdit = index => {
-		const item = workExperience[index]
+		const item = education[index]
 		setFormData({ ...item })
 		setEditingIndex(index)
 		setShowForm(true)
+		handleClose()
 	}
 
 	const handleDelete = index => {
-		const updated = workExperience.filter((_, i) => i !== index)
-		onUpdate('work_experience', updated)
+		const updated = education.filter((_, i) => i !== index)
+		onUpdate('education', updated)
+		handleClose()
 	}
 
 	const handleSubmit = () => {
-		if (!formData.company || !formData.from) return
+		if (!formData.year || !formData.institution) return
 
 		let updated
 		if (editingIndex !== null) {
-			// Edit existing
-			updated = [...workExperience]
+			updated = [...education]
 			updated[editingIndex] = { ...formData }
 		} else {
-			// Add new
-			updated = [...workExperience, { ...formData }]
+			updated = [...education, { ...formData }]
 		}
 		console.log(updated)
 
-		onUpdate('work_experience', updated)
+		onUpdate('education', updated)
 		resetForm()
 	}
 
@@ -68,7 +71,6 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 		resetForm()
 		setShowForm(true)
 	}
-
 	return (
 		<Box>
 			<div
@@ -81,8 +83,9 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 					marginBottom: 20,
 				}}
 			>
-				<BusinessCenterOutlinedIcon sx={{ color: '#5627DB' }} />
-				{t('work_experience')}
+				<SchoolOutlinedIcon sx={{ color: '#5627DB' }} />
+				{t('education')}
+
 				{editMode && (
 					<Button startIcon={<AddIcon />} variant='outlined' size='small' onClick={handleAdd} sx={{ ml: 2 }}>
 						{t('add')}
@@ -91,11 +94,11 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 			</div>
 
 			<div>
-				{workExperience && workExperience.length > 0 ? (
+				{education && education.length > 0 ? (
 					<Box display='flex' flexDirection='column' gap={2}>
-						{workExperience.map((item, index) => (
+						{education.map((item, index) => (
 							<Box
-								key={`${item.company || 'company'}-${index}`}
+								key={`${item.institution || 'institution'}-${index}`}
 								display='flex'
 								flexDirection={{ xs: 'column', sm: 'row' }}
 								justifyContent='space-between'
@@ -111,30 +114,26 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 							>
 								<Box flex={1}>
 									<Typography variant='subtitle1' sx={{ fontWeight: 700 }}>
-										{item.company}
+										{item.institution}
 									</Typography>
-									{item.role && (
+									{item.status && (
 										<Typography variant='body2' color='text.secondary' sx={{ mt: 0.5 }}>
-											{item.role}
-										</Typography>
-									)}
-									{item.details && (
-										<Typography variant='body2' sx={{ mt: 1 }}>
-											{item.details}
+											{item.status}
 										</Typography>
 									)}
 								</Box>
 
 								<Box display='flex' alignItems='center' gap={1} mt={{ xs: 1, sm: 0 }}>
 									<Typography variant='body2' color='text.secondary'>
-										{item.from} — {item.to || t('present') || 'Present'}
+										{item.year}
+										{item.month && ` / ${item.month}`}
 									</Typography>
 									{editMode && (
 										<>
-											<IconButton id='basic-button' aria-controls={open ? 'basic-menu' : undefined} aria-haspopup='true' aria-expanded={open ? 'true' : undefined} onClick={handleClick}>
+											<IconButton onClick={e => handleClick(e, index)} aria-controls={currentMenuIndex === index ? 'education-menu' : undefined} aria-haspopup='true' aria-expanded={currentMenuIndex === index ? 'true' : undefined}>
 												<MoreVertIcon />
 											</IconButton>
-											<Menu id='basic-menu' anchorEl={anchorEl} open={open} onClose={handleClose}>
+											<Menu id='education-menu' anchorEl={anchorEl} open={currentMenuIndex === index} onClose={handleClose}>
 												<MenuItem onClick={() => handleEdit(index)}>
 													<EditIcon sx={{ mr: 1 }} />
 													Edit
@@ -151,28 +150,27 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 						))}
 					</Box>
 				) : (
-					<Typography color='text.secondary'>sizda hali work experience yo`q</Typography>
+					<Typography color='text.secondary'>{t('no_education') || 'No education records yet'}</Typography>
 				)}
 			</div>
 
-			{/* Work Experience Form Dialog */}
+			{/* Education Form Dialog */}
 			<Dialog open={showForm} onClose={resetForm} maxWidth='sm' fullWidth>
-				<DialogTitle>{editingIndex !== null ? 'Edit Work Experience' : 'Add Work Experience'}</DialogTitle>
+				<DialogTitle>{editingIndex !== null ? t('edit_education') || 'Edit Education' : t('add_education') || 'Add Education'}</DialogTitle>
 				<DialogContent>
 					<Box display='flex' flexDirection='column' gap={2} mt={1}>
-						<TextField label='Company' value={formData.company} onChange={e => setFormData(prev => ({ ...prev, company: e.target.value }))} required fullWidth />
-						<TextField label='Role/Position' value={formData.role} onChange={e => setFormData(prev => ({ ...prev, role: e.target.value }))} fullWidth />
-						<TextField label='Description' value={formData.details} onChange={e => setFormData(prev => ({ ...prev, details: e.target.value }))} multiline rows={3} fullWidth />
+						<TextField label={t('institution') || 'Institution'} value={formData.institution} onChange={e => setFormData(prev => ({ ...prev, institution: e.target.value }))} required fullWidth placeholder='e.g. Tokyo University' />
+						<TextField label={t('status') || 'Status'} value={formData.status} onChange={e => setFormData(prev => ({ ...prev, status: e.target.value }))} fullWidth placeholder='e.g. Graduated, Enrolled' />
 						<Box display='flex' gap={2}>
-							<TextField label='From (YYYY-MM)' value={formData.from} onChange={e => setFormData(prev => ({ ...prev, from: e.target.value }))} placeholder='2023-01' required fullWidth />
-							<TextField label='To (YYYY-MM)' value={formData.to} onChange={e => setFormData(prev => ({ ...prev, to: e.target.value }))} placeholder='2024-01 or leave empty' fullWidth />
+							<TextField label={t('year') || 'Year'} value={formData.year} onChange={e => setFormData(prev => ({ ...prev, year: e.target.value }))} placeholder='2023' required fullWidth />
+							<TextField label={t('month') || 'Month'} value={formData.month} onChange={e => setFormData(prev => ({ ...prev, month: e.target.value }))} placeholder='03 (optional)' fullWidth />
 						</Box>
 					</Box>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={resetForm}>Cancel</Button>
-					<Button onClick={handleSubmit} variant='contained' disabled={!formData.company || !formData.from}>
-						{editingIndex !== null ? 'Update' : 'Add'}
+					<Button onClick={resetForm}>{t('cancel') || 'Cancel'}</Button>
+					<Button onClick={handleSubmit} variant='contained' disabled={!formData.institution || !formData.year}>
+						{editingIndex !== null ? t('update') || 'Update' : t('add') || 'Add'}
 					</Button>
 				</DialogActions>
 			</Dialog>
@@ -181,5 +179,3 @@ const WorkExperience = ({ workExperience = [], editMode = false, onUpdate, t = k
 		</Box>
 	)
 }
-
-export default WorkExperience
