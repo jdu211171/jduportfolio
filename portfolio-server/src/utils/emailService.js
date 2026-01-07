@@ -1,11 +1,10 @@
 // src/utils/emailService.js
 
-// O'ZGARISH: SESClient bilan birga `SendRawEmailCommand` ham import qilinadi
-const { SESClient, SendRawEmailCommand } = require('@aws-sdk/client-ses')
+const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2')
 const nodemailer = require('nodemailer')
 
-// 1. AWS SES Klientini sozlash (bu qism o'zgarishsiz qoladi)
-const sesClient = new SESClient({
+// 1. AWS SES v2 Klientini sozlash
+const ses = new SESv2Client({
 	region: process.env.AWS_SES_REGION,
 	credentials: {
 		accessKeyId: process.env.AWS_SES_ACCESS_KEY,
@@ -13,10 +12,9 @@ const sesClient = new SESClient({
 	},
 })
 
-// 2. Nodemailer transportini AWS SES bilan bog'lash
+// 2. Nodemailer transportini AWS SES v2 bilan bog'lash
 const transporter = nodemailer.createTransport({
-	// O'ZGARISH: `aws` obyekti ichiga `SendRawEmailCommand` ni qo'shamiz
-	SES: { ses: sesClient, aws: { SendRawEmailCommand } },
+	SES: { ses, aws: { SendEmailCommand } },
 	sendingRate: 14, // AWS limitiga mos ravishda sekundiga 14 ta email
 })
 
