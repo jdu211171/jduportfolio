@@ -158,11 +158,9 @@ jobs:
           fi
           git reset --hard origin/main
 
-          echo "=> Clean and install backend dependencies"
-          rm -rf node_modules package-lock.json
+          echo "=> Install backend dependencies"
           npm install --include=dev
           cd portfolio-server
-          rm -rf node_modules package-lock.json
           npm install --include=dev
 
           echo "=> Backup production database before migrations"
