@@ -1,4 +1,5 @@
 // src/utils/emailService.js
+// Email service using AWS SES v1 API with nodemailer v6.9.0
 
 const { SES } = require('@aws-sdk/client-ses')
 const nodemailer = require('nodemailer')
