@@ -1,10 +1,10 @@
 // src/utils/emailService.js
 
-const { SESv2Client, SendEmailCommand } = require('@aws-sdk/client-sesv2')
+const { SES } = require('@aws-sdk/client-ses')
 const nodemailer = require('nodemailer')
 
-// 1. AWS SES v2 Klientini sozlash
-const ses = new SESv2Client({
+// 1. AWS SES Klientini sozlash
+const ses = new SES({
 	region: process.env.AWS_SES_REGION,
 	credentials: {
 		accessKeyId: process.env.AWS_SES_ACCESS_KEY,
@@ -12,9 +12,9 @@ const ses = new SESv2Client({
 	},
 })
 
-// 2. Nodemailer transportini AWS SES v2 bilan bog'lash
+// 2. Nodemailer transportini AWS SES bilan bog'lash
 const transporter = nodemailer.createTransport({
-	SES: { ses, aws: { SendEmailCommand } },
+	SES: { ses, aws: require('@aws-sdk/client-ses') },
 	sendingRate: 14, // AWS limitiga mos ravishda sekundiga 14 ta email
 })
 
