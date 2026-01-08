@@ -205,14 +205,3 @@ export const downloadCV = async cvData => {
 	const buffer = await workbook.xlsx.writeBuffer()
 	saveAs(new Blob([buffer]), `${cvData.first_name}-CV.xlsx`)
 }
-
-const ari = [
-	{
-		period: '2020年4月～2021年3月',
-		company: '株式会社サンプル',
-		role: '販売スタッフ',
-		// details: '販売スタッフとして勤務',
-		description: '主に接客とレジ業務を担当しました。',
-		technologies: ['git', 'html', 'css', 'javascript'],
-	},
-]
